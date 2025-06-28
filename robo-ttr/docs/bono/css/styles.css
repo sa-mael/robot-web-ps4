@@ -307,3 +307,77 @@ main {
   text-align: center;
   line-height: 1.5;
 }
+/* /bono/css/styles.css */
+
+/* ABOUT US SECTION */
+.about-us {
+  text-align: center;
+  padding: 60px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.about-us h2 {
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+.about-divider {
+  rotate: -90deg;
+  width: 100px;
+  height: 4px;
+  background: #444;
+  margin: 0 auto 40px;
+  position: relative;
+  top: 100px;
+}
+.about-content {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+.about-left,
+.about-right {
+  flex: 1;
+  color: #ddd;
+  font-size: 16px;
+  line-height: 1.6;
+  text-align: left;
+}
+@media (max-width: 768px) {
+  .about-content { flex-direction: column; }
+  .about-left, .about-right { text-align: center; }
+}
+
+/* GALLERY */
+.about-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
+.about-gallery img {
+  flex: 1 1 calc(33.333% - 16px);
+  max-width: calc(33.333% - 16px);
+  height: auto;
+  border-radius: 8px;
+}
+@media (max-width: 768px) {
+  .about-gallery img {
+    flex: 1 1 calc(50% - 16px);
+    max-width: calc(50% - 16px);
+  }
+}
+@media (max-width: 480px) {
+  .about-gallery img {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+}
+/* Add to /bono/css/styles.css */
+
+.transition-block {
+    
+    width: 100%;
+    height: 20vh;
+    background: linear-gradient(to bottom, rgb(23 23 23) 0%, rgb(31 31 31) 100%);
+    pointer-events: none;
+}

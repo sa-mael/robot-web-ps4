@@ -10,7 +10,32 @@
   <script src="../bono/js/main.js" defer></script>
 </head>
 <body>
-  <header class="site-header">...same as index...</header>
+  
+  <header class="site-header">
+    <div class="circle-blink-container"></div>
+    <div class="header-inner">
+      <!-- In your HTML, inside the .logo-shell div: -->
+<div class="logo-shell">
+  <a href="i.html">
+    <!-- Adjust the path to point at your local file -->
+    <img src="../bono/images/logo-ttr-wh.png" alt="RoboInvest Logo" class="logo-img"/>
+  </a>
+</div>
+     
+      <nav class="main-nav">
+        <ul>
+           <li><a href="main.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="investors.html">Investors</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="search">
+        <input type="search" placeholder="Search products...">
+      </div>
+    </div>
+  </header>
   <main class="container">
     <h1>Investment Opportunity</h1>
     <section class="visual-presentation">
@@ -20,7 +45,7 @@
         <p>Our robot moves on four legs at high speed, ensuring stability on rough terrain.</p>
       </div>
       <div class="feature-card">
-        <img src="../bono/images/ps4-icon.svg" alt="PS4 Control Icon">
+        <img src="../bono/images/ps4.pn" alt="PS4 Control Icon">
         <h3>PS4 Control</h3>
         <p>Operate seamlessly via PS4 controller with low-latency wireless connection.</p>
       </div>
@@ -36,16 +61,43 @@
       </div>
     </section>
   </main>
-  <footer class="site-footer">
-    <nav class="main-nav">
+ <footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-section">
+      <h4>Core Features</h4>
       <ul>
-        <li><a href="main.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="technology.html">Technology</a></li>
-        <li><a href="investors.html">Investors</a></li>
-        <li><a href="contact.html">Contact</a></li>
+        <li><a href="#">Quadruped Locomotion</a></li>
+        <li><a href="#">PS4 Remote Control</a></li>
+        <li><a href="#">Autonomous Path Memory</a></li>
       </ul>
-    </nav>
-    ...same as index...</footer>
+    </div>
+    <div class="footer-section">
+      <h4>Applications</h4>
+      <ul>
+        <li><a href="#">Geological Mapping</a></li>
+        <li><a href="#">Search & Rescue</a></li>
+        <li><a href="#">Archaeological Survey</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="#">Documentation</a></li>
+        <li><a href="#">API Reference</a></li>
+        <li><a href="#">Community Forum</a></li>
+      </ul>
+    </div>
+    <div class="footer-section social">
+      <h4>Connect</h4>
+      <a href="#" class="social-icon">🐦</a>
+      <a href="#" class="social-icon">📘</a>
+      <a href="#" class="social-icon">🔗</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 RoboInvest Inc. — All Rights Reserved.</p>
+  </div>
+</footer>
+
 </body>
 </html>
