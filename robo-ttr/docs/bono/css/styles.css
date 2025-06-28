@@ -317,8 +317,8 @@ main {
   margin: 0 auto;
 }
 .about-us h2 {
-  font-size: 32px;
-  margin-bottom: 16px;
+  font-size: 44px;
+  margin-bottom: 0px;
 }
 .about-divider {
   rotate: -90deg;
