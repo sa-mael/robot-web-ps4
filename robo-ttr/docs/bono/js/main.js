@@ -53,3 +53,22 @@ window.addEventListener('DOMContentLoaded', () => {
     if (e.target === modal) modal.classList.remove('active');
   });
 });
+
+/* 2) Style it in /bono/css/styles.css */
+.scroll-btn {
+  margin: 40px auto 0;
+  display: inline-block;
+  padding: 12px 24px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.scroll-btn:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+}
