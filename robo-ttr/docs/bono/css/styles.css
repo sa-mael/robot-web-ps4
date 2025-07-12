@@ -56,18 +56,19 @@ ul { list-style: none; }
 /* /bono/css/styles.css */
 
 .hero {
-  /* Set your photo as a full-page background */
-  background-image: url('../images/robo-5_26_25.png');
-  background-size: cover;       /* Fill entire area */
-  background-position: center;  /* Center the image */
-  background-repeat: no-repeat; /* Don’t tile */
-  
-  /* Keep existing layout */
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  background-image: url(../images/robo-5_26_25.png);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    align-content: stretch;
+    justify-content: space-evenly;
+    flex-direction: column;
+    margin: 0% 0%;
 }
 .hero-2 {
   /* Set your photo as a full-page background */
@@ -75,7 +76,6 @@ ul { list-style: none; }
   background-size: cover;       /* Fill entire area */
   background-position: center;  /* Center the image */
   background-repeat: no-repeat; /* Don’t tile */
-  
   /* Keep existing layout */
   height: 100vh;
   display: flex;

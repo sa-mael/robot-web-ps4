@@ -18,6 +18,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 
+// /bono/js/main.js
 window.addEventListener('DOMContentLoaded', () => {
   const stepInfo = {
     1: '🚀 Deploy the robot rapidly on-site, ready for immediate operation.',
@@ -27,30 +28,33 @@ window.addEventListener('DOMContentLoaded', () => {
     5: '🆘 Gather data & assist in search-and-rescue missions safely.'
   };
 
+  // Try to grab the modal – if it doesn't exist, skip all modal logic
   const modal = document.getElementById('step-modal');
+  if (!modal) {
+    console.warn('No #step-modal in DOM – skipping step popups');
+    return;
+  }
   const modalText = document.getElementById('modal-step-text');
-  const closeBtn = modal.querySelector('.modal-close');
+  const closeBtn  = modal.querySelector('.modal-close');
+  if (!modalText || !closeBtn) {
+    console.error('Modal structure incomplete (missing .modal-close or #modal-step-text)');
+    return;
+  }
 
+  // Bind clicks on each step
   document.querySelectorAll('.step').forEach(stepEl => {
     stepEl.addEventListener('click', () => {
       const id = stepEl.dataset.step;
-      // Сначала очищаем предыдущий текст
-      modalText.innerHTML = '';
-
-      // Берём новое описание (если нет, пишем «No info»)
-      const info = stepInfo[id] || 'No information available for this step.';
-      // Можно вставлять HTML, поэтому используем innerHTML
-      modalText.innerHTML = `<p>${info}</p>`;
-
-      // Показываем модалку
+      modalText.innerHTML = `<p>${stepInfo[id] || 'No information available.'}</p>`;
       modal.classList.add('active');
     });
   });
 
-  // Закрываем
+  // Close handlers
   closeBtn.addEventListener('click', () => modal.classList.remove('active'));
   modal.addEventListener('click', e => {
     if (e.target === modal) modal.classList.remove('active');
   });
 });
+
 
