@@ -1,97 +1,95 @@
-# RoboInvest Quadruped Robot Project
+Art­tous Quadruped Robot Project
 
-## Overview
+Overview
 
-RoboInvest is a cutting-edge quadruped robot platform designed for high-speed, stable locomotion across diverse terrains. Controlled via a PS4 DualShock controller, it features autonomous path memory to return to base if control is lost. Future applications include geological mapping, search & rescue operations, and archaeological exploration.
+Art­tous is a cutting-edge quadruped robot platform designed for high-speed, stable locomotion across diverse terrains. Controlled via a PS4 DualShock controller, it features autonomous route memory to return to base if control is lost. Future applications include geological mapping, search & rescue operations, and archaeological exploration.
 
-## Key Features
+Key Features
+	•	Quadruped Locomotion: Four-legged design for agility and balance.
+	•	PS4 Remote Control: Intuitive, low-latency operation via DualShock.
+	•	Autonomous Path Memory: Records waypoints and retraces steps if the link drops.
+	•	Future Use Cases:
+	•	Geological surface mapping
+	•	Search & rescue in hazardous zones
+	•	Archaeological site surveys
 
-* **Quadruped Locomotion**: Four-legged design ensures stability and agility.
-* **PS4 Remote Control**: Low-latency wireless operation using a DualShock controller.
-* **Autonomous Memory**: Records its route and can autonomously return to the starting point if the connection drops.
-* **Future Applications**:
+Project Structure
 
-  * Geological surface mapping
-  * Search & rescue in hazardous environments
-  * Archaeological site surveys
-
-## Project Structure
-
-```
-/tera/                # Website HTML templates
-  ├── index.html      # Landing page with visual presentation
+/tera/                # HTML templates for the website
+  ├── index.html      # Landing page with hero & visuals
   ├── about.html      # Robot overview and team info
-  ├── technology.html # Hardware, AI, and manufacturing details
-  ├── investors.html  # Market analysis, funding, ROI
-  └── contact.html    # Contact form
+  ├── technology.html # Hardware, AI & manufacturing details
+  ├── investors.html  # Market analysis, funding, ROI projections
+  └── contact.html    # Contact form page
 
-/bono/                # Assets and styling
+/bono/                # Assets, styles & scripts
   ├── css/
   │   └── styles.css  # Main stylesheet
   ├── js/
-  │   └── main.js     # JS animations (blinking circles, interactivity)
-  └── images/         # Logos, icons, render screenshots
+  │   └── main.js     # Blink animation & interactivity
+  └── images/         # Logos, icons, renders, photos
 
-/blender/             # 3D model source and renders
-  ├── robo-model.blend # Blender 4.0 scene file
-  └── renders/        # Exported PNG renders
+/blender/             # 3D models and renders
+  ├── robo-model.blend # Blender source file
+  └── renders/        # Exported images
 
-README.md             # This documentation
-LICENSE               # Project license
-```
+README.md             # Project documentation
+LICENSE               # MIT license text
 
-## Getting Started
+Getting Started
+	1.	Clone the repository:
 
-1. **Clone the repository**:
+git clone https://github.com/yourusername/arttous.git
+cd art­tous
 
-   ```bash
-   git clone https://github.com/yourusername/roboinvest.git
-   cd roboinvest
-   ```
-2. **Serve the website** (e.g., with VS Code Live Server or Python HTTP server):
 
-   ```bash
-   cd tera
-   python3 -m http.server
-   ```
-3. **Open** [http://localhost:8000](http://localhost:8000) in your browser to view.
+	2.	Run locally (optional):
 
-## Usage
+cd tera
+python3 -m http.server
 
-* **Customize the logo**: Replace `bono/images/your-logo.png` and update the `<link rel="icon">` in each HTML.
-* **Edit content**: Modify HTML files in `/tera` to update text, add images, or adjust the navigation.
-* **Style tweaks**: Update colors, fonts, and layouts in `/bono/css/styles.css`.
-* **Animation parameters**: Change blink frequency or circle count in `/bono/js/main.js`.
-* **3D assets**: Open `blender/robo-model.blend` in Blender to inspect or export new renders.
 
-## Contributing
+	3.	View at http://localhost:8000.
 
-Contributions are welcome! Please:
+Deployment (GitHub Pages)
+	1.	Push to GitHub:
 
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature-name`).
-3. Commit your changes (`git commit -m 'Add feature'`).
-4. Push to the branch (`git push origin feature-name`).
-5. Open a Pull Request.
+git remote add origin https://github.com/yourusername/arttous.git
+git branch -M main
+git add .
+git commit -m "Initial commit"
+git push -u origin main
 
-## License
 
-This project is licensed under the MIT License (SPDX: MIT). See [LICENSE](LICENSE) for the full license text.
+	2.	In GitHub settings, under Pages, set source to main branch /tera folder.
+	3.	Your site appears at https://yourusername.github.io/arttous/.
 
-The MIT License is a permissive open-source license that grants broad permissions:
+3D Printing & Mechanical Design
 
-* **Commercial use**: The software may be used for commercial purposes.
-* **Modification**: You may modify and adapt the software.
-* **Distribution**: You may distribute original or modified copies.
-* **Private use**: You may use the software privately.
-* **Sublicensing**: You may grant sublicenses to third parties.
+This project includes comprehensive CAD files designed for direct 3D printing. Every part is modeled one-to-one with real-world dimensions and tolerances, enabling you to produce functional components that fit together seamlessly.
+	•	Real-World Assembly: All mechanical elements have been engineered and stress-tested virtually to ensure reliable operation once printed.
+	•	Logical Design: Each component’s geometry is optimized for strength, ease of printing, and logical assembly.
+	•	Calculated Precision: Bearings, gear clearances, and joint interfaces are dimensioned to real-world standards, resulting in smooth movement and reliable performance.
 
-**Conditions**:
+Usage
+	•	Customize Content: Edit HTML files in /tera to change text, images, or navigation.
+	•	Adjust Styles: Tweak colors, fonts, and layouts in /bono/css/styles.css.
+	•	Modify Animations: Update blink-circle settings in /bono/js/main.js.
+	•	3D Assets: Open Blender file blender/robo-model.blend to revise parts and re-export renders.
 
-* You must include the original copyright and license notice in all copies.
-* No additional restrictions may be imposed by the licensee.
+Contributing
 
-**Limitations**:
+Contributions welcome! Steps:
+	1.	Fork the repo.
+	2.	Create a branch: git checkout -b feature-name.
+	3.	Commit: git commit -m 'Add feature'.
+	4.	Push: git push origin feature-name.
+	5.	Open a Pull Request.
 
-* The software is provided "as is", without warranty of any kind.
-* The authors or copyright holders are not liable for any claims or damages arising from its use.
+License
+
+MIT License (SPDX: MIT)
+
+Permissions: Commercial use, modification, distribution, private use, sublicensing allowed.
+Conditions: Include original copyright and license.
+Limitations: Provided “as is,” without warranty; authors not liable.
