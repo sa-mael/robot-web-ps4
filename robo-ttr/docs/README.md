@@ -53,8 +53,8 @@ LICENSE               # MIT license text
  | 3V3 ==== VCC Bus -->─+-->| VCC                     |
  | GND ---- GND Bus -->─+-->| GND                     |
  |                      |   |                         |
- | D32 SDA ----||---->─+-->| SDA                     |
- | D33 SCL ----||---->─+-->| SCL                     |
+ | D32 SDA  ----||---->─+-->| SDA                      |
+ | D33 SCL  ----||---->─+-->| SCL                      |
  |                      |   +-------------------------+
  |                      |
  | D17 SLP ------------+------------------------------> SLP/EEN (all DRV modules)
@@ -76,20 +76,19 @@ LICENSE               # MIT license text
  | D14 ---> DRV7 IN4    |   | CH11-> IN3 (M6 B)     |   |  | IN4 <- D22      |
  | D15 ---> DRV8 IN2    |   | CH12-> IN1 (M7 A)     |   |  +-----------------+
  | D16 ---> DRV8 IN4    |   | CH13-> IN3 (M7 B)     |   |
- +----------------------+   | CH14-> IN1 (M8 A)     |   |  ... до 8 модулей
+ +----------------------+   | CH14-> IN1 (M8 A)     |   |  ... for 8 modulus
                             | CH15-> IN3 (M8 B)     |   |
                             +----------------------+   |
                                                          |
-      (далее DRV модули #3…#8 идентично подключаются к CH4…CH15
-       и соответствующим DIR-линиям D23…D16)             |
+      (further DRV modules #3…#8 are identically connected to CH4…CH 15 and the corresponding DIR lines D23…D16)             |
                                                          |
-        Каждый DRV8833:                                   |
-         • IN1/IN3 — ШИМ (от PCA9685 CHx)                 |
-         • IN2/IN4 — DIR (от ESP32 Dxx)                   |
-         • EEP/SLP — общий (от ESP32 D17 или VCC)         |
-         • VM — питание моторов (3–8 В, от аккумулятора)  |
-         • VCC — логика 3.3 В (от ESP32 3V3)              |
-         • GND — общий GND                                 |
+        Every DRV8833:                                   |
+         • IN1/IN3 — PWM (from PCA9685 CHx)                 |
+         • IN2/IN4 — DIR (from ESP32 Dxx)                   |
+         • EEP/SLP — general (from ESP32 D17 or VCC)        |
+         • VM — motor power supply (3–8 В, from battery)    |
+         • VCC — logics 3.3 В (from ESP32 3V3)              |
+         • GND — general GND                                |
 
 ```
 ## Getting Started
