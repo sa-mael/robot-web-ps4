@@ -43,26 +43,54 @@ LICENSE               # MIT license text
 ## Project Structure Сonnection Wires 
 
 ```
-/tera/                # HTML templates for the website
-  ├── index.html      # Landing page with hero & visuals
-  ├── about.html      # Robot overview and team info
-  ├── technology.html # Hardware, AI & manufacturing details
-  ├── investors.html  # Market analysis, funding, ROI projections
-  └── contact.html    # Contact form page
+     Battery 3–8 V
+      +3–8V ==== VM Bus ====+──> VM (all DRV modules)
+      –GND  ---- GND Bus ---+──> GND (ESP32, PCA9685, DRV modules)
 
-/bono/                # Assets, styles & scripts
-  ├── css/
-  │   └── styles.css  # Main stylesheet
-  ├── js/
-  │   └── main.js     # Blink animation & interactivity
-  └── images/         # Logos, icons, renders, photos
+              I²C Bus
+ ESP32-DevKit v1            PCA9685 16-CH PWM Driver
+ +----------------------+   +-------------------------+
+ | 3V3 ==== VCC Bus -->─+-->| VCC                     |
+ | GND ---- GND Bus -->─+-->| GND                     |
+ |                      |   |                         |
+ | D32 SDA ----||---->─+-->| SDA                     |
+ | D33 SCL ----||---->─+-->| SCL                     |
+ |                      |   +-------------------------+
+ |                      |
+ | D17 SLP ------------+------------------------------> SLP/EEN (all DRV modules)
+ |                      |
+ |        DIR Lines     |
+ | D18 ---> DRV1 IN2    |   PCA9685 PWM Channels       |  DRV Module #1
+ | D19 ---> DRV1 IN4    |   +----------------------+   |  +-----------------+
+ | D21 ---> DRV2 IN2    |   | CH0 --> IN1 (M1 A)    |   |  | IN1 <- CH0      |
+ | D22 ---> DRV2 IN4    |   | CH1 --> IN3 (M1 B)    |   |  | IN2 <- D18      |
+ | D23 ---> DRV3 IN2    |   | CH2 --> IN1 (M2 A)    |   |  | IN3 <- CH1      |
+ | D25 ---> DRV3 IN4    |   | CH3 --> IN3 (M2 B)    |   |  | IN4 <- D19      |
+ | D26 ---> DRV4 IN2    |   | CH4 --> IN1 (M3 A)    |   |  +-----------------+
+ | D27 ---> DRV4 IN4    |   | CH5 --> IN3 (M3 B)    |   |
+ | D2  ---> DRV5 IN2    |   | CH6 --> IN1 (M4 A)    |   |  DRV Module #2
+ | D4  ---> DRV5 IN4    |   | CH7 --> IN3 (M4 B)    |   |  +-----------------+
+ | D5  ---> DRV6 IN2    |   | CH8 --> IN1 (M5 A)    |   |  | IN1 <- CH2      |
+ | D12 ---> DRV6 IN4    |   | CH9 --> IN3 (M5 B)    |   |  | IN2 <- D21      |
+ | D13 ---> DRV7 IN2    |   | CH10-> IN1 (M6 A)     |   |  | IN3 <- CH3      |
+ | D14 ---> DRV7 IN4    |   | CH11-> IN3 (M6 B)     |   |  | IN4 <- D22      |
+ | D15 ---> DRV8 IN2    |   | CH12-> IN1 (M7 A)     |   |  +-----------------+
+ | D16 ---> DRV8 IN4    |   | CH13-> IN3 (M7 B)     |   |
+ +----------------------+   | CH14-> IN1 (M8 A)     |   |  ... до 8 модулей
+                            | CH15-> IN3 (M8 B)     |   |
+                            +----------------------+   |
+                                                         |
+      (далее DRV модули #3…#8 идентично подключаются к CH4…CH15
+       и соответствующим DIR-линиям D23…D16)             |
+                                                         |
+        Каждый DRV8833:                                   |
+         • IN1/IN3 — ШИМ (от PCA9685 CHx)                 |
+         • IN2/IN4 — DIR (от ESP32 Dxx)                   |
+         • EEP/SLP — общий (от ESP32 D17 или VCC)         |
+         • VM — питание моторов (3–8 В, от аккумулятора)  |
+         • VCC — логика 3.3 В (от ESP32 3V3)              |
+         • GND — общий GND                                 |
 
-/blender/             # 3D models and renders
-  ├── robo-model.blend # Blender source file
-  └── renders/        # Exported images
-
-README.md             # Project documentation
-LICENSE               # MIT license text
 ```
 ## Getting Started
 
