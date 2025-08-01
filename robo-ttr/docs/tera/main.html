@@ -35,73 +35,97 @@
       </div>
     </div>
   </header>
-  <main >
-      <section class="hero">
-        <div class="hero-content">
-          <h1>Arttous</h1>
-          <p>A quadruped robot with PS4 control and autonomous route memory.</p>
-        </div>
-        <!-- Add this at the end of your <body> in /tera/index.html -->
-        <div class="vertical-brand">arttous</div>
-        <button id="scroll-info" class="scroll-btn">Learn More ↓</button>
-
-
-      </section>
-      <!-- Place this between two sections in your HTML -->
-<section class="transition-block"></section>
-<!-- 1) Add this button under your hero content in /tera/index.html -->
-
-      <!-- /tera/index.html — inside <main> after your existing <section class="hero"> -->
-<section class="about-us">
-  <h2>About Us</h2>
-  <h6>
-    Art in motion, technology in action
-  </h6>
-  <div class="about-divider"></div>
-  <div class="about-content">
-    <div class="about-left">
-      <p>
-        At Arttous, we blend cutting-edge biomechanics with advanced AI navigation to build a
-        quadruped robot that masters the most challenging terrain. Our four-legged platform
-        delivers unparalleled balance and agility, letting you traverse rocky slopes,
-        muddy fields, and uneven surfaces with confidence.
-      </p>
+<!-- /tera/index.html -->
+<main>
+  <!-- 1) Hero section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Arttous</h1>
+      <p>A quadruped robot with PS4 control and autonomous route memory.</p>
+      <!-- Future placeholder for interactive 3D model -->
+      <div class="model-viewer">
+        <!-- 3D viewer will go here -->
+      </div>
+      <button id="scroll-info" class="scroll-btn">Learn More ↓</button>
+      <div class="vertical-brand">arttous</div>
     </div>
-    <div class="about-right">
-      <p>
-         Controlled via a PS4 DualShock interface, Arttous gives operators millisecond-level
-        responsiveness and intuitive feedback, so you can focus on the mission—not the controls.
-        And with our custom wireless protocol, latency stays under 50 ms even at 100 meters.
-      </p>
-    </div>
-  </div>
-  <div class="about-gallery">
-    <img src="../bono/images/ps4.png" alt="Field deployment">
-    <img src="../bono/images/ps4.png" alt="Control interface">
-    <img src="../bono/images/ps4.png" alt="Data mapping">
-  </div>
-</section>
+  </section>
 
-      <section class="visual-presentation">
-        <div class="feature-card">
-          <h3>Quadruped Locomotion</h3>
-          <p>Fast and stable movement across diverse terrains.</p>
-        </div>
-        <div class="feature-card">
-          <h3>PS4 Control</h3>
-          <p>Low-latency operation using a DualShock controller.</p>
-        </div>
-        <div class="feature-card">
-          <h3>Autonomous Memory</h3>
-          <p>Remembers its path and returns to base if control is lost.</p>
-        </div>
-        <div class="feature-card">
-          <h3>Future Applications</h3>
-          <p>Ideal for geological mapping, rescue missions, and archaeological exploration.</p>
-        </div>
-      </section>
-    
-  </main>
+  <!-- 2) Smooth transition block -->
+  <section class="transition-block"></section>
+
+  <!-- 3) About Us -->
+  <section class="about-us">
+    <div class="about-header">
+      <h2>About Us</h2>
+      <p>Art in motion, technology in action</p>
+      <div class="about-divider"></div>
+    </div>
+    <div class="about-content">
+      <div class="about-left">
+        <p>At Arttous, we blend biomechanics and AI to build a four-legged robot that masters any terrain.</p>
+      </div>
+      <div class="about-right">
+        <p>Controlled via PS4 DualShock, low-latency operation and full autonomous recall make sure no unit is ever left behind.</p>
+      </div>
+    </div>
+    <div class="about-gallery">
+      <img src="../bono/images/photo1.jpg" alt="Field deployment">
+      <img src="../bono/images/photo2.jpg" alt="Control interface">
+      <img src="../bono/images/photo3.jpg" alt="Data mapping">
+    </div>
+  </section>
+
+  <!-- 4) Our Invention -->
+  <section class="invention">
+    <h2>Our Innovation</h2>
+    <p>Every mechanical part is 1:1 with real-world dimensions, built for 3D printing and real-life assembly. Logical design and precise tolerances ensure reliable performance in the field.</p>
+    <!-- Optionally embed a short demo video or image -->
+    <div class="invention-media">
+      <video src="../bono/images/demo.mp4" controls></video>
+    </div>
+  </section>
+
+  <!-- 5) Key Features -->
+  <section class="visual-presentation">
+    <div class="feature-card">
+      <h3>Quadruped Locomotion</h3>
+      <p>Fast and stable movement across diverse terrains.</p>
+    </div>
+    <div class="feature-card">
+      <h3>PS4 Control</h3>
+      <p>Low-latency operation using a DualShock controller.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Autonomous Memory</h3>
+      <p>Remembers its path and returns to base if control is lost.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Future Applications</h3>
+      <p>Ideal for geological mapping, rescue missions, and archaeological exploration.</p>
+    </div>
+  </section>
+
+  <!-- 6) Media & Info -->
+  <section class="media-info">
+    <h2>Gallery & Insights</h2>
+    <div class="media-gallery">
+      <figure>
+        <img src="../bono/images/info1.jpg" alt="Insight 1">
+        <figcaption>High-res mapping data</figcaption>
+      </figure>
+      <figure>
+        <img src="../bono/images/info2.jpg" alt="Insight 2">
+        <figcaption>Live control feed</figcaption>
+      </figure>
+      <figure>
+        <img src="../bono/images/info3.jpg" alt="Insight 3">
+        <figcaption>Rescue mission demo</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
   <!-- HTML for the footer -->
 <footer class="site-footer">
   <div class="footer-inner">
