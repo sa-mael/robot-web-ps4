@@ -1,21 +1,22 @@
-<!-- File: /tera/about.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About Arttous</title>
-  <link rel="icon" href="../bono/images/your-logo.png" sizes="50x50" type="image/png">
+  <link rel="icon" href="../bono/images/logo-ttr.png" type="image/png">
   <link rel="stylesheet" href="../bono/css/styles.css">
   <script src="../bono/js/main.js" defer></script>
 </head>
 <body>
-  <!-- same header as on Home -->
+  
   <header class="site-header">
     <div class="circle-blink-container"></div>
     <div class="header-inner">
       <div class="logo-shell">
-        <!-- insert Arttous logo here -->
+        <a href="main.html">
+          <img src="../bono/images/logo-ttr-wh.png" alt="Arttous Logo" class="logo-img">
+        </a>
       </div>
       <nav class="main-nav">
         <ul>
@@ -33,97 +34,81 @@
   </header>
 
   <main class="container">
-    <!-- Modal overlay (initially hidden) -->
-<div id="step-modal" class="modal-overlay">
-  <div class="modal-content">
-    <button class="modal-close">×</button>
-       <div id="modal-step-text" class="modal-text">
-       <h1>  text gets injected here </h1>
-       - text gets injected here -
-      </div>
-  </div>
-</div>
-
-    <!-- /tera/index.html (excerpt) -->
-<main>
-  <!-- …your existing <header> and <section class="hero">… -->
-
-  <!-- Combined “three widgets” section -->
-  <section class="combined-widgets">
-    <!-- 1) Vertical steps -->
-    <div class="steps-container">
-      <div class="step">
-        <div class="icon">①</div>
-        <p>Deploy on site</p>
-      </div>
-      <div class="step">
-        <div class="icon">②</div>
-        <p>Enable PS4 control</p>
-      </div>
-      <div class="step">
-        <div class="icon">③</div>
-        <p>Record & map route</p>
-      </div>
-      <div class="step">
-        <div class="icon">④</div>
-        <p>Autonomous return</p>
-      </div>
-      <div class="step">
-        <div class="icon">⑤</div>
-        <p>Data & rescue ops</p>
+    
+    <div id="step-modal" class="modal-overlay">
+      <div class="modal-content">
+        <button class="modal-close">×</button>
+        <div id="modal-step-text" class="modal-text">
+           </div>
       </div>
     </div>
 
-    <!-- 2) SVG path graphic -->
-    <div class="path-graphic-container">
-      <svg width="150" height="600" viewBox="0 0 100 300" xmlns="http://www.w3.org/2000/svg">
-        <!-- Start “X” -->
-        <g stroke="#fff" stroke-width="3" stroke-linecap="round">
-          <line x1="50" y1="5"  x2="30" y2="25"/>
-          <line x1="50" y1="5"  x2="70" y2="25"/>
-          <line x1="30" y1="5"  x2="50" y2="25"/>
-          <line x1="70" y1="5"  x2="50" y2="25"/>
-        </g>
-        <!-- Dashed path -->
-        <path d="M50,30 C50,90 35,130 50,160 S65,230 50,270 C35,290 50,310 50,295"
-              fill="none" stroke="#fff" stroke-width="3"
-              stroke-dasharray="6 6" stroke-linecap="round"/>
-        <!-- End pin -->
-        <g transform="translate(50,295)">
-          <circle cx="0" cy="0" r="10" fill="#fff"/>
-          <circle cx="0" cy="0" r="5" fill="none" stroke="#181818" stroke-width="2"/>
-          <path d="M0,0 L-5,10 A5,5 0 0,0 5,10 Z" fill="#fff"/>
-        </g>
-      </svg>
-    </div>
+    <section class="combined-widgets">
+      <div class="steps-container">
+        <div class="step" data-step="1">
+          <div class="icon">①</div>
+          <p>Deploy on site</p>
+        </div>
+        <div class="step" data-step="2">
+          <div class="icon">②</div>
+          <p>Enable PS4 control</p>
+        </div>
+        <div class="step" data-step="3">
+          <div class="icon">③</div>
+          <p>Record & map route</p>
+        </div>
+        <div class="step" data-step="4">
+          <div class="icon">④</div>
+          <p>Autonomous return</p>
+        </div>
+        <div class="step" data-step="5">
+          <div class="icon">⑤</div>
+          <p>Data & rescue ops</p>
+        </div>
+      </div>
 
-    <!-- 3) Vertical brand label -->
-    <div class="vertical-brand">arttous</div>
-  </section>
+      <div class="path-graphic-container">
+        <svg width="150" height="600" viewBox="0 0 100 300" xmlns="http://www.w3.org/2000/svg">
+          <g stroke="#fff" stroke-width="3" stroke-linecap="round">
+            <line x1="50" y1="5"  x2="30" y2="25"/>
+            <line x1="50" y1="5"  x2="70" y2="25"/>
+            <line x1="30" y1="5"  x2="50" y2="25"/>
+            <line x1="70" y1="5"  x2="50" y2="25"/>
+          </g>
+          <path d="M50,30 C50,90 35,130 50,160 S65,230 50,270 C35,290 50,310 50,295"
+                fill="none" stroke="#fff" stroke-width="3"
+                stroke-dasharray="6 6" stroke-linecap="round"/>
+          <g transform="translate(50,295)">
+            <circle cx="0" cy="0" r="10" fill="#fff"/>
+            <circle cx="0" cy="0" r="5" fill="none" stroke="#181818" stroke-width="2"/>
+            <path d="M0,0 L-5,10 A5,5 0 0,0 5,10 Z" fill="#fff"/>
+          </g>
+        </svg>
+      </div>
 
-  <!-- …your existing <footer>… -->
-</main>
+      <div class="vertical-brand">arttous</div>
+    </section>
 
     <section class="about-intro">
       <h1>About Arttous</h1>
       <p>
-        Arttous is a state-of-the-art quadruped robot designed for rapid, reliable navigation 
-        across challenging landscapes. Powered by a PS4 DualShock controller interface and 
-        proprietary AI path-memory, Arttous can retrace its steps and return home autonomously 
-        if connection is lost.
+        Arttous is a next-generation quadruped robot featuring <strong>precision servo-driven articulation</strong> 
+        for agile navigation across challenging landscapes. Powered by a generic ESP32 core and controlled 
+        via a low-latency PS4 DualShock interface, Arttous blends mechanical robustness with 
+        proprietary AI path-memory to ensure mission success.
       </p>
     </section>
 
     <section class="about-details">
       <h2>Our Mission</h2>
       <p>
-        We blend biomechanics, advanced control algorithms, and rugged engineering to build 
+        We blend biomechanics, advanced kinematics, and rugged engineering to build 
         robotic explorers that unlock new frontiers:
       </p>
       <ul>
         <li><strong>Geological Mapping</strong> — autonomously survey terrains and collect data.</li>
         <li><strong>Search & Rescue</strong> — penetrate disaster zones safely and guide teams.</li>
-        <li><strong>Archaeological Exploration</strong> — navigate ruins and preserve fragile sites.</li>
+        <li><strong>Archaeological Exploration</strong> — navigate ruins and preserve fragile sites with precise movement.</li>
       </ul>
     </section>
 
@@ -132,18 +117,17 @@
       <p>
         A multidisciplinary group of roboticists, software engineers, and field scientists 
         united by a passion for exploration and innovation. Together, we push the limits of 
-        what legged robots can achieve in the real world.
+        what legged robots can achieve in the real world using accessible, high-performance components.
       </p>
     </section>
   </main>
 
   <footer class="site-footer">
-    <!-- same footer as on Home -->
     <div class="footer-inner">
       <div class="footer-section">
         <h4>Core Features</h4>
         <ul>
-          <li><a href="#">Quadruped Locomotion</a></li>
+          <li><a href="#">Servo-Driven Locomotion</a></li>
           <li><a href="#">PS4 Remote Control</a></li>
           <li><a href="#">Autonomous Path Memory</a></li>
         </ul>
@@ -172,7 +156,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2025 Arttous Inc. — All Rights Reserved.</p>
+      <p>&copy; 2026 Arttous Inc. — All Rights Reserved.</p>
     </div>
   </footer>
 </body>
