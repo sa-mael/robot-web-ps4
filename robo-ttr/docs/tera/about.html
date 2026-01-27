@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About Arttous</title>
+  <meta name="description" content="The evolution of Arttous - from prototype to precision robotics.">
+  <title>About Arttous | Our Journey</title>
+  
   <link rel="icon" href="../bono/images/logo-ttr.png" type="image/png">
   <link rel="stylesheet" href="../bono/css/styles.css">
   <script src="../bono/js/main.js" defer></script>
 </head>
 <body>
-  
+
   <header class="site-header">
     <div class="circle-blink-container"></div>
     <div class="header-inner">
@@ -20,7 +22,7 @@
       </div>
       <nav class="main-nav">
         <ul>
-          <li><a href="main.html">Home</a></li>
+          <li><a href="index.html">Home</a></li>
           <li><a href="about.html" class="active">About</a></li>
           <li><a href="technology.html">Technology</a></li>
           <li><a href="investors.html">Investors</a></li>
@@ -28,135 +30,92 @@
         </ul>
       </nav>
       <div class="search">
-        <input type="search" placeholder="Search products...">
+        <input type="search" placeholder="Search..." aria-label="Search">
       </div>
     </div>
   </header>
 
   <main class="container">
     
-    <div id="step-modal" class="modal-overlay">
-      <div class="modal-content">
-        <button class="modal-close">×</button>
-        <div id="modal-step-text" class="modal-text">
-           </div>
-      </div>
-    </div>
-
-    <section class="combined-widgets">
-      <div class="steps-container">
-        <div class="step" data-step="1">
-          <div class="icon">①</div>
-          <p>Deploy on site</p>
-        </div>
-        <div class="step" data-step="2">
-          <div class="icon">②</div>
-          <p>Enable PS4 control</p>
-        </div>
-        <div class="step" data-step="3">
-          <div class="icon">③</div>
-          <p>Record & map route</p>
-        </div>
-        <div class="step" data-step="4">
-          <div class="icon">④</div>
-          <p>Autonomous return</p>
-        </div>
-        <div class="step" data-step="5">
-          <div class="icon">⑤</div>
-          <p>Data & rescue ops</p>
-        </div>
-      </div>
-
-      <div class="path-graphic-container">
-        <svg width="150" height="600" viewBox="0 0 100 300" xmlns="http://www.w3.org/2000/svg">
-          <g stroke="#fff" stroke-width="3" stroke-linecap="round">
-            <line x1="50" y1="5"  x2="30" y2="25"/>
-            <line x1="50" y1="5"  x2="70" y2="25"/>
-            <line x1="30" y1="5"  x2="50" y2="25"/>
-            <line x1="70" y1="5"  x2="50" y2="25"/>
-          </g>
-          <path d="M50,30 C50,90 35,130 50,160 S65,230 50,270 C35,290 50,310 50,295"
-                fill="none" stroke="#fff" stroke-width="3"
-                stroke-dasharray="6 6" stroke-linecap="round"/>
-          <g transform="translate(50,295)">
-            <circle cx="0" cy="0" r="10" fill="#fff"/>
-            <circle cx="0" cy="0" r="5" fill="none" stroke="#181818" stroke-width="2"/>
-            <path d="M0,0 L-5,10 A5,5 0 0,0 5,10 Z" fill="#fff"/>
-          </g>
-        </svg>
-      </div>
-
-      <div class="vertical-brand">arttous</div>
-    </section>
-
     <section class="about-intro">
-      <h1>About Arttous</h1>
+      <h1>The Arttous Journey</h1>
       <p>
-        Arttous is a next-generation quadruped robot featuring <strong>precision servo-driven articulation</strong> 
-        for agile navigation across challenging landscapes. Powered by a generic ESP32 core and controlled 
-        via a low-latency PS4 DualShock interface, Arttous blends mechanical robustness with 
-        proprietary AI path-memory to ensure mission success.
+        Innovation isn't instantaneous—it's iterative. We transformed a concept of legged locomotion 
+        from a tangle of wires into a streamlined, servo-driven autonomous platform.
       </p>
     </section>
 
+    <section class="journey">
+      <div class="journey-container">
+        
+        <div class="journey-card">
+          <div class="card-image">
+            <img src="../bono/images/prototype.jpg" alt="Early Prototype Wiring">
+            <div class="badge">Phase 1</div>
+          </div>
+          <div class="card-content">
+            <h3>The Proof of Concept</h3>
+            <p>
+              <strong>The Challenge:</strong> Our journey began on the workbench. Early iterations relied on 
+              standard DC motors and complex H-bridges. We faced challenges with wiring density, 
+              power distribution stability, and basic gait coordination.
+            </p>
+            <ul class="specs-list">
+              <li>&times; Unstable DC Motor Control</li>
+              <li>&times; Massive wiring harness</li>
+              <li>&times; Limited Kinematic precision</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="journey-divider">
+          <span class="arrow">➜</span>
+        </div>
+
+        <div class="journey-card highlight">
+          <div class="card-image">
+            <img src="../bono/images/TECH.png" alt="Arttous Final Servo Design">
+            <div class="badge active">Current</div>
+          </div>
+          <div class="card-content">
+            <h3>Precision Evolution</h3>
+            <p>
+              <strong>The Solution:</strong> We fundamentally re-engineered the core. Transitioning to 
+              <strong>MG90S Metal Gear Servos</strong> and the <strong>PCA9685</strong> driver architecture 
+              eliminated jitter and unlocked sub-millimeter precision for our Inverse Kinematics engine.
+            </p>
+            <ul class="specs-list">
+              <li>✓ High-Torque Metal Gears</li>
+              <li>✓ I²C Digital Control Bus</li>
+              <li>✓ Modular & Clean Assembly</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
     <section class="about-details">
-      <h2>Our Mission</h2>
+      <h2>Engineering Philosophy</h2>
       <p>
-        We blend biomechanics, advanced kinematics, and rugged engineering to build 
-        robotic explorers that unlock new frontiers:
+        We believe in hardware that looks as good as it performs. By integrating the electronics 
+        directly into the chassis structure, we achieved a lighter, stronger, and more agile robot.
       </p>
-      <ul>
-        <li><strong>Geological Mapping</strong> — autonomously survey terrains and collect data.</li>
-        <li><strong>Search & Rescue</strong> — penetrate disaster zones safely and guide teams.</li>
-        <li><strong>Archaeological Exploration</strong> — navigate ruins and preserve fragile sites with precise movement.</li>
-      </ul>
     </section>
 
     <section class="about-team">
-      <h2>Our Team</h2>
+      <h2>The Team</h2>
       <p>
-        A multidisciplinary group of roboticists, software engineers, and field scientists 
-        united by a passion for exploration and innovation. Together, we push the limits of 
-        what legged robots can achieve in the real world using accessible, high-performance components.
+        United by a passion for mechatronics, we are pushing the boundaries of accessible robotics research.
       </p>
     </section>
+
   </main>
 
   <footer class="site-footer">
     <div class="footer-inner">
-      <div class="footer-section">
-        <h4>Core Features</h4>
-        <ul>
-          <li><a href="#">Servo-Driven Locomotion</a></li>
-          <li><a href="#">PS4 Remote Control</a></li>
-          <li><a href="#">Autonomous Path Memory</a></li>
-        </ul>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Arttous Inc.</p>
       </div>
-      <div class="footer-section">
-        <h4>Applications</h4>
-        <ul>
-          <li><a href="#">Geological Mapping</a></li>
-          <li><a href="#">Search & Rescue</a></li>
-          <li><a href="#">Archaeological Survey</a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h4>Resources</h4>
-        <ul>
-          <li><a href="#">Documentation</a></li>
-          <li><a href="#">API Reference</a></li>
-          <li><a href="#">Community Forum</a></li>
-        </ul>
-      </div>
-      <div class="footer-section social">
-        <h4>Connect</h4>
-        <a href="#" class="social-icon">🐦</a>
-        <a href="#" class="social-icon">📘</a>
-        <a href="#" class="social-icon">🔗</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 Arttous Inc. — All Rights Reserved.</p>
     </div>
   </footer>
 </body>

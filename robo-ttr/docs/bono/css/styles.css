@@ -233,7 +233,116 @@ main {
     max-width: 100%;
   }
 }
+/* --- Journey / Evolution Section Styles --- */
 
+.journey {
+  padding: 60px 20px;
+  background-color: #1a1a1a; /* Чуть темнее фона */
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+  margin: 40px 0;
+}
+
+.journey-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap; /* Адаптивность для мобильных */
+}
+
+.journey-card {
+  background: #242424;
+  border-radius: 12px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
+  border: 1px solid #333;
+}
+
+.journey-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Стиль для "Новой" версии */
+.journey-card.highlight {
+  border: 1px solid #8e44ad; /* Фиолетовая рамка */
+  box-shadow: 0 10px 40px rgba(142, 68, 173, 0.15); /* Фиолетовое свечение */
+}
+
+.card-image {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Чтобы фото заполняло блок красиво */
+}
+
+.badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  border: 1px solid #555;
+}
+
+.badge.active {
+  background: #8e44ad; /* Фиолетовый бейдж */
+  border-color: #8e44ad;
+}
+
+.card-content {
+  padding: 25px;
+  text-align: left;
+}
+
+.card-content h3 {
+  margin-bottom: 15px;
+  font-size: 24px;
+  color: #fff;
+}
+
+.specs-list {
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.specs-list li {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Разделитель (стрелка) */
+.journey-divider .arrow {
+  font-size: 40px;
+  color: #555;
+}
+
+@media (max-width: 900px) {
+  .journey-divider {
+    transform: rotate(90deg); /* Поворот стрелки вниз на мобильных */
+    margin: 10px 0;
+  }
+}
 /* ========================================================================== */
 /* 6. INVENTION SECTION                                                         */
 /* ========================================================================== */
@@ -456,4 +565,239 @@ main {
   text-align: center;
   padding-top: 20px;
   border-top: 1px solid #333;
+}
+/* ========================================================================== */
+/* 12. TECHNOLOGY                                                                 */
+/* ========================================================================== */
+/* Стили для картинок в карточках технологий */
+.feature-card {
+  overflow: hidden; /* Чтобы картинка не вылезала за скругленные углы */
+  padding: 0; /* Убираем отступ, чтобы картинка была во всю ширину сверху */
+  padding-bottom: 30px; /* Возвращаем отступ снизу для текста */
+}
+
+.card-img-container {
+  width: 100%;
+  height: 200px; /* Фиксированная высота для единообразия */
+  overflow: hidden;
+  background-color: #1a1a1a;
+  border-bottom: 1px solid #333;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Картинка заполнит блок, обрезая лишнее */
+  transition: transform 0.5s ease;
+}
+
+/* Специальный стиль для иконки PS4, чтобы она не обрезалась */
+.card-img-container.icon-style img {
+  width: auto;
+  height: 80%; /* Чуть меньше, чтобы был "воздух" */
+  object-fit: contain;
+}
+
+/* Эффект при наведении */
+.feature-card:hover .card-img-container img {
+  transform: scale(1.1); /* Плавное увеличение картинки */
+}
+
+/* Отступы для текста внутри карточки, так как мы убрали padding у родителя */
+.feature-card h3, 
+.feature-card p {
+  padding: 0 25px;
+}/* ========================================================================== */
+/* 13. INVESTORS                                                  */
+/* ========================================================================== */
+/* --- Investor Page Styles --- */
+
+/* Hero */
+.investor-hero {
+  padding: 100px 20px;
+  background: linear-gradient(to bottom, #1f1f1f 0%, #121212 100%);
+  text-align: center;
+}
+
+.pill-badge {
+  background-color: #8e44ad; /* Purple accent */
+  color: white;
+  padding: 6px 16px;
+  border-radius: 50px;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 1px;
+  font-weight: bold;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.investor-hero h1 {
+  font-size: 56px;
+  margin-bottom: 20px;
+}
+
+.cta-group {
+  margin-top: 40px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.btn-primary {
+  background-color: #8e44ad;
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.btn-primary:hover { background-color: #732d91; }
+
+.btn-secondary {
+  background: transparent;
+  color: white;
+  padding: 15px 30px;
+  border: 2px solid #555;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+.btn-secondary:hover { border-color: #8e44ad; }
+
+/* Market Stats Grid */
+.market-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: -50px auto 60px; /* Overlap effect */
+  padding: 0 20px;
+  position: relative;
+}
+
+.stat-card {
+  background: #242424;
+  padding: 40px 20px;
+  border-radius: 8px;
+  text-align: center;
+  border-top: 4px solid #8e44ad;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.stat-card h2 {
+  font-size: 42px;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.stat-card p {
+  color: #aaa;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Roadmap */
+.roadmap-section {
+  padding: 80px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 60px;
+}
+
+.timeline {
+  position: relative;
+  border-left: 2px solid #333;
+  margin-left: 50%; /* Center the line */
+  padding-left: 0;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 60px;
+  width: 50%;
+  padding: 0 40px;
+}
+
+/* Timeline logic: Odd items left, Even items right */
+.timeline-item:nth-child(odd) {
+  left: -50%;
+  text-align: right;
+}
+.timeline-item:nth-child(even) {
+  left: 0;
+  text-align: left;
+}
+
+/* Dots on the line */
+.timeline-item .dot {
+  position: absolute;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  background: #333;
+  border-radius: 50%;
+}
+.timeline-item:nth-child(odd) .dot { right: -9px; }
+.timeline-item:nth-child(even) .dot { left: -9px; }
+
+/* Active (Current) State */
+.timeline-item.active .dot {
+  background: #8e44ad;
+  box-shadow: 0 0 15px #8e44ad;
+}
+.timeline-item.done .date { color: #8e44ad; }
+
+.timeline-item .date {
+  font-size: 14px;
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.timeline-item h3 { font-size: 20px; margin-bottom: 10px; }
+.timeline-item p { color: #ccc; font-size: 15px; }
+
+/* Business Model Split */
+.business-model {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  max-width: 1200px;
+  margin: 0 auto 100px;
+  padding: 40px 20px;
+  background: #1a1a1a;
+  border-radius: 12px;
+}
+
+.business-model .text-side { flex: 1; text-align: left; }
+.business-model .image-side { flex: 1; }
+.business-model img { width: 100%; border-radius: 8px; }
+
+.check-list li {
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: #ddd;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .timeline { margin-left: 20px; border-left: 2px solid #333; }
+  .timeline-item { width: 100%; left: 0 !important; text-align: left !important; padding-left: 30px; }
+  .timeline-item .dot { left: -29px !important; }
+  .business-model { flex-direction: column; }
 }
