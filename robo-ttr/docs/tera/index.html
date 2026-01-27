@@ -1,29 +1,28 @@
-<!-- File: /tera/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RoboInvest - Home</title>
-  <link rel="icon" href="../bono/images/logo-ttr.png"  type="image/png">
+  <meta name="description" content="Arttous - Advanced Quadruped Robotics Platform.">
+  <title>Arttous Robotics | Autonomous Mobility</title>
+  
+  <link rel="icon" href="../bono/images/logo-ttr.png" type="image/png">
   <link rel="stylesheet" href="../bono/css/styles.css">
   <script src="../bono/js/main.js" defer></script>
 </head>
 <body>
+  
   <header class="site-header">
     <div class="circle-blink-container"></div>
     <div class="header-inner">
-      <!-- In your HTML, inside the .logo-shell div: -->
-<div class="logo-shell">
-  <a href="i.html">
-    <!-- Adjust the path to point at your local file -->
-    <img src="../bono/images/logo-ttr-wh.png" alt="RoboInvest Logo" class="logo-img"/>
-  </a>
-</div>
-     
+      <div class="logo-shell">
+        <a href="main.html">
+          <img src="../bono/images/logo-ttr-wh.png" alt="Arttous Logo" class="logo-img"/>
+        </a>
+      </div>
       <nav class="main-nav">
         <ul>
-           <li><a href="main.html">Home</a></li>
+          <li><a href="main.html" class="active">Home</a></li>
           <li><a href="about.html">About</a></li>
           <li><a href="technology.html">Technology</a></li>
           <li><a href="investors.html">Investors</a></li>
@@ -31,141 +30,109 @@
         </ul>
       </nav>
       <div class="search">
-        <input type="search" placeholder="Search products...">
+        <input type="search" placeholder="Search..." aria-label="Search">
       </div>
     </div>
   </header>
-<!-- /tera/index.html -->
-<main>
-  <!-- 1) Hero section -->
-  <section class="hero">
-    <div class="hero-content">
-      <h1>Arttous</h1>
-      <p>A quadruped robot with PS4 control and autonomous route memory.</p>
-      <!-- Future placeholder for interactive 3D model -->
-      <div class="model-viewer">
-        <!-- 3D viewer will go here -->
+
+  <main>
+    
+    <section class="home-hero">
+      <div class="hero-overlay"></div>
+      <div class="home-hero-content">
+        <span class="purple-kicker">Next-Gen Mobility</span>
+        <h1>Redefining Legged<br>Locomotion</h1>
+        <p>
+          Meet Arttous: An autonomous quadruped robot engineered with high-torque servo kinematics 
+          for geological exploration and hazardous environment inspection.
+        </p>
+        <div class="cta-group">
+          <a href="technology.html" class="btn-primary">Explore Technology</a>
+          <a href="investors.html" class="btn-secondary">Investor Deck</a>
+        </div>
       </div>
-      <button id="scroll-info" class="scroll-btn">Learn More ↓</button>
-      <div class="vertical-brand">arttous</div>
-    </div>
-  </section>
+      </section>
 
-  <!-- 2) Smooth transition block -->
-  <section class="transition-block"></section>
-
-  <!-- 3) About Us -->
-  <section class="about-us">
-    <div class="about-header">
-      <h2>About Us</h2>
-      <p>Art in motion, technology in action</p>
-      <div class="about-divider"></div>
-    </div>
-    <div class="about-content">
-      <div class="about-left">
-        <p>At Arttous, we blend biomechanics and AI to build a four-legged robot that masters any terrain.</p>
+    <section class="value-props">
+      <div class="prop-card">
+        <div class="prop-icon">⚙️</div>
+        <h3>Metal Gear Precision</h3>
+        <p>12x MG90S actuators provide industrial-grade torque and durability unlike standard hobby servos.</p>
       </div>
-      <div class="about-right">
-        <p>Controlled via PS4 DualShock, low-latency operation and full autonomous recall make sure no unit is ever left behind.</p>
+      <div class="prop-card">
+        <div class="prop-icon">🧠</div>
+        <h3>Smart Kinematics</h3>
+        <p>Real-time Inverse Kinematics (IK) running on ESP32 ensures stability on uneven terrain.</p>
+      </div>
+      <div class="prop-card">
+        <div class="prop-icon">🎮</div>
+        <h3>Zero Latency</h3>
+        <p>Direct PS4 controller integration offers instant tactile feedback for remote operators.</p>
+      </div>
+    </section>
+
+    <section class="innovation-highlight">
+      <div class="highlight-image">
+        <img src="../bono/images/prototype.jpg" alt="Engineering Process">
+      </div>
+      <div class="highlight-text">
+        <h2>Built From Chaos</h2>
+        <p>
+          We didn't just buy a kit. We engineered Arttous from the ground up, turning a mess of wires 
+          into a streamlined, modular platform. Our evolution from basic DC motors to advanced 
+          servo-articulation marks a new standard in accessible robotics.
+        </p>
+        <a href="about.html" class="text-link">Read Our Story ➜</a>
+      </div>
+    </section>
+
+    <section class="applications-preview">
+      <div class="app-content">
+        <h2>Mission Critical Ready</h2>
+        <p>Designed for more than just walking. Arttous is a platform for data collection.</p>
+      </div>
+      <div class="app-grid">
+        <div class="app-item">
+          <img src="../bono/images/applications.png" alt="Mapping">
+          <h4>Geo-Mapping</h4>
+        </div>
+        <div class="app-item">
+          <img src="../bono/images/locomotion.jpg" alt="Inspection">
+          <h4>Site Inspection</h4>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-section">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="technology.html">Technology Stack</a></li>
+          <li><a href="about.html">Our Mission</a></li>
+          <li><a href="investors.html">Investment</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Use</a></li>
+        </ul>
+      </div>
+      <div class="footer-section social">
+        <h4>Social</h4>
+        <a href="#" class="social-icon">🐦</a>
+        <a href="#" class="social-icon">📘</a>
+        <a href="#" class="social-icon">🔗</a>
       </div>
     </div>
-    <div class="about-gallery">
-      <img src="../bono/images/photo1.jpg" alt="Field deployment">
-      <img src="../bono/images/photo2.jpg" alt="Control interface">
-      <img src="../bono/images/photo3.jpg" alt="Data mapping">
+    <div class="footer-bottom">
+      <p>&copy; 2026 Arttous Inc.</p>
     </div>
-  </section>
-
-  <!-- 4) Our Invention -->
-  <section class="invention">
-    <h2>Our Innovation</h2>
-    <p>Every mechanical part is 1:1 with real-world dimensions, built for 3D printing and real-life assembly. Logical design and precise tolerances ensure reliable performance in the field.</p>
-    <!-- Optionally embed a short demo video or image -->
-    <div class="invention-media">
-      <video src="../bono/images/demo.mp4" controls></video>
-    </div>
-  </section>
-
-  <!-- 5) Key Features -->
-  <section class="visual-presentation">
-    <div class="feature-card">
-      <h3>Quadruped Locomotion</h3>
-      <p>Fast and stable movement across diverse terrains.</p>
-    </div>
-    <div class="feature-card">
-      <h3>PS4 Control</h3>
-      <p>Low-latency operation using a DualShock controller.</p>
-    </div>
-    <div class="feature-card">
-      <h3>Autonomous Memory</h3>
-      <p>Remembers its path and returns to base if control is lost.</p>
-    </div>
-    <div class="feature-card">
-      <h3>Future Applications</h3>
-      <p>Ideal for geological mapping, rescue missions, and archaeological exploration.</p>
-    </div>
-  </section>
-
-  <!-- 6) Media & Info -->
-  <section class="media-info">
-    <h2>Gallery & Insights</h2>
-    <div class="media-gallery">
-      <figure>
-        <img src="../bono/images/info1.jpg" alt="Insight 1">
-        <figcaption>High-res mapping data</figcaption>
-      </figure>
-      <figure>
-        <img src="../bono/images/info2.jpg" alt="Insight 2">
-        <figcaption>Live control feed</figcaption>
-      </figure>
-      <figure>
-        <img src="../bono/images/info3.jpg" alt="Insight 3">
-        <figcaption>Rescue mission demo</figcaption>
-      </figure>
-    </div>
-  </section>
-</main>
-
-  <!-- HTML for the footer -->
-<footer class="site-footer">
-  <div class="footer-inner">
-    <div class="footer-section">
-      <h4>Core Features</h4>
-      <ul>
-        <li><a href="#">Quadruped Locomotion</a></li>
-        <li><a href="#">PS4 Remote Control</a></li>
-        <li><a href="#">Autonomous Path Memory</a></li>
-      </ul>
-    </div>
-    <div class="footer-section">
-      <h4>Applications</h4>
-      <ul>
-        <li><a href="#">Geological Mapping</a></li>
-        <li><a href="#">Search & Rescue</a></li>
-        <li><a href="#">Archaeological Survey</a></li>
-      </ul>
-    </div>
-    <div class="footer-section">
-      <h4>Resources</h4>
-      <ul>
-        <li><a href="#">Documentation</a></li>
-        <li><a href="#">API Reference</a></li>
-        <li><a href="#">Community Forum</a></li>
-      </ul>
-    </div>
-    <div class="footer-section social">
-      <h4>Connect</h4>
-      <a href="#" class="social-icon">🐦</a>
-      <a href="#" class="social-icon">📘</a>
-      <a href="#" class="social-icon">🔗</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 RoboInvest Inc. — All Rights Reserved.</p>
-  </div>
-</footer>
+  </footer>
 
 </body>
-  <script src="../bono/js/main.js" defer></script>
-
 </html>

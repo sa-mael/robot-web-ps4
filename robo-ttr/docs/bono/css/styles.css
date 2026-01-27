@@ -1137,3 +1137,195 @@ main {
   .contact-wrapper { flex-direction: column; }
   .form-row { flex-direction: column; gap: 0; }
 }
+/* ========================================================================== */
+/* 15. home = index.html*/
+/* --- Home Page Styles --- */
+/* ================= HOME PAGE STYLES ================= */
+
+/* --- 1. Home Hero --- */
+.home-hero {
+  position: relative;
+  height: 90vh; /* Почти на весь экран */
+  background-image: url('../bono/images/release.jpg'); /* Ваш лучший рендер */
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Центрируем текст */
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Затемнение фона, чтобы текст читался */
+.hero-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Темный фильтр */
+  z-index: 1;
+}
+
+.home-hero-content {
+  position: relative;
+  z-index: 2; /* Текст поверх фильтра */
+  max-width: 800px;
+  padding: 0 20px;
+}
+
+.home-hero h1 {
+  font-size: 64px;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  color: #fff;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.home-hero p {
+  font-size: 20px;
+  color: #ddd;
+  margin-bottom: 40px;
+  line-height: 1.5;
+}
+
+/* --- 2. Value Props Grid --- */
+.value-props {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  padding: 80px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.prop-card {
+  background: #1a1a1a;
+  padding: 40px 25px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid #333;
+  transition: transform 0.3s;
+}
+
+.prop-card:hover {
+  transform: translateY(-10px);
+  border-color: #8e44ad;
+}
+
+.prop-icon {
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+
+.prop-card h3 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: #fff;
+}
+
+.prop-card p {
+  color: #aaa;
+  font-size: 15px;
+}
+
+/* --- 3. Innovation Highlight (Split) --- */
+.innovation-highlight {
+  display: flex;
+  align-items: center;
+  background: #141414;
+  padding: 80px 0;
+}
+
+.highlight-image, .highlight-text {
+  flex: 1;
+}
+
+.highlight-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  min-height: 400px;
+  box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+}
+
+.highlight-text {
+  padding: 60px;
+  text-align: left;
+}
+
+.highlight-text h2 {
+  font-size: 42px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.highlight-text p {
+  color: #ccc;
+  font-size: 17px;
+  margin-bottom: 30px;
+  max-width: 500px;
+}
+
+.text-link {
+  color: #8e44ad;
+  font-weight: bold;
+  font-size: 16px;
+  text-decoration: none;
+  border-bottom: 2px solid #8e44ad;
+  padding-bottom: 2px;
+  transition: color 0.3s;
+}
+.text-link:hover { color: #fff; border-color: #fff; }
+
+/* --- 4. Applications Preview --- */
+.applications-preview {
+  padding: 100px 20px;
+  text-align: center;
+}
+
+.app-content h2 { font-size: 36px; margin-bottom: 10px; }
+.app-content p { color: #888; margin-bottom: 50px; }
+
+.app-grid {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.app-item {
+  position: relative;
+  width: 300px;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.app-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s;
+}
+
+.app-item:hover img {
+  transform: scale(1.1);
+}
+
+.app-item h4 {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: #fff;
+  font-size: 20px;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+  z-index: 2;
+}
+
+/* Mobile Responsive */
+@media (max-width: 900px) {
+  .home-hero h1 { font-size: 42px; }
+  .innovation-highlight { flex-direction: column; }
+  .highlight-image { order: 2; width: 100%; }
+  .highlight-text { order: 1; padding: 40px 20px; }
+}
