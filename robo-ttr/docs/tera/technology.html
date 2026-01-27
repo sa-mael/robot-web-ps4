@@ -1,120 +1,153 @@
-<!-- File: /tera/technology.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Technology</title>
+  <meta name="description" content="Arttous Technology Stack - ESP32, PCA9685, and MG90S Servo Kinematics.">
+  <title>Technology | Arttous Robotics</title>
+  
+  <link rel="icon" href="../bono/images/logo-ttr.png" type="image/png">
   <link rel="stylesheet" href="../bono/css/styles.css">
-   <link rel="icon" href="../bono/images/logo-ttr.png"  type="image/png">
   <script src="../bono/js/main.js" defer></script>
 </head>
 <body>
-
-<body>
+  
   <header class="site-header">
     <div class="circle-blink-container"></div>
     <div class="header-inner">
-      <div class="logo-shell"></div>
+      <div class="logo-shell">
+        <a href="main.html">
+          <img src="../bono/images/logo-ttr-wh.png" alt="Arttous Logo" class="logo-img"/>
+        </a>
+      </div>
       <nav class="main-nav">
         <ul>
-          <li><a href="index.html">Home</a></li>
+          <li><a href="main.html">Home</a></li>
           <li><a href="about.html">About</a></li>
-          <li><a href="technology.html">Technology</a></li>
+          <li><a href="technology.html" class="active">Technology</a></li>
           <li><a href="investors.html">Investors</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
       </nav>
-      <div class="search"><input type="search" placeholder="Search products..."></div>
+      <div class="search">
+        <input type="search" placeholder="Search specs..." aria-label="Search">
+      </div>
     </div>
   </header>
 
-<main>
-    <section class="hero-2">
+  <main>
+    <section class="tech-hero">
       <div class="hero-content">
-        <h1>Our Technology</h1>
-        <p>Hardware Overview-AI & Algorithms-Manufacturing</p>
+        <span class="purple-kicker">Engineering Core</span>
+        <h1>Precision Through Kinematics</h1>
+        <p>We abandoned traditional DC motors for a fully articulated, servo-driven architecture. The result is sub-millimeter control and dynamic terrain adaptation.</p>
+      </div>
+      <div class="hero-image-container">
+          <img src="../bono/images/release.jpg" alt="Arttous Quadruped Renderer">
       </div>
     </section>
 
+    <section class="tech-stack-section">
+      <h2>The Control Signal Path</h2>
+      <div class="stack-diagram">
+        <div class="stack-node controller">
+          <img src="../bono/images/ps4.png" alt="PS4 Controller">
+          <h4>Human Interface</h4>
+          <p>Bluetooth DualShock 4 Low-Latency Input</p>
+        </div>
+        <div class="stack-arrow">➜</div>
+        <div class="stack-node brain highlight">
+          <img src="../bono/images/brain.jpg" alt="ESP32">
+          <h4>The Brain (ESP32)</h4>
+          <p>Dual-Core 240MHz. Runs Inverse Kinematics Engine.</p>
+        </div>
+        <div class="stack-arrow">I²C Bus ➜</div>
+        <div class="stack-node driver">
+          <div class="icon-placeholder">PCA<br>9685</div>
+          <h4>PWM Driver</h4>
+          <p>16-Channel, 12-bit resolution servo controller.</p>
+        </div>
+        <div class="stack-arrow">➜</div>
+        <div class="stack-node muscle">
+          <div class="icon-placeholder">12x<br>MG90S</div>
+          <h4>The Muscles</h4>
+          <p>Metal Gear High-Torque Actuators.</p>
+        </div>
+      </div>
+    </section>
 
-  <div class="vertical-brand">arttous</div>
+    <section class="deep-dive dark-bg reverse">
+      <div class="dd-text">
+        <span class="purple-kicker">Actuation Technology</span>
+        <h3>Why MG90S Metal Gears Matter</h3>
+        <p>Early prototypes using plastic-gear servos failed under dynamic loads. Arttous now exclusively utilizes MG90S actuators for all 12 joints (3 DOF per leg).</p>
+        <ul>
+          <li><strong>Durability:</strong> Full metal gear train resists stripping during shock impacts.</li>
+          <li><strong>Torque:</strong> Delivers up to 2.2kg/cm torque at 6V for powerful lifting.</li>
+          <li><strong>Precision:</strong> Closed-loop control allows for precise angular positioning essential for stable walking gaits.</li>
+        </ul>
+      </div>
+      <div class="dd-image">
+        <img src="../bono/images/locomotion.jpg" alt="Close up of Servo Leg Mechanism">
+      </div>
+    </section>
 
-    <section class="visual-presentation">
-  
-  <div class="feature-card">
-    <div class="card-img-container">
-      <img src="../bono/images/locomotion.jpg" alt="Quadruped MG90S Locomotion">
-    </div>
-    <h3>Quadruped Locomotion</h3>
-    <p>Powered by 12x MG90S Metal Gear servos, providing high-torque articulation and stable movement across rough terrain.</p>
-  </div>
+    <section class="deep-dive light-bg">
+      <div class="dd-image">
+        <img src="../bono/images/applications.png" alt="Kinematics Visualization">
+      </div>
+      <div class="dd-text">
+        <span class="purple-kicker">Software & Intelligence</span>
+        <h3>Inverse Kinematics (IK) Engine</h3>
+        <p>Driving 12 motors simultaneously requires complex math. Our custom IK engine runs on the ESP32's second core in real-time.</p>
+        <p>Instead of manually moving each motor, the system calculates the exact angles needed for the foot to reach a specific 3D coordinate (X,Y,Z). This enables:</p>
+        <ul>
+          <li>Smooth, organic walking gaits (Trot, Crawl).</li>
+          <li>Automatic body leveling on uneven ground.</li>
+          <li>Dynamic stability control.</li>
+        </ul>
+      </div>
+    </section>
 
-  <div class="feature-card">
-    <div class="card-img-container icon-style">
-      <img src="../bono/images/ps4.png" alt="PS4 Controller Interface">
-    </div>
-    <h3>PS4 Control</h3>
-    <p>Zero-latency wireless operation using a standard DualShock 4 controller via ESP32 Bluetooth stack.</p>
-  </div>
+    <section class="specs-section">
+        <h2>Technical Specifications</h2>
+        <div class="specs-grid">
+            <div class="spec-card">
+                <h4>Power System</h4>
+                <p>7.4V LiPo (2S) via 5A UBEC</p>
+            </div>
+            <div class="spec-card">
+                <h4>Compute</h4>
+                <p>ESP32-WROOM-32D</p>
+            </div>
+            <div class="spec-card">
+                <h4>Actuators</h4>
+                <p>12x MG90S (Metal Gear)</p>
+            </div>
+            <div class="spec-card">
+                <h4>Degrees of Freedom</h4>
+                <p>12 DOF (3 per leg)</p>
+            </div>
+            <div class="spec-card">
+                <h4>Communication</h4>
+                <p>Bluetooth 4.2 / WiFi</p>
+            </div>
+            <div class="spec-card">
+                <h4>Frame Material</h4>
+                <p>Additive PLA+ / PETG Composite</p>
+            </div>
+        </div>
+    </section>
 
-  <div class="feature-card">
-    <div class="card-img-container">
-      <img src="../bono/images/brain.jpg" alt="ESP32 Microcontroller Core">
-    </div>
-    <h3>Autonomous Memory</h3>
-    <p>The ESP32 core records waypoints in real-time, allowing the robot to retrace its path automatically if signal is lost.</p>
-  </div>
-
-  <div class="feature-card">
-    <div class="card-img-container">
-      <img src="../bono/images/applications.png" alt="Topological Mapping View">
-    </div>
-    <h3>Future Applications</h3>
-    <p>Designed for geological surface mapping, search & rescue in hazardous zones, and non-destructive archaeological survey.</p>
-  </div>
-
-</section>
-    <footer class="site-footer">
-  <div class="footer-inner">
-    <div class="footer-section">
-      <h4>Core Features</h4>
-      <ul>
-        <li><a href="#">Quadruped Locomotion</a></li>
-        <li><a href="#">PS4 Remote Control</a></li>
-        <li><a href="#">Autonomous Path Memory</a></li>
-      </ul>
-    </div>
-    <div class="footer-section">
-      <h4>Applications</h4>
-      <ul>
-        <li><a href="#">Geological Mapping</a></li>
-        <li><a href="#">Search & Rescue</a></li>
-        <li><a href="#">Archaeological Survey</a></li>
-      </ul>
-    </div>
-    <div class="footer-section">
-      <h4>Resources</h4>
-      <ul>
-        <li><a href="#">Documentation</a></li>
-        <li><a href="#">API Reference</a></li>
-        <li><a href="#">Community Forum</a></li>
-      </ul>
-    </div>
-    <div class="footer-section social">
-      <h4>Connect</h4>
-      <a href="#" class="social-icon">🐦</a>
-      <a href="#" class="social-icon">📘</a>
-      <a href="#" class="social-icon">🔗</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 RoboInvest Inc. — All Rights Reserved.</p>
-  </div>
-</footer>
   </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-bottom">
+        <p>&copy; 2026 Arttous Inc. — Engineered for Precision.</p>
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>
-
-
-

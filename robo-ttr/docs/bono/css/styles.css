@@ -512,6 +512,7 @@ main {
   color: #f5f5f5;
 }
 
+
 /* ========================================================================== */
 /* 11. FOOTER                                                                     */
 /* ========================================================================== */
@@ -569,49 +570,224 @@ main {
 /* ========================================================================== */
 /* 12. TECHNOLOGY                                                                 */
 /* ========================================================================== */
-/* Стили для картинок в карточках технологий */
-.feature-card {
-  overflow: hidden; /* Чтобы картинка не вылезала за скругленные углы */
-  padding: 0; /* Убираем отступ, чтобы картинка была во всю ширину сверху */
-  padding-bottom: 30px; /* Возвращаем отступ снизу для текста */
+/* ================= TECHNOLOGY PAGE STYLES ================= */
+
+/* --- 1. Tech Hero --- */
+.tech-hero {
+  text-align: center;
+  padding: 60px 20px 0;
+  background: linear-gradient(to bottom, #141414 0%, #1a1a1a 100%);
 }
 
-.card-img-container {
-  width: 100%;
-  height: 200px; /* Фиксированная высота для единообразия */
-  overflow: hidden;
-  background-color: #1a1a1a;
-  border-bottom: 1px solid #333;
+.purple-kicker {
+  display: block;
+  color: #8e44ad;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.tech-hero h1 {
+  font-size: 52px;
   margin-bottom: 20px;
+}
+
+.tech-hero p {
+  max-width: 700px;
+  margin: 0 auto 40px;
+  color: #ccc;
+  font-size: 18px;
+}
+
+.hero-image-container img {
+  max-width: 80%;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 -10px 40px rgba(142, 68, 173, 0.2); /* Фиолетовое свечение снизу */
+  margin-bottom: -5px; /* Убираем зазор снизу */
+}
+
+/* --- 2. Tech Stack Diagram --- */
+.tech-stack-section {
+  padding: 80px 20px;
+  background: #1a1a1a;
+  text-align: center;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+}
+
+.tech-stack-section h2 { margin-bottom: 50px; }
+
+.stack-diagram {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stack-node {
+  background: #242424;
+  padding: 25px;
+  border-radius: 12px;
+  width: 220px;
+  text-align: center;
+  border: 2px solid #333;
+  transition: all 0.3s ease;
+}
+
+/* Подсветка "Мозга" */
+.stack-node.highlight {
+  border-color: #8e44ad;
+  box-shadow: 0 0 20px rgba(142, 68, 173, 0.2);
+}
+
+.stack-node img {
+  height: 60px;
+  object-fit: contain;
+  margin-bottom: 15px;
+}
+
+/* Заглушка для иконок, если нет картинки */
+.icon-placeholder {
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: bold;
+  color: #8e44ad;
+  font-size: 18px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  margin-bottom: 15px;
 }
 
-.card-img-container img {
+.stack-node h4 { margin-bottom: 10px; color: #fff; }
+.stack-node p { font-size: 13px; color: #aaa; line-height: 1.4; }
+
+.stack-arrow {
+  font-size: 24px;
+  color: #555;
+  font-weight: bold;
+}
+
+/* --- 3 & 4. Deep Dive Sections (Чередующиеся блоки) --- */
+.deep-dive {
+  display: flex;
+  align-items: center;
+  padding: 80px 0;
+}
+
+.deep-dive.dark-bg { background-color: #141414; }
+.deep-dive.light-bg { background-color: #1a1a1a; }
+
+/* Реверс порядка для второго блока */
+.deep-dive.reverse { flex-direction: row-reverse; }
+
+.dd-text, .dd-image {
+  flex: 1;
+  padding: 40px;
+}
+
+.dd-image img {
   width: 100%;
-  height: 100%;
-  object-fit: cover; /* Картинка заполнит блок, обрезая лишнее */
-  transition: transform 0.5s ease;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  border: 1px solid #333;
 }
 
-/* Специальный стиль для иконки PS4, чтобы она не обрезалась */
-.card-img-container.icon-style img {
-  width: auto;
-  height: 80%; /* Чуть меньше, чтобы был "воздух" */
-  object-fit: contain;
+.dd-text h3 {
+  font-size: 36px;
+  margin-bottom: 20px;
 }
 
-/* Эффект при наведении */
-.feature-card:hover .card-img-container img {
-  transform: scale(1.1); /* Плавное увеличение картинки */
+.dd-text p {
+  color: #ccc;
+  margin-bottom: 20px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
-/* Отступы для текста внутри карточки, так как мы убрали padding у родителя */
-.feature-card h3, 
-.feature-card p {
-  padding: 0 25px;
-}/* ========================================================================== */
+.dd-text ul {
+  list-style: none;
+  padding: 0;
+}
+
+.dd-text ul li {
+  margin-bottom: 10px;
+  padding-left: 25px;
+  position: relative;
+  color: #ddd;
+}
+
+/* Фиолетовые буллиты для списка */
+.dd-text ul li::before {
+  content: "•";
+  color: #8e44ad;
+  font-size: 24px;
+  position: absolute;
+  left: 0;
+  top: -2px;
+}
+
+/* --- 5. Specs Grid --- */
+.specs-section {
+  padding: 80px 20px;
+  background: #141414;
+  text-align: center;
+}
+
+.specs-section h2 { margin-bottom: 50px; }
+
+.specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 25px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.spec-card {
+  background: #1a1a1a;
+  padding: 25px 15px;
+  border-radius: 10px;
+  border: 1px solid #333;
+  transition: border-color 0.3s;
+}
+
+.spec-card:hover {
+  border-color: #8e44ad;
+}
+
+.spec-card h4 {
+  color: #8e44ad;
+  font-size: 14px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.spec-card p {
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* --- Адаптивность для Technology --- */
+@media (max-width: 900px) {
+  .hero-image-container img { max-width: 100%; }
+  
+  /* Диаграмма в столбик на мобилках */
+  .stack-diagram { flex-direction: column; }
+  .stack-arrow { transform: rotate(90deg); margin: 10px 0; }
+  
+  /* Deep dive в столбик */
+  .deep-dive, .deep-dive.reverse { flex-direction: column; text-align: left; }
+  .dd-text, .dd-image { padding: 30px 20px; }
+}
+/* ========================================================================== */
 /* 13. INVESTORS                                                  */
 /* ========================================================================== */
 /* --- Investor Page Styles --- */
@@ -800,4 +976,164 @@ main {
   .timeline-item { width: 100%; left: 0 !important; text-align: left !important; padding-left: 30px; }
   .timeline-item .dot { left: -29px !important; }
   .business-model { flex-direction: column; }
+}
+
+/* ========================================================================== */
+/* 14. contact                                                  */  
+/* ========================================================================== */
+/* Buttons */
+/* --- Contact Page Styles --- */
+
+.contact-hero {
+  text-align: center;
+  padding: 80px 20px 40px;
+}
+
+.contact-hero h1 {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.contact-hero p {
+  color: #ccc;
+  font-size: 18px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Layout Grid */
+.contact-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto 100px;
+  padding: 0 20px;
+  gap: 40px;
+}
+
+/* Sidebar (Left) */
+.contact-sidebar {
+  flex: 1;
+  min-width: 300px;
+}
+
+.info-card {
+  background: #242424;
+  padding: 25px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #8e44ad; /* Фиолетовый акцент слева */
+}
+
+.info-card h3 {
+  font-size: 20px;
+  margin-bottom: 5px;
+  color: #fff;
+}
+
+.info-card p {
+  color: #aaa;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.contact-link {
+  color: #8e44ad;
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.contact-link:hover { color: #9b59b6; }
+
+.small-text { font-size: 12px; opacity: 0.6; }
+
+.social-links-block h4 { margin-bottom: 15px; color: #fff; }
+.social-icons a {
+  display: inline-block;
+  margin-right: 15px;
+  color: #ccc;
+  font-size: 14px;
+  border: 1px solid #444;
+  padding: 8px 15px;
+  border-radius: 20px;
+  transition: all 0.3s;
+}
+.social-icons a:hover {
+  border-color: #8e44ad;
+  color: #fff;
+}
+
+/* Form (Right) */
+.contact-form-container {
+  flex: 2;
+  min-width: 300px;
+}
+
+.pro-form {
+  background: #1a1a1a;
+  padding: 40px;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+.form-row .form-group { flex: 1; }
+
+.form-group { margin-bottom: 20px; text-align: left; }
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #ddd;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Эффект фокуса (Фиолетовое свечение) */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #8e44ad;
+  box-shadow: 0 0 8px rgba(142, 68, 173, 0.3);
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 15px;
+  background-color: #8e44ad;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.btn-submit:hover {
+  background-color: #732d91;
+  transform: translateY(-2px);
+}
+
+/* Адаптивность для телефонов */
+@media (max-width: 768px) {
+  .contact-wrapper { flex-direction: column; }
+  .form-row { flex-direction: column; gap: 0; }
 }

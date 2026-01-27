@@ -1,57 +1,142 @@
-<!-- File: /tera/contact.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact Us – RoboInvest</title>
+  <meta name="description" content="Contact Arttous - Sales, Support, and Partnerships.">
+  <title>Contact Us | Arttous Robotics</title>
+  
+  <link rel="icon" href="../bono/images/logo-ttr.png" type="image/png">
   <link rel="stylesheet" href="../bono/css/styles.css">
-   <link rel="icon" href="../bono/images/logo-ttr.png"  type="image/png">
   <script src="../bono/js/main.js" defer></script>
 </head>
 <body>
+  
   <header class="site-header">
     <div class="circle-blink-container"></div>
     <div class="header-inner">
-      <div class="logo-shell"></div>
+      <div class="logo-shell">
+        <a href="main.html">
+          <img src="../bono/images/logo-ttr-wh.png" alt="Arttous Logo" class="logo-img"/>
+        </a>
+      </div>
       <nav class="main-nav">
         <ul>
-          <li><a href="index.html">Home</a></li>
+          <li><a href="main.html">Home</a></li>
           <li><a href="about.html">About</a></li>
           <li><a href="technology.html">Technology</a></li>
           <li><a href="investors.html">Investors</a></li>
-          <li><a href="contact.html">Contact</a></li>
+          <li><a href="contact.html" class="active">Contact</a></li>
         </ul>
       </nav>
-      <div class="search"><input type="search" placeholder="Search products…"></div>
+      <div class="search">
+        <input type="search" placeholder="Search..." aria-label="Search">
+      </div>
     </div>
   </header>
 
-  <main class="contact-hero">
-    <div class="contact-panel">
-      <h1 class="about">Get in Touch</h1>
-      <p class="about">We’d love to hear from you. Drop us a line below!</p>
-      <form class="contact-form" action="#" method="POST">
-        <label>
-          Your Name
-          <input type="text" name="name" required>
-        </label>
-        <label>
-          Your Email
-          <input type="email" name="email" required>
-        </label>
-        <label>
-          Message
-          <textarea name="message" rows="5" required></textarea>
-        </label>
-        <button type="submit">Send Message</button>
-      </form>
-    </div>
+  <main>
+    <section class="contact-hero">
+      <h1>Let's Build the Future</h1>
+      <p>Whether you're looking for enterprise solutions, investment opportunities, or technical support, our team is ready.</p>
+    </section>
+
+    <section class="contact-wrapper">
+      
+      <div class="contact-sidebar">
+        <div class="info-card">
+          <h3>Sales & Enterprise</h3>
+          <p>For bulk orders and RaaS leasing.</p>
+          <a href="mailto:sales@arttous.com" class="contact-link">sales@arttous.com</a>
+        </div>
+
+        <div class="info-card">
+          <h3>Technical Support</h3>
+          <p>Assistance with MG90S calibration & code.</p>
+          <a href="mailto:support@arttous.com" class="contact-link">support@arttous.com</a>
+        </div>
+
+        <div class="info-card">
+          <h3>Headquarters</h3>
+          <p>
+            123 Innovation Drive,<br>
+            Ontario, Canada<br>
+            <span class="small-text">(Visits by appointment only)</span>
+          </p>
+        </div>
+
+        <div class="social-links-block">
+          <h4>Follow Us</h4>
+          <div class="social-icons">
+            <a href="#">🐦 Twitter</a>
+            <a href="#">📘 LinkedIn</a>
+            <a href="#">🐙 GitHub</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-form-container">
+        <form class="pro-form" action="#" method="POST">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Full Name</label>
+              <input type="text" id="name" name="name" placeholder="John Doe" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Work Email</label>
+              <input type="email" id="email" name="email" placeholder="john@company.com" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="department">Department</label>
+            <select id="department" name="department">
+              <option value="sales">Sales / Enterprise</option>
+              <option value="investors">Investor Relations</option>
+              <option value="support">Technical Support</option>
+              <option value="press">Press & Media</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows="6" placeholder="How can we help you?" required></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit">Send Message</button>
+        </form>
+      </div>
+
+    </section>
   </main>
 
   <footer class="site-footer">
-    <!-- existing footer content -->
+    <div class="footer-inner">
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">Our Story</a></li>
+          <li><a href="careers.html">Careers</a></li>
+          <li><a href="investors.html">Investors</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+        </ul>
+      </div>
+      <div class="footer-section social">
+        <h4>Connect</h4>
+        <a href="#" class="social-icon">🐦</a>
+        <a href="#" class="social-icon">🔗</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Arttous Inc.</p>
+    </div>
   </footer>
+
 </body>
 </html>
-
