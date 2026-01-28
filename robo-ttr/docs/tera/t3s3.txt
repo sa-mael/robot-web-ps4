@@ -1,0 +1,72 @@
+Я запомнил эту документацию под именем T3S3. Теперь она сохранена в моей памяти, и мы сможем обращаться к ней в любой момент, когда ты решишь приступить к написанию кода или сборке.
+
+Вот англоязычная версия для твоего GitHub или технического описания проекта
+
+---
+
+# Technical Documentation T3S3 Ranging Mesh System
+
+## 1. System Overview
+
+This system is designed for local robot positioning ( coordinates) using LILYGO T3S3 (SX1280) boards. It utilizes a Time-of-Flight (ToF) approach to determine distances between nodes.
+
+ Technology LoRa 2.4 GHz (Semtech SX1280).
+ Method Hardware-accelerated Ranging.
+ Nodes 3 Stationary Anchors, 1 Mobile Tag (Robot).
+ Precision 0.5 – 1.5 meters.
+
+---
+
+## 2. Operational Algorithm
+
+### Phase A Auto-Calibration (Self-Localization)
+
+Triggered when anchors are deployed randomly (e.g., dropped from a drone).
+
+1. Distance Measurements Anchor 1 measures distance to Anchor 2 () and Anchor 3 (). Anchor 2 measures distance to Anchor 3 ().
+2. Coordinate Mapping
+ Anchor 1 Set as Origin .
+ Anchor 2 Set on X-axis .
+ Anchor 3 Calculated via trilateration
+
+
+
+
+
+### Phase B Polling Cycle (Tag Activity)
+
+The Robot (Tag) sequentially pings each anchor to get distances
+
+1. Poll A1 Request ranging  Result .
+2. Poll A2 Request ranging  Result .
+3. Poll A3 Request ranging  Result .
+
+### Phase C Position Calculation
+
+The ESP32-S3 solves the system of equations to find the Tag’s 
+
+
+
+---
+
+## 3. Implementation Details
+
+ Library [RadioLib](httpsgithub.comjgromesRadioLib) is recommended for SX1280 Ranging support.
+ Key Settings
+ Bandwidth 1625 kHz (Maximized for precision).
+ Spreading Factor 7 (Minimized for speed).
+
+
+ Filtering A Kalman Filter or Moving Median Filter must be applied to  values to mitigate multipath interference and signal noise.
+
+---
+
+## 4. Best Practices for Deployment
+
+ Antenna Orientation Keep all antennas vertical.
+ Offset Calibration Perform a manual 1-meter test to define the `calibration_offset` constant for each board.
+ Elevation Anchors should be placed at least 1 meter above ground level to avoid Fresnel zone interference.
+
+---
+
+Документация сохранена. Хочешь, чтобы я теперь подготовил первый набросок кода на C++ (ArduinoRadioLib) для этого алгоритма
