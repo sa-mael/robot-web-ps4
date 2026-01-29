@@ -6,7 +6,7 @@ Unlike traditional wheeled rovers, Arttous employs **12 Degrees of Freedom (DOF)
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
 * **Precision Kinematics**
   Custom Inverse Kinematics engine running on the **ESP32-C6**, enabling organic gait generation, smooth transitions, and dynamic body leveling.
@@ -72,7 +72,7 @@ The **PCA9685** servo driver and **GY-521** IMU operate on a shared high-speed I
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 /
@@ -99,7 +99,7 @@ The **PCA9685** servo driver and **GY-521** IMU operate on a shared high-speed I
 
 ---
 
-## 💾 Installation & Setup
+##  Installation & Setup
 
 ### Web Documentation
 
@@ -149,7 +149,7 @@ http://localhost:8000/index.html
 
 ---
 
-## 📜 License & Status
+##  License & Status
 
 Arttous is an **open-source experimental robotics platform** under active development. Hardware, firmware, and mechanical designs are evolving as the project advances toward higher autonomy and terrain intelligence.
 

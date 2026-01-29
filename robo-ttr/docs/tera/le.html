@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arttous | Optimized Navigation HUD</title>
+  <link rel="icon" href="../bono/images/logo-ttr.png" type="image/png">
+  <link rel="stylesheet" href="../bono/css/styles.css">
+  <style>
+    :root {
+      --ui-cyan: rgba(0, 240, 255, 0.9);
+      --ui-red: rgba(255, 59, 59, 0.9);
+    }
+
+    body { background-color: #000; overflow: hidden; margin: 0; }
+
+    .map-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('../bono/images/top_bg.jpg'); 
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.4) contrast(1.4);
+    }
+
+    canvas { position: absolute; top: 0; left: 0; z-index: 5; }
+
+    .hud-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      font-family: 'Courier New', monospace;
+      padding: 40px;
+    }
+
+    .rtb-container {
+      position: absolute;
+      bottom: 50px;
+      right: 50px;
+      pointer-events: auto;
+    }
+
+    .btn-rtb {
+      background: rgba(0, 0, 0, 0.9);
+      color: var(--ui-cyan);
+      border: 2px solid var(--ui-cyan);
+      padding: 18px 35px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      letter-spacing: 3px;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+    }
+
+    .btn-rtb:hover {
+      background: var(--ui-cyan);
+      color: #000;
+      box-shadow: 0 0 25px var(--ui-cyan);
+    }
+
+    .btn-rtb.active {
+      border-color: var(--ui-red);
+      color: var(--ui-red);
+      animation: alert-blink 1s infinite;
+    }
+
+    @keyframes alert-blink { 50% { opacity: 0.4; } }
+
+    .telemetry-panel {
+      position: absolute;
+      top: 120px;
+      right: 50px;
+      text-align: right;
+      border-right: 1px solid var(--ui-cyan);
+      padding-right: 20px;
+      color: #fff;
+    }
+
+    .telemetry-panel div { margin-bottom: 5px; }
+    .telemetry-panel span { color: var(--ui-cyan); }
+
+    .sys-log {
+      position: absolute;
+      bottom: 50px;
+      left: 50px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="map-container" id="viewport">
+    <canvas id="mapCanvas"></canvas>
+
+    <div class="hud-layer">
+      <div style="display:flex; justify-content: space-between;">
+        <img src="../bono/images/logo-ttr-wh.png" style="height: 35px; opacity: 0.8;">
+        <div style="text-align: right; color: #fff;">
+            SYSTEM_MODE: <span id="modeStatus" style="color:var(--ui-cyan)">MANUAL_PILOT</span>
+        </div>
+      </div>
+
+      <div class="telemetry-panel">
+        <div>X_POS: <span id="valX">0.00</span></div>
+        <div>Y_POS: <span id="valY">0.00</span></div>
+        <div>HDG: <span id="valDeg">0</span>°</div>
+        <div>DIST_TO_BASE: <span id="distBase">0</span>m</div>
+      </div>
+
+      <div class="rtb-container">
+        <button class="btn-rtb" id="rtbBtn" onclick="toggleRTB()">Direct Return</button>
+      </div>
+      
+      <div class="sys-log" id="log">
+        > ARTOUS_v2.5_STABLE<br>
+        > ESP32-C6 LINK: ONLINE<br>
+        > GY-521 IMU: ACTIVE
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('mapCanvas');
+    const ctx = canvas.getContext('2d');
+    const view = document.getElementById('viewport');
+
+    let w, h;
+    let isRTB = false;
+    let startPoint = null;
+    
+    const robot = {
+      x: 0, y: 0,
+      angle: -Math.PI / 2,
+      speed: 0,
+      size: 16,
+      trail: [],
+      stepCycle: 0
+    };
+
+    // Увеличенные якоря и деревья
+    const anchors = [
+      {x: 0.2, y: 0.3, pulses: []},
+      {x: 0.8, y: 0.2, pulses: []},
+      {x: 0.5, y: 0.7, pulses: []}
+    ];
+
+    const staticMarkers = Array.from({length: 8}, () => ({
+      x: Math.random(), 
+      y: Math.random(),
+      size: 25 // Увеличен размер крестиков
+    }));
+
+    const keys = {};
+
+    function init() {
+      resize();
+      robot.x = w / 2;
+      robot.y = h / 2;
+      startPoint = {x: robot.x, y: robot.y}; // Запоминаем изначальную точку
+      window.addEventListener('keydown', e => keys[e.code] = true);
+      window.addEventListener('keyup', e => keys[e.code] = false);
+      animate();
+    }
+
+    function resize() {
+      w = canvas.width = view.clientWidth;
+      h = canvas.height = view.clientHeight;
+    }
+
+    function toggleRTB() {
+      isRTB = !isRTB;
+      const btn = document.getElementById('rtbBtn');
+      const status = document.getElementById('modeStatus');
+      if(isRTB) {
+        btn.classList.add('active');
+        btn.innerText = "Returning...";
+        status.innerText = "AUTO_NAV_RTB";
+      } else {
+        btn.classList.remove('active');
+        btn.innerText = "Direct Return";
+        status.innerText = "MANUAL_PILOT";
+      }
+    }
+
+    function update() {
+      if (!isRTB) {
+        // Ручное управление (WSAD)
+        if (keys['KeyW']) robot.speed = Math.min(robot.speed + 0.1, 3);
+        else if (keys['KeyS']) robot.speed = Math.max(robot.speed - 0.1, -2);
+        else robot.speed *= 0.94;
+
+        if (keys['KeyA']) robot.angle -= 0.05;
+        if (keys['KeyD']) robot.angle += 0.05;
+
+        // Запись следа
+        if (Math.abs(robot.speed) > 0.1 && Math.random() < 0.1) {
+          robot.trail.push({x: robot.x, y: robot.y});
+          if(robot.trail.length > 100) robot.trail.shift();
+        }
+      } else {
+        // КРАТЧАЙШИЙ ПУТЬ: Движение напрямую к startPoint
+        const dx = startPoint.x - robot.x;
+        const dy = startPoint.y - robot.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        
+        if (dist > 5) {
+          const targetAngle = Math.atan2(dy, dx);
+          // Плавный поворот к цели
+          let diff = targetAngle - robot.angle;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          robot.angle += diff * 0.1;
+          robot.speed = 2.5;
+        } else {
+          robot.speed *= 0.8;
+          if(robot.speed < 0.1) toggleRTB();
+        }
+      }
+
+      robot.x += Math.cos(robot.angle) * robot.speed;
+      robot.y += Math.sin(robot.angle) * robot.speed;
+
+      // Анимация ходьбы (зависит от скорости)
+      if (Math.abs(robot.speed) > 0.1) {
+        robot.stepCycle += 0.25;
+      }
+
+      // Обновление волн якорей
+      anchors.forEach(a => {
+        if (Math.random() < 0.01) a.pulses.push({r: 0, o: 0.7});
+        a.pulses.forEach((p, i) => {
+          p.r += 2; p.o -= 0.005;
+          if (p.o <= 0) a.pulses.splice(i, 1);
+        });
+      });
+
+      // HUD
+      const dBase = Math.sqrt(Math.pow(startPoint.x - robot.x, 2) + Math.pow(startPoint.y - robot.y, 2));
+      document.getElementById('valX').innerText = (robot.x / 100).toFixed(2);
+      document.getElementById('valY').innerText = (robot.y / 100).toFixed(2);
+      document.getElementById('valDeg').innerText = Math.round((robot.angle * 180 / Math.PI) % 360);
+      document.getElementById('distBase').innerText = Math.round(dBase / 5);
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+
+      // 1. Сетка (Ultra-thin)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 0.9;
+      for(let i=0; i<w; i+=100) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke(); }
+
+      // 2. Увеличенные крестики (Trees)
+      staticMarkers.forEach(m => {
+        const mx = m.x * w; const my = m.y * h;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(mx - m.size, my); ctx.lineTo(mx + m.size, my);
+        ctx.moveTo(mx, my - m.size); ctx.lineTo(mx, my + m.size);
+        ctx.stroke();
+      });
+
+      // 3. Путь (Dashed Trail)
+      ctx.beginPath();
+      ctx.setLineDash([2, 5]);
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.3)';
+      robot.trail.forEach((p, i) => {
+        if(i===0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 4. Якоря
+      anchors.forEach(a => {
+        const ax = a.x * w; const ay = a.y * h;
+        a.pulses.forEach(p => {
+          ctx.beginPath(); ctx.arc(ax, ay, p.r, 0, Math.PI*2);
+          ctx.strokeStyle = `rgba(0, 240, 255, ${p.o})`;
+          ctx.stroke();
+        });
+        ctx.fillStyle = 'var(--ui-cyan)';
+        ctx.beginPath(); ctx.arc(ax, ay, 4, 0, Math.PI*2); ctx.fill();
+      });
+
+      // 5. Робот с анимацией ходьбы
+      ctx.save();
+      ctx.translate(robot.x, robot.y);
+      ctx.rotate(robot.angle);
+      
+      // Симуляция вертикальной и боковой качки (Walking Gait)
+      const bobbing = Math.sin(robot.stepCycle) * 2;
+      const tilt = Math.cos(robot.stepCycle) * 0.05;
+      ctx.translate(0, bobbing);
+      ctx.rotate(tilt);
+
+      ctx.beginPath();
+      ctx.moveTo(robot.size, 0);
+      ctx.lineTo(-robot.size/1.2, -robot.size/1.2);
+      ctx.lineTo(-robot.size/1.2, robot.size/1.2);
+      ctx.closePath();
+      ctx.strokeStyle = isRTB ? '#ff3b3b' : '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Направляющий вектор
+      ctx.beginPath(); ctx.moveTo(robot.size, 0); ctx.lineTo(robot.size + 15, 0);
+      ctx.strokeStyle = 'var(--ui-cyan)'; ctx.stroke();
+      
+      ctx.restore();
+
+      // Начальная точка (Base)
+      ctx.strokeStyle = '#fff';
+      ctx.strokeRect(startPoint.x - 10, startPoint.y - 10, 20, 20);
+    }
+
+    function animate() { update(); draw(); requestAnimationFrame(animate); }
+
+    window.onload = init;
+    window.onresize = resize;
+  </script>
+</body>
+</html>

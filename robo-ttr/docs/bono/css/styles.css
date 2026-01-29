@@ -1329,3 +1329,228 @@ main {
   .highlight-image { order: 2; width: 100%; }
   .highlight-text { order: 1; padding: 40px 20px; }
 }
+
+
+
+/* ========================================================================== */
+/* 3. GLOBAL ELEMENTS                                                            */   
+/* ========================================================================== */
+/* ================= TRACKING DASHBOARD STYLES (BLUE THEME) ================= */
+
+/* Специфичный фон для страницы трекинга */
+.tracking-page {
+    background: linear-gradient(to bottom right, #0f172a, #1e293b);
+    color: #e2e8f0;
+}
+
+/* Переопределение активной ссылки в меню на синий */
+.tracking-page .main-nav ul li a.active {
+    color: #50c9c3;
+    border-bottom-color: #50c9c3;
+}
+
+.tracking-dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* --- New Hero Section (Многослойный текст) --- */
+.tracking-hero {
+    position: relative;
+    text-align: left;
+    margin-bottom: 60px;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hero-text-layer {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 80px;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.hero-text-layer.back {
+    color: rgba(255, 255, 255, 0.05);
+    transform: translate(10px, 10px);
+    z-index: 1;
+}
+
+.hero-text-layer.front {
+    color: transparent;
+    background: linear-gradient(90deg, #50c9c3, #fff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    z-index: 2;
+    text-shadow: 0 0 30px rgba(80, 201, 195, 0.3);
+}
+
+.hero-subtitle {
+    margin-top: 90px;
+    font-family: 'Roboto Mono', monospace;
+    color: #94a3b8;
+    font-size: 16px;
+    letter-spacing: 1px;
+}
+
+/* --- Dashboard Grid Layout --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Карта шире, данные уже */
+    gap: 30px;
+}
+
+/* --- Common Panel Styles --- */
+.map-panel, .data-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.panel-header h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+.live-indicator {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    color: #50c9c3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.blink-dot {
+    width: 8px; height: 8px;
+    background: #50c9c3;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #50c9c3;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* --- Map Container --- */
+.tracking-container {
+    height: 600px; /* Выше чем раньше */
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(80, 201, 195, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.controls-hint {
+    background: rgba(15, 23, 42, 0.9);
+    border-color: #50c9c3;
+    color: #50c9c3;
+    font-family: 'Roboto Mono', monospace;
+}
+
+/* --- Data Cards & Charts --- */
+.telemetry-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.data-card, .chart-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.7));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 25px;
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.data-card.highlight {
+    background: linear-gradient(135deg, rgba(80, 201, 195, 0.1), rgba(15, 23, 42, 0.3));
+    border-color: #50c9c3;
+}
+
+.data-card h4, .chart-card h4 {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.data-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    color: #fff;
+    font-weight: 700;
+}
+
+.data-card.highlight .data-value { color: #50c9c3; }
+
+/* Мокапы Графиков */
+.chart-container {
+    height: 150px;
+    margin-top: 15px;
+    position: relative;
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+
+/* Velocity Chart (Line Mockup) */
+.velocity-chart {
+    background: 
+        linear-gradient(to right, rgba(80,201,195,0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(80,201,195,0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+.chart-line-mockup {
+    position: absolute;
+    bottom: 0; left: 0; width: 100%; height: 60%;
+    background: linear-gradient(to right, #50c9c3, #fff);
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0,80 C20,60 40,90 60,40 S80,10 100,50 L100,100 L0,100 Z' fill='black'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0,80 C20,60 40,90 60,40 S80,10 100,50 L100,100 L0,100 Z' fill='black'/%3E%3C/svg%3E");
+    mask-size: 100% 100%;
+    opacity: 0.7;
+}
+
+/* Signal Chart (Bars) */
+.signal-bars {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    height: 100%;
+    padding-bottom: 10px;
+}
+
+.signal-bars .bar {
+    width: 25%;
+    background: linear-gradient(to top, #1e293b, #50c9c3);
+    border-radius: 4px 4px 0 0;
+    text-align: center;
+    color: #fff;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    padding-top: 5px;
+    box-shadow: 0 0 15px rgba(80, 201, 195, 0.4);
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .tracking-container { height: 400px; }
+}

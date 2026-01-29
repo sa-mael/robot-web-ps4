@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arttous | Live Tracking Dashboard</title>
+  <link rel="icon" href="../bono/images/logo-ttr.png" type="image/png">
+  <link rel="stylesheet" href="../bono/css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="tracking-page">
+  
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-shell">
+        <a href="main.html"><img src="../bono/images/logo-ttr-wh.png" alt="Arttous Logo" class="logo-img"/></a>
+      </div>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="main.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="tracking.html" class="active">Tracking</a></li>
+          <li><a href="investors.html">Investors</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="tracking-dashboard">
+    <div class="tracking-hero">
+        <div class="hero-text-layer back">Live Tracking</div>
+        <div class="hero-text-layer front">Live Tracking</div>
+        <p class="hero-subtitle">Autonomous Path Visualization & Telemetry</p>
+    </div>
+
+    <section class="dashboard-grid">
+        
+        <div class="map-panel">
+            <div class="panel-header">
+                <h3>Sector Map</h3>
+                <div class="live-indicator"><span class="blink-dot"></span> LIVE</div>
+            </div>
+            <div class="tracking-container" id="container">
+                <canvas id="mapCanvas"></canvas>
+                <div class="controls-hint">
+                    🎮 <strong>WSAD / Arrows</strong> to navigate Arttous
+                </div>
+            </div>
+        </div>
+
+        <div class="data-panel">
+            
+            <div class="telemetry-cards">
+                <div class="data-card">
+                    <h4>Position X</h4>
+                    <div class="data-value" id="statX">0</div>
+                </div>
+                <div class="data-card">
+                    <h4>Position Y</h4>
+                    <div class="data-value" id="statY">0</div>
+                </div>
+                <div class="data-card">
+                    <h4>Heading</h4>
+                    <div class="data-value"><span id="statDeg">0</span>°</div>
+                </div>
+                <div class="data-card highlight">
+                    <h4>Velocity</h4>
+                    <div class="data-value"><span id="statSpeed">0.0</span> m/s</div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h4>Movement Velocity (Last 60s)</h4>
+                <div class="chart-container velocity-chart">
+                    <div class="chart-line-mockup"></div>
+                </div>
+            </div>
+
+             <div class="chart-card">
+                <h4>Anchor Signal Strength</h4>
+                <div class="chart-container signal-chart">
+                    <div class="signal-bars">
+                        <div class="bar" style="height: 80%">A1</div>
+                        <div class="bar" style="height: 65%">A2</div>
+                        <div class="bar" style="height: 90%">A3</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-bottom">
+        <p>&copy; 2026 Arttous Inc. — Spatial Intelligence Unit.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const canvas = document.getElementById('mapCanvas');
+    const ctx = canvas.getContext('2d');
+    const container = document.getElementById('container');
+
+    let width, height;
+    const robot = {
+      x: 0,
+      y: 0,
+      angle: -Math.PI / 2,
+      speed: 0,
+      turnSpeed: 0.05,
+      accel: 0.2,
+      friction: 0.95,
+      size: 15
+    };
+
+    const anchors = [
+      {x: 200, y: 200, waves: []},
+      {x: 800, y: 150, waves: []},
+      {x: 500, y: 500, waves: []}
+    ];
+
+    const trees = [];
+    const keys = {};
+
+    function initTrees() {
+      for(let i=0; i<10; i++) {
+        trees.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          size: 15 + Math.random() * 20
+        });
+      }
+    }
+
+    function resize() {
+      width = canvas.width = container.clientWidth;
+      height = canvas.height = container.clientHeight;
+      robot.x = width / 2;
+      robot.y = height / 2;
+    }
+
+    window.addEventListener('resize', resize);
+    window.addEventListener('keydown', e => keys[e.code] = true);
+    window.addEventListener('keyup', e => keys[e.code] = false);
+
+    function update() {
+      if (keys['KeyW'] || keys['ArrowUp']) robot.speed += robot.accel;
+      if (keys['KeyS'] || keys['ArrowDown']) robot.speed -= robot.accel;
+      if (keys['KeyA'] || keys['ArrowLeft']) robot.angle -= robot.turnSpeed;
+      if (keys['KeyD'] || keys['ArrowRight']) robot.angle += robot.turnSpeed;
+
+      robot.speed *= robot.friction;
+      robot.x += Math.cos(robot.angle) * robot.speed;
+      robot.y += Math.sin(robot.angle) * robot.speed;
+
+      if (robot.x < 0) robot.x = width;
+      if (robot.x > width) robot.x = 0;
+      if (robot.y < 0) robot.y = height;
+      if (robot.y > height) robot.y = 0;
+
+      anchors.forEach(a => {
+        if (Math.random() < 0.02) a.waves.push({ r: 0, opacity: 1 });
+        a.waves.forEach((w, i) => {
+          w.r += 2;
+          w.opacity -= 0.01;
+          if (w.opacity <= 0) a.waves.splice(i, 1);
+        });
+      });
+
+      // Update HUD с форматированием
+      document.getElementById('statX').innerText = robot.x.toFixed(1);
+      document.getElementById('statY').innerText = robot.y.toFixed(1);
+      document.getElementById('statDeg').innerText = Math.round((robot.angle * 180 / Math.PI) % 360);
+      // Расчет скорости для отображения (умножаем для наглядности)
+      document.getElementById('statSpeed').innerText = Math.abs(robot.speed * 10).toFixed(1);
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Сетка в новом синем стиле
+      ctx.strokeStyle = 'rgba(80, 201, 195, 0.1)'; // Неоновый голубой
+      ctx.lineWidth = 1;
+      for(let x=0; x<width; x+=50) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,height); ctx.stroke(); }
+      for(let y=0; y<height; y+=50) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(width,y); ctx.stroke(); }
+
+      // Якоря (Синие)
+      anchors.forEach(a => {
+        a.waves.forEach(w => {
+          ctx.beginPath();
+          ctx.arc(a.x, a.y, w.r, 0, Math.PI*2);
+          ctx.strokeStyle = `rgba(80, 201, 195, ${w.opacity})`;
+          ctx.stroke();
+        });
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, 8, 0, Math.PI*2);
+        ctx.fillStyle = '#50c9c3';
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#50c9c3';
+        ctx.fill();
+      });
+
+      // Деревья (Более темные, вписывающиеся в интерфейс)
+      trees.forEach(t => {
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, t.size, 0, Math.PI*2);
+        ctx.fillStyle = '#1f3a52'; // Темно-синий
+        ctx.fill();
+        ctx.strokeStyle = '#2c537a';
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      });
+
+      // Робот (Треугольник, Синий неон)
+      ctx.save();
+      ctx.translate(robot.x, robot.y);
+      ctx.rotate(robot.angle);
+      ctx.beginPath();
+      ctx.moveTo(robot.size, 0);
+      ctx.lineTo(-robot.size/2, -robot.size/1.5);
+      ctx.lineTo(-robot.size/2, robot.size/1.5);
+      ctx.closePath();
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = '#50c9c3';
+      ctx.strokeStyle = '#50c9c3';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+
+      requestAnimationFrame(() => {
+        update();
+        draw();
+      });
+    }
+
+    resize();
+    initTrees();
+    draw();
+  </script>
+</body>
+</html>
