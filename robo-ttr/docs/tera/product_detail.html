@@ -1,340 +1,462 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Arttous Rhodium: Autonomous Quadruped Platform with T3S3 LoRa Mesh and Symmetric Twist Kinematics.">
-  <title>Arttous | Autonomous Mesh Robotics</title>
-  
-  <link rel="icon" href="../bono/images/logo-ttr.png" type="image/png">
-  <link rel="stylesheet" href="../bono/css/c.css">
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-  
-  <script src="../bono/js/main.js" type="module" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARTTOUS | Autonomous 16-DOF Mesh Platform</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 
-  <script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    <style>
+        :root {
+            --bg-core: #050505;
+            --bg-panel: #0e0e0e;
+            --accent-primary: #8e44ad; /* TTR Purple */
+            --accent-secondary: #00f3ff; /* Cyan Data */
+            --text-main: #e0e0e0;
+            --text-dim: #666666;
+            --grid-color: rgba(142, 68, 173, 0.05);
         }
-    }
-  </script>
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-core);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .accent { color: var(--accent-primary); }
+        .cyan { color: var(--accent-secondary); }
+
+        /* --- HEADER --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 5%;
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+            background: linear-gradient(180deg, rgba(5,5,5,0.9) 0%, rgba(5,5,5,0) 100%);
+            backdrop-filter: blur(5px);
+        }
+
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; }
+        .status-dot {
+            height: 8px; width: 8px; 
+            background-color: #0f0; 
+            border-radius: 50%; 
+            display: inline-block; 
+            margin-right: 8px;
+            box-shadow: 0 0 10px #0f0;
+        }
+
+        /* --- HERO --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            position: relative;
+        }
+
+        .hero-text {
+            width: 55%;
+            z-index: 10;
+        }
+
+        .firmware-badge {
+            font-family: 'JetBrains Mono';
+            font-size: 0.8rem;
+            color: var(--accent-secondary);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            padding: 5px 10px;
+            display: inline-block;
+            margin-bottom: 20px;
+            background: rgba(0, 243, 255, 0.05);
+        }
+
+        h1 {
+            font-size: 5rem;
+            line-height: 0.9;
+            margin-bottom: 30px;
+            background: linear-gradient(180deg, #fff 0%, #888 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            max-width: 500px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            border-left: 2px solid var(--accent-primary);
+            padding-left: 20px;
+        }
+
+        .cta-group { display: flex; gap: 20px; }
+        
+        .btn {
+            padding: 15px 40px;
+            font-family: 'Orbitron';
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: 0.3s;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: #fff;
+            border: none;
+        }
+        .btn-primary:hover { background: #9b59b6; box-shadow: 0 0 30px rgba(142, 68, 173, 0.4); }
+
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-secondary:hover { border-color: #fff; background: rgba(255,255,255,0.05); }
+
+        /* --- 3D / VISUAL AREA --- */
+        .visual-container {
+            position: absolute;
+            right: 0; top: 0;
+            width: 70%; height: 100%;
+            /* Placeholder gradient until Three.js loads */
+            background: radial-gradient(circle at 50% 50%, rgba(141, 68, 173, 0.455), transparent 90%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hud-circle {
+            width: 500px; height: 500px;
+            border: 1px dashed rgba(255,255,255,0.1);
+            border-radius: 50%;
+            position: absolute;
+            animation: rotate 60s linear infinite;
+        }
+
+        @keyframes rotate { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
+
+        /* --- BENTO GRID (TECH SPECS) --- */
+        .tech-section { padding: 100px 5%; }
+        
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 280px);
+            gap: 20px;
+            margin-top: 50px;
+        }
+
+        .card {
+            background: var(--bg-panel);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-5px);
+        }
+
+        .card-lg { grid-column: span 2; }
+        .card-vert { grid-row: span 2; }
+
+        .card h3 { font-size: 1.1rem; color: #fff; margin-bottom: 10px; }
+        .card p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; }
+        
+        .tech-value { font-size: 3.5rem; font-family: 'Orbitron'; font-weight: 700; color: #fff; }
+        .tech-label { font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--accent-secondary); margin-bottom: 10px; display: block; }
+
+        /* CODE VISUALIZATION */
+        .code-block {
+            background: #000;
+            padding: 15px;
+            font-family: 'JetBrains Mono';
+            font-size: 0.7rem;
+            color: #aaa;
+            border-left: 2px solid var(--accent-primary);
+            margin-top: auto;
+        }
+
+        /* DATA STREAM */
+        .data-stream {
+            font-family: 'JetBrains Mono';
+            font-size: 0.7rem;
+            color: var(--accent-secondary);
+            opacity: 0.7;
+            margin-top: auto;
+        }
+        .data-row { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid rgba(0,243,255,0.1); padding-bottom: 2px;}
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1024px) {
+            h1 { font-size: 3rem; }
+            .hero { flex-direction: column; padding-top: 120px; text-align: center; }
+            .hero-text { width: 100%; }
+            .hero-desc { border: none; margin: 0 auto 40px; padding: 0; }
+            .cta-group { justify-content: center; }
+            .visual-container { position: relative; width: 100%; height: 400px; }
+            .bento-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+            .card-lg, .card-vert { grid-column: span 1; grid-row: span 1; }
+        }
+    </style>
 </head>
 <body>
-  
-  <header class="site-header">
-    <div class="circle-blink-container">
-      <div class="blink-circle" style="left: 10%; top: 20%;"></div>
-      <div class="blink-circle" style="left: 80%; top: 60%; animation-delay: 1s;"></div>
-    </div>
-    <div class="header-inner">
-      <div class="logo-shell">
-        <a href="index.html">
-          <img src="../bono/images/logo-ttr-wh.png" alt="Arttous Logo" class="logo-img"/>
-        </a>
-      </div>
-      <nav class="main-nav">
-        <ul>
-          <li><a href="index.html" class="active">Mission Control</a></li>
-          <li><a href="technology.html">Technology</a></li>
-          <li><a href="tracking.html">Telemetry</a></li>
-          <li><a href="investors.html">Investors</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav>
-      <div class="search">
-        <div class="live-indicator" style="border: 1px solid #333; padding: 5px 10px; border-radius: 4px;">
-          <div class="blink-dot"></div>
-          <span style="font-family: 'JetBrains Mono'; font-size: 10px; margin-left: 8px; color: #fff;">SYSTEM ONLINE</span>
-        </div>
-      </div>
-    </div>
-  </header>
 
-  <main>
+    <nav>
+        <div class="logo">ART<span class="accent">TOUS</span></div>
+        <div class="mono" style="font-size: 0.8rem;">
+            <span class="status-dot"></span>SYS_ONLINE
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-text">
+            <span class="firmware-badge">FIRMWARE v53.0 :: RHODIUM</span>
+            <h1>AUTONOMOUS<br><span class="accent">MESH REALITY</span></h1>
+            <p class="hero-desc">
+                Where GPS fails, Arttous creates its own reality. 
+                A <strong>16-DOF</strong> quadrupedal platform powered by <strong>ESP32-C6</strong> and localized via <strong>T3S3 LoRa Mesh</strong> Time-of-Flight ranging.
+            </p>
+            <div class="cta-group">
+                <a href="#" class="btn btn-primary">SYSTEM ARCHITECTURE</a>
+                <a href="#" class="btn btn-secondary">LIVE TELEMETRY</a>
+            </div>
+        </div>
+
+        <div class="visual-container">
+            <div class="hud-circle"></div>
+            <div class="mono accent" style="position: absolute;">
+                [ INSERT 3D MODEL HERE ]<br>
+                16 SERVOS DETECTED
+            </div>
+            </div>
+    </section>
+
+    <section class="tech-section">
+        <div style="margin-bottom: 40px; border-bottom: 1px solid #333; padding-bottom: 20px;">
+            <h2 style="font-size: 2rem;">COMPONENT MATRIX</h2>
+            <span class="mono text-dim">HARDWARE_REV_04 // CONFIG: QUAD_16DOF</span>
+        </div>
+
+        <div class="bento-grid">
+            
+            <div class="card card-lg">
+                <span class="tech-label">MOTION ENGINE</span>
+                <div style="display: flex; align-items: baseline; gap: 15px;">
+                    <h3 class="accent">SYMMETRIC TWIST KINEMATICS</h3>
+                </div>
+                <p>Custom Inverse Kinematics solver (v53) handling <strong>16 degrees of freedom</strong> (4 per leg). Corrects asymmetric roll behavior using twist-banking logic.</p>
+                <div class="code-block">
+                    // RHODIUM v53.0 Matrix<br>
+                    FL_LEG: { +1, +1, +1, +1 }<br>
+                    FR_LEG: { +1, -1, -1, -1 }<br>
+                    return solve_IK_16DOF(target_pos);
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="tech-label">ACTUATION</span>
+                <div class="tech-value">16x</div>
+                <h3>MG90S SERVOS</h3>
+                <p>High-torque metal gear actuators. 4 motors per leg provide active ankle control and complex gait capabilities.</p>
+            </div>
+
+            <div class="card card-vert" style="background: linear-gradient(160deg, #0e0e0e 0%, #1a0b2e 100%); border: 1px solid var(--accent-primary);">
+                <span class="tech-label cyan">LOCALIZATION SYSTEM</span>
+                <h3 style="font-size: 1.5rem; margin-bottom: 20px;">T3S3 MESH</h3>
+                <p style="margin-bottom: 30px;">
+                    GNSS-denied navigation using <strong>SX1280 2.4GHz LoRa</strong> modules. Robots deploy "Anchors" to triangulate position via Time-of-Flight (ToF).
+                </p>
+                
+                <div class="data-stream">
+                    <div class="data-row">
+                        <span>ANCHOR_A</span>
+                        <span>-42dBm [3.2m]</span>
+                    </div>
+                    <div class="data-row">
+                        <span>ANCHOR_B</span>
+                        <span>-38dBm [1.8m]</span>
+                    </div>
+                    <div class="data-row">
+                        <span>ANCHOR_C</span>
+                        <span>-45dBm [4.1m]</span>
+                    </div>
+                    <div class="data-row" style="color: #0f0; margin-top: 10px; border: none;">
+                        <span>> TRIANGULATION:</span>
+                        <span>LOCKED</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="tech-label">CORE PROCESSOR</span>
+                <h3>ESP32-C6</h3>
+                <p>RISC-V 32-bit Single Core. Runs FreeRTOS with dedicated tasks for Physics (50Hz) and Async Web Telemetry.</p>
+            </div>
+
+            <div class="card card-lg">
+                <span class="tech-label">STABILIZATION</span>
+                <div style="display: flex; justify-content: space-between;">
+                    <h3>ACTIVE GYRO (MPU-6050)</h3>
+                    <div class="mono cyan">PITCH: 0.02°</div>
+                </div>
+                <p>Real-time horizon correction. The IMU feeds directly into the gait scheduler to adjust foot height on uneven terrain.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <script>
+        console.log("ARTTOUS SYSTEM ONLINE: v53.0");
+        console.log("Initializing 16-DOF Kinematics...");
+    </script>
+
+    <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+</script>
+<script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // --- НАСТРОЙКИ ---
+    const container = document.querySelector('.visual-container');
+    const modelPath = './web-robo-3D.glb'; 
+    const robotScale = 6.5; // <--- УВЕЛИЧИЛ: Ставь больше, если нужно (было 1.0)
+
+    // СЦЕНА
+    const scene = new THREE.Scene();
+    scene.background = null; // Прозрачный фон
+
+    // КАМЕРА (ПРИБЛИЗИЛ)
+    // Было (3, 2, 4), стало ближе (1.8, 1.2, 2.5)
+    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(1.8, 1.2, 2.5); 
+
+    // РЕНДЕР
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    // ToneMapping делает свет "киношным", а не пересвеченным
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.5; // Яркость экспозиции
     
-    <section class="hp-hero-section" id="hp-canvas-container">
-      
-      <div class="hp-hero-content-left">
-        <span class="purple-kicker">Firmware v53.0 "Rhodium"</span>
-        <h1>Autonomous<br>Mesh Reality</h1>
-        <p>
-          The Arttous Platform combines <strong>Symmetric Twist Kinematics</strong> with the 
-          <strong>T3S3 LoRa Ranging System</strong> for sub-meter localization 
-          in GNSS-denied environments.
-        </p>
-        <div class="cta-group">
-          <a href="technology.html" class="btn btn-primary">System Architecture</a>
-          <a href="tracking.html" class="btn btn-secondary">Live Telemetry</a>
-        </div>
-      </div>
-    </section>
+    container.innerHTML = ''; 
+    container.appendChild(renderer.domElement);
 
-    <div class="status-ticker">
-      <div class="ticker-content">
-        /// SYSTEM CHECK: OK /// ESP32-C6 CORE: ACTIVE /// T3S3 MESH: 3 ANCHORS LOCKED /// BATTERY: 7.4V STABLE /// IK ENGINE: v53.0 SYMMETRIC /// SYSTEM CHECK: OK /// ESP32-C6 CORE: ACTIVE ///
-      </div>
-    </div>
+    // --- ПРОФЕССИОНАЛЬНЫЙ СВЕТ (STUDIO SETUP) ---
+    
+    // 1. Key Light (Основной рисующий) - Холодный белый спереди-сверху
+    // Дает форму деталям
+    const keyLight = new THREE.DirectionalLight(0xffffff, 4.0);
+    keyLight.position.set(2, 2, 2);
+    scene.add(keyLight);
 
-    <section class="impact-statement">
-      <div class="impact-grid">
-        <div>
-          <h2 class="big-statement">Where Wheels Fail,<br><span style="color: #8e44ad;">Arttous Walks.</span></h2>
-        </div>
-        <div>
-          <p class="statement-detail">
-            Standard GPS signals cannot penetrate dense concrete, underground tunnels, or metallic structures. 
-            <strong>Arttous</strong> creates its own local reality using 2.4GHz LoRa Time-of-Flight ranging.
-          </p>
-        </div>
-      </div>
-    </section>
+    // 2. Rim Light (Контровой) - Ядреный фиолетовый сзади
+    // Очерчивает силуэт, чтобы черный робот не сливался с черным фоном
+    const rimLight = new THREE.SpotLight(0x8e44ad, 20.0); // Высокая интенсивность!
+    rimLight.position.set(-2, 1, -2);
+    rimLight.lookAt(0, 0, 0);
+    scene.add(rimLight);
 
-    <section class="bento-section">
-      <div style="max-width: 1400px; margin: 0 auto 40px;">
-        <span class="purple-kicker">Hardware Anatomy</span>
-        <h2 style="font-size: 2.5rem; color: #fff; text-transform: uppercase;">Component Matrix</h2>
-      </div>
+    // 3. Fill Light (Заполняющий) - Мягкий неон снизу (Cyberpunk feel)
+    // Подсвечивает "живот" робота, чтобы там не было черной дыры
+    const fillLight = new THREE.PointLight(0x00f3ff, 2.0);
+    fillLight.position.set(0, -2, 1); 
+    scene.add(fillLight);
 
-      <div class="bento-grid">
-        <div class="bento-item span-2">
-          <span class="bento-title">CORE PROCESSOR</span>
-          <div class="bento-content">
-            <h3>ESP32-C6 RISC-V</h3>
-            <p>160MHz Single Core running FreeRTOS with dedicated tasks for Physics (50Hz) and Network (Async).</p>
-          </div>
-          <span class="bento-number">01</span>
-        </div>
-        <div class="bento-item span-row-2" style="background: #1a1a1a;">
-          <span class="bento-title">LOCALIZATION</span>
-          <div class="bento-content">
-            <h3 style="color: #00f3ff;">T3S3 Mesh</h3>
-            <p>Semtech SX1280 LoRa modules utilizing ToF ranging for sub-meter accuracy without satellite dependency.</p>
-            <ul style="margin-top: 20px; color: #888; font-family: 'JetBrains Mono'; font-size: 0.8rem; list-style: none;">
-              <li style="margin-bottom: 5px;">> AUTO_CALIB</li>
-              <li style="margin-bottom: 5px;">> TRIANGULATION</li>
-              <li>> KALMAN_FILTER</li>
-            </ul>
-          </div>
-          <span class="bento-number" style="color: #333;">02</span>
-        </div>
-        <div class="bento-item">
-          <span class="bento-title">ACTUATION</span>
-          <div class="bento-content">
-            <h3>12-DOF</h3>
-            <p>12x MG90S Metal Gear servos driven by PCA9685 via I²C at 400kHz.</p>
-          </div>
-        </div>
-        <div class="bento-item span-2">
-          <span class="bento-title">STABILIZATION</span>
-          <div class="bento-content">
-            <h3>Active Gyro</h3>
-            <p>MPU-6050 sensor fusion actively corrects pitch/roll to maintain horizon level on 20° slopes.</p>
-          </div>
-          <span class="bento-number">03</span>
-        </div>
-        <div class="bento-item">
-          <span class="bento-title">POWER PLANT</span>
-          <div class="bento-content">
-            <h3>7.4V LiPo</h3>
-            <p>Regulated via 5A UBEC to prevent brownouts under high torque load.</p>
-          </div>
-        </div>
-      </div>
-    </section>
+    // 4. Top Light - Верхний свет для бликов на крышке
+    const topLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    topLight.position.set(0, 5, 0);
+    scene.add(topLight);
 
-    <div class="parallax-strip">
-      <div class="outline-text">DEPLOY /// MAP /// RETURN /// DEPLOY /// MAP /// RETURN</div>
-    </div>
+    // КОНТРОЛЛЕР
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enableZoom = true;    // Включил зум, чтобы ты мог сам проверить
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.5;
 
-    <section class="innovation-highlight">
-      <div class="highlight-image">
-        <div style="width: 100%; height: 100%; background: radial-gradient(circle, #222 0%, #000 100%); display: flex; align-items: center; justify-content: center;">
-           <div style="border: 1px solid #8e44ad; width: 60%; height: 60%; position: relative;">
-              <div style="position: absolute; top: -10px; left: 10px; background: #000; padding: 0 10px; color: #8e44ad; font-family: 'JetBrains Mono';">IK_SOLVER_V53</div>
-              <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #444; font-size: 5rem;">XYZ</div>
-           </div>
-        </div>
-      </div>
-      <div class="highlight-text">
-        <span class="purple-kicker">Engine Upgrade</span>
-        <h2>Rhodium Kinematics v53</h2>
-        <p>
-          The latest firmware introduces <strong>Symmetric Twist Banking</strong>. Previous iterations suffered from asymmetric roll behavior. 
-          Version 53.0 implements a corrected configuration matrix.
-        </p>
-        <div style="background: #111; padding: 20px; border-left: 2px solid #8e44ad; font-family: 'JetBrains Mono'; font-size: 0.85rem; color: #aaa; margin-bottom: 20px;">
-          FL_LEG: { +1, +1, +1, +1 }<br>
-          FR_LEG: { +1, -1, -1, -1 }<br>
-          // Twist Sign ensures correct banking direction
-        </div>
-        <a href="technology.html" class="text-link">Read Changelog</a>
-      </div>
-    </section>
-
-    <section class="workflow-section">
-      <div class="section-header">
-        <h2>Mission Logic</h2>
-        <p style="color: #666; max-width: 600px; margin: 0 auto 40px;">Standardized T3S3 deployment sequence.</p>
-      </div>
-      <div class="workflow-steps">
-        <div class="step" data-step="1"><span class="step-num">01</span><span class="step-label">Anchor Drop</span></div>
-        <div class="step" data-step="2"><span class="step-num">02</span><span class="step-label">Auto-Calib</span></div>
-        <div class="step" data-step="3"><span class="step-num">03</span><span class="step-label">Robot Init</span></div>
-        <div class="step" data-step="4"><span class="step-num">04</span><span class="step-label">Mesh Lock</span></div>
-        <div class="step" data-step="5"><span class="step-num">05</span><span class="step-label">Run</span></div>
-      </div>
-    </section>
-
-  </main>
-
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div class="footer-section">
-        <h4>System</h4>
-        <ul>
-          <li><a href="technology.html">Architecture</a></li>
-          <li><a href="tracking.html">Live Map</a></li>
-          <li><a href="#">Firmware v53.0</a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h4>Company</h4>
-        <ul>
-          <li><a href="about.html">Mission</a></li>
-          <li><a href="investors.html">Investors</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h4>Legal</h4>
-        <ul>
-          <li><a href="#">Privacy Protocol</a></li>
-          <li><a href="#">Terms of Service</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 Arttous Robotics Inc. | Powered by ESP32 & RadioLib</p>
-    </div>
-  </footer>
-
-  <div id="backToTop" class="hp-back-to-top">
-    <div class="hp-arrow-up"></div>
-  </div>
-
-  <div id="step-modal" class="modal-overlay">
-    <div class="modal-content">
-      <button class="modal-close">&times;</button>
-      <h3 class="modal-title" style="color: #8e44ad;">Protocol Detail</h3>
-      <div id="modal-step-text"></div>
-    </div>
-  </div>
-
-  <script type="module">
-        import * as THREE from 'three';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-        // 1. SCROLL TO TOP LOGIC (Added Here)
-        const backToTopBtn = document.getElementById('backToTop');
+    // ЗАГРУЗКА
+    const loader = new GLTFLoader();
+    
+    loader.load(modelPath, function (gltf) {
+        const model = gltf.scene;
         
-        window.addEventListener('scroll', () => {
-            // Show button after scrolling 300px
-            if (window.scrollY > 300) {
-                backToTopBtn.classList.add('active');
-                document.body.classList.add('scrolled'); // For header shrinking
-            } else {
-                backToTopBtn.classList.remove('active');
-                document.body.classList.remove('scrolled');
+        // ЦЕНТРИРОВАНИЕ
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        model.position.sub(center); 
+
+        // МАСШТАБИРОВАНИЕ (ВАЖНО!)
+        model.scale.set(robotScale, robotScale, robotScale);
+
+        // ВАЖНО: Включаем тени/материалы
+        model.traverse((child) => {
+            if (child.isMesh) {
+                // Сделаем материал чуть более "металлическим", чтобы ловил блики
+                child.material.roughness = 0.4; // Глянцевость (0 - зеркало, 1 - матовый)
+                child.material.metalness = 0.6; // Металличность
             }
         });
-
-        backToTopBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        // 2. 3D SCENE SETUP
-        // We use the ID #hp-canvas-container to target the hero section
-        const container = document.getElementById('hp-canvas-container');
-        const scene = new THREE.Scene();
-        scene.background = null; 
-
-        // CAMERA - SHIFTED RIGHT FOR SPLIT LAYOUT
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 100);
-        // X=0.6 pushes the view point to the right, freeing up the left for text
-        // Y=0.3 provides a slight "hero angle" looking down/forward
-        camera.position.set(0.6, 0.3, 1.2); 
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.useLegacyLights = false; 
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.1;
         
-        // ABSOLUTE POSITIONING TO SIT BEHIND TEXT
-        renderer.domElement.style.position = 'absolute';
-        renderer.domElement.style.top = '0';
-        renderer.domElement.style.left = '0';
-        renderer.domElement.style.zIndex = '1'; 
-        
-        container.prepend(renderer.domElement);
+        scene.add(model);
+        console.log(`ROBOT LOADED. Scale: ${robotScale}`);
 
-        // LIGHTING (Dark Swiss Theme)
-        const ambientLight = new THREE.AmbientLight(0x202020, 1.0); 
-        scene.add(ambientLight);
-        const keyLight = new THREE.DirectionalLight(0xffffff, 3.0);
-        keyLight.position.set(2, 2, 2);
-        scene.add(keyLight);
-        const rimLight = new THREE.SpotLight(0x8e44ad, 6); 
-        rimLight.position.set(-2, 3, -2); 
-        rimLight.lookAt(0.5, 0, 0);
-        scene.add(rimLight);
-        const fillLight = new THREE.DirectionalLight(0x00f3ff, 1.5);
-        fillLight.position.set(0, -2, 1);
-        scene.add(fillLight);
+    }, undefined, function (error) {
+        console.error("ERROR:", error);
+    });
 
-        // CONTROLS
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.enableZoom = false; 
-        controls.target.set(0.5, 0.1, 0); // Focus on right side
+    // АНИМАЦИЯ
+    function animate() {
+        requestAnimationFrame(animate);
         controls.update();
+        renderer.render(scene, camera);
+    }
+    animate();
 
-        // MODEL LOADER
-        const loader = new GLTFLoader();
-        loader.load('web-robo-3D.glb', function (gltf) {
-            const model = gltf.scene;
-            model.position.x = 0.5; // Shift model right
-            model.userData = { isRotating: true };
-            scene.add(model);
-        }, undefined, function (error) {
-            console.error("3D Load Error", error);
-        });
+    // РЕСАЙЗ
+    window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+</script>
 
-        // ANIMATION
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            scene.traverse((object) => {
-                if (object.isGroup && object.userData.isRotating) {
-                    object.rotation.y += 0.0005;
-                }
-            });
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-  </script>
-
+  <footer style="background: var(--bg-panel); padding: 20px 5%; text-align: center; color: var(--text-dim); font-size: 0.8rem; margin-top: 50px;">
+    <div style="max-width: 800px; margin: auto;">
+      <p>&copy; 2024 Arttous Robotics. All rights reserved.</p>
+      <p>Contact: <a href="mailto:info@arttous.com">info@arttous.com</a></p>
 </body>
 </html>
