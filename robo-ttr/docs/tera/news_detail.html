@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadruped Kinematics: 4-DOF Visualization</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #111; color: #0ff; font-family: 'Courier New', Courier, monospace; }
+        #info { position: absolute; top: 10px; width: 100%; text-align: center; pointer-events: none; z-index: 10; }
+        h1 { margin: 0; font-size: 1.2rem; text-shadow: 0 0 5px #0ff; }
+        p { font-size: 0.8rem; color: #aaa; }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="info">
+        <h1>FLIGHT DECK: KINEMATIC VISUALIZER</h1>
+        <p>Z-UP | Y-FORWARD | 4-DOF LEGS</p>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+
+        // --- CONFIGURATION CONSTANTS (From your Specifications) ---
+        const CFG = {
+            bodyLength: 150, // Y axis
+            bodyWidth: 90,   // X axis
+            bodyHeight: 60,  // Z axis
+            
+            // Bone Lengths (mm)
+            coxaLen: 75.00,
+            femurLen: 69.16,
+            tibiaLen: 123.59,
+            
+            // Twist Config
+            twistOffset: 20.00, // Distance along Coxa where twist occurs
+            
+            // Colors
+            colorBody: 0x333333,
+            colorCoxa: 0x0088ff,
+            colorFemur: 0x00ff88,
+            colorTibia: 0xffaa00,
+            colorJoint: 0xffffff
+        };
+
+        // --- SCENE SETUP ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050505);
+        
+        // FOG for depth
+        scene.fog = new THREE.FogExp2(0x050505, 0.002);
+
+        // CAMERA (Z-UP setup)
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
+        camera.up.set(0, 0, 1); // CRITICAL: Sets Z as vertical axis
+        camera.position.set(300, -300, 200);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // CONTROLS
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        // LIGHTS
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+        dirLight.position.set(100, -100, 200);
+        scene.add(dirLight);
+
+        // GRID (XY Plane)
+        const gridHelper = new THREE.GridHelper(1000, 50, 0x444444, 0x111111);
+        gridHelper.rotation.x = Math.PI / 2; // Rotate to match Z-up
+        scene.add(gridHelper);
+
+        // AXES HELPER (RGB = XYZ)
+        const axesHelper = new THREE.AxesHelper(50);
+        scene.add(axesHelper);
+
+        // --- ROBOT BUILDER ---
+
+        // 1. BODY
+        const bodyGeo = new THREE.BoxGeometry(CFG.bodyWidth, CFG.bodyLength, CFG.bodyHeight);
+        const bodyMat = new THREE.MeshPhongMaterial({ color: CFG.colorBody, flatShading: true });
+        const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+        bodyMesh.position.z = 150; // Initial standing height
+        scene.add(bodyMesh);
+
+        // Helper to create joints
+        function createJointMesh() {
+            return new THREE.Mesh(
+                new THREE.CylinderGeometry(5, 5, 10, 16),
+                new THREE.MeshBasicMaterial({ color: CFG.colorJoint })
+            );
+        }
+
+        // Helper to create Bone segments
+        function createBoneMesh(length, color, thickness = 4) {
+            const geometry = new THREE.BoxGeometry(thickness, length, thickness);
+            geometry.translate(0, length / 2, 0); // Pivot at the start
+            const material = new THREE.MeshPhongMaterial({ color: color });
+            return new THREE.Mesh(geometry, material);
+        }
+
+        // LEG FACTORY
+        // Corner Multipliers: X (+1/-1), Y (+1/-1)
+        const legs = [];
+
+        function createLeg(offsetX, offsetY, name) {
+            const isRight = offsetX > 0;
+            const isFront = offsetY > 0;
+
+            // --- HIERARCHY START ---
+            
+            // 1. COXA JOINT (YAW) - Attached to Body
+            // Positioned at the corners of the body
+            const coxaJoint = new THREE.Group();
+            coxaJoint.position.set(offsetX * (CFG.bodyWidth/2), offsetY * (CFG.bodyLength/2), 0);
+            
+            // Default rotation: Point diagonal (45 degrees)
+            const defaultYaw = (isRight ? -1 : 1) * (isFront ? 1 : -1) * (Math.PI / 4);
+            // Wait, for standard X/Y layout:
+            // FL (+X, +Y) -> 45 deg? No, FL is (-X, +Y). 
+            // Let's stick to standard math: 
+            // FL (-X, +Y) -> 135 deg standard, or 45 deg relative to Corner.
+            // Let's rotate the root joint to face outwards naturally.
+            
+            let baseRot = 0;
+            if (offsetX < 0 && offsetY > 0) baseRot = Math.PI * 0.75; // FL
+            if (offsetX > 0 && offsetY > 0) baseRot = Math.PI * 0.25; // FR
+            if (offsetX < 0 && offsetY < 0) baseRot = Math.PI * 1.25; // BL
+            if (offsetX > 0 && offsetY < 0) baseRot = Math.PI * 1.75; // BR
+
+            coxaJoint.rotation.z = baseRot; // Set base mounting angle
+            bodyMesh.add(coxaJoint);
+
+            // Visual: Coxa Mesh (Part 1 - before twist)
+            const coxaMesh1 = createBoneMesh(CFG.twistOffset, CFG.colorCoxa);
+            coxaMesh1.rotation.z = -Math.PI / 2; // Lay flat
+            coxaJoint.add(coxaMesh1);
+
+            // 2. COXA TWIST (ROLL)
+            const twistJoint = new THREE.Group();
+            twistJoint.position.y = CFG.twistOffset; // Move along the coxa 1 vector
+            coxaMesh1.add(twistJoint); // Attach to end of Coxa 1
+
+            // Visual: Coxa Mesh (Part 2 - after twist)
+            const remainingCoxa = CFG.coxaLen - CFG.twistOffset;
+            const coxaMesh2 = createBoneMesh(remainingCoxa, CFG.colorCoxa);
+            // This part rotates with the twist
+            twistJoint.add(coxaMesh2);
+
+            // 3. FEMUR JOINT (PITCH)
+            const femurJoint = new THREE.Group();
+            femurJoint.position.y = remainingCoxa; // At end of full coxa
+            // Rotate alignment so Pitch rotates around local X or Y?
+            // Femur moves Up/Down (Z). 
+            femurJoint.rotation.x = Math.PI / 2; // Orient joint for pitch
+            coxaMesh2.add(femurJoint);
+
+            const jointVis = createJointMesh();
+            jointVis.rotation.z = Math.PI / 2;
+            femurJoint.add(jointVis);
+
+            // Visual: Femur
+            const femurMesh = createBoneMesh(CFG.femurLen, CFG.colorFemur);
+            // Femur usually points OUT or UP?
+            // Let's align it along Y initially
+            femurJoint.add(femurMesh);
+
+            // 4. TIBIA JOINT (PITCH)
+            const tibiaJoint = new THREE.Group();
+            tibiaJoint.position.y = CFG.femurLen;
+            femurMesh.add(tibiaJoint);
+
+            const jointVis2 = createJointMesh();
+            jointVis2.rotation.z = Math.PI / 2;
+            tibiaJoint.add(jointVis2);
+
+            // Visual: Tibia
+            const tibiaMesh = createBoneMesh(CFG.tibiaLen, CFG.colorTibia);
+            tibiaJoint.add(tibiaMesh);
+            
+            // Pointer for foot
+            const foot = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshBasicMaterial({color:0xff0000}));
+            foot.position.y = CFG.tibiaLen;
+            tibiaMesh.add(foot);
+
+            // Store references for animation
+            legs.push({
+                name: name,
+                coxa: coxaJoint,    // Yaw
+                twist: twistJoint,  // Roll/Twist
+                femur: femurJoint,  // Pitch
+                tibia: tibiaJoint   // Pitch
+            });
+        }
+
+        // CREATE LEGS (Using signs to determine corner)
+        // Note: Body Width is X (90), Length is Y (150).
+        // FL: Left (-X), Front (+Y)
+        createLeg(-1, 1, "Front Left");
+        createLeg(1, 1, "Front Right");
+        createLeg(-1, -1, "Back Left");
+        createLeg(1, -1, "Back Right");
+
+
+        // --- GUI CONFIG ---
+        const gui = new GUI({ title: 'Flight Deck Controls' });
+        
+        const settings = {
+            'Global Height': 150,
+            'All: Yaw': 0,
+            'All: Twist': 0,
+            'All: Femur': -20,
+            'All: Tibia': -20, // Relative to femur
+        };
+
+        // Global Height Control
+        gui.add(settings, 'Global Height', 50, 300).onChange(h => {
+            bodyMesh.position.z = h;
+        });
+
+        const folderAll = gui.addFolder('Synchronized Control');
+        
+        folderAll.add(settings, 'All: Yaw', -45, 45).name('Coxa Yaw (Deg)').onChange(updateAll);
+        folderAll.add(settings, 'All: Twist', -45, 45).name('Coxa Twist (Deg)').onChange(updateAll);
+        folderAll.add(settings, 'All: Femur', -90, 90).name('Femur Pitch (Deg)').onChange(updateAll);
+        folderAll.add(settings, 'All: Tibia', -150, 150).name('Tibia Pitch (Deg)').onChange(updateAll);
+
+        function updateAll() {
+            legs.forEach(leg => {
+                // Apply rotations
+                // Note: We need to convert Deg to Rad
+                // Twist rotates around Y axis of the bone in this setup
+                leg.twist.rotation.y = settings['All: Twist'] * (Math.PI/180);
+                
+                // Femur rotates around Z axis of the joint group (due to previous rotation)
+                leg.femur.rotation.z = settings['All: Femur'] * (Math.PI/180);
+                
+                // Tibia
+                leg.tibia.rotation.z = settings['All: Tibia'] * (Math.PI/180);
+
+                // Yaw (More complex due to mirroring)
+                // For visualization, we just rotate the root joint relative to mount
+                 leg.coxa.rotation.z = leg.coxa.userData.baseRot + (settings['All: Yaw'] * (Math.PI/180));
+            });
+        }
+
+        // Initialize Base Rotations for Yaw arithmetic
+        legs.forEach(leg => {
+            leg.coxa.userData = { baseRot: leg.coxa.rotation.z };
+        });
+        
+        // Initial Update
+        updateAll();
+
+
+        // --- ANIMATION LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

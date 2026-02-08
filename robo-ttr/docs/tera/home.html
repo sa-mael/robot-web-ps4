@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Arttous: Autonomous Quadruped Platform featuring T3S3 LoRa Mesh Ranging and Active IK Stabilization.">
+  <title>Arttous | Autonomous Mesh Robotics</title>
+  
+  <link rel="icon" href="../bono/images/logo-ttr.png" type="image/png">
+  <link rel="stylesheet" href="../bono/css/styles.css">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  
+  <script src="../bono/js/main.js" type="module" defer></script>
+
+  <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+  </script>
+</head>
+<body>
+  
+  <header class="site-header">
+    <div class="circle-blink-container">
+      <div class="blink-circle" style="left: 10%; top: 20%;"></div>
+      <div class="blink-circle" style="left: 80%; top: 60%; animation-delay: 1s;"></div>
+    </div>
+    <div class="header-inner">
+      <div class="logo-shell">
+        <a href="index.html">
+          <img src="../bono/images/logo-ttr-wh.png" alt="Arttous Logo" class="logo-img"/>
+        </a>
+      </div>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html" class="active">Mission Control</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="tracking.html">Telemetry</a></li>
+          <li><a href="investors.html">Investors</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="search">
+        <input type="search" placeholder="SEARCH SYSTEM..." aria-label="Search">
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+    <section class="home-hero" id="hero-canvas-container">
+      
+      <div class="home-hero-content">
+        <span class="purple-kicker">System v49.0 Online</span>
+        <h1>Autonomous<br>Mesh Reality</h1>
+        <p>
+          The Arttous Platform combines high-torque 12-DOF kinematics with the 
+          <strong>T3S3 LoRa Ranging System</strong> for sub-meter localization 
+          in GNSS-denied environments.
+        </p>
+        <div class="cta-group">
+          <a href="technology.html" class="btn btn-primary">System Architecture</a>
+          <a href="tracking.html" class="btn btn-secondary">Live Telemetry</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="value-props">
+      <div class="prop-card">
+        <div class="prop-icon">⚙️</div>
+        <h3>Kinematic Core</h3>
+        <p>Custom Inverse Kinematics (IK) engine running on ESP32-C6. Solves 12-DOF leg positioning in real-time (25Hz loop).</p>
+      </div>
+      <div class="prop-card">
+        <div class="prop-icon">📡</div>
+        <h3>T3S3 Mesh Ranging</h3>
+        <p>Hardware-accelerated Time-of-Flight (ToF) using Semtech SX1280 (2.4GHz) for precise anchor localization.</p>
+      </div>
+      <div class="prop-card">
+        <div class="prop-icon">⚡</div>
+        <h3>Active Stabilization</h3>
+        <p>Integrated MPU-6050 sensor fusion dynamically adjusts roll and pitch to maintain a level horizon.</p>
+      </div>
+    </section>
+
+    <section class="tech-specs">
+      <div class="spec-container">
+        <div>
+          <h2>Technical<br>Datasheet</h2>
+          <p style="color: #666; margin-top: 20px; max-width: 300px;">
+            Current build configuration for the "Turbo Interceptor" prototype (v49.0).
+          </p>
+        </div>
+        <table class="spec-table">
+          <tbody>
+            <tr><td>Main Controller</td><td>ESP32-C6 (RISC-V)</td></tr>
+            <tr><td>Localization</td><td>LILYGO T3S3 (SX1280)</td></tr>
+            <tr><td>Actuation</td><td>12x MG90S Metal Gear</td></tr>
+            <tr><td>Precision</td><td>0.5m – 1.5m</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="innovation-highlight">
+      <div class="highlight-image">
+        <img src="../bono/images/topo_bg.jpg" alt="Mesh Network Topology" style="opacity: 0.6;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 1px solid #00f3ff; padding: 20px; background: rgba(0,0,0,0.8);">
+          <h4 style="color:#00f3ff; text-transform: uppercase; letter-spacing: 2px;">Anchor Matrix</h4>
+        </div>
+      </div>
+      <div class="highlight-text">
+        <span class="purple-kicker">Localization Protocol</span>
+        <h2>The T3S3 Ecosystem</h2>
+        <p>Unlike GPS, Arttous utilizes a local <strong>Ranging Mesh</strong>. Three stationary anchors create a triangulation field.</p>
+        <a href="technology.html" class="text-link">View Topology Diagram</a>
+      </div>
+    </section>
+
+    <section class="workflow-section">
+      <div class="section-header">
+        <h2>Deployment Logic</h2>
+      </div>
+      <div class="workflow-steps">
+        <div class="step" data-step="1"><span class="step-num">01</span><span class="step-label">Anchor Drop</span></div>
+        <div class="step" data-step="2"><span class="step-num">02</span><span class="step-label">Auto-Calib</span></div>
+        <div class="step" data-step="3"><span class="step-num">03</span><span class="step-label">Robot Init</span></div>
+        <div class="step" data-step="4"><span class="step-num">04</span><span class="step-label">Mesh Lock</span></div>
+        <div class="step" data-step="5"><span class="step-num">05</span><span class="step-label">Run</span></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-bottom">
+        <p>&copy; 2026 Arttous Robotics Inc. | Powered by ESP32 & RadioLib</p>
+      </div>
+    </div>
+  </footer>
+
+  <div id="step-modal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <h3 class="modal-title" style="color: #8e44ad;">Protocol Detail</h3>
+      <div id="modal-step-text"></div>
+    </div>
+  </div>
+
+  <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // 1. SETUP SCENE
+        const container = document.getElementById('hero-canvas-container');
+        const scene = new THREE.Scene();
+        
+        // TRANSPARENT BACKGROUND (Crucial for the Dark Swiss theme)
+        scene.background = null; 
+        
+        // Fog to blend model into the darkness (optional)
+        // scene.fog = new THREE.Fog(0x050505, 2, 10);
+
+        // 2. CAMERA
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
+        camera.position.z = 0.25; // Slightly further back to fit UI
+        camera.position.y = 0.1;
+
+        // 3. RENDERER
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.useLegacyLights = false; 
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.0;
+        
+        // ABSOLUTE POSITIONING TO SIT BEHIND TEXT
+        renderer.domElement.style.position = 'absolute';
+        renderer.domElement.style.top = '0';
+        renderer.domElement.style.left = '0';
+        renderer.domElement.style.zIndex = '1'; // Behind text (which is z-index 10)
+        
+        container.prepend(renderer.domElement);
+
+        // 4. PRO LIGHTING (Your Setup)
+        
+        // A. Ambient
+        const ambientLight = new THREE.AmbientLight(0x404040, 1.5); 
+        scene.add(ambientLight);
+
+        // B. Key Light
+        const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
+        keyLight.position.set(2, 2, 2);
+        scene.add(keyLight);
+
+        // C. Rim Light (The "Cyber" Blue)
+        const rimLight = new THREE.SpotLight(0x4a7dff, 5); 
+        rimLight.position.set(-1, 2, -2);
+        rimLight.lookAt(0, 0, 0);
+        scene.add(rimLight);
+
+        // 5. CONTROLS
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.enableZoom = false; // Disable zoom so they don't break the layout
+        controls.target.set(0, 0.05, 0);
+        controls.update();
+
+        // 6. LOAD MODEL
+        const loader = new GLTFLoader();
+        // Ensure web-robo-3D.glb is in the same folder, or update path to '../bono/models/...'
+        loader.load('web-robo-3D.glb', function (gltf) {
+            const model = gltf.scene;
+            
+            // Auto-rotate the model slightly
+            model.userData = { isRotating: true };
+            
+            scene.add(model);
+            console.log("Arttous System: 3D Model Loaded");
+        }, undefined, function (error) {
+            console.error("3D Load Error:", error);
+        });
+
+        // 7. ANIMATION LOOP
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            
+            // Subtle rotation if model exists
+            scene.traverse((object) => {
+                if (object.isGroup && object.userData.isRotating) {
+                    object.rotation.y += 0.001;
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // 8. RESIZE HANDLER
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+  </script>
+</body>
+</html>
