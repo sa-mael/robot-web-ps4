@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Arttous Rhodium: Autonomous Quadruped Platform with T3S3 LoRa Mesh and Symmetric Twist Kinematics.">
+  <title>Arttous | Autonomous Mesh Robotics</title>
+  
+  <link rel="icon" href="../bono/images/logo-ttr.png" type="image/png">
+  <link rel="stylesheet" href="../bono/css/c.css">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  
+  <script src="../bono/js/main.js" type="module" defer></script>
+
+  <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+  </script>
+</head>
+<body>
+  
+  <header class="site-header">
+    <div class="circle-blink-container">
+      <div class="blink-circle" style="left: 10%; top: 20%;"></div>
+      <div class="blink-circle" style="left: 80%; top: 60%; animation-delay: 1s;"></div>
+    </div>
+    <div class="header-inner">
+      <div class="logo-shell">
+        <a href="index.html">
+          <img src="../bono/images/logo-ttr-wh.png" alt="Arttous Logo" class="logo-img"/>
+        </a>
+      </div>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html" class="active">Mission Control</a></li>
+          <li><a href="technology.html">Technology</a></li>
+          <li><a href="tracking.html">Telemetry</a></li>
+          <li><a href="investors.html">Investors</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="search">
+        <div class="live-indicator" style="border: 1px solid #333; padding: 5px 10px; border-radius: 4px;">
+          <div class="blink-dot"></div>
+          <span style="font-family: 'JetBrains Mono'; font-size: 10px; margin-left: 8px; color: #fff;">SYSTEM ONLINE</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+    <section class="hp-hero-section" id="hp-canvas-container">
+      
+      <div class="hp-hero-content-left">
+        <span class="purple-kicker">Firmware v53.0 "Rhodium"</span>
+        <h1>Autonomous<br>Mesh Reality</h1>
+        <p>
+          The Arttous Platform combines <strong>Symmetric Twist Kinematics</strong> with the 
+          <strong>T3S3 LoRa Ranging System</strong> for sub-meter localization 
+          in GNSS-denied environments.
+        </p>
+        <div class="cta-group">
+          <a href="technology.html" class="btn btn-primary">System Architecture</a>
+          <a href="tracking.html" class="btn btn-secondary">Live Telemetry</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="status-ticker">
+      <div class="ticker-content">
+        /// SYSTEM CHECK: OK /// ESP32-C6 CORE: ACTIVE /// T3S3 MESH: 3 ANCHORS LOCKED /// BATTERY: 7.4V STABLE /// IK ENGINE: v53.0 SYMMETRIC /// SYSTEM CHECK: OK /// ESP32-C6 CORE: ACTIVE ///
+      </div>
+    </div>
+
+    <section class="impact-statement">
+      <div class="impact-grid">
+        <div>
+          <h2 class="big-statement">Where Wheels Fail,<br><span style="color: #8e44ad;">Arttous Walks.</span></h2>
+        </div>
+        <div>
+          <p class="statement-detail">
+            Standard GPS signals cannot penetrate dense concrete, underground tunnels, or metallic structures. 
+            <strong>Arttous</strong> creates its own local reality using 2.4GHz LoRa Time-of-Flight ranging.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="bento-section">
+      <div style="max-width: 1400px; margin: 0 auto 40px;">
+        <span class="purple-kicker">Hardware Anatomy</span>
+        <h2 style="font-size: 2.5rem; color: #fff; text-transform: uppercase;">Component Matrix</h2>
+      </div>
+
+      <div class="bento-grid">
+        <div class="bento-item span-2">
+          <span class="bento-title">CORE PROCESSOR</span>
+          <div class="bento-content">
+            <h3>ESP32-C6 RISC-V</h3>
+            <p>160MHz Single Core running FreeRTOS with dedicated tasks for Physics (50Hz) and Network (Async).</p>
+          </div>
+          <span class="bento-number">01</span>
+        </div>
+        <div class="bento-item span-row-2" style="background: #1a1a1a;">
+          <span class="bento-title">LOCALIZATION</span>
+          <div class="bento-content">
+            <h3 style="color: #00f3ff;">T3S3 Mesh</h3>
+            <p>Semtech SX1280 LoRa modules utilizing ToF ranging for sub-meter accuracy without satellite dependency.</p>
+            <ul style="margin-top: 20px; color: #888; font-family: 'JetBrains Mono'; font-size: 0.8rem; list-style: none;">
+              <li style="margin-bottom: 5px;">> AUTO_CALIB</li>
+              <li style="margin-bottom: 5px;">> TRIANGULATION</li>
+              <li>> KALMAN_FILTER</li>
+            </ul>
+          </div>
+          <span class="bento-number" style="color: #333;">02</span>
+        </div>
+        <div class="bento-item">
+          <span class="bento-title">ACTUATION</span>
+          <div class="bento-content">
+            <h3>12-DOF</h3>
+            <p>12x MG90S Metal Gear servos driven by PCA9685 via I²C at 400kHz.</p>
+          </div>
+        </div>
+        <div class="bento-item span-2">
+          <span class="bento-title">STABILIZATION</span>
+          <div class="bento-content">
+            <h3>Active Gyro</h3>
+            <p>MPU-6050 sensor fusion actively corrects pitch/roll to maintain horizon level on 20° slopes.</p>
+          </div>
+          <span class="bento-number">03</span>
+        </div>
+        <div class="bento-item">
+          <span class="bento-title">POWER PLANT</span>
+          <div class="bento-content">
+            <h3>7.4V LiPo</h3>
+            <p>Regulated via 5A UBEC to prevent brownouts under high torque load.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="parallax-strip">
+      <div class="outline-text">DEPLOY /// MAP /// RETURN /// DEPLOY /// MAP /// RETURN</div>
+    </div>
+
+    <section class="innovation-highlight">
+      <div class="highlight-image">
+        <div style="width: 100%; height: 100%; background: radial-gradient(circle, #222 0%, #000 100%); display: flex; align-items: center; justify-content: center;">
+           <div style="border: 1px solid #8e44ad; width: 60%; height: 60%; position: relative;">
+              <div style="position: absolute; top: -10px; left: 10px; background: #000; padding: 0 10px; color: #8e44ad; font-family: 'JetBrains Mono';">IK_SOLVER_V53</div>
+              <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #444; font-size: 5rem;">XYZ</div>
+           </div>
+        </div>
+      </div>
+      <div class="highlight-text">
+        <span class="purple-kicker">Engine Upgrade</span>
+        <h2>Rhodium Kinematics v53</h2>
+        <p>
+          The latest firmware introduces <strong>Symmetric Twist Banking</strong>. Previous iterations suffered from asymmetric roll behavior. 
+          Version 53.0 implements a corrected configuration matrix.
+        </p>
+        <div style="background: #111; padding: 20px; border-left: 2px solid #8e44ad; font-family: 'JetBrains Mono'; font-size: 0.85rem; color: #aaa; margin-bottom: 20px;">
+          FL_LEG: { +1, +1, +1, +1 }<br>
+          FR_LEG: { +1, -1, -1, -1 }<br>
+          // Twist Sign ensures correct banking direction
+        </div>
+        <a href="technology.html" class="text-link">Read Changelog</a>
+      </div>
+    </section>
+
+    <section class="workflow-section">
+      <div class="section-header">
+        <h2>Mission Logic</h2>
+        <p style="color: #666; max-width: 600px; margin: 0 auto 40px;">Standardized T3S3 deployment sequence.</p>
+      </div>
+      <div class="workflow-steps">
+        <div class="step" data-step="1"><span class="step-num">01</span><span class="step-label">Anchor Drop</span></div>
+        <div class="step" data-step="2"><span class="step-num">02</span><span class="step-label">Auto-Calib</span></div>
+        <div class="step" data-step="3"><span class="step-num">03</span><span class="step-label">Robot Init</span></div>
+        <div class="step" data-step="4"><span class="step-num">04</span><span class="step-label">Mesh Lock</span></div>
+        <div class="step" data-step="5"><span class="step-num">05</span><span class="step-label">Run</span></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-section">
+        <h4>System</h4>
+        <ul>
+          <li><a href="technology.html">Architecture</a></li>
+          <li><a href="tracking.html">Live Map</a></li>
+          <li><a href="#">Firmware v53.0</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">Mission</a></li>
+          <li><a href="investors.html">Investors</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Protocol</a></li>
+          <li><a href="#">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Arttous Robotics Inc. | Powered by ESP32 & RadioLib</p>
+    </div>
+  </footer>
+
+  <div id="backToTop" class="hp-back-to-top">
+    <div class="hp-arrow-up"></div>
+  </div>
+
+  <div id="step-modal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <h3 class="modal-title" style="color: #8e44ad;">Protocol Detail</h3>
+      <div id="modal-step-text"></div>
+    </div>
+  </div>
+
+  <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // 1. SCROLL TO TOP LOGIC (Added Here)
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            // Show button after scrolling 300px
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('active');
+                document.body.classList.add('scrolled'); // For header shrinking
+            } else {
+                backToTopBtn.classList.remove('active');
+                document.body.classList.remove('scrolled');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // 2. 3D SCENE SETUP
+        // We use the ID #hp-canvas-container to target the hero section
+        const container = document.getElementById('hp-canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = null; 
+
+        // CAMERA - SHIFTED RIGHT FOR SPLIT LAYOUT
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 100);
+        // X=0.6 pushes the view point to the right, freeing up the left for text
+        // Y=0.3 provides a slight "hero angle" looking down/forward
+        camera.position.set(0.6, 0.3, 1.2); 
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.useLegacyLights = false; 
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.1;
+        
+        // ABSOLUTE POSITIONING TO SIT BEHIND TEXT
+        renderer.domElement.style.position = 'absolute';
+        renderer.domElement.style.top = '0';
+        renderer.domElement.style.left = '0';
+        renderer.domElement.style.zIndex = '1'; 
+        
+        container.prepend(renderer.domElement);
+
+        // LIGHTING (Dark Swiss Theme)
+        const ambientLight = new THREE.AmbientLight(0x202020, 1.0); 
+        scene.add(ambientLight);
+        const keyLight = new THREE.DirectionalLight(0xffffff, 3.0);
+        keyLight.position.set(2, 2, 2);
+        scene.add(keyLight);
+        const rimLight = new THREE.SpotLight(0x8e44ad, 6); 
+        rimLight.position.set(-2, 3, -2); 
+        rimLight.lookAt(0.5, 0, 0);
+        scene.add(rimLight);
+        const fillLight = new THREE.DirectionalLight(0x00f3ff, 1.5);
+        fillLight.position.set(0, -2, 1);
+        scene.add(fillLight);
+
+        // CONTROLS
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.enableZoom = false; 
+        controls.target.set(0.5, 0.1, 0); // Focus on right side
+        controls.update();
+
+        // MODEL LOADER
+        const loader = new GLTFLoader();
+        loader.load('web-robo-3D.glb', function (gltf) {
+            const model = gltf.scene;
+            model.position.x = 0.5; // Shift model right
+            model.userData = { isRotating: true };
+            scene.add(model);
+        }, undefined, function (error) {
+            console.error("3D Load Error", error);
+        });
+
+        // ANIMATION
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            scene.traverse((object) => {
+                if (object.isGroup && object.userData.isRotating) {
+                    object.rotation.y += 0.0005;
+                }
+            });
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+  </script>
+
+</body>
+</html>

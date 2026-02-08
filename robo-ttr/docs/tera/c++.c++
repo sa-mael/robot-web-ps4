@@ -1,14 +1,14 @@
 /*
  * PROJECT:  IK4=49 "TURBO INTERCEPTOR"
- * VERSION:  GOLDEN MASTER (v49.0)
+ * VERSION:  v49.1 (STABLE / DECOUPLED TWIST)
  * MODULE:   MAIN FIRMWARE
- * AUTHOR:   The Engineer & The Captain
+ * AUTHOR:   Gemini & User
  *
  * FEATURES:
- * - ArduinoJson v7 Compatibility Patch
+ * - Decoupled 4-DOF Solver (Twist independent of geometric reach)
+ * - ArduinoJson v7 Compatibility
  * - 400kHz Fast I2C Bus
  * - Artificial Horizon Flight Deck
- * - Active Stabilization Core
  * - Watchdog Safety System
  */
 
@@ -42,18 +42,25 @@ constexpr float L_FEMUR = 69.16f;
 const float L_TIBIA = 123.59f;
 
 // ---------------------------------------------------------------------------
-// 2. PHYSICS ENGINE
+// 2. PHYSICS ENGINE & CONSTANTS
 // ---------------------------------------------------------------------------
+// Optimization: Pre-calculate squares and denominators for Law of Cosines
+const float L_COXA_SQ  = L_COXA * L_COXA;
+const float L_FEMUR_SQ = L_FEMUR * L_FEMUR;
+const float L_TIBIA_SQ = L_TIBIA * L_TIBIA;
+const float K_FEMUR_DIV = 2.0f * L_FEMUR;
+const float K_TIBIA_DIV = 2.0f * L_FEMUR * L_TIBIA;
+
 struct LegConfig {
   int xSign; int ySign; int gammaSign; float mountDeg; 
 };
 
 // "Spider-X" Calibration Matrix
 const LegConfig CFG[4] = {
-  { +1, +1, +1,  135.0f }, // Leg 0: FL
-  { +1, -1, -1,  45.0f },  // Leg 1: FR
-  { -1, +1, +1,  45.0f },  // Leg 2: BL
-  { -1, -1, -1, -225.0f }  // Leg 3: BR
+  { +1, +1, +1,  135.0f }, // Leg 0: FL (Front-Left)
+  { +1, -1, -1,  45.0f },  // Leg 1: FR (Front-Right)
+  { -1, +1, +1,  45.0f },  // Leg 2: BL (Back-Left)
+  { -1, -1, -1, -225.0f }  // Leg 3: BR (Back-Right)
 };
 
 // ---------------------------------------------------------------------------
@@ -86,22 +93,54 @@ float calibSumP = 0, calibSumR = 0;
 class AxialRotator {
   public:
     int channel; float mountOffset; bool inverted;
-    void attach(int _ch, float _mountDeg, bool _inv) { channel=_ch; mountOffset=_mountDeg; inverted=_inv; }
     
+    void attach(int _ch, float _mountDeg, bool _inv) { 
+        channel = _ch; mountOffset = _mountDeg; inverted = _inv; 
+    }
+    
+    // SPECIFICATION COMPLIANCE: 
+    // "Neutral position 45°... Used range 90°"
     int getPulse(float geometryAngle, float manualOffset) {
+        // 1. Calculate Target Angle relative to mount
+        // geometryAngle comes from IK (e.g., heading towards target)
         float target = mountOffset + geometryAngle + manualOffset;
+        
+        // 2. Normalize to -180 to +180 range
         target = fmod(target, 360.0f);
         if (target < 0.0f) target += 360.0f;
-        
         float relativeAngle = target - mountOffset;
-        // Normalize to -180 to +180
-        if (relativeAngle > 180.0f) relativeAngle -= 360.0f; 
+        if (relativeAngle > 180.0f) relativeAngle -= 360.0f;
         if (relativeAngle < -180.0f) relativeAngle += 360.0f;
+
+        // 3. Map to Servo constraints (Section 4 & 5 of spec)
+        // 0° Logical (Neutral) = 45° Physical Servo Angle
+        // Range is constrained to [15° ... 105°] (The -30/+60 limit)
+        float driveAngle = 45.0f + relativeAngle; 
         
-        float driveAngle = 90.0f + relativeAngle;
-        driveAngle = constrain(driveAngle, 0.0f, 180.0f);
+        // Hard Safety Limits (prevent hitting chassis)
+        driveAngle = constrain(driveAngle, 15.0f, 105.0f); 
+
         if (inverted) driveAngle = 180.0f - driveAngle;
-        return map((long)driveAngle, 0, 180, SERVO_MIN, SERVO_MAX);
+        return map((long)(driveAngle * 100), 0, 18000, SERVO_MIN, SERVO_MAX);
+    }
+};
+
+class TwistRotator {
+  public:
+    int channel;
+    void attach(int _ch) { channel = _ch; }
+    
+    // SPECIFICATION COMPLIANCE (Section 8):
+    // "Neutral position 45°... Twist Range 0..90"
+    int getPulse(float twistAngle) {
+        // twistAngle is usually small (-20 to +20 degrees)
+        // 0° Twist Input = 45° Servo Position
+        float driveAngle = 45.0f + twistAngle;
+        
+        // Clamp to working range (0 to 90 per spec)
+        driveAngle = constrain(driveAngle, 0.0f, 90.0f);
+        
+        return map((long)(driveAngle * 100), 0, 18000, SERVO_MIN, SERVO_MAX);
     }
 };
 
@@ -112,22 +151,13 @@ class VerticalLifter {
     
     int getPulse(float ikAngle, float manualOffset, bool isKnee) {
         float totalAngle = ikAngle + manualOffset;
+        // Standard mapping: 90 is center
         float driveAngle = 90.0f + totalAngle;
-        if(isKnee) driveAngle = 90.0f - totalAngle; // Knees usually bend opposite
+        if(isKnee) driveAngle = 90.0f - totalAngle; 
+        
         driveAngle = constrain(driveAngle, 0.0f, 180.0f);
         if (inverted) driveAngle = 180.0f - driveAngle;
-        return map((long)driveAngle, 0, 180, SERVO_MIN, SERVO_MAX);
-    }
-};
-
-class GenericServo {
-  public:
-    int channel;
-    void attach(int _ch) { channel = _ch; }
-    int getPulse(float manualOffset) {
-        float t = 90.0f + manualOffset;
-        t = constrain(t, 0.0f, 180.0f);
-        return map((long)t, 0, 180, SERVO_MIN, SERVO_MAX);
+        return map((long)(driveAngle * 100), 0, 18000, SERVO_MIN, SERVO_MAX);
     }
 };
 
@@ -137,58 +167,82 @@ class GenericServo {
 class Leg {
   public:
     int id; LegConfig cfg;
-    AxialRotator Hip; VerticalLifter Femur; VerticalLifter Tibia; GenericServo Roll;
+    AxialRotator Hip; 
+    VerticalLifter Femur; 
+    VerticalLifter Tibia; 
+    TwistRotator Twist; // Renamed from "Roll" to match spec
     
     // Telemetry Buffers
-    float ikG=0, ikA=0, ikB=0, ikR=0;
-    float manG=0, manA=0, manB=0, manR=0;
+    float ikG=0, ikA=0, ikB=0, ikTwist=0;
+    float manG=0, manA=0, manB=0, manTwist=0;
 
     Leg(int _id, int _startPin) {
       id = _id; cfg = CFG[_id]; 
       Hip.attach(_startPin + 0, cfg.mountDeg, false);
       Femur.attach(_startPin + 1, true);
       Tibia.attach(_startPin + 2, true);
-      Roll.attach(_startPin + 3);
+      Twist.attach(_startPin + 3);
     }
 
-    void run(float gX, float gY, float gZ, float gTwist) {
-      // 1. Calculate Local Coordinate Target
+    void run(float gX, float gY, float gZ, float inputTwist) {
+      // 1. Coordinate Transformation (World -> Local Leg Frame)
+      // Apply Symmetry Rules (Section 7)
       float lx = (150 + gX) * cfg.xSign; 
       float ly = (0 + gY) * cfg.ySign; 
-      float lz = gZ;
+      float lz = gZ; // Z is vertical, not affected by symmetry in this model
 
-      // 2. Inverse Kinematics (Trigonometry)
+      // 2. Planar Inverse Kinematics (COXA -> FEMUR -> TIBIA)
+      // Calculate Yaw (Gamma)
       float G_rad = atan2(ly, lx); 
       float G_deg = degrees(G_rad);
+      
+      // Calculate Horizontal Reach (Hypotenuse on ground)
+      // "L_COXA" is subtracted because it is a rigid offset before the Femur joint
       float u = sqrt(lx*lx + ly*ly) - L_COXA; 
       
-      // Roll/Twist Simulation
-      float effRoll = (manR + gTwist) * PI_F / 180.0f;
-      float v_rot = lz * cos(effRoll); 
+      // Calculate Vertical Diagonal (Femur-to-Tip direct line)
+      // FIXED: Removed "Twist" from this calculation. 
+      // Twist is axial and does not shorten the vertical reach D.
+      float D = sqrt(u*u + lz*lz);
       
-      float D = sqrt(u*u + v_rot*v_rot);
-      if (D < 1.0f) D = 1.0f; if (D > L_FEMUR+L_TIBIA) D = L_FEMUR+L_TIBIA; 
+      // Safety: Prevent extending beyond physical bone length
+      if (D < 1.0f) D = 1.0f; 
+      if (D > (L_FEMUR + L_TIBIA)) D = L_FEMUR + L_TIBIA; 
 
-      float a1 = atan2(v_rot, u);
-      float a2 = acos(constrain(((L_FEMUR*L_FEMUR)+(D*D)-(L_TIBIA*L_TIBIA))/(2*L_FEMUR*D), -1.0f, 1.0f));
-      float b_ang = acos(constrain(((L_FEMUR*L_FEMUR)+(L_TIBIA*L_TIBIA)-(D*D))/(2*L_FEMUR*L_TIBIA), -1.0f, 1.0f));
+      // Law of Cosines for Femur (Alpha) and Tibia (Beta)
+      float a1 = atan2(lz, u); // Elevation angle of the diagonal
+      float a2 = acos((L_FEMUR_SQ + D*D - L_TIBIA_SQ) / (K_FEMUR_DIV * D));
+      float b_rad = acos((L_FEMUR_SQ + L_TIBIA_SQ - D*D) / K_TIBIA_DIV);
 
       float A_deg = degrees(a1 + a2); 
-      float B_deg = degrees(b_ang) - 180.0f; 
+      float B_deg = degrees(b_rad) - 180.0f; // Knee bends relative to Femur
 
-      // 3. Hardware Execution
-      ikG = G_deg + manG; ikA = A_deg + manA; ikB = B_deg + manB; ikR = manR + gTwist;
+      // 3. Twist Pass (Decoupled 4th DOF)
+      // Simply passes the twist command to the 4th servo
+      float finalTwist = inputTwist + manTwist;
+
+      // 4. Hardware Execution
+      ikG = G_deg + manG; 
+      ikA = A_deg + manA; 
+      ikB = B_deg + manB; 
+      ikTwist = finalTwist;
 
       extern Adafruit_PWMServoDriver pca;
+      
+      // Apply Gamma Sign correction for Right-side legs
       pca.setPWM(Hip.channel, 0, Hip.getPulse(G_deg * cfg.gammaSign, manG));
       pca.setPWM(Femur.channel, 0, Femur.getPulse(A_deg, manA, false));
       pca.setPWM(Tibia.channel, 0, Tibia.getPulse(B_deg, manB, true));
-      pca.setPWM(Roll.channel, 0, Roll.getPulse(manR + gTwist)); 
+      
+      // Apply Twist directly
+      pca.setPWM(Twist.channel, 0, Twist.getPulse(finalTwist)); 
     }
     
     void setManual(int motorId, float val) {
-      if(motorId == 0) manG = val; if(motorId == 1) manA = val; 
-      if(motorId == 2) manB = val; if(motorId == 3) manR = val; 
+      if(motorId == 0) manG = val; 
+      if(motorId == 1) manA = val; 
+      if(motorId == 2) manB = val; 
+      if(motorId == 3) manTwist = val; 
     }
 };
 
@@ -497,10 +551,10 @@ void loop() {
     snprintf(jsonBuf, sizeof(jsonBuf), 
       "{\"p\":%.1f,\"r\":%.1f,\"l\":[[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d]]}",
       pitch, roll,
-      (int)legs[0].ikG, (int)legs[0].ikA, (int)legs[0].ikB, (int)legs[0].ikR,
-      (int)legs[1].ikG, (int)legs[1].ikA, (int)legs[1].ikB, (int)legs[1].ikR,
-      (int)legs[2].ikG, (int)legs[2].ikA, (int)legs[2].ikB, (int)legs[2].ikR,
-      (int)legs[3].ikG, (int)legs[3].ikA, (int)legs[3].ikB, (int)legs[3].ikR
+      (int)legs[0].ikG, (int)legs[0].ikA, (int)legs[0].ikB, (int)legs[0].ikTwist,
+      (int)legs[1].ikG, (int)legs[1].ikA, (int)legs[1].ikB, (int)legs[1].ikTwist,
+      (int)legs[2].ikG, (int)legs[2].ikA, (int)legs[2].ikB, (int)legs[2].ikTwist,
+      (int)legs[3].ikG, (int)legs[3].ikA, (int)legs[3].ikB, (int)legs[3].ikTwist
     );
     webSocket.broadcastTXT(jsonBuf);
   }

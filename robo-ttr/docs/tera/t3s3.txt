@@ -234,7 +234,9 @@ The robot broadcasts its state for the 3D visualization:
 | **3D Interface empty** | WebGL Error | Ensure browser supports hardware acceleration. Check telemetry JSON in console. |
 | **Legs move randomly** | Calibration | Check `CFG` array signs and offsets in `setup()`. |
 
----
+---web-robo-3D.glb 
+
+
 
 *Authorized by: The Engineer*
 *Date: 2026-02-05*
