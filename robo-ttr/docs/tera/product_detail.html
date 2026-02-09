@@ -11,13 +11,15 @@
 
     <style>
         :root {
-            --bg-core: #050505;
-            --bg-panel: #0e0e0e;
-            --accent-primary: #8e44ad; /* TTR Purple */
-            --accent-secondary: #00f3ff; /* Cyan Data */
-            --text-main: #e0e0e0;
-            --text-dim: #666666;
-            --grid-color: rgba(142, 68, 173, 0.05);
+            /* ПАЛИТРА: ТОЛЬКО 3 БАЗОВЫХ ЦВЕТА */
+            --bg-core: #050505;       /* 1. Глубокий черный */
+            --bg-panel: #0e0e0e;      /* 2. Темный серый (панели) */
+            --accent-primary: #7c2ae8; /* 3. Насыщенный Фиолетовый (Saturated Purple) */
+            
+            --accent-glow: #9d50ff;   /* Светлый фиолетовый для свечения */
+            --text-main: #e0e0e0;     /* Белый/Серый текст */
+            --text-dim: #666666;      /* Темный текст */
+            --grid-color: rgba(124, 42, 232, 0.03);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,17 +29,18 @@
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
+            /* Сетка теперь еле заметная фиолетовая */
             background-image: 
                 linear-gradient(var(--grid-color) 1px, transparent 1px),
                 linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 50px 50px;
+            background-size: 60px 60px;
         }
 
         /* --- TYPOGRAPHY --- */
-        h1, h2, h3 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
+        h1, h2, h3, h4 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .accent { color: var(--accent-primary); }
-        .cyan { color: var(--accent-secondary); }
+        .glow-text { color: var(--accent-glow); text-shadow: 0 0 15px rgba(157, 80, 255, 0.4); }
 
         /* --- HEADER --- */
         nav {
@@ -48,19 +51,22 @@
             position: fixed;
             width: 100%;
             z-index: 100;
-            background: linear-gradient(180deg, rgba(5,5,5,0.9) 0%, rgba(5,5,5,0) 100%);
+            background: linear-gradient(180deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0) 100%);
             backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; }
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: #fff; }
         .status-dot {
-            height: 8px; width: 8px; 
-            background-color: #0f0; 
+            height: 6px; width: 6px; 
+            background-color: var(--accent-primary); 
             border-radius: 50%; 
             display: inline-block; 
             margin-right: 8px;
-            box-shadow: 0 0 10px #0f0;
+            box-shadow: 0 0 10px var(--accent-primary);
+            animation: pulse 2s infinite;
         }
+        @keyframes pulse { 0% {opacity: 0.5;} 50% {opacity: 1;} 100% {opacity: 0.5;} }
 
         /* --- HERO --- */
         .hero {
@@ -78,20 +84,22 @@
 
         .firmware-badge {
             font-family: 'JetBrains Mono';
-            font-size: 0.8rem;
-            color: var(--accent-secondary);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            padding: 5px 10px;
+            font-size: 0.75rem;
+            color: var(--accent-glow);
+            border: 1px solid rgba(124, 42, 232, 0.3);
+            padding: 6px 12px;
             display: inline-block;
-            margin-bottom: 20px;
-            background: rgba(0, 243, 255, 0.05);
+            margin-bottom: 25px;
+            background: rgba(124, 42, 232, 0.05);
+            letter-spacing: 1px;
         }
 
         h1 {
             font-size: 5rem;
             line-height: 0.9;
             margin-bottom: 30px;
-            background: linear-gradient(180deg, #fff 0%, #888 100%);
+            /* Градиент от белого к фиолетовому */
+            background: linear-gradient(180deg, #fff 20%, #666 100%);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -103,19 +111,20 @@
             max-width: 500px;
             line-height: 1.6;
             margin-bottom: 40px;
-            border-left: 2px solid var(--accent-primary);
-            padding-left: 20px;
+            border-left: 3px solid var(--accent-primary);
+            padding-left: 25px;
         }
 
         .cta-group { display: flex; gap: 20px; }
         
         .btn {
-            padding: 15px 40px;
+            padding: 18px 45px;
             font-family: 'Orbitron';
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-decoration: none;
             transition: 0.3s;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+            font-weight: 700;
         }
 
         .btn-primary {
@@ -123,94 +132,141 @@
             color: #fff;
             border: none;
         }
-        .btn-primary:hover { background: #9b59b6; box-shadow: 0 0 30px rgba(142, 68, 173, 0.4); }
+        .btn-primary:hover { 
+            background: var(--accent-glow); 
+            box-shadow: 0 0 40px rgba(124, 42, 232, 0.3); 
+            transform: translateY(-2px);
+        }
 
         .btn-secondary {
             background: transparent;
             color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
         }
-        .btn-secondary:hover { border-color: #fff; background: rgba(255,255,255,0.05); }
+        .btn-secondary:hover { 
+            border-color: var(--accent-primary); 
+            background: rgba(124, 42, 232, 0.05); 
+        }
 
-        /* --- 3D / VISUAL AREA --- */
+        /* --- 3D CONTAINER --- */
         .visual-container {
             position: absolute;
             right: 0; top: 0;
-            width: 70%; height: 100%;
-            /* Placeholder gradient until Three.js loads */
-            background: radial-gradient(circle at 50% 50%, rgba(141, 68, 173, 0.455), transparent 90%);
+            width: 60%; height: 100%;
+            /* Градиент стал фиолетовым, но очень прозрачным */
+            background: radial-gradient(circle at 60% 50%, rgba(124, 42, 232, 0.15), transparent 70%);
             display: flex;
             align-items: center;
             justify-content: center;
+            pointer-events: none;
         }
+        .visual-container canvas { pointer-events: auto; }
+
+        /* --- BENTO GRID --- */
+        .tech-section { padding: 50px 5% 100px; position: relative; z-index: 2; }
         
-        .hud-circle {
-            width: 500px; height: 500px;
-            border: 1px dashed rgba(255,255,255,0.1);
-            border-radius: 50%;
-            position: absolute;
-            animation: rotate 60s linear infinite;
+        .section-header {
+            margin-bottom: 60px; 
+            border-bottom: 1px solid rgba(255,255,255,0.1); 
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
         }
 
-        @keyframes rotate { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
-
-        /* --- BENTO GRID (TECH SPECS) --- */
-        .tech-section { padding: 100px 5%; }
-        
         .bento-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(2, 280px);
-            gap: 20px;
-            margin-top: 50px;
+            grid-template-rows: repeat(2, 300px);
+            gap: 25px;
         }
 
         .card {
             background: var(--bg-panel);
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.03);
+            padding: 35px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            transition: all 0.4s ease;
             position: relative;
-            overflow: hidden;
         }
 
         .card:hover {
             border-color: var(--accent-primary);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             transform: translateY(-5px);
         }
-
-        .card-lg { grid-column: span 2; }
-        .card-vert { grid-row: span 2; }
-
-        .card h3 { font-size: 1.1rem; color: #fff; margin-bottom: 10px; }
-        .card p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; }
         
-        .tech-value { font-size: 3.5rem; font-family: 'Orbitron'; font-weight: 700; color: #fff; }
-        .tech-label { font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--accent-secondary); margin-bottom: 10px; display: block; }
+        /* Убираем цветные бордеры, делаем все строгим */
+        .card-lg { grid-column: span 2; }
+        .card-vert { grid-row: span 2; background: linear-gradient(170deg, #0e0e0e 0%, #150520 100%); }
 
-        /* CODE VISUALIZATION */
+        .card h3 { font-size: 1.2rem; color: #fff; margin-bottom: 15px; }
+        .card p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+        
+        .tech-value { font-size: 4rem; font-family: 'Orbitron'; font-weight: 700; color: #fff; opacity: 0.9; }
+        .tech-label { font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--accent-primary); margin-bottom: 15px; display: block; letter-spacing: 1px; }
+
         .code-block {
             background: #000;
-            padding: 15px;
+            padding: 20px;
             font-family: 'JetBrains Mono';
-            font-size: 0.7rem;
-            color: #aaa;
-            border-left: 2px solid var(--accent-primary);
+            font-size: 0.75rem;
+            color: #888;
+            border-left: 3px solid var(--accent-primary);
             margin-top: auto;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
 
-        /* DATA STREAM */
         .data-stream {
             font-family: 'JetBrains Mono';
-            font-size: 0.7rem;
-            color: var(--accent-secondary);
-            opacity: 0.7;
+            font-size: 0.75rem;
+            color: #aaa; /* Серый текст вместо циана */
             margin-top: auto;
         }
-        .data-row { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid rgba(0,243,255,0.1); padding-bottom: 2px;}
+        .data-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;}
+        .data-val { color: var(--accent-glow); }
+
+        /* --- NEW SECTION: WORKFLOW --- */
+        .workflow-section {
+            padding: 100px 5%;
+            background: #080808;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .flow-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 50px;
+        }
+        .flow-step {
+            border-top: 2px solid #333;
+            padding-top: 20px;
+            transition: 0.3s;
+        }
+        .flow-step:hover { border-color: var(--accent-primary); }
+        .step-num { font-family: 'Orbitron'; font-size: 2rem; color: #333; margin-bottom: 10px; display: block; }
+        .flow-step:hover .step-num { color: var(--accent-primary); }
+
+        /* --- FOOTER --- */
+        footer {
+            background: var(--bg-panel);
+            padding: 80px 5% 40px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-family: 'Inter';
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        .footer-col h4 { color: #fff; margin-bottom: 25px; font-size: 0.9rem; letter-spacing: 1px; }
+        .footer-col ul { list-style: none; }
+        .footer-col li { margin-bottom: 15px; }
+        .footer-col a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
+        .footer-col a:hover { color: var(--accent-primary); }
 
         /* --- RESPONSIVE --- */
         @media (max-width: 1024px) {
@@ -222,6 +278,8 @@
             .visual-container { position: relative; width: 100%; height: 400px; }
             .bento-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
             .card-lg, .card-vert { grid-column: span 1; grid-row: span 1; }
+            .flow-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; gap: 40px; }
         }
     </style>
 </head>
@@ -229,38 +287,38 @@
 
     <nav>
         <div class="logo">ART<span class="accent">TOUS</span></div>
-        <div class="mono" style="font-size: 0.8rem;">
-            <span class="status-dot"></span>SYS_ONLINE
+        <div class="mono" style="font-size: 0.75rem; color: #888;">
+            <span class="status-dot"></span>SYSTEM_ONLINE
         </div>
     </nav>
 
     <section class="hero">
         <div class="hero-text">
             <span class="firmware-badge">FIRMWARE v53.0 :: RHODIUM</span>
-            <h1>AUTONOMOUS<br><span class="accent">MESH REALITY</span></h1>
+            <h1>AUTONOMOUS<br><span class="glow-text">MESH REALITY</span></h1>
             <p class="hero-desc">
                 Where GPS fails, Arttous creates its own reality. 
                 A <strong>16-DOF</strong> quadrupedal platform powered by <strong>ESP32-C6</strong> and localized via <strong>T3S3 LoRa Mesh</strong> Time-of-Flight ranging.
             </p>
             <div class="cta-group">
-                <a href="#" class="btn btn-primary">SYSTEM ARCHITECTURE</a>
-                <a href="#" class="btn btn-secondary">LIVE TELEMETRY</a>
+                <a href="#specs" class="btn btn-primary">SYSTEM ARCHITECTURE</a>
+                <a href="#telemetry" class="btn btn-secondary">LIVE TELEMETRY</a>
             </div>
         </div>
 
         <div class="visual-container">
-            <div class="hud-circle"></div>
-            <div class="mono accent" style="position: absolute;">
-                [ INSERT 3D MODEL HERE ]<br>
-                16 SERVOS DETECTED
-            </div>
             </div>
     </section>
 
-    <section class="tech-section">
-        <div style="margin-bottom: 40px; border-bottom: 1px solid #333; padding-bottom: 20px;">
-            <h2 style="font-size: 2rem;">COMPONENT MATRIX</h2>
-            <span class="mono text-dim">HARDWARE_REV_04 // CONFIG: QUAD_16DOF</span>
+    <section id="specs" class="tech-section">
+        <div class="section-header">
+            <div>
+                <h2 style="font-size: 2.5rem;">COMPONENT MATRIX</h2>
+                <span class="mono text-dim">HARDWARE_REV_04 // CONFIG: QUAD_16DOF</span>
+            </div>
+            <div class="mono accent" style="text-align: right;">
+                /// STATUS: OPTIMAL<br>/// BAT: 7.4V
+            </div>
         </div>
 
         <div class="bento-grid">
@@ -268,14 +326,14 @@
             <div class="card card-lg">
                 <span class="tech-label">MOTION ENGINE</span>
                 <div style="display: flex; align-items: baseline; gap: 15px;">
-                    <h3 class="accent">SYMMETRIC TWIST KINEMATICS</h3>
+                    <h3 class="glow-text">SYMMETRIC TWIST KINEMATICS</h3>
                 </div>
                 <p>Custom Inverse Kinematics solver (v53) handling <strong>16 degrees of freedom</strong> (4 per leg). Corrects asymmetric roll behavior using twist-banking logic.</p>
                 <div class="code-block">
                     // RHODIUM v53.0 Matrix<br>
-                    FL_LEG: { +1, +1, +1, +1 }<br>
-                    FR_LEG: { +1, -1, -1, -1 }<br>
-                    return solve_IK_16DOF(target_pos);
+                    <span style="color: #fff">FL_LEG:</span> { +1, +1, +1, +1 }<br>
+                    <span style="color: #fff">FR_LEG:</span> { +1, -1, -1, -1 }<br>
+                    return <span class="accent">solve_IK_16DOF</span>(target_pos);
                 </div>
             </div>
 
@@ -286,9 +344,9 @@
                 <p>High-torque metal gear actuators. 4 motors per leg provide active ankle control and complex gait capabilities.</p>
             </div>
 
-            <div class="card card-vert" style="background: linear-gradient(160deg, #0e0e0e 0%, #1a0b2e 100%); border: 1px solid var(--accent-primary);">
-                <span class="tech-label cyan">LOCALIZATION SYSTEM</span>
-                <h3 style="font-size: 1.5rem; margin-bottom: 20px;">T3S3 MESH</h3>
+            <div class="card card-vert">
+                <span class="tech-label">LOCALIZATION SYSTEM</span>
+                <h3 style="font-size: 1.8rem; margin-bottom: 20px;">T3S3 MESH</h3>
                 <p style="margin-bottom: 30px;">
                     GNSS-denied navigation using <strong>SX1280 2.4GHz LoRa</strong> modules. Robots deploy "Anchors" to triangulate position via Time-of-Flight (ToF).
                 </p>
@@ -296,17 +354,17 @@
                 <div class="data-stream">
                     <div class="data-row">
                         <span>ANCHOR_A</span>
-                        <span>-42dBm [3.2m]</span>
+                        <span class="data-val">-42dBm [3.2m]</span>
                     </div>
                     <div class="data-row">
                         <span>ANCHOR_B</span>
-                        <span>-38dBm [1.8m]</span>
+                        <span class="data-val">-38dBm [1.8m]</span>
                     </div>
                     <div class="data-row">
                         <span>ANCHOR_C</span>
-                        <span>-45dBm [4.1m]</span>
+                        <span class="data-val">-45dBm [4.1m]</span>
                     </div>
-                    <div class="data-row" style="color: #0f0; margin-top: 10px; border: none;">
+                    <div class="data-row" style="color: var(--accent-primary); margin-top: 15px; border: none; font-weight: bold;">
                         <span>> TRIANGULATION:</span>
                         <span>LOCKED</span>
                     </div>
@@ -323,13 +381,73 @@
                 <span class="tech-label">STABILIZATION</span>
                 <div style="display: flex; justify-content: space-between;">
                     <h3>ACTIVE GYRO (MPU-6050)</h3>
-                    <div class="mono cyan">PITCH: 0.02°</div>
+                    <div class="mono accent">PITCH: 0.02°</div>
                 </div>
-                <p>Real-time horizon correction. The IMU feeds directly into the gait scheduler to adjust foot height on uneven terrain.</p>
+                <p>Real-time horizon correction. The IMU feeds directly into the gait scheduler to adjust foot height on uneven terrain dynamically.</p>
             </div>
 
         </div>
     </section>
+
+    <section class="workflow-section">
+        <h2 style="text-align: center;">OPERATIONAL LOGIC</h2>
+        <div class="flow-grid">
+            <div class="flow-step">
+                <span class="step-num">01</span>
+                <h3>Deploy Anchors</h3>
+                <p style="color: #666; margin-top: 10px;">Operator places 3+ T3S3 nodes in the environment. System auto-calibrates the mesh geometry.</p>
+            </div>
+            <div class="flow-step">
+                <span class="step-num">02</span>
+                <h3>ToF Ranging</h3>
+                <p style="color: #666; margin-top: 10px;">Arttous calculates distance to anchors using 2.4GHz Time-of-Flight pulses with < 1m accuracy.</p>
+            </div>
+            <div class="flow-step">
+                <span class="step-num">03</span>
+                <h3>Path Execution</h3>
+                <p style="color: #666; margin-top: 10px;">Kinematics engine translates coordinates into 16-motor servo commands for terrain traversal.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="logo" style="margin-bottom: 20px;">ART<span class="accent">TOUS</span></div>
+                <p style="color: #666; font-size: 0.85rem; line-height: 1.6;">
+                    Developing the next generation of affordable, mesh-networked autonomous robotics for search and rescue operations.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>PLATFORM</h4>
+                <ul>
+                    <li><a href="#">Rhodium Firmware</a></li>
+                    <li><a href="#">Hardware Docs</a></li>
+                    <li><a href="#">Kinematics API</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>RESOURCES</h4>
+                <ul>
+                    <li><a href="#">GitHub Repo</a></li>
+                    <li><a href="#">3D Models (STL)</a></li>
+                    <li><a href="#">Community</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>LEGAL</h4>
+                <ul>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Use</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+        <div style="border-top: 1px solid #222; padding-top: 20px; display: flex; justify-content: space-between; font-size: 0.75rem; color: #444;">
+            <p>&copy; 2026 Arttous Robotics Inc.</p>
+            <p class="mono">SYSTEM STATUS: ONLINE</p>
+        </div>
+    </footer>
 
     <script>
         console.log("ARTTOUS SYSTEM ONLINE: v53.0");
@@ -337,126 +455,110 @@
     </script>
 
     <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    {
+        "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
     }
-  }
-</script>
-<script type="module">
-    import * as THREE from 'three';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    // --- НАСТРОЙКИ ---
-    const container = document.querySelector('.visual-container');
-    const modelPath = './web-robo-3D.glb'; 
-    const robotScale = 6.5; // <--- УВЕЛИЧИЛ: Ставь больше, если нужно (было 1.0)
+        const container = document.querySelector('.visual-container');
+        const modelPath = './web-robo-3D.glb'; 
+        const robotScale = 6.5; 
 
-    // СЦЕНА
-    const scene = new THREE.Scene();
-    scene.background = null; // Прозрачный фон
+        // SCENE
+        const scene = new THREE.Scene();
+        scene.background = null; 
 
-    // КАМЕРА (ПРИБЛИЗИЛ)
-    // Было (3, 2, 4), стало ближе (1.8, 1.2, 2.5)
-    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
-    camera.position.set(1.8, 1.2, 2.5); 
+        // CAMERA
+        const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
+        camera.position.set(1.8, 1.2, 2.5); 
 
-    // РЕНДЕР
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    // ToneMapping делает свет "киношным", а не пересвеченным
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.5; // Яркость экспозиции
-    
-    container.innerHTML = ''; 
-    container.appendChild(renderer.domElement);
-
-    // --- ПРОФЕССИОНАЛЬНЫЙ СВЕТ (STUDIO SETUP) ---
-    
-    // 1. Key Light (Основной рисующий) - Холодный белый спереди-сверху
-    // Дает форму деталям
-    const keyLight = new THREE.DirectionalLight(0xffffff, 4.0);
-    keyLight.position.set(2, 2, 2);
-    scene.add(keyLight);
-
-    // 2. Rim Light (Контровой) - Ядреный фиолетовый сзади
-    // Очерчивает силуэт, чтобы черный робот не сливался с черным фоном
-    const rimLight = new THREE.SpotLight(0x8e44ad, 20.0); // Высокая интенсивность!
-    rimLight.position.set(-2, 1, -2);
-    rimLight.lookAt(0, 0, 0);
-    scene.add(rimLight);
-
-    // 3. Fill Light (Заполняющий) - Мягкий неон снизу (Cyberpunk feel)
-    // Подсвечивает "живот" робота, чтобы там не было черной дыры
-    const fillLight = new THREE.PointLight(0x00f3ff, 2.0);
-    fillLight.position.set(0, -2, 1); 
-    scene.add(fillLight);
-
-    // 4. Top Light - Верхний свет для бликов на крышке
-    const topLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    topLight.position.set(0, 5, 0);
-    scene.add(topLight);
-
-    // КОНТРОЛЛЕР
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.enableZoom = true;    // Включил зум, чтобы ты мог сам проверить
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 1.5;
-
-    // ЗАГРУЗКА
-    const loader = new GLTFLoader();
-    
-    loader.load(modelPath, function (gltf) {
-        const model = gltf.scene;
-        
-        // ЦЕНТРИРОВАНИЕ
-        const box = new THREE.Box3().setFromObject(model);
-        const center = box.getCenter(new THREE.Vector3());
-        model.position.sub(center); 
-
-        // МАСШТАБИРОВАНИЕ (ВАЖНО!)
-        model.scale.set(robotScale, robotScale, robotScale);
-
-        // ВАЖНО: Включаем тени/материалы
-        model.traverse((child) => {
-            if (child.isMesh) {
-                // Сделаем материал чуть более "металлическим", чтобы ловил блики
-                child.material.roughness = 0.4; // Глянцевость (0 - зеркало, 1 - матовый)
-                child.material.metalness = 0.6; // Металличность
-            }
-        });
-        
-        scene.add(model);
-        console.log(`ROBOT LOADED. Scale: ${robotScale}`);
-
-    }, undefined, function (error) {
-        console.error("ERROR:", error);
-    });
-
-    // АНИМАЦИЯ
-    function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
-    }
-    animate();
-
-    // РЕСАЙЗ
-    window.addEventListener('resize', () => {
-        camera.aspect = container.clientWidth / container.clientHeight;
-        camera.updateProjectionMatrix();
+        // RENDERER
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
-    });
-</script>
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.4;
+        
+        container.innerHTML = ''; 
+        container.appendChild(renderer.domElement);
 
-  <footer style="background: var(--bg-panel); padding: 20px 5%; text-align: center; color: var(--text-dim); font-size: 0.8rem; margin-top: 50px;">
-    <div style="max-width: 800px; margin: auto;">
-      <p>&copy; 2024 Arttous Robotics. All rights reserved.</p>
-      <p>Contact: <a href="mailto:info@arttous.com">info@arttous.com</a></p>
+        // --- LIGHTING SETUP (MONOCHROME PURPLE) ---
+        
+        // 1. Key Light (White/Grey)
+        const keyLight = new THREE.DirectionalLight(0xffffff, 3.5);
+        keyLight.position.set(2, 2, 2);
+        scene.add(keyLight);
+
+        // 2. Rim Light (Saturated Purple)
+        const rimLight = new THREE.SpotLight(0x7c2ae8, 25.0); 
+        rimLight.position.set(-2, 1, -2);
+        rimLight.lookAt(0, 0, 0);
+        scene.add(rimLight);
+
+        // 3. Fill Light (Deep Purple/Blueish - No Cyan)
+        const fillLight = new THREE.PointLight(0x4a0082, 3.0);
+        fillLight.position.set(0, -2, 1); 
+        scene.add(fillLight);
+
+        // 4. Top Light
+        const topLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        topLight.position.set(0, 5, 0);
+        scene.add(topLight);
+
+        // CONTROLS
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.enableZoom = true;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 1.5;
+
+        // LOADER
+        const loader = new GLTFLoader();
+        
+        loader.load(modelPath, function (gltf) {
+            const model = gltf.scene;
+            
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            model.position.sub(center); 
+
+            model.scale.set(robotScale, robotScale, robotScale);
+
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.roughness = 0.4; 
+                    child.material.metalness = 0.7; 
+                }
+            });
+            
+            scene.add(model);
+            console.log(`ROBOT LOADED. Scale: ${robotScale}`);
+
+        }, undefined, function (error) {
+            console.error("ERROR:", error);
+        });
+
+        // ANIMATE
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    </script>
 </body>
 </html>
