@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARTTOUS | Operator Uplink</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-core: #050505;
+            --bg-card: #0e0e0e;
+            --accent: #7c2ae8;
+            --accent-dim: rgba(124, 42, 232, 0.1);
+            --text-main: #e0e0e0;
+            --text-muted: #666;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --font-tech: 'Orbitron', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-core);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        nav { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; background: #080808; }
+        .logo { font-family: var(--font-tech); font-size: 1.2rem; font-weight: 900; color: #fff; text-decoration: none; }
+        .accent { color: var(--accent); }
+        .user-badge { display: flex; align-items: center; gap: 15px; }
+        .avatar { width: 35px; height: 35px; background: #222; border-radius: 50%; border: 1px solid var(--accent); }
+        .logout-btn { color: #666; font-size: 0.8rem; text-decoration: none; transition: 0.3s; }
+        .logout-btn:hover { color: #fff; }
+
+        /* LAYOUT */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            flex: 1;
+        }
+
+        /* SIDEBAR (Profile) */
+        .sidebar {
+            background: #0a0a0a;
+            border-right: 1px solid #222;
+            padding: 40px;
+        }
+        
+        .profile-header { text-align: center; margin-bottom: 40px; }
+        .large-avatar { width: 100px; height: 100px; background: #1a1a1a; border-radius: 50%; margin: 0 auto 20px; border: 2px solid var(--accent); position: relative; }
+        .large-avatar::after { content: "OP"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: var(--font-tech); font-size: 1.5rem; color: var(--accent); }
+        
+        .username { font-family: var(--font-tech); font-size: 1.2rem; margin-bottom: 5px; color: #fff; }
+        .rank { font-family: var(--font-mono); font-size: 0.8rem; color: var(--success); }
+
+        .stats-list { list-style: none; margin-top: 40px; }
+        .stat-item { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; font-size: 0.9rem; }
+        .stat-key { color: #666; }
+        .stat-val { font-family: var(--font-mono); color: #fff; }
+
+        /* LEVEL BAR */
+        .level-container { margin-top: 40px; }
+        .level-info { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 8px; font-family: var(--font-mono); }
+        .progress-bar { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
+        .progress-fill { width: 75%; height: 100%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+
+        /* MAIN CONTENT */
+        .main-panel {
+            padding: 40px 60px;
+            overflow-y: auto;
+        }
+
+        h2 { font-family: var(--font-tech); font-size: 1.5rem; margin-bottom: 30px; border-bottom: 1px solid #222; padding-bottom: 15px; display: flex; justify-content: space-between; }
+        .section-tag { font-family: var(--font-mono); font-size: 0.8rem; color: #666; margin-top: 10px; }
+
+        /* API KEYS SECTION */
+        .api-box {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            padding: 25px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .key-display {
+            font-family: var(--font-mono);
+            background: #000;
+            padding: 10px 20px;
+            color: var(--success);
+            border: 1px solid #333;
+            width: 70%;
+            letter-spacing: 2px;
+        }
+        .action-btn {
+            background: transparent; border: 1px solid var(--accent); color: var(--accent);
+            padding: 10px 20px; font-family: var(--font-tech); cursor: pointer; transition: 0.3s;
+        }
+        .action-btn:hover { background: var(--accent); color: #fff; }
+
+        /* MISSION BOARD (Help Us) */
+        .missions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .mission-card {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            padding: 25px;
+            position: relative;
+            transition: 0.3s;
+        }
+        .mission-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+        
+        .mission-type { 
+            position: absolute; top: 15px; right: 15px; 
+            font-family: var(--font-mono); font-size: 0.65rem; padding: 2px 8px; border: 1px solid #333; 
+        }
+        .type-code { color: #3498db; border-color: #3498db; }
+        .type-design { color: #9b59b6; border-color: #9b59b6; }
+        .type-test { color: #e67e22; border-color: #e67e22; }
+
+        .mission-title { font-family: var(--font-tech); font-size: 1rem; color: #fff; margin-bottom: 10px; margin-top: 10px; }
+        .mission-desc { font-size: 0.85rem; color: #888; line-height: 1.5; margin-bottom: 20px; }
+        
+        .xp-reward { font-family: var(--font-mono); color: var(--success); font-size: 0.8rem; }
+        
+        .join-btn {
+            width: 100%; margin-top: 15px; padding: 10px; border: 1px solid #333; background: transparent; color: #aaa; cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem;
+        }
+        .join-btn:hover { background: #222; color: #fff; border-color: #fff; }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .dashboard-container { grid-template-columns: 1fr; }
+            .sidebar { border-right: none; border-bottom: 1px solid #222; }
+            .missions-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
+        <div class="user-badge">
+            <span style="font-family: 'JetBrains Mono'; font-size: 0.8rem; color: #fff;">OPERATOR_734</span>
+            <div class="avatar"></div>
+            <a href="index.html" class="logout-btn">DISCONNECT</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="profile-header">
+                <div class="large-avatar"></div>
+                <div class="username">ALEX_MERCER</div>
+                <div class="rank">/// SENIOR SPECIALIST</div>
+            </div>
+
+            <div class="level-container">
+                <div class="level-info">
+                    <span>LEVEL 4</span>
+                    <span>1,240 / 2,000 XP</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+
+            <ul class="stats-list">
+                <li class="stat-item">
+                    <span class="stat-key">Nodes Active</span>
+                    <span class="stat-val">3</span>
+                </li>
+                <li class="stat-item">
+                    <span class="stat-key">Contribution</span>
+                    <span class="stat-val">Top 5%</span>
+                </li>
+                <li class="stat-item">
+                    <span class="stat-key">Join Date</span>
+                    <span class="stat-val">Oct 2025</span>
+                </li>
+                <li class="stat-item">
+                    <span class="stat-key">Reputation</span>
+                    <span class="stat-val" style="color: var(--success);">EXCELLENT</span>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="main-panel">
+            
+            <h2>
+                SECURE CREDENTIALS
+                <span class="section-tag">Use this key for robot authentication</span>
+            </h2>
+            <div class="api-box">
+                <div class="key-display">sk_live_94f...x82m</div>
+                <button class="action-btn">REGENERATE KEY</button>
+            </div>
+
+            <h2>
+                OPEN CONTRACTS
+                <span class="section-tag">Community tasks needed for Rhodium v54</span>
+            </h2>
+            
+            <div class="missions-grid">
+                
+                <div class="mission-card">
+                    <div class="mission-type type-code">CODE</div>
+                    <div class="mission-title">OPTIMIZE IK SOLVER</div>
+                    <p class="mission-desc">
+                        Current inverse kinematics consume 12% CPU cycle. Goal: Reduce to < 8% using lookup tables for `acos` functions.
+                    </p>
+                    <div class="xp-reward">+500 XP // REWARD: Early Access v54</div>
+                    <button class="join-btn">VIEW REPO BRANCH</button>
+                </div>
+
+                <div class="mission-card">
+                    <div class="mission-type type-design">DESIGN</div>
+                    <div class="mission-title">TIBIA REINFORCEMENT</div>
+                    <p class="mission-desc">
+                        Lower leg snaps under 5kg load. We need a new STL design with internal ribbing for Carbon-PETG printing.
+                    </p>
+                    <div class="xp-reward">+300 XP // REWARD: Filament Pack</div>
+                    <button class="join-btn">DOWNLOAD SPECS</button>
+                </div>
+
+                <div class="mission-card">
+                    <div class="mission-type type-test">RELIABILITY</div>
+                    <div class="mission-title">STRESS TEST: SAND</div>
+                    <p class="mission-desc">
+                        Deploy unit in fine sand environment. Log servo temperatures over 20 minutes of continuous "Crawl" gait.
+                    </p>
+                    <div class="xp-reward">+800 XP // REWARD: Badge "Dune Walker"</div>
+                    <button class="join-btn">UPLOAD LOGS</button>
+                </div>
+
+            </div>
+
+            <h2 style="margin-top: 60px;">
+                SERVER SUSTAINABILITY
+                <span class="section-tag">Keep the Mesh Network alive</span>
+            </h2>
+            <div class="api-box" style="border-color: #333; background: #080808;">
+                <div style="color: #888; font-size: 0.9rem;">
+                    Server costs for LoRa triangulation are currently $420/mo. Backing the project grants "Patron" status.
+                </div>
+                <button class="action-btn" style="border-color: #fff; color: #fff;">BECOME A PATRON</button>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

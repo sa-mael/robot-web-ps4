@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARTTOUS | Terms of Engagement</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-core: #050505;
+            --bg-card: #0e0e0e;
+            --accent: #7c2ae8;
+            --text-main: #e0e0e0;
+            --font-tech: 'Orbitron', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-core);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            line-height: 1.7;
+        }
+
+        /* HEADER */
+        nav { padding: 25px 5%; display: flex; justify-content: space-between; border-bottom: 1px solid #222; }
+        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; }
+        .accent { color: var(--accent); }
+
+        /* LEGAL CONTAINER */
+        .doc-wrapper {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 5%;
+        }
+
+        .doc-header {
+            margin-bottom: 60px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 30px;
+        }
+        
+        h1 { font-family: var(--font-tech); font-size: 2.5rem; margin-bottom: 10px; color: #fff; }
+        .doc-meta { font-family: var(--font-mono); color: #666; font-size: 0.8rem; }
+
+        /* CONTENT STYLES */
+        .term-section { margin-bottom: 50px; }
+        
+        h2 { 
+            font-family: var(--font-tech); 
+            font-size: 1.2rem; 
+            color: #fff; 
+            margin-bottom: 15px; 
+            border-left: 3px solid var(--accent);
+            padding-left: 15px;
+        }
+
+        p { color: #aaa; margin-bottom: 15px; text-align: justify; font-size: 0.95rem; }
+        
+        strong { color: #fff; font-weight: 600; }
+
+        ul { list-style: none; margin-bottom: 20px; }
+        li { 
+            color: #aaa; 
+            margin-bottom: 10px; 
+            padding-left: 20px; 
+            position: relative; 
+            font-size: 0.95rem;
+        }
+        li::before { content: ">>"; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); font-size: 0.8rem; }
+
+        /* CRITICAL WARNING BOX */
+        .hazard-box {
+            background: rgba(231, 76, 60, 0.05);
+            border: 1px solid #c0392b;
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+        .hazard-title { color: #e74c3c; font-family: var(--font-tech); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .hazard-text { color: #e74c3c; font-size: 0.85rem; font-family: var(--font-mono); }
+
+        /* FOOTER SIGNATURE */
+        .digital-sig {
+            margin-top: 80px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: #555;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">DOC_ID: TOU_V2</div>
+    </nav>
+
+    <div class="doc-wrapper">
+        
+        <div class="doc-header">
+            <h1>TERMS OF USE</h1>
+            <div class="doc-meta">
+                EFFECTIVE DATE: FEB 01, 2026<br>
+                STATUS: BINDING PROTOCOL
+            </div>
+        </div>
+
+        <div class="hazard-box">
+            <div class="hazard-title">
+                <span>⚠️</span> CRITICAL SAFETY NOTICE
+            </div>
+            <div class="hazard-text">
+                THE HARDWARE DESIGNS PROVIDED HEREIN INVOLVE HIGH-TORQUE ACTUATORS AND LITHIUM-POLYMER BATTERIES. IMPROPER ASSEMBLY MAY RESULT IN FIRE, PHYSICAL INJURY, OR PROPERTY DAMAGE. PROCEED AT YOUR OWN RISK.
+            </div>
+        </div>
+
+        <div class="term-section">
+            <h2>1. ACCEPTANCE OF PROTOCOLS</h2>
+            <p>
+                By accessing the Arttous platform, downloading our firmware (Rhodium v53+), or utilizing our 3D assets, you verify that you are a sentient entity capable of entering into a binding contract under the laws of Ontario, Canada. If you do not agree to these terms, terminate your connection immediately.
+            </p>
+        </div>
+
+        <div class="term-section">
+            <h2>2. INTELLECTUAL PROPERTY & LICENSE</h2>
+            <p>
+                <strong>2.1. Open Source Components.</strong> The core firmware logic is released under the MIT License. You are free to fork, modify, and deploy this code for personal projects.
+            </p>
+            <p>
+                <strong>2.2. Proprietary Assets.</strong> The "Arttous" branding, the specific 3D chassis designs labeled as "Proprietary," and the visual identity of this platform remain the exclusive property of Arttous Robotics Inc. You may not sell physical kits branding them as "Official Arttous" without a written enterprise agreement.
+            </p>
+        </div>
+
+        <div class="term-section">
+            <h2>3. PROHIBITED CONDUCT (ZERO TOLERANCE)</h2>
+            <p>You agree NOT to use the Arttous platform or hardware for:</p>
+            <ul>
+                <li>Weaponization or attachment of kinetic/chemical payloads.</li>
+                <li>Surveillance of private property without consent.</li>
+                <li>Interference with public radio frequencies (LoRa compliance is the user's responsibility).</li>
+                <li>Commercial mass-production without a RaaS license.</li>
+            </ul>
+        </div>
+
+        <div class="term-section">
+            <h2>4. DISCLAIMER OF WARRANTIES</h2>
+            <p>
+                THE SYNTHETIC DATA AND KINEMATIC MODELS ARE PROVIDED "AS IS." ARTTOUS MAKES NO GUARANTEES THAT THE ROBOT WILL BALANCE, WALK, OR FUNCTION IN YOUR SPECIFIC GRAVITATIONAL ENVIRONMENT. WE DISCLAIM ALL LIABILITY FOR FRIED SERVOS, BATTERY VENTING, OR LOSS OF FINGERS DURING CALIBRATION.
+            </p>
+        </div>
+
+        <div class="term-section">
+            <h2>5. GOVERNING LAW</h2>
+            <p>
+                Any disputes arising from these terms shall be resolved in the digital or physical courts of <strong>Ontario, Canada</strong>. You waive any objection to jurisdiction in this venue.
+            </p>
+        </div>
+
+        <div class="digital-sig">
+            <div>
+                SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
+                HASH: 0x99a...f42
+            </div>
+            <div style="text-align: right;">
+                &copy; 2026 Arttous Robotics Inc.<br>
+                ALL RIGHTS RESERVED.
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

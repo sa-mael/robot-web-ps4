@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ARTTOUS | Rhodium Firmware</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-core: #050505;
+            --accent: #7c2ae8;
+            --success: #2ecc71;
+            --text-main: #e0e0e0;
+            --font-tech: 'Orbitron', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        body { background: var(--bg-core); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; }
+
+        nav { padding: 25px 5%; display: flex; justify-content: space-between; border-bottom: 1px solid #222; }
+        .logo { font-family: var(--font-tech); font-weight: 900; color: #fff; text-decoration: none; font-size: 1.5rem; }
+        .accent { color: var(--accent); }
+
+        /* RELEASE HERO */
+        .release-hero {
+            padding: 80px 5%;
+            text-align: center;
+            border-bottom: 1px solid #111;
+            background: radial-gradient(circle at 50% 0%, rgba(124, 42, 232, 0.08), transparent 60%);
+        }
+        .version-tag {
+            background: rgba(124, 42, 232, 0.1); border: 1px solid var(--accent);
+            color: var(--accent); padding: 5px 15px; font-family: var(--font-mono); font-size: 0.8rem;
+            display: inline-block; margin-bottom: 20px;
+        }
+        h1 { font-family: var(--font-tech); font-size: 3.5rem; margin-bottom: 10px; }
+        
+        /* DOWNLOAD AREA */
+        .dl-area {
+            max-width: 700px;
+            margin: 40px auto;
+            background: #0e0e0e;
+            border: 1px solid #222;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .dl-info { text-align: left; }
+        .dl-filename { color: #fff; font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem; }
+        .dl-meta { color: #666; font-size: 0.8rem; margin-top: 5px; }
+        
+        .flash-btn {
+            background: var(--accent); color: #fff; border: none; padding: 15px 30px;
+            font-family: var(--font-tech); cursor: pointer; transition: 0.3s;
+            text-decoration: none; display: inline-block;
+        }
+        .flash-btn:hover { background: #9d50ff; box-shadow: 0 0 20px rgba(124, 42, 232, 0.4); }
+
+        /* CHANGELOG TERMINAL */
+        .changelog-section {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 5%;
+        }
+        .terminal {
+            background: #000;
+            border: 1px solid #333;
+            padding: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #aaa;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .log-entry { margin-bottom: 15px; padding-left: 20px; border-left: 2px solid #333; }
+        .log-entry.new { border-left-color: var(--success); color: #fff; }
+        .hash { color: var(--accent); margin-right: 10px; }
+        
+        .release-notes {
+            margin-top: 10px; font-size: 0.8rem; color: #666; line-height: 1.5;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">SYS: RHODIUM_FW</div>
+    </nav>
+
+    <div class="release-hero">
+        <div class="version-tag">LATEST STABLE: v53.0.2</div>
+        <h1>RHODIUM FIRMWARE</h1>
+        <p style="color: #666; max-width: 500px; margin: 0 auto;">
+            The core operating logic for Arttous 16-DOF platforms. Includes Symmetric Twist Kinematics solver and T3S3 Mesh networking stack.
+        </p>
+
+        <div class="dl-area">
+            <div class="dl-info">
+                <div class="dl-filename">firmware_v53_0_2.bin</div>
+                <div class="dl-meta">SHA-256: 8a9...f41 | 4.2 MB | ESP32-C6</div>
+            </div>
+            <a href="#" class="flash-btn">DOWNLOAD .BIN</a>
+        </div>
+    </div>
+
+    <div class="changelog-section">
+        <h3 style="font-family: 'Orbitron'; margin-bottom: 20px;">RELEASE LOG</h3>
+        
+        <div class="terminal">
+            <div style="color: #666; margin-bottom: 20px;">// FETCHING UPSTREAM... DONE.</div>
+
+            <div class="log-entry new">
+                <div><span class="hash">#v53.0.2</span> <span style="color: var(--success);">[CURRENT]</span> - Hotfix</div>
+                <div class="release-notes">
+                    - Fixed floating point error in inverse kinematics for extreme inclination.<br>
+                    - Patched T3S3 packet loss during rapid movement.<br>
+                    - Increased servo refresh rate to 330Hz.
+                </div>
+            </div>
+
+            <div class="log-entry">
+                <div><span class="hash">#v53.0.0</span> - Major Update</div>
+                <div class="release-notes">
+                    - Implemented "Symmetric Twist" walking gait.<br>
+                    - Added support for MPU-6050 active stabilization.<br>
+                    - Initial Mesh Network capability.
+                </div>
+            </div>
+
+            <div class="log-entry">
+                <div><span class="hash">#v52.4.1</span> - Legacy</div>
+                <div class="release-notes">
+                    - Battery optimization for 2S LiPo.<br>
+                    - WebSerial API support added.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

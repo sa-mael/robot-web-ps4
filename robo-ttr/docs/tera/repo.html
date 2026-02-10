@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARTTOUS | Source Code</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-core: #050505;
+            --bg-card: #0e0e0e;
+            --accent: #7c2ae8;
+            --accent-dim: rgba(124, 42, 232, 0.1);
+            --text-main: #e0e0e0;
+            --text-muted: #666;
+            --font-tech: 'Orbitron', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-core);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; }
+        .accent { color: var(--accent); }
+
+        /* HERO CLI SECTION */
+        .repo-hero {
+            padding: 80px 5%;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 { font-family: var(--font-tech); font-size: 3rem; margin-bottom: 10px; }
+        .subtitle { color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 40px; display: block; }
+
+        /* TERMINAL BOX */
+        .terminal-box {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 20px;
+            text-align: left;
+            font-family: var(--font-mono);
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .terminal-header {
+            display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px;
+        }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #333; }
+        .dot.red { background: #ff5f56; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #27c93f; }
+
+        .cmd-line { color: #aaa; margin-bottom: 10px; }
+        .cmd-prompt { color: var(--accent); margin-right: 10px; }
+        .cmd-input { color: #fff; background: transparent; border: none; font-family: inherit; font-size: 1rem; width: 80%; outline: none; }
+        
+        .copy-btn {
+            position: absolute; top: 20px; right: 20px;
+            background: #222; border: 1px solid #444; color: #fff;
+            padding: 5px 15px; font-size: 0.75rem; cursor: pointer;
+            font-family: var(--font-mono); transition: 0.2s;
+        }
+        .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* REPO GRID */
+        .repo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            padding: 60px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .repo-card {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            padding: 25px;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 220px;
+            text-decoration: none;
+        }
+        .repo-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        
+        .repo-icon { font-size: 1.5rem; margin-bottom: 15px; color: var(--text-muted); }
+        .repo-card:hover .repo-icon { color: var(--accent); }
+        
+        .repo-title { font-family: var(--font-mono); font-weight: bold; color: #fff; margin-bottom: 10px; font-size: 1.1rem; }
+        .repo-desc { color: #666; font-size: 0.85rem; line-height: 1.5; }
+        
+        .repo-stats {
+            margin-top: auto;
+            border-top: 1px solid #222;
+            padding-top: 15px;
+            display: flex;
+            gap: 15px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: #555;
+        }
+        .stat { display: flex; align-items: center; gap: 5px; }
+
+        /* ACTIVITY GRAPH (FAKE GITHUB GRID) */
+        .activity-section {
+            padding: 60px 5%;
+            border-top: 1px solid #222;
+            text-align: center;
+        }
+        .graph-container {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .graph-col { display: flex; flex-direction: column; gap: 4px; }
+        .pixel {
+            width: 12px; height: 12px; background: #111; border-radius: 2px;
+        }
+        /* Randomly assign classes via JS or hardcode some */
+        .l1 { background: #2a0e4f; }
+        .l2 { background: #4a148c; }
+        .l3 { background: #7c2ae8; }
+        .l4 { background: #9d50ff; box-shadow: 0 0 5px var(--accent); }
+
+        /* CHANGELOG */
+        .changelog {
+            max-width: 800px;
+            margin: 0 auto 80px;
+            font-family: var(--font-mono);
+            border-left: 2px solid #222;
+            padding-left: 30px;
+        }
+        .log-entry { margin-bottom: 30px; position: relative; }
+        .log-entry::before {
+            content: ""; position: absolute; left: -36px; top: 5px;
+            width: 10px; height: 10px; background: #000; border: 2px solid var(--accent); border-radius: 50%;
+        }
+        .log-date { color: var(--accent); font-size: 0.8rem; margin-bottom: 5px; }
+        .log-msg { color: #fff; margin-bottom: 5px; }
+        .log-hash { color: #444; font-size: 0.75rem; }
+
+        @media (max-width: 900px) {
+            .repo-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">REPO_ACCESS: PUBLIC</div>
+    </nav>
+
+    <section class="repo-hero">
+        <h1>SOURCE CODE INTELLIGENCE</h1>
+        <span class="subtitle">/// MIT LICENSE // OPEN ARCHITECTURE</span>
+
+        <div class="terminal-box">
+            <div class="terminal-header">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+            </div>
+            <div class="cmd-line">
+                <span class="cmd-prompt">user@arttous:~$</span>
+                <input type="text" value="git clone https://github.com/sa-mael/robo-web-ps4.git" class="cmd-input" readonly id="cloneUrl">
+            </div>
+            <div class="cmd-line" style="color: #444;">
+                <span class="cmd-prompt">system:</span> Cloning into 'rhodium-v53'...
+            </div>
+            <button class="copy-btn" onclick="copyClone()">COPY COMMAND</button>
+        </div>
+    </section>
+
+    <div class="repo-grid">
+        
+        <a href="https://github.com/sa-mael/robo-web-ps4" target="_blank" class="repo-card">
+            <div class="repo-icon">⚡</div>
+            <div>
+                <div class="repo-title">arttous-rhodium-fw</div>
+                <div class="repo-desc">Core firmware for ESP32-C6. Handles Inverse Kinematics, IMU stabilization, and servo orchestration.</div>
+            </div>
+            <div class="repo-stats">
+                <span class="stat">★ 1.2k</span>
+                <span class="stat">⑂ 240</span>
+                <span class="stat">● C++</span>
+            </div>
+        </a>
+
+        <a href="#" class="repo-card">
+            <div class="repo-icon">🌐</div>
+            <div>
+                <div class="repo-title">arttous-telemetry</div>
+                <div class="repo-desc">Websocket dashboard for real-time robot monitoring. React/Node.js stack with Three.js visualization.</div>
+            </div>
+            <div class="repo-stats">
+                <span class="stat">★ 890</span>
+                <span class="stat">⑂ 112</span>
+                <span class="stat">● JS</span>
+            </div>
+        </a>
+
+        <a href="#" class="repo-card">
+            <div class="repo-icon">🔌</div>
+            <div>
+                <div class="repo-title">arttous-pcb-kicad</div>
+                <div class="repo-desc">KiCad schematics and Gerber files for the custom power distribution board (PDB) and ESP32 shield.</div>
+            </div>
+            <div class="repo-stats">
+                <span class="stat">★ 450</span>
+                <span class="stat">⑂ 85</span>
+                <span class="stat">● PCB</span>
+            </div>
+        </a>
+
+    </div>
+
+    <section class="activity-section">
+        <h3 style="font-family: 'Orbitron'; color: #fff; margin-bottom: 10px;">COMMIT FREQUENCY</h3>
+        <p style="font-family: 'JetBrains Mono'; color: #666; font-size: 0.8rem;">LAST 30 DAYS ACTIVITY</p>
+        
+        <div class="graph-container" id="activityGraph">
+            </div>
+    </section>
+
+    <div class="changelog">
+        <h3 style="font-family: 'Orbitron'; color: #fff; margin-bottom: 40px; border-bottom: 1px solid #222; padding-bottom: 10px;">LATEST PUSHES</h3>
+
+        <div class="log-entry">
+            <div class="log-date">TODAY 14:02</div>
+            <div class="log-msg">Fix: IMU drift correction on inclines > 15°</div>
+            <div class="log-hash">commit 8f2a9c</div>
+        </div>
+
+        <div class="log-entry">
+            <div class="log-date">YESTERDAY 09:45</div>
+            <div class="log-msg">Feat: Added Symmetric Twist banking logic (v53.0)</div>
+            <div class="log-hash">commit 2b3d4e</div>
+        </div>
+
+        <div class="log-entry">
+            <div class="log-date">FEB 08 2026</div>
+            <div class="log-msg">Refactor: LoRa Mesh anchor protocol optimization</div>
+            <div class="log-hash">commit 7a1b2c</div>
+        </div>
+    </div>
+
+    <script>
+        // GENERATE FAKE GITHUB GRAPH
+        const graph = document.getElementById('activityGraph');
+        const levels = ['pixel', 'pixel l1', 'pixel l2', 'pixel l3', 'pixel l4'];
+        
+        // Create 20 columns
+        for(let i=0; i<30; i++) {
+            const col = document.createElement('div');
+            col.className = 'graph-col';
+            // 7 rows per column (days of week)
+            for(let j=0; j<7; j++) {
+                const dot = document.createElement('div');
+                // Randomly assign activity level
+                const rand = Math.random();
+                let lvl = 0;
+                if(rand > 0.8) lvl = 4;
+                else if(rand > 0.6) lvl = 3;
+                else if(rand > 0.4) lvl = 2;
+                else if(rand > 0.2) lvl = 1;
+                
+                dot.className = levels[lvl];
+                col.appendChild(dot);
+            }
+            graph.appendChild(col);
+        }
+
+        // COPY FUNCTION
+        function copyClone() {
+            const copyText = document.getElementById("cloneUrl");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            
+            const btn = document.querySelector('.copy-btn');
+            const original = btn.innerText;
+            btn.innerText = "COPIED!";
+            btn.style.color = "#7c2ae8";
+            btn.style.borderColor = "#7c2ae8";
+            
+            setTimeout(() => {
+                btn.innerText = original;
+                btn.style.color = "#fff";
+                btn.style.borderColor = "#444";
+            }, 2000);
+        }
+    </script>
+
+</body>
+</html>

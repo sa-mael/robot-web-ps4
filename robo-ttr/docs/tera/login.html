@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARTTOUS | Gateway</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-core: #050505;
+            --bg-card: #0e0e0e;
+            --accent: #7c2ae8;
+            --text-main: #e0e0e0;
+            --text-dim: #666;
+            --font-tech: 'Orbitron', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-core);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        nav { padding: 25px 40px; display: flex; justify-content: space-between; align-items: center; position: absolute; width: 100%; top: 0; z-index: 10; }
+        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; }
+        .accent { color: var(--accent); }
+
+        /* SPLIT LAYOUT */
+        .gateway-container {
+            display: flex;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* THE CARD */
+        .auth-card {
+            width: 450px;
+            background: rgba(14, 14, 14, 0.9);
+            border: 1px solid #333;
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            position: relative;
+        }
+        .auth-card::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+
+        /* TABS */
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #333;
+        }
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            font-family: var(--font-tech);
+            font-size: 0.9rem;
+            color: #666;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .tab.active {
+            color: #fff;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* FORMS */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-family: var(--font-mono); font-size: 0.75rem; color: #888; margin-bottom: 8px; }
+        input {
+            width: 100%;
+            background: #080808;
+            border: 1px solid #333;
+            padding: 12px;
+            color: #fff;
+            font-family: var(--font-mono);
+            outline: none;
+            transition: 0.3s;
+        }
+        input:focus { border-color: var(--accent); }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 15px;
+            font-family: var(--font-tech);
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        .btn-submit:hover { background: #9d50ff; box-shadow: 0 0 20px rgba(124, 42, 232, 0.4); }
+
+        /* THE OATH (CHECKBOX) */
+        .oath-box {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(124, 42, 232, 0.05);
+            border: 1px solid #333;
+        }
+        .oath-text { font-size: 0.8rem; color: #aaa; line-height: 1.4; }
+        input[type="checkbox"] { width: auto; margin-top: 3px; accent-color: var(--accent); }
+
+        /* LOADING OVERLAY (MOTIVATION) */
+        .neural-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 100;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .quote-container {
+            max-width: 600px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .quote-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.5rem;
+            color: #fff;
+            font-weight: 300;
+            margin-bottom: 20px;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        .quote-author {
+            font-family: var(--font-mono);
+            color: var(--accent);
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 1s ease 0.5s; /* Delay author */
+        }
+
+        .loader-bar {
+            width: 300px; height: 2px; background: #222; margin-top: 40px; position: relative; overflow: hidden;
+        }
+        .loader-fill {
+            position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: var(--accent);
+            transition: width 0.1s linear;
+        }
+        
+        .loading-status {
+            font-family: var(--font-mono); font-size: 0.7rem; color: #444; margin-top: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">GATEWAY_ID: 0x92</div>
+    </nav>
+
+    <div class="gateway-container">
+        
+        <div style="position: absolute; width: 100%; height: 100%; background-image: linear-gradient(rgba(124, 42, 232, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(124, 42, 232, 0.03) 1px, transparent 1px); background-size: 40px 40px; z-index: -1;"></div>
+
+        <div class="auth-card">
+            <div class="auth-tabs">
+                <div class="tab active" onclick="switchTab('login')">IDENTIFY</div>
+                <div class="tab" onclick="switchTab('register')">INITIATE</div>
+            </div>
+
+            <form id="loginForm" onsubmit="startSequence(event)">
+                <div class="form-group">
+                    <label>OPERATOR ID / EMAIL</label>
+                    <input type="email" placeholder="operator@mesh.net" required>
+                </div>
+                <div class="form-group">
+                    <label>ACCESS KEY</label>
+                    <input type="password" placeholder="••••••••" required>
+                </div>
+                
+                <div style="margin-bottom: 20px; font-family: 'JetBrains Mono'; font-size: 0.7rem; color: #444; display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 8px; height: 8px; background: #333; border-radius: 50%;"></div>
+                    2FA: DISABLED (Will activate on next cycle)
+                </div>
+
+                <button type="submit" class="btn-submit">CONNECT</button>
+            </form>
+
+            <form id="registerForm" style="display: none;" onsubmit="startSequence(event)">
+                <div class="form-group">
+                    <label>DESIGNATION (NAME)</label>
+                    <input type="text" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label>COMMS CHANNEL (EMAIL)</label>
+                    <input type="email" placeholder="you@example.com" required>
+                </div>
+
+                <div class="oath-box">
+                    <input type="checkbox" required id="oathCheck">
+                    <div class="oath-text">
+                        I acknowledge that the path of the Mesh is experimental. I am ready to contribute theoretical data and accept the risks of autonomous calibration.
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">JOIN THE MESH</button>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="neural-loader" id="loader">
+        <div class="quote-container">
+            <div class="quote-text" id="qText">"Simplicity is the ultimate sophistication."</div>
+            <div class="quote-author" id="qAuth">- Leonardo da Vinci</div>
+        </div>
+
+        <div class="loader-bar">
+            <div class="loader-fill" id="loadFill"></div>
+        </div>
+        <div class="loading-status" id="loadStatus">ESTABLISHING NEURAL LINK...</div>
+    </div>
+
+    <script>
+        // TAB LOGIC
+        function switchTab(mode) {
+            const login = document.getElementById('loginForm');
+            const reg = document.getElementById('registerForm');
+            const tabs = document.querySelectorAll('.tab');
+
+            if (mode === 'login') {
+                login.style.display = 'block';
+                reg.style.display = 'none';
+                tabs[0].classList.add('active');
+                tabs[1].classList.remove('active');
+            } else {
+                login.style.display = 'none';
+                reg.style.display = 'block';
+                tabs[0].classList.remove('active');
+                tabs[1].classList.add('active');
+            }
+        }
+
+        // MOTIVATIONAL QUOTES
+        const quotes = [
+            { t: "The science of today is the technology of tomorrow.", a: "Edward Teller" },
+            { t: "Any sufficiently advanced technology is indistinguishable from magic.", a: "Arthur C. Clarke" },
+            { t: "I do not think there is any thrill that can go through the human heart like that felt by the inventor.", a: "Nikola Tesla" }
+        ];
+
+        // SEQUENCE LOGIC
+        function startSequence(e) {
+            e.preventDefault(); // Stop normal form submit
+            
+            const loader = document.getElementById('loader');
+            const qText = document.getElementById('qText');
+            const qAuth = document.getElementById('qAuth');
+            const fill = document.getElementById('loadFill');
+            const status = document.getElementById('loadStatus');
+
+            // 1. Show Black Screen
+            loader.style.display = 'flex';
+
+            // 2. Play Loading Animation (4 seconds total)
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 1;
+                fill.style.width = progress + '%';
+                
+                // Status Text Updates
+                if(progress === 20) status.innerText = "ENCRYPTING DATA PACKETS...";
+                if(progress === 50) status.innerText = "SYNCING WITH MESH NETWORK...";
+                if(progress === 80) status.innerText = "AUTHENTICATING BIOMETRICS...";
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    // 3. Redirect to Account Page
+                    window.location.href = 'account.html';
+                }
+            }, 40); // 40ms * 100 = 4000ms (4 seconds)
+
+            // 3. Show Quote immediately
+            const randomQ = quotes[Math.floor(Math.random() * quotes.length)];
+            qText.innerText = `"${randomQ.t}"`;
+            qAuth.innerText = `- ${randomQ.a}`;
+            
+            // Fade In Text
+            setTimeout(() => {
+                qText.style.opacity = 1;
+                qAuth.style.opacity = 1;
+            }, 500);
+        }
+    </script>
+
+</body>
+</html>

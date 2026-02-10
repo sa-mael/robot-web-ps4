@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ARTTOUS | Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-core: #050505;
+            --bg-side: #0a0a0a;
+            --accent: #7c2ae8;
+            --text-main: #e0e0e0;
+            --font-tech: 'Orbitron', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        body { background: var(--bg-core); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+
+        /* SIDEBAR NAV */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-side);
+            border-right: 1px solid #222;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .logo { font-family: var(--font-tech); font-weight: 900; color: #fff; text-decoration: none; font-size: 1.2rem; margin-bottom: 40px; }
+        .accent { color: var(--accent); }
+
+        .nav-group { margin-bottom: 30px; }
+        .nav-header { font-family: var(--font-mono); font-size: 0.75rem; color: #666; margin-bottom: 15px; text-transform: uppercase; }
+        .nav-link {
+            display: block; color: #aaa; text-decoration: none; padding: 8px 0; font-size: 0.9rem; transition: 0.2s;
+        }
+        .nav-link:hover { color: #fff; transform: translateX(5px); }
+        .nav-link.active { color: var(--accent); font-weight: bold; }
+
+        /* MAIN CONTENT */
+        .content-area {
+            flex: 1;
+            padding: 60px 80px;
+            overflow-y: auto;
+        }
+        
+        h1 { font-family: var(--font-tech); font-size: 2.5rem; margin-bottom: 20px; color: #fff; }
+        h2 { font-family: var(--font-tech); font-size: 1.5rem; margin: 50px 0 20px; color: #fff; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        p { line-height: 1.7; color: #bbb; margin-bottom: 20px; max-width: 800px; }
+
+        /* HARDWARE TABLES */
+        .pinout-table {
+            width: 100%; max-width: 600px; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.85rem; margin: 20px 0;
+        }
+        .pinout-table th { text-align: left; border-bottom: 1px solid #444; color: #fff; padding: 10px; }
+        .pinout-table td { border-bottom: 1px solid #222; color: #888; padding: 10px; }
+        .pin-col { color: var(--accent) !important; font-weight: bold; }
+
+        /* API CODE BLOCKS */
+        .code-block {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: #ccc;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        .keyword { color: #cc7832; }
+        .func { color: #ffc66d; }
+        .string { color: #6a8759; }
+        .comment { color: #808080; }
+
+        /* INFO BOX */
+        .info-box {
+            background: rgba(124, 42, 232, 0.05);
+            border-left: 3px solid var(--accent);
+            padding: 15px;
+            color: #ddd;
+            font-size: 0.9rem;
+            margin: 20px 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
+        
+        <div class="nav-group">
+            <div class="nav-header">Hardware Docs</div>
+            <a href="#esp32" class="nav-link active">ESP32 Pinout</a>
+            <a href="#power" class="nav-link">Power Distribution</a>
+            <a href="#bom" class="nav-link">Bill of Materials</a>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-header">Kinematics API</div>
+            <a href="#ik-solver" class="nav-link">IK Solver</a>
+            <a href="#gait" class="nav-link">Gait Scheduler</a>
+            <a href="#telemetry" class="nav-link">Telemetry Stream</a>
+        </div>
+    </div>
+
+    <div class="content-area">
+        
+        <h1 id="esp32">Hardware Architecture</h1>
+        <p>
+            The Arttous platform is built around the ESP32-C6 SoC. Below is the strict pin mapping required for Rhodium v53 firmware compatibility.
+        </p>
+
+        <div class="info-box">
+            <strong>Note:</strong> All Servo PWM lines must be routed through the PCA9685 driver via I2C. Do not connect servos directly to the ESP32.
+        </div>
+
+        <h2>I2C Bus Configuration</h2>
+        <table class="pinout-table">
+            <thead>
+                <tr>
+                    <th>ESP32 PIN</th>
+                    <th>FUNCTION</th>
+                    <th>TARGET DEVICE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="pin-col">GPIO 6</td>
+                    <td>SDA (Data)</td>
+                    <td>PCA9685 / MPU6050</td>
+                </tr>
+                <tr>
+                    <td class="pin-col">GPIO 7</td>
+                    <td>SCL (Clock)</td>
+                    <td>PCA9685 / MPU6050</td>
+                </tr>
+                <tr>
+                    <td class="pin-col">GPIO 9</td>
+                    <td>INT (Interrupt)</td>
+                    <td>MPU6050 Wake</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="power">Power Specification</h2>
+        <p>
+            The system operates on a split-rail power design. Logic voltage (3.3V) is isolated from Servo voltage (6V-7.4V) to prevent brownouts.
+        </p>
+
+        <h1 id="ik-solver" style="margin-top: 100px;">Kinematics API</h1>
+        <p>
+            The `KinematicsEngine` class handles all coordinate transformations. The solver expects coordinates relative to the shoulder joint.
+        </p>
+
+        <h2>Solve Inverse Kinematics</h2>
+        <p>Calculates joint angles for a given target foot position (X, Y, Z).</p>
+
+        <div class="code-block">
+<span class="keyword">void</span> <span class="func">solve_IK</span>(<span class="keyword">float</span> x, <span class="keyword">float</span> y, <span class="keyword">float</span> z, <span class="keyword">int</span> leg_id) {
+    <span class="comment">// 1. Calculate Coxa Angle</span>
+    <span class="keyword">float</span> theta1 = <span class="func">atan2</span>(y, x);
+    
+    <span class="comment">// 2. Calculate Femur-Tibia distance</span>
+    <span class="keyword">float</span> L = <span class="func">sqrt</span>(x*x + y*y) - COXA_LENGTH;
+    
+    <span class="comment">// 3. Apply Cosine Rule for Servo 2 & 3</span>
+    <span class="keyword">float</span> alpha = <span class="func">acos</span>((FEMUR*FEMUR + D*D - TIBIA*TIBIA) / (2*FEMUR*D));
+    
+    <span class="func">setServo</span>(leg_id, theta1, alpha);
+}
+        </div>
+
+        <h2 id="gait">Gait Scheduler</h2>
+        <p>
+            Controls the rhythmic timing of leg movements. Rhodium currently supports Trot, Crawl, and Bound gaits.
+        </p>
+        <div class="code-block">
+<span class="comment">// Switch to "Trot" Gait</span>
+<span class="func">robot.setGait</span>(<span class="string">"TROT"</span>, <span class="keyword">250</span>); <span class="comment">// 250ms step duration</span>
+        </div>
+
+    </div>
+
+</body>
+</html>

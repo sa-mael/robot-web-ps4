@@ -1,0 +1,1556 @@
+/* ========================================================================== */
+/* 1. RESET & BASE STYLES                                                     */
+/* ========================================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  background-color: #1f1f1f;
+  color: #f5f5f5;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+ul {
+  list-style: none;
+}
+
+/* ========================================================================== */
+/* 2. LAYOUT UTILITIES                                                         */
+/* ========================================================================== */
+main {
+  position: relative;
+}
+.transition-block {
+  width: 100%;
+  height: 20vh; /* ~20% of viewport height */
+  background: linear-gradient(to bottom, #171717 0%, #1f1f1f 100%);
+  pointer-events: none;
+}
+
+/* ========================================================================== */
+/* 3. HEADER & NAVIGATION                                                      */
+/* ========================================================================== */
+.site-header {
+  position: relative;
+  background-color: #181818;
+  padding: 20px 0;
+  overflow: hidden;
+}
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo shell */
+.logo-shell {
+  width: 200px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.logo-img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+/* Navigation */
+.main-nav ul {
+  display: flex;
+  gap: 30px;
+}
+.main-nav a {
+  font-size: 14px;
+  letter-spacing: 2px;
+  transition: color 0.3s;
+}
+.main-nav a:hover {
+  color: #888;
+}
+
+/* Search field */
+.search input {
+  background: #2a2a2a;
+  border: 1px solid #333;
+  padding: 8px 12px;
+  border-radius: 4px;
+  color: #f5f5f5;
+}
+
+/* Blinking circles */
+.circle-blink-container {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+.blink-circle {
+  position: absolute;
+  width: 20vw;
+  height: 20vw;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  opacity: 0;
+  filter: blur(35px);
+  animation: blink 2s infinite alternate;
+}
+@keyframes blink {
+  from { opacity: 0; }
+  to   { opacity: 0.2; }
+}
+
+/* ========================================================================== */
+/* 4. HERO SECTION                                                              */
+/* ========================================================================== */
+.hero {
+  background-image: url('../bono/images/robo-5_26_25.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.hero-content h1 {
+  font-size: 92px;
+  letter-spacing: 8px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+.hero-content p {
+  font-size: 18px;
+  max-width: 600px;
+  margin: 0 auto 24px;
+}
+
+/* Scroll button */
+.scroll-btn {
+  margin: 20px auto 0;
+  padding: 12px 24px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+.scroll-btn:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+}
+
+/* Vertical brand text */
+.vertical-brand {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-size: 24px;
+  letter-spacing: 0.2em;
+  color: #ccc;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* ========================================================================== */
+/* 5. ABOUT US SECTION                                                          */
+/* ========================================================================== */
+.about-us {
+  text-align: center;
+  padding: 60px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.about-header h2 {
+  font-size: 34px;
+  margin-bottom: 8px;
+}
+.about-header p {
+  font-size: 16px;
+  color: #ccc;
+  margin-bottom: 24px;
+}
+.about-divider {
+  width: 80px;
+  height: 4px;
+  background: #444;
+  margin: 0 auto 40px;
+}
+.about-content {
+  display: flex;
+  gap: 50px;
+  margin-bottom: 50px;
+}
+.about-left,
+.about-right {
+  flex: 1;
+  color: #ddd;
+  font-size: 16px;
+  line-height: 1.6;
+  text-align: left;
+}
+@media (max-width: 768px) {
+  .about-content { flex-direction: column; }
+  .about-left, .about-right { text-align: center; }
+}
+
+/* Gallery */
+.about-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+.about-gallery img {
+  flex: 1 1 calc(33.333% - 20px);
+  max-width: calc(33.333% - 20px);
+  border-radius: 8px;
+}
+@media (max-width: 768px) {
+  .about-gallery img {
+    flex: 1 1 calc(50% - 20px);
+    max-width: calc(50% - 20px);
+  }
+}
+@media (max-width: 480px) {
+  .about-gallery img {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+}
+/* --- Journey / Evolution Section Styles --- */
+
+.journey {
+  padding: 60px 20px;
+  background-color: #1a1a1a; /* Чуть темнее фона */
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+  margin: 40px 0;
+}
+
+.journey-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap; /* Адаптивность для мобильных */
+}
+
+.journey-card {
+  background: #242424;
+  border-radius: 12px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
+  border: 1px solid #333;
+}
+
+.journey-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Стиль для "Новой" версии */
+.journey-card.highlight {
+  border: 1px solid #8e44ad; /* Фиолетовая рамка */
+  box-shadow: 0 10px 40px rgba(142, 68, 173, 0.15); /* Фиолетовое свечение */
+}
+
+.card-image {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Чтобы фото заполняло блок красиво */
+}
+
+.badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  border: 1px solid #555;
+}
+
+.badge.active {
+  background: #8e44ad; /* Фиолетовый бейдж */
+  border-color: #8e44ad;
+}
+
+.card-content {
+  padding: 25px;
+  text-align: left;
+}
+
+.card-content h3 {
+  margin-bottom: 15px;
+  font-size: 24px;
+  color: #fff;
+}
+
+.specs-list {
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.specs-list li {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Разделитель (стрелка) */
+.journey-divider .arrow {
+  font-size: 40px;
+  color: #555;
+}
+
+@media (max-width: 900px) {
+  .journey-divider {
+    transform: rotate(90deg); /* Поворот стрелки вниз на мобильных */
+    margin: 10px 0;
+  }
+}
+/* ========================================================================== */
+/* 6. INVENTION SECTION                                                         */
+/* ========================================================================== */
+.invention {
+  text-align: center;
+  padding: 60px 20px;
+}
+.invention h2 {
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+.invention p {
+  max-width: 800px;
+  margin: 0 auto 24px;
+  color: #ddd;
+}
+.invention-media video {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+/* ========================================================================== */
+/* 7. FEATURES GRID                                                             */
+/* ========================================================================== */
+.visual-presentation {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 40px;
+  padding: 60px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.feature-card {
+  background-color: #242424;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  transition: transform 0.3s;
+}
+.feature-card:hover {
+  transform: translateY(-10px);
+}
+.feature-card h3 {
+  font-size: 24px;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+.feature-card p {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* ========================================================================== */
+/* 8. MEDIA & INFO GALLERY                                                       */
+/* ========================================================================== */
+.media-info {
+  text-align: center;
+  padding: 60px 20px;
+}
+.media-info h2 {
+  font-size: 32px;
+  margin-bottom: 24px;
+}
+.media-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+.media-gallery figure {
+  flex: 1 1 calc(33.333% - 20px);
+  max-width: calc(33.333% - 20px);
+  text-align: center;
+}
+.media-gallery img {
+  width: 100%;
+  border-radius: 8px;
+}
+.media-gallery figcaption {
+  margin-top: 8px;
+  color: #ccc;
+}
+@media (max-width: 768px) {
+  .media-gallery figure {
+    flex: 1 1 calc(50% - 20px);
+    max-width: calc(50% - 20px);
+  }
+}
+@media (max-width: 480px) {
+  .media-gallery figure {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+}
+
+/* ========================================================================== */
+/* 9. MODAL                                                                       */
+/* ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(62, 60, 60, 0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-overlay.active {
+  display: flex;
+}
+.modal-content {
+  background: #242424;
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  color: #fff;
+  position: relative;
+  text-align: center;
+}
+.modal-close {
+  position: absolute;
+  top: 8px; right: 12px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+}
+#modal-step-text {
+  margin: 20px 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* ========================================================================== */
+/* 10. CONTACT FORM                                                              */
+/* ========================================================================== */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 400px;
+  margin: 40px auto;
+}
+.contact-form label {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  color: #ddd;
+}
+.contact-form input,
+.contact-form textarea {
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #f5f5f5;
+}
+.contact-form button {
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #333;
+  color: #f5f5f5;
+}
+
+
+/* ========================================================================== */
+/* 11. FOOTER                                                                     */
+/* ========================================================================== */
+.site-footer {
+  background-color: #181818;
+  color: #ccc;
+  padding: 40px 0 20px;
+  font-size: 14px;
+}
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+.footer-section {
+  flex: 1 1 200px;
+  margin: 10px;
+}
+.footer-section h4 {
+  color: #f5f5f5;
+  margin-bottom: 10px;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+.footer-section ul {
+  padding: 0;
+}
+.footer-section ul li {
+  margin-bottom: 6px;
+}
+.footer-section ul li a {
+  color: #ccc;
+  transition: color 0.3s;
+}
+.footer-section ul li a:hover {
+  color: #888;
+}
+.social-icon {
+  margin-right: 10px;
+  font-size: 20px;
+  display: inline-block;
+  transition: transform 0.3s;
+}
+.social-icon:hover {
+  transform: scale(1.2);
+}
+.footer-bottom {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #333;
+}
+/* ========================================================================== */
+/* 12. TECHNOLOGY                                                                 */
+/* ========================================================================== */
+/* ================= TECHNOLOGY PAGE STYLES ================= */
+
+/* --- 1. Tech Hero --- */
+.tech-hero {
+  text-align: center;
+  padding: 60px 20px 0;
+  background: linear-gradient(to bottom, #141414 0%, #1a1a1a 100%);
+}
+
+.purple-kicker {
+  display: block;
+  color: #8e44ad;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.tech-hero h1 {
+  font-size: 52px;
+  margin-bottom: 20px;
+}
+
+.tech-hero p {
+  max-width: 700px;
+  margin: 0 auto 40px;
+  color: #ccc;
+  font-size: 18px;
+}
+
+.hero-image-container img {
+  max-width: 80%;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 -10px 40px rgba(142, 68, 173, 0.2); /* Фиолетовое свечение снизу */
+  margin-bottom: -5px; /* Убираем зазор снизу */
+}
+
+/* --- 2. Tech Stack Diagram --- */
+.tech-stack-section {
+  padding: 80px 20px;
+  background: #1a1a1a;
+  text-align: center;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+}
+
+.tech-stack-section h2 { margin-bottom: 50px; }
+
+.stack-diagram {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stack-node {
+  background: #242424;
+  padding: 25px;
+  border-radius: 12px;
+  width: 220px;
+  text-align: center;
+  border: 2px solid #333;
+  transition: all 0.3s ease;
+}
+
+/* Подсветка "Мозга" */
+.stack-node.highlight {
+  border-color: #8e44ad;
+  box-shadow: 0 0 20px rgba(142, 68, 173, 0.2);
+}
+
+.stack-node img {
+  height: 60px;
+  object-fit: contain;
+  margin-bottom: 15px;
+}
+
+/* Заглушка для иконок, если нет картинки */
+.icon-placeholder {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #8e44ad;
+  font-size: 18px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.stack-node h4 { margin-bottom: 10px; color: #fff; }
+.stack-node p { font-size: 13px; color: #aaa; line-height: 1.4; }
+
+.stack-arrow {
+  font-size: 24px;
+  color: #555;
+  font-weight: bold;
+}
+
+/* --- 3 & 4. Deep Dive Sections (Чередующиеся блоки) --- */
+.deep-dive {
+  display: flex;
+  align-items: center;
+  padding: 80px 0;
+}
+
+.deep-dive.dark-bg { background-color: #141414; }
+.deep-dive.light-bg { background-color: #1a1a1a; }
+
+/* Реверс порядка для второго блока */
+.deep-dive.reverse { flex-direction: row-reverse; }
+
+.dd-text, .dd-image {
+  flex: 1;
+  padding: 40px;
+}
+
+.dd-image img {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  border: 1px solid #333;
+}
+
+.dd-text h3 {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+.dd-text p {
+  color: #ccc;
+  margin-bottom: 20px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.dd-text ul {
+  list-style: none;
+  padding: 0;
+}
+
+.dd-text ul li {
+  margin-bottom: 10px;
+  padding-left: 25px;
+  position: relative;
+  color: #ddd;
+}
+
+/* Фиолетовые буллиты для списка */
+.dd-text ul li::before {
+  content: "•";
+  color: #8e44ad;
+  font-size: 24px;
+  position: absolute;
+  left: 0;
+  top: -2px;
+}
+
+/* --- 5. Specs Grid --- */
+.specs-section {
+  padding: 80px 20px;
+  background: #141414;
+  text-align: center;
+}
+
+.specs-section h2 { margin-bottom: 50px; }
+
+.specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 25px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.spec-card {
+  background: #1a1a1a;
+  padding: 25px 15px;
+  border-radius: 10px;
+  border: 1px solid #333;
+  transition: border-color 0.3s;
+}
+
+.spec-card:hover {
+  border-color: #8e44ad;
+}
+
+.spec-card h4 {
+  color: #8e44ad;
+  font-size: 14px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.spec-card p {
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* --- Адаптивность для Technology --- */
+@media (max-width: 900px) {
+  .hero-image-container img { max-width: 100%; }
+  
+  /* Диаграмма в столбик на мобилках */
+  .stack-diagram { flex-direction: column; }
+  .stack-arrow { transform: rotate(90deg); margin: 10px 0; }
+  
+  /* Deep dive в столбик */
+  .deep-dive, .deep-dive.reverse { flex-direction: column; text-align: left; }
+  .dd-text, .dd-image { padding: 30px 20px; }
+}
+/* ========================================================================== */
+/* 13. INVESTORS                                                  */
+/* ========================================================================== */
+/* --- Investor Page Styles --- */
+
+/* Hero */
+.investor-hero {
+  padding: 100px 20px;
+  background: linear-gradient(to bottom, #1f1f1f 0%, #121212 100%);
+  text-align: center;
+}
+
+.pill-badge {
+  background-color: #8e44ad; /* Purple accent */
+  color: white;
+  padding: 6px 16px;
+  border-radius: 50px;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 1px;
+  font-weight: bold;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.investor-hero h1 {
+  font-size: 56px;
+  margin-bottom: 20px;
+}
+
+.cta-group {
+  margin-top: 40px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.btn-primary {
+  background-color: #8e44ad;
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.btn-primary:hover { background-color: #732d91; }
+
+.btn-secondary {
+  background: transparent;
+  color: white;
+  padding: 15px 30px;
+  border: 2px solid #555;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+.btn-secondary:hover { border-color: #8e44ad; }
+
+/* Market Stats Grid */
+.market-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: -50px auto 60px; /* Overlap effect */
+  padding: 0 20px;
+  position: relative;
+}
+
+.stat-card {
+  background: #242424;
+  padding: 40px 20px;
+  border-radius: 8px;
+  text-align: center;
+  border-top: 4px solid #8e44ad;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.stat-card h2 {
+  font-size: 42px;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.stat-card p {
+  color: #aaa;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Roadmap */
+.roadmap-section {
+  padding: 80px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 60px;
+}
+
+.timeline {
+  position: relative;
+  border-left: 2px solid #333;
+  margin-left: 50%; /* Center the line */
+  padding-left: 0;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 60px;
+  width: 50%;
+  padding: 0 40px;
+}
+
+/* Timeline logic: Odd items left, Even items right */
+.timeline-item:nth-child(odd) {
+  left: -50%;
+  text-align: right;
+}
+.timeline-item:nth-child(even) {
+  left: 0;
+  text-align: left;
+}
+
+/* Dots on the line */
+.timeline-item .dot {
+  position: absolute;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  background: #333;
+  border-radius: 50%;
+}
+.timeline-item:nth-child(odd) .dot { right: -9px; }
+.timeline-item:nth-child(even) .dot { left: -9px; }
+
+/* Active (Current) State */
+.timeline-item.active .dot {
+  background: #8e44ad;
+  box-shadow: 0 0 15px #8e44ad;
+}
+.timeline-item.done .date { color: #8e44ad; }
+
+.timeline-item .date {
+  font-size: 14px;
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.timeline-item h3 { font-size: 20px; margin-bottom: 10px; }
+.timeline-item p { color: #ccc; font-size: 15px; }
+
+/* Business Model Split */
+.business-model {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  max-width: 1200px;
+  margin: 0 auto 100px;
+  padding: 40px 20px;
+  background: #1a1a1a;
+  border-radius: 12px;
+}
+
+.business-model .text-side { flex: 1; text-align: left; }
+.business-model .image-side { flex: 1; }
+.business-model img { width: 100%; border-radius: 8px; }
+
+.check-list li {
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: #ddd;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .timeline { margin-left: 20px; border-left: 2px solid #333; }
+  .timeline-item { width: 100%; left: 0 !important; text-align: left !important; padding-left: 30px; }
+  .timeline-item .dot { left: -29px !important; }
+  .business-model { flex-direction: column; }
+}
+
+/* ========================================================================== */
+/* 14. contact                                                  */  
+/* ========================================================================== */
+/* Buttons */
+/* --- Contact Page Styles --- */
+
+.contact-hero {
+  text-align: center;
+  padding: 80px 20px 40px;
+}
+
+.contact-hero h1 {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.contact-hero p {
+  color: #ccc;
+  font-size: 18px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Layout Grid */
+.contact-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto 100px;
+  padding: 0 20px;
+  gap: 40px;
+}
+
+/* Sidebar (Left) */
+.contact-sidebar {
+  flex: 1;
+  min-width: 300px;
+}
+
+.info-card {
+  background: #242424;
+  padding: 25px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #8e44ad; /* Фиолетовый акцент слева */
+}
+
+.info-card h3 {
+  font-size: 20px;
+  margin-bottom: 5px;
+  color: #fff;
+}
+
+.info-card p {
+  color: #aaa;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.contact-link {
+  color: #8e44ad;
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.contact-link:hover { color: #9b59b6; }
+
+.small-text { font-size: 12px; opacity: 0.6; }
+
+.social-links-block h4 { margin-bottom: 15px; color: #fff; }
+.social-icons a {
+  display: inline-block;
+  margin-right: 15px;
+  color: #ccc;
+  font-size: 14px;
+  border: 1px solid #444;
+  padding: 8px 15px;
+  border-radius: 20px;
+  transition: all 0.3s;
+}
+.social-icons a:hover {
+  border-color: #8e44ad;
+  color: #fff;
+}
+
+/* Form (Right) */
+.contact-form-container {
+  flex: 2;
+  min-width: 300px;
+}
+
+.pro-form {
+  background: #1a1a1a;
+  padding: 40px;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+.form-row .form-group { flex: 1; }
+
+.form-group { margin-bottom: 20px; text-align: left; }
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #ddd;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Эффект фокуса (Фиолетовое свечение) */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #8e44ad;
+  box-shadow: 0 0 8px rgba(142, 68, 173, 0.3);
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 15px;
+  background-color: #8e44ad;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.btn-submit:hover {
+  background-color: #732d91;
+  transform: translateY(-2px);
+}
+
+/* Адаптивность для телефонов */
+@media (max-width: 768px) {
+  .contact-wrapper { flex-direction: column; }
+  .form-row { flex-direction: column; gap: 0; }
+}
+/* ========================================================================== */
+/* 15. home = index.html*/
+/* --- Home Page Styles --- */
+/* ================= HOME PAGE STYLES ================= */
+
+/* --- 1. Home Hero --- */
+.home-hero {
+  position: relative;
+  height: 90vh; /* Почти на весь экран */
+  background-image: url('../bono/images/release.jpg'); /* Ваш лучший рендер */
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Центрируем текст */
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Затемнение фона, чтобы текст читался */
+.hero-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Темный фильтр */
+  z-index: 1;
+}
+
+.home-hero-content {
+  position: relative;
+  z-index: 2; /* Текст поверх фильтра */
+  max-width: 800px;
+  padding: 0 20px;
+}
+
+.home-hero h1 {
+  font-size: 64px;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  color: #fff;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.home-hero p {
+  font-size: 20px;
+  color: #ddd;
+  margin-bottom: 40px;
+  line-height: 1.5;
+}
+
+/* --- 2. Value Props Grid --- */
+.value-props {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  padding: 80px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.prop-card {
+  background: #1a1a1a;
+  padding: 40px 25px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid #333;
+  transition: transform 0.3s;
+}
+
+.prop-card:hover {
+  transform: translateY(-10px);
+  border-color: #8e44ad;
+}
+
+.prop-icon {
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+
+.prop-card h3 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: #fff;
+}
+
+.prop-card p {
+  color: #aaa;
+  font-size: 15px;
+}
+
+/* --- 3. Innovation Highlight (Split) --- */
+.innovation-highlight {
+  display: flex;
+  align-items: center;
+  background: #141414;
+  padding: 80px 0;
+}
+
+.highlight-image, .highlight-text {
+  flex: 1;
+}
+
+.highlight-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  min-height: 400px;
+  box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+}
+
+.highlight-text {
+  padding: 60px;
+  text-align: left;
+}
+
+.highlight-text h2 {
+  font-size: 42px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.highlight-text p {
+  color: #ccc;
+  font-size: 17px;
+  margin-bottom: 30px;
+  max-width: 500px;
+}
+
+.text-link {
+  color: #8e44ad;
+  font-weight: bold;
+  font-size: 16px;
+  text-decoration: none;
+  border-bottom: 2px solid #8e44ad;
+  padding-bottom: 2px;
+  transition: color 0.3s;
+}
+.text-link:hover { color: #fff; border-color: #fff; }
+
+/* --- 4. Applications Preview --- */
+.applications-preview {
+  padding: 100px 20px;
+  text-align: center;
+}
+
+.app-content h2 { font-size: 36px; margin-bottom: 10px; }
+.app-content p { color: #888; margin-bottom: 50px; }
+
+.app-grid {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.app-item {
+  position: relative;
+  width: 300px;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.app-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s;
+}
+
+.app-item:hover img {
+  transform: scale(1.1);
+}
+
+.app-item h4 {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: #fff;
+  font-size: 20px;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+  z-index: 2;
+}
+
+/* Mobile Responsive */
+@media (max-width: 900px) {
+  .home-hero h1 { font-size: 42px; }
+  .innovation-highlight { flex-direction: column; }
+  .highlight-image { order: 2; width: 100%; }
+  .highlight-text { order: 1; padding: 40px 20px; }
+}
+
+
+
+/* ========================================================================== */
+/* 3. GLOBAL ELEMENTS                                                            */   
+/* ========================================================================== */
+/* ================= TRACKING DASHBOARD STYLES (BLUE THEME) ================= */
+
+/* Специфичный фон для страницы трекинга */
+.tracking-page {
+    background: linear-gradient(to bottom right, #0f172a, #1e293b);
+    color: #e2e8f0;
+}
+
+/* Переопределение активной ссылки в меню на синий */
+.tracking-page .main-nav ul li a.active {
+    color: #50c9c3;
+    border-bottom-color: #50c9c3;
+}
+
+.tracking-dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* --- New Hero Section (Многослойный текст) --- */
+.tracking-hero {
+    position: relative;
+    text-align: left;
+    margin-bottom: 60px;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hero-text-layer {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 80px;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.hero-text-layer.back {
+    color: rgba(255, 255, 255, 0.05);
+    transform: translate(10px, 10px);
+    z-index: 1;
+}
+
+.hero-text-layer.front {
+    color: transparent;
+    background: linear-gradient(90deg, #50c9c3, #fff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    z-index: 2;
+    text-shadow: 0 0 30px rgba(80, 201, 195, 0.3);
+}
+
+.hero-subtitle {
+    margin-top: 90px;
+    font-family: 'Roboto Mono', monospace;
+    color: #94a3b8;
+    font-size: 16px;
+    letter-spacing: 1px;
+}
+
+/* --- Dashboard Grid Layout --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Карта шире, данные уже */
+    gap: 30px;
+}
+
+/* --- Common Panel Styles --- */
+.map-panel, .data-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.panel-header h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+.live-indicator {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    color: #50c9c3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.blink-dot {
+    width: 8px; height: 8px;
+    background: #50c9c3;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #50c9c3;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* --- Map Container --- */
+.tracking-container {
+    height: 600px; /* Выше чем раньше */
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(80, 201, 195, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.controls-hint {
+    background: rgba(15, 23, 42, 0.9);
+    border-color: #50c9c3;
+    color: #50c9c3;
+    font-family: 'Roboto Mono', monospace;
+}
+
+/* --- Data Cards & Charts --- */
+.telemetry-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.data-card, .chart-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.7));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 25px;
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.data-card.highlight {
+    background: linear-gradient(135deg, rgba(80, 201, 195, 0.1), rgba(15, 23, 42, 0.3));
+    border-color: #50c9c3;
+}
+
+.data-card h4, .chart-card h4 {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.data-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    color: #fff;
+    font-weight: 700;
+}
+
+.data-card.highlight .data-value { color: #50c9c3; }
+
+/* Мокапы Графиков */
+.chart-container {
+    height: 150px;
+    margin-top: 15px;
+    position: relative;
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+
+/* Velocity Chart (Line Mockup) */
+.velocity-chart {
+    background: 
+        linear-gradient(to right, rgba(80,201,195,0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(80,201,195,0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+.chart-line-mockup {
+    position: absolute;
+    bottom: 0; left: 0; width: 100%; height: 60%;
+    background: linear-gradient(to right, #50c9c3, #fff);
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0,80 C20,60 40,90 60,40 S80,10 100,50 L100,100 L0,100 Z' fill='black'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0,80 C20,60 40,90 60,40 S80,10 100,50 L100,100 L0,100 Z' fill='black'/%3E%3C/svg%3E");
+    mask-size: 100% 100%;
+    opacity: 0.7;
+}
+
+/* Signal Chart (Bars) */
+.signal-bars {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    height: 100%;
+    padding-bottom: 10px;
+}
+
+.signal-bars .bar {
+    width: 25%;
+    background: linear-gradient(to top, #1e293b, #50c9c3);
+    border-radius: 4px 4px 0 0;
+    text-align: center;
+    color: #fff;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    padding-top: 5px;
+    box-shadow: 0 0 15px rgba(80, 201, 195, 0.4);
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .tracking-container { height: 400px; }
+}

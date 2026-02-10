@@ -1,248 +1,282 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arttous | Live Tracking Dashboard</title>
-  <link rel="icon" href="../bono/images/logo-ttr.png" type="image/png">
-  <link rel="stylesheet" href="../bono/css/styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-</head>
-<body class="tracking-page">
-  
-  <header class="site-header">
-    <div class="header-inner">
-      <div class="logo-shell">
-        <a href="main.html"><img src="../bono/images/logo-ttr-wh.png" alt="Arttous Logo" class="logo-img"/></a>
-      </div>
-      <nav class="main-nav">
-        <ul>
-          <li><a href="main.html">Home</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="technology.html">Technology</a></li>
-          <li><a href="tracking.html" class="active">Tracking</a></li>
-          <li><a href="investors.html">Investors</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARTTOUS | Live Telemetry</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-core: #050505;
+            --bg-panel: #0e0e0e;
+            --accent: #7c2ae8;
+            --alert: #e74c3c;
+            --success: #2ecc71;
+            --text-main: #e0e0e0;
+            --font-tech: 'Orbitron', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
 
-  <main class="tracking-dashboard">
-    <div class="tracking-hero">
-        <div class="hero-text-layer back">Live Tracking</div>
-        <div class="hero-text-layer front">Live Tracking</div>
-        <p class="hero-subtitle">Autonomous Path Visualization & Telemetry</p>
-    </div>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    <section class="dashboard-grid">
+        body {
+            background: var(--bg-core);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Dashboard feel */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        nav { 
+            padding: 15px 30px; 
+            border-bottom: 1px solid #333; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            background: #080808;
+        }
+        .logo { font-family: var(--font-tech); font-weight: 900; color: #fff; text-decoration: none; font-size: 1.2rem; }
+        .accent { color: var(--accent); }
+        .live-indicator { 
+            font-family: var(--font-mono); font-size: 0.75rem; color: var(--success); 
+            display: flex; align-items: center; gap: 8px; border: 1px solid var(--success); 
+            padding: 5px 10px; border-radius: 4px; 
+        }
+        .blink { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: blink 1s infinite; }
+        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
+
+        /* DASHBOARD GRID */
+        .dash-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            grid-template-rows: 2fr 1fr;
+            height: 100%;
+            gap: 2px;
+            background: #222; /* Gap color */
+        }
+
+        .panel {
+            background: var(--bg-core);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-title {
+            font-family: var(--font-mono); font-size: 0.75rem; color: #666; margin-bottom: 15px; display: block;
+        }
+
+        /* LEFT: ROBOT STATUS */
+        .stat-row {
+            display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #1a1a1a; padding-bottom: 5px;
+        }
+        .stat-label { font-family: var(--font-mono); font-size: 0.8rem; color: #aaa; }
+        .stat-val { font-family: var(--font-mono); font-size: 0.9rem; color: #fff; }
+        .val-good { color: var(--success); }
+        .val-warn { color: var(--alert); }
+
+        /* CENTER: MAP / RADAR */
+        .radar-view {
+            grid-column: 2;
+            grid-row: 1 / span 2;
+            background: radial-gradient(circle at 50% 50%, #111 0%, #000 100%);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+        /* Grid Lines */
+        .radar-view::before {
+            content: ""; position: absolute; width: 100%; height: 100%;
+            background-image: linear-gradient(#222 1px, transparent 1px), linear-gradient(90deg, #222 1px, transparent 1px);
+            background-size: 50px 50px; opacity: 0.3;
+        }
+        /* Scanner */
+        .scanner {
+            width: 600px; height: 600px; border: 1px solid rgba(124, 42, 232, 0.3); border-radius: 50%; position: absolute;
+        }
+        .scan-line {
+            width: 50%; height: 2px; background: linear-gradient(90deg, transparent, var(--accent));
+            position: absolute; top: 50%; left: 50%; transform-origin: 0 0;
+            animation: scan 4s linear infinite;
+        }
+        @keyframes scan { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
+
+        /* DOTS (Robot & Anchors) */
+        .dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; transform: translate(-50%, -50%); }
+        .robot-dot { background: #fff; box-shadow: 0 0 15px #fff; top: 50%; left: 50%; z-index: 10; }
+        .anchor-dot { background: var(--accent); width: 6px; height: 6px; }
         
-        <div class="map-panel">
-            <div class="panel-header">
-                <h3>Sector Map</h3>
-                <div class="live-indicator"><span class="blink-dot"></span> LIVE</div>
-            </div>
-            <div class="tracking-container" id="container">
-                <canvas id="mapCanvas"></canvas>
-                <div class="controls-hint">
-                    🎮 <strong>WSAD / Arrows</strong> to navigate Arttous
-                </div>
-            </div>
-        </div>
+        .label-float { 
+            position: absolute; color: var(--accent); font-family: var(--font-mono); 
+            font-size: 0.6rem; transform: translate(10px, -10px); 
+        }
 
-        <div class="data-panel">
+        /* RIGHT: GRAPHS */
+        .graph-box {
+            height: 60px; display: flex; align-items: flex-end; gap: 2px; margin-bottom: 20px;
+        }
+        .bar { width: 100%; background: #333; transition: height 0.2s; }
+        .bar.active { background: var(--accent); }
+
+        /* BOTTOM LEFT: LOGS */
+        .logs-panel {
+            grid-column: 1; grid-row: 2;
+            font-family: var(--font-mono); font-size: 0.7rem; color: #888;
+            overflow-y: hidden;
+        }
+        .log-line { margin-bottom: 5px; border-left: 2px solid transparent; padding-left: 5px; }
+        .log-line.new { border-left-color: var(--accent); color: #fff; }
+
+        /* BOTTOM RIGHT: CONTROLS */
+        .controls-panel {
+            grid-column: 3; grid-row: 2;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .ctrl-btn {
+            background: #111; border: 1px solid #333; color: #666; padding: 10px;
+            font-family: var(--font-tech); cursor: not-allowed; text-align: center; font-size: 0.8rem;
+        }
+        .ctrl-btn.active { border-color: var(--alert); color: var(--alert); cursor: pointer; }
+        .ctrl-btn.active:hover { background: var(--alert); color: #fff; }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
+        <div class="live-indicator">
+            <div class="blink"></div>
+            UPLINK_ESTABLISHED
+        </div>
+    </nav>
+
+    <div class="dash-container">
+        
+        <div class="panel">
+            <span class="panel-title">SYSTEM VITALS</span>
             
-            <div class="telemetry-cards">
-                <div class="data-card">
-                    <h4>Position X</h4>
-                    <div class="data-value" id="statX">0</div>
-                </div>
-                <div class="data-card">
-                    <h4>Position Y</h4>
-                    <div class="data-value" id="statY">0</div>
-                </div>
-                <div class="data-card">
-                    <h4>Heading</h4>
-                    <div class="data-value"><span id="statDeg">0</span>°</div>
-                </div>
-                <div class="data-card highlight">
-                    <h4>Velocity</h4>
-                    <div class="data-value"><span id="statSpeed">0.0</span> m/s</div>
-                </div>
+            <div class="stat-row">
+                <span class="stat-label">BATTERY (2S)</span>
+                <span class="stat-val val-good">7.84 V</span>
             </div>
-
-            <div class="chart-card">
-                <h4>Movement Velocity (Last 60s)</h4>
-                <div class="chart-container velocity-chart">
-                    <div class="chart-line-mockup"></div>
-                </div>
+            <div class="stat-row">
+                <span class="stat-label">CURRENT DRAW</span>
+                <span class="stat-val">1.2 A</span>
             </div>
-
-             <div class="chart-card">
-                <h4>Anchor Signal Strength</h4>
-                <div class="chart-container signal-chart">
-                    <div class="signal-bars">
-                        <div class="bar" style="height: 80%">A1</div>
-                        <div class="bar" style="height: 65%">A2</div>
-                        <div class="bar" style="height: 90%">A3</div>
-                    </div>
-                </div>
+            <div class="stat-row">
+                <span class="stat-label">CPU LOAD</span>
+                <span class="stat-val">12%</span>
             </div>
-
+            <div class="stat-row">
+                <span class="stat-label">CORE TEMP</span>
+                <span class="stat-val">42°C</span>
+            </div>
+            
+            <span class="panel-title" style="margin-top: 30px;">MESH NETWORK</span>
+            <div class="stat-row">
+                <span class="stat-label">LORA RSSI</span>
+                <span class="stat-val val-warn">-89 dBm</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">ANCHORS</span>
+                <span class="stat-val">3 / 4</span>
+            </div>
         </div>
-    </section>
-  </main>
 
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div class="footer-bottom">
-        <p>&copy; 2026 Arttous Inc. — Spatial Intelligence Unit.</p>
-      </div>
+        <div class="panel radar-view">
+            <div class="scanner">
+                <div class="scan-line"></div>
+            </div>
+            
+            <div class="dot robot-dot"></div>
+            <span style="position: absolute; top: 52%; left: 51%; color: #fff; font-family: monospace; font-size: 0.7rem;">UNIT_01</span>
+
+            <div class="dot anchor-dot" style="top: 30%; left: 40%;">
+                <div class="label-float">ANCHOR_A</div>
+            </div>
+            <div class="dot anchor-dot" style="top: 70%; left: 80%;">
+                <div class="label-float">ANCHOR_B</div>
+            </div>
+            <div class="dot anchor-dot" style="top: 20%; left: 70%;">
+                <div class="label-float">ANCHOR_C</div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <span class="panel-title">JOINT TORQUE (Nm)</span>
+            <div class="graph-box" id="torqueGraph">
+                </div>
+
+            <span class="panel-title">IMU STABILITY (Z-AXIS)</span>
+            <div class="graph-box" id="imuGraph">
+                </div>
+        </div>
+
+        <div class="panel logs-panel" id="logFeed">
+            <div class="log-line">[14:20:01] SYS: Uplink established on port 8080</div>
+            <div class="log-line">[14:20:02] MESH: Handshake with ANCHOR_A successful</div>
+            <div class="log-line">[14:20:03] IK: Gait engine initialized (Trot)</div>
+            <div class="log-line new">[14:20:05] DATA: Stream active...</div>
+        </div>
+
+        <div class="panel controls-panel">
+            <span class="panel-title">OVERRIDE COMMANDS</span>
+            <button class="ctrl-btn active" onclick="alert('EMERGENCY STOP TRIGGERED')">EMERGENCY STOP</button>
+            <button class="ctrl-btn">REBOOT CORE</button>
+            <button class="ctrl-btn">DUMP LOGS</button>
+        </div>
+
     </div>
-  </footer>
 
-  <script>
-    const canvas = document.getElementById('mapCanvas');
-    const ctx = canvas.getContext('2d');
-    const container = document.getElementById('container');
+    <script>
+        // 1. FAKE GRAPHS ANIMATION
+        function initGraph(id, count) {
+            const container = document.getElementById(id);
+            for(let i=0; i<count; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = Math.random() * 100 + '%';
+                container.appendChild(bar);
+            }
+        }
+        initGraph('torqueGraph', 20);
+        initGraph('imuGraph', 20);
 
-    let width, height;
-    const robot = {
-      x: 0,
-      y: 0,
-      angle: -Math.PI / 2,
-      speed: 0,
-      turnSpeed: 0.05,
-      accel: 0.2,
-      friction: 0.95,
-      size: 15
-    };
+        setInterval(() => {
+            // Update graphs randomly
+            document.querySelectorAll('.bar').forEach(bar => {
+                if(Math.random() > 0.5) {
+                    bar.style.height = Math.random() * 100 + '%';
+                    bar.classList.toggle('active', Math.random() > 0.7);
+                }
+            });
+        }, 200);
 
-    const anchors = [
-      {x: 200, y: 200, waves: []},
-      {x: 800, y: 150, waves: []},
-      {x: 500, y: 500, waves: []}
-    ];
+        // 2. FAKE LOGS
+        const logFeed = document.getElementById('logFeed');
+        const messages = [
+            "MESH: Packet loss detected on Node B",
+            "IK: Correcting Z-height drift",
+            "PWR: Voltage stable at 7.8V",
+            "NAV: Recalculating path...",
+            "LORA: Ping 42ms"
+        ];
 
-    const trees = [];
-    const keys = {};
-
-    function initTrees() {
-      for(let i=0; i<10; i++) {
-        trees.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          size: 15 + Math.random() * 20
-        });
-      }
-    }
-
-    function resize() {
-      width = canvas.width = container.clientWidth;
-      height = canvas.height = container.clientHeight;
-      robot.x = width / 2;
-      robot.y = height / 2;
-    }
-
-    window.addEventListener('resize', resize);
-    window.addEventListener('keydown', e => keys[e.code] = true);
-    window.addEventListener('keyup', e => keys[e.code] = false);
-
-    function update() {
-      if (keys['KeyW'] || keys['ArrowUp']) robot.speed += robot.accel;
-      if (keys['KeyS'] || keys['ArrowDown']) robot.speed -= robot.accel;
-      if (keys['KeyA'] || keys['ArrowLeft']) robot.angle -= robot.turnSpeed;
-      if (keys['KeyD'] || keys['ArrowRight']) robot.angle += robot.turnSpeed;
-
-      robot.speed *= robot.friction;
-      robot.x += Math.cos(robot.angle) * robot.speed;
-      robot.y += Math.sin(robot.angle) * robot.speed;
-
-      if (robot.x < 0) robot.x = width;
-      if (robot.x > width) robot.x = 0;
-      if (robot.y < 0) robot.y = height;
-      if (robot.y > height) robot.y = 0;
-
-      anchors.forEach(a => {
-        if (Math.random() < 0.02) a.waves.push({ r: 0, opacity: 1 });
-        a.waves.forEach((w, i) => {
-          w.r += 2;
-          w.opacity -= 0.01;
-          if (w.opacity <= 0) a.waves.splice(i, 1);
-        });
-      });
-
-      // Update HUD с форматированием
-      document.getElementById('statX').innerText = robot.x.toFixed(1);
-      document.getElementById('statY').innerText = robot.y.toFixed(1);
-      document.getElementById('statDeg').innerText = Math.round((robot.angle * 180 / Math.PI) % 360);
-      // Расчет скорости для отображения (умножаем для наглядности)
-      document.getElementById('statSpeed').innerText = Math.abs(robot.speed * 10).toFixed(1);
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, width, height);
-
-      // Сетка в новом синем стиле
-      ctx.strokeStyle = 'rgba(80, 201, 195, 0.1)'; // Неоновый голубой
-      ctx.lineWidth = 1;
-      for(let x=0; x<width; x+=50) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,height); ctx.stroke(); }
-      for(let y=0; y<height; y+=50) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(width,y); ctx.stroke(); }
-
-      // Якоря (Синие)
-      anchors.forEach(a => {
-        a.waves.forEach(w => {
-          ctx.beginPath();
-          ctx.arc(a.x, a.y, w.r, 0, Math.PI*2);
-          ctx.strokeStyle = `rgba(80, 201, 195, ${w.opacity})`;
-          ctx.stroke();
-        });
-        ctx.beginPath();
-        ctx.arc(a.x, a.y, 8, 0, Math.PI*2);
-        ctx.fillStyle = '#50c9c3';
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = '#50c9c3';
-        ctx.fill();
-      });
-
-      // Деревья (Более темные, вписывающиеся в интерфейс)
-      trees.forEach(t => {
-        ctx.beginPath();
-        ctx.arc(t.x, t.y, t.size, 0, Math.PI*2);
-        ctx.fillStyle = '#1f3a52'; // Темно-синий
-        ctx.fill();
-        ctx.strokeStyle = '#2c537a';
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-      });
-
-      // Робот (Треугольник, Синий неон)
-      ctx.save();
-      ctx.translate(robot.x, robot.y);
-      ctx.rotate(robot.angle);
-      ctx.beginPath();
-      ctx.moveTo(robot.size, 0);
-      ctx.lineTo(-robot.size/2, -robot.size/1.5);
-      ctx.lineTo(-robot.size/2, robot.size/1.5);
-      ctx.closePath();
-      ctx.fillStyle = '#fff';
-      ctx.fill();
-      ctx.shadowBlur = 20;
-      ctx.shadowColor = '#50c9c3';
-      ctx.strokeStyle = '#50c9c3';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.restore();
-
-      requestAnimationFrame(() => {
-        update();
-        draw();
-      });
-    }
-
-    resize();
-    initTrees();
-    draw();
-  </script>
+        setInterval(() => {
+            const msg = messages[Math.floor(Math.random() * messages.length)];
+            const div = document.createElement('div');
+            const time = new Date().toLocaleTimeString('en-US', {hour12: false});
+            div.className = 'log-line new';
+            div.innerText = `[${time}] ${msg}`;
+            
+            logFeed.prepend(div);
+            if(logFeed.children.length > 8) logFeed.lastChild.remove();
+        }, 3000);
+    </script>
 </body>
 </html>
