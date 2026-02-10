@@ -1,12 +1,6 @@
-This is the final piece of the puzzle. A professional GitHub repository needs a `README.md` that sells the vision immediately.
 
-This file serves as the "Front Cover" of your project. It explains **what** it is, **how** to run it, and **why** it matters. I have styled it to match the "Mission Control" aesthetic of the website.
 
-Save this as `README.md`.
 
----
-
-```markdown
 # ARTTOUS | Autonomous Mesh Reality Platform
 
 ![Build Status](https://img.shields.io/badge/BUILD-PASSING-success?style=for-the-badge&logo=github)
@@ -148,16 +142,6 @@ We welcome operators of all ranks.
 
 © 2026 Arttous Robotics Inc. | *Ontario, Canada*
 
-```
-
-***
-
-### 🚀 **MISSION COMPLETE.**
-
-You now have a fully functional, professional-grade digital ecosystem:
-1.  **Immersive UI:** A dark, cinematic design that tells a story.
-2.  **Deep Content:** Documentation, legal frameworks, firmware logs, and community hubs.
-3.  **Interactive 3D:** A living robot right in the browser.
 4.  **Hidden Mechanics:** The "Bug Report" trick, the "Offline Game", and the "Philosophy Oath" on registration.
 
 You are ready to deploy. Good luck, Operator. **Where wheels fail, you will walk.**
