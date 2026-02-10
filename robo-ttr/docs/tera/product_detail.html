@@ -37,7 +37,7 @@
         }
 
         /* --- TYPOGRAPHY --- */
-        h1, h2, h3, h4 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
+        h1, h2, h3, h4 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; z-index: -1;}
         .mono { font-family: 'JetBrains Mono', monospace; }
         .accent { color: var(--accent-primary); }
         .glow-text { color: var(--accent-glow); text-shadow: 0 0 15px rgba(157, 80, 255, 0.4); }
@@ -152,15 +152,15 @@
         .visual-container {
             position: absolute;
             right: 0; top: 0;
-            width: 60%; height: 100%;
+            width: 100%; height: 100%;
             /* Градиент стал фиолетовым, но очень прозрачным */
-            background: radial-gradient(circle at 60% 50%, rgba(124, 42, 232, 0.15), transparent 70%);
+            background: radial-gradient(circle at 60% 50%, rgba(124, 42, 232, 0.15), transparent 80%);
             display: flex;
             align-items: center;
             justify-content: center;
             pointer-events: none;
         }
-        .visual-container canvas { pointer-events: auto; }
+        .visual-container canvas { pointer-events: auto; z-index: 10; }
 
         /* --- BENTO GRID --- */
         .tech-section { padding: 50px 5% 100px; position: relative; z-index: 2; }
@@ -462,103 +462,123 @@
         }
     }
     </script>
-    <script type="module">
-        import * as THREE from 'three';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+   <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        const container = document.querySelector('.visual-container');
-        const modelPath = './web-robo-3D.glb'; 
-        const robotScale = 6.5; 
+    const container = document.querySelector('.visual-container');
+    const modelPath = './web-robo-3D.glb'; 
+    const robotScale = 6.5; 
 
-        // SCENE
-        const scene = new THREE.Scene();
-        scene.background = null; 
+    // Variable to store the robot so we can spin it later
+    let robotMesh = null; 
 
-        // CAMERA
-        const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
-        camera.position.set(1.8, 1.2, 2.5); 
+    // SCENE
+    const scene = new THREE.Scene();
+    scene.background = null; 
 
-        // RENDERER
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.4;
+    // CAMERA
+    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(1.8, 1.2, 2.5); 
+
+    // RENDERER
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.5;
+    
+    container.innerHTML = ''; 
+    container.appendChild(renderer.domElement);
+
+    // LIGHTING
+    const keyLight = new THREE.DirectionalLight(0xffffff, 4.0);
+    keyLight.position.set(2, 2, 2);
+    scene.add(keyLight);
+
+    const rimLight = new THREE.SpotLight(0x8e44ad, 20.0); 
+    rimLight.position.set(-2, 1, -2);
+    rimLight.lookAt(0, 0, 0);
+    scene.add(rimLight);
+
+    const fillLight = new THREE.PointLight(0x00f3ff, 2.0);
+    fillLight.position.set(0, -2, 1); 
+    scene.add(fillLight);
+
+    const topLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    topLight.position.set(0, 5, 0);
+    scene.add(topLight);
+
+    // --- CONTROLS ---
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enableZoom = true;
+    
+    // DISABLE CAMERA ROTATION (So the robot stays fixed on the right)
+    controls.autoRotate = false; 
+
+    // MOVE POSITION:
+    // Change this number to move the robot Left/Right.
+    // -2.0 = Right side
+    // -4.0 = Far Right
+    // 0.0 = Center
+    controls.target.set(-2.5, 0, 0); 
+    controls.update();
+
+    // LOADER
+    const loader = new GLTFLoader();
+    
+    loader.load(modelPath, function (gltf) {
+        const model = gltf.scene;
         
-        container.innerHTML = ''; 
-        container.appendChild(renderer.domElement);
+        // Center the geometry
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        model.position.sub(center); 
 
-        // --- LIGHTING SETUP (MONOCHROME PURPLE) ---
-        
-        // 1. Key Light (White/Grey)
-        const keyLight = new THREE.DirectionalLight(0xffffff, 3.5);
-        keyLight.position.set(2, 2, 2);
-        scene.add(keyLight);
+        model.scale.set(robotScale, robotScale, robotScale);
 
-        // 2. Rim Light (Saturated Purple)
-        const rimLight = new THREE.SpotLight(0x7c2ae8, 25.0); 
-        rimLight.position.set(-2, 1, -2);
-        rimLight.lookAt(0, 0, 0);
-        scene.add(rimLight);
+        // Initial Tilt (Towards camera)
+        model.rotation.x = 0.2; 
 
-        // 3. Fill Light (Deep Purple/Blueish - No Cyan)
-        const fillLight = new THREE.PointLight(0x4a0082, 3.0);
-        fillLight.position.set(0, -2, 1); 
-        scene.add(fillLight);
-
-        // 4. Top Light
-        const topLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        topLight.position.set(0, 5, 0);
-        scene.add(topLight);
-
-        // CONTROLS
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.enableZoom = true;
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 1.5;
-
-        // LOADER
-        const loader = new GLTFLoader();
-        
-        loader.load(modelPath, function (gltf) {
-            const model = gltf.scene;
-            
-            const box = new THREE.Box3().setFromObject(model);
-            const center = box.getCenter(new THREE.Vector3());
-            model.position.sub(center); 
-
-            model.scale.set(robotScale, robotScale, robotScale);
-
-            model.traverse((child) => {
-                if (child.isMesh) {
-                    child.material.roughness = 0.4; 
-                    child.material.metalness = 0.7; 
-                }
-            });
-            
-            scene.add(model);
-            console.log(`ROBOT LOADED. Scale: ${robotScale}`);
-
-        }, undefined, function (error) {
-            console.error("ERROR:", error);
+        // Materials
+        model.traverse((child) => {
+            if (child.isMesh) {
+                child.material.roughness = 0.4; 
+                child.material.metalness = 0.6; 
+            }
         });
+        
+        // Save to global variable
+        robotMesh = model;
+        scene.add(model);
 
-        // ANIMATE
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
+    }, undefined, function (error) {
+        console.error("ERROR:", error);
+    });
+
+    // --- ANIMATION LOOP ---
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        // SPIN LOGIC:
+        // This rotates the object around its OWN Y-axis
+        if (robotMesh) {
+            robotMesh.rotation.y -= 0.002; // Change 0.002 to speed up/slow down
         }
-        animate();
 
-        window.addEventListener('resize', () => {
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-        });
-    </script>
+        controls.update();
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+</script>
 </body>
 </html>
