@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARTTOUS | Protocols & Governance</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-core: #050505;
+            --bg-panel: #0e0e0e;
+            --accent-primary: #7c2ae8; 
+            --accent-dim: rgba(124, 42, 232, 0.1);
+            --text-main: #e0e0e0;
+            --text-muted: #666666;
+            --font-tech: 'Orbitron', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-core);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            line-height: 1.7;
+        }
+
+        /* --- HEADER (Simplified) --- */
+        nav {
+            padding: 25px 5%;
+            background: var(--bg-core);
+            border-bottom: 1px solid #222;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; letter-spacing: 3px; color: #fff; text-decoration: none; }
+        .accent { color: var(--accent-primary); }
+
+        /* --- CONTENT CONTAINER --- */
+        .legal-container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 5%;
+        }
+
+        h1 {
+            font-family: var(--font-tech);
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(180deg, #fff 20%, #666 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .meta-line {
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 50px;
+            display: block;
+            border-bottom: 1px solid #222;
+            padding-bottom: 20px;
+        }
+
+        /* --- ARTICLES --- */
+        article {
+            margin-bottom: 60px;
+        }
+
+        h2 {
+            font-family: var(--font-tech);
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border-left: 3px solid var(--accent-primary);
+            padding-left: 15px;
+        }
+
+        h3 {
+            font-family: var(--font-mono);
+            color: #fff;
+            font-size: 1rem;
+            margin: 30px 0 15px;
+        }
+
+        p {
+            color: #bbb;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            text-align: justify;
+        }
+
+        ul {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        li {
+            color: #bbb;
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        li::before {
+            content: ">>";
+            font-family: var(--font-mono);
+            color: var(--accent-primary);
+            position: absolute;
+            left: 0;
+            font-size: 0.8rem;
+        }
+
+        .clause-box {
+            background: var(--bg-panel);
+            border: 1px solid #222;
+            padding: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: #888;
+            margin: 20px 0;
+        }
+
+        .warning-text {
+            color: #d63031; /* Red for warnings */
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            border-top: 1px solid #222;
+            padding: 40px 0;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 100px;
+        }
+        
+        a { color: var(--text-muted); text-decoration: none; transition: 0.3s; }
+        a:hover { color: var(--accent-primary); }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">DOC_REF: LEG_04</div>
+    </nav>
+
+    <div class="legal-container">
+        <h1>ACCESS PROTOCOLS &<br>DATA GOVERNANCE</h1>
+        <span class="meta-line">LAST UPDATED: FEB 2026 // JURISDICTION: ONTARIO, CA // DOC_ID: 0x992</span>
+
+        <p class="clause-box">
+            WARNING: BY ACCESSING, DOWNLOADING, OR UTILIZING ANY ASSETS FROM THE ARTTOUS NETWORK, YOU ACKNOWLEDGE THAT ALL DATA IS THEORETICAL IN NATURE. THE FOLLOWING AGREEMENT CONSTITUTES A BINDING LEGAL CONTRACT.
+        </p>
+
+        <article>
+            <h2>ARTICLE I: DEFINITIONS & APPLICABILITY</h2>
+            <p><strong>1.1. The Platform.</strong> "Arttous," "The Platform," "We," and "Us" refer to the Arttous Robotics experimental initiative, its creators, maintainers, and the associated digital infrastructure hosted on this domain and associated repositories (e.g., GitHub).</p>
+            <p><strong>1.2. The User.</strong> "You," "User," or "Entity" refers to any individual, machine logic, or corporate body accessing this site, downloading firmware, viewing 3D assets, or utilizing our documentation.</p>
+            <p><strong>1.3. Synthetic Data.</strong> Refers to all content, including but not limited to: code repositories, 3D models (.glb, .stl), kinematic equations, firmware logic, and textual explanations, which have been generated through a collaborative process involving human engineering and Generative Artificial Intelligence (AI) models.</p>
+        </article>
+
+        <article>
+            <h2>ARTICLE II: LICENSE GRANT & RESTRICTIONS</h2>
+            <p>Arttous grants the User a limited, revocable, non-exclusive, non-transferable license to access and use the Synthetic Data subject strictly to the following terms:</p>
+            
+            <h3>2.1. Permitted Use (Educational & Research)</h3>
+            <p>You are authorized to view, download, and execute the provided files solely for the purposes of:</p>
+            <ul>
+                <li>Personal education and study of inverse kinematics.</li>
+                <li>Non-commercial algorithmic training (e.g., training Neural Networks on our gait datasets).</li>
+                <li>Academic research, provided proper attribution is given to Arttous.</li>
+                <li>Simulation within virtual environments (e.g., Gazebo, Unity, Unreal Engine) where no physical harm can occur.</li>
+            </ul>
+
+            <h3>2.2. Prohibited Use (Industrial & Commercial)</h3>
+            <p>The User is strictly prohibited from utilizing any data, code, or models found on this Platform for:</p>
+            <ul>
+                <li>Industrial automation, manufacturing lines, or heavy machinery control.</li>
+                <li>Commercial product development or "for-profit" hardware sales.</li>
+                <li>Safety-critical systems, including medical robotics, autonomous transport, or military applications.</li>
+                <li>Any application where failure of the software could lead to physical injury or death.</li>
+            </ul>
+        </article>
+
+        <article>
+            <h2>ARTICLE III: NATURE OF THEORETICAL DATA</h2>
+            <div class="clause-box" style="border-color: var(--accent-primary);">
+                <h3>3.1. The Human-AI Hybrid Origin</h3>
+                <p>The User acknowledges that the content on Arttous is not the result of certified engineering standards (ISO/ASTM). It is the product of experimental collaboration between human enthusiasts and Generative AI. Consequently, the data may contain "hallucinations," logical errors, or physics calculations that function in simulation but fail in physical reality.</p>
+            </div>
+
+            <h3>3.2. No Guarantee of Feasibility</h3>
+            <p>We do not warrant that the 3D models provided are printable, structurally sound, or mechanically viable. We do not warrant that the firmware code (C++/Python) is free of bugs, memory leaks, or infinite loops that could overheat or destroy physical motors.</p>
+        </article>
+
+        <article>
+            <h2>ARTICLE IV: DISCLAIMER OF LIABILITY</h2>
+            <p style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px;">
+                TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE ARTTOUS PLATFORM AND ITS CREATORS DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+            </p>
+            <p style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; margin-top: 20px;">
+                IN NO EVENT SHALL ARTTOUS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+            </p>
+            <p><strong>Plain English Translation:</strong> If you build a robot using our code and it walks off a table, catches fire, or injures you, we are not responsible. You use this information entirely at your own risk.</p>
+        </article>
+
+        <article>
+            <h2>ARTICLE V: PRIVACY POLICY</h2>
+            
+            <h3>5.1. Data Collection</h3>
+            <p>We believe in data minimalism. However, for the security of the Mesh Network, we collect:</p>
+            <ul>
+                <li><strong>Server Logs:</strong> IP addresses, browser types, and timestamps of access requests.</li>
+                <li><strong>Specialist Registration:</strong> If you apply for "Specialist" status, we collect the cryptographic hash of your credentials and your self-reported technical skillset.</li>
+                <li><strong>Telemetry:</strong> If you connect a physical device to our "Live Telemetry" socket, we collect real-time sensor data (IMU, battery voltage, GPS/LoRa coordinates) which is anonymized and stored for aggregate analysis.</li>
+            </ul>
+
+            <h3>5.2. Use of Data</h3>
+            <p>Any data we collect is used solely for:</p>
+            <ul>
+                <li>Improving the Inverse Kinematics (IK) algorithms (Training Data).</li>
+                <li>Securing the site against DDoS and brute-force attacks.</li>
+                <li>Verifying eligibility for community access.</li>
+            </ul>
+            <p>We do not sell, trade, or transfer your data to third-party commercial entities.</p>
+        </article>
+
+        <article>
+            <h2>ARTICLE VI: GOVERNING LAW</h2>
+            <p>These terms shall be governed by and construed in accordance with the laws of the <strong>Province of Ontario, Canada</strong>, and the federal laws of Canada applicable therein, without regard to its conflict of law provisions.</p>
+            <p>Any dispute arising from these terms shall be resolved exclusively in the courts located within Middlesex County, Ontario.</p>
+        </article>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Arttous Robotics Inc. | <a href="index.html">Return to Mission Control</a></p>
+        <p class="mono" style="margin-top: 10px; color: #444;">END OF LINE.</p>
+    </footer>
+
+</body>
+</html>

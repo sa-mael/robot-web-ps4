@@ -1,99 +1,274 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>3D Робот (Pro Lighting)</title>
+    <title>ARTTOUS | 3D Fabrication Assets</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
     <style>
-        body { margin: 0; overflow: hidden; }
-    </style>
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
+        :root {
+            --bg-core: #050505;
+            --bg-card: #0e0e0e;
+            --accent: #7c2ae8;
+            --text-main: #e0e0e0;
+            --font-tech: 'Orbitron', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
-    </script>
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg-core);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* NAV */
+        nav { padding: 25px 5%; display: flex; justify-content: space-between; border-bottom: 1px solid #222; }
+        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; }
+        .accent { color: var(--accent); }
+
+        /* TWIN ENGINE (Render vs Real) */
+        .twin-engine {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 60vh;
+            border-bottom: 1px solid #222;
+        }
+        .twin-panel {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .twin-panel::before {
+            content: ""; position: absolute; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.4);
+        }
+        .panel-label {
+            position: relative;
+            z-index: 2;
+            font-family: var(--font-tech);
+            font-size: 2rem;
+            border: 2px solid #fff;
+            padding: 10px 30px;
+            text-transform: uppercase;
+        }
+
+        /* GRID SECTION */
+        .assets-grid {
+            padding: 80px 5%;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .grid-header { grid-column: span 4; margin-bottom: 40px; }
+        .grid-header h2 { font-family: var(--font-tech); font-size: 2.5rem; }
+
+        /* FILE CARD */
+        .file-card {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            padding: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 250px;
+        }
+        .file-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+        .file-icon { font-size: 2rem; color: #444; margin-bottom: 10px; }
+        .file-name { font-family: var(--font-mono); font-weight: bold; color: #fff; margin-bottom: 5px; }
+        .file-meta { font-size: 0.8rem; color: #666; }
+        .download-fake-btn {
+            margin-top: auto;
+            border: 1px solid #333;
+            text-align: center;
+            padding: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        /* MODAL (Hidden) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 100;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: #111;
+            border: 1px solid var(--accent);
+            width: 500px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 0 50px rgba(124, 42, 232, 0.2);
+        }
+        .close-modal {
+            position: absolute; top: 10px; right: 20px;
+            font-size: 2rem; cursor: pointer; color: #666;
+        }
+        .modal-title { font-family: var(--font-tech); font-size: 1.5rem; margin-bottom: 20px; color: #fff; }
+        .spec-row {
+            display: flex; justify-content: space-between;
+            border-bottom: 1px solid #333;
+            padding: 10px 0;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        .spec-val { color: var(--accent); }
+        .material-badge {
+            display: inline-block;
+            background: #222;
+            color: #fff;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            margin-top: 15px;
+            border-left: 3px solid #2ecc71; /* Carbon PETG color code */
+        }
+        .dl-btn {
+            display: block;
+            width: 100%;
+            background: var(--accent);
+            color: #fff;
+            text-align: center;
+            padding: 15px;
+            margin-top: 30px;
+            text-decoration: none;
+            font-family: var(--font-tech);
+            font-weight: bold;
+        }
+
+        @media (max-width: 1024px) {
+            .assets-grid { grid-template-columns: 1fr 1fr; }
+            .twin-engine { grid-template-columns: 1fr; height: auto; }
+            .twin-panel { height: 300px; }
+        }
+    </style>
 </head>
 <body>
-    <script type="module">
-        import * as THREE from 'three';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // 1. СЦЕНА И ТЕМНЫЙ ФОН
-        const scene = new THREE.Scene();
-        // Темный цвет фона (Hex: #121212 - почти черный графит)
-        scene.background = new THREE.Color(0x121212);
-        // Можно добавить легкий туман для глубины (опционально)
-        scene.fog = new THREE.Fog(0x121212, 2, 10);
+    <nav>
+        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">LIB_VER: 4.2</div>
+    </nav>
 
-        // 2. КАМЕРА (Ваши настройки)
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
-        camera.position.z = 0.2; 
-        camera.position.y = 0.1;
+    <div class="twin-engine">
+        <div class="twin-panel" style="background-image: url('assets/images/render_preview.jpg'); background-color: #111;">
+            <div class="panel-label">DIGITAL TWIN</div>
+        </div>
+        <div class="twin-panel" style="background-image: url('assets/images/real_life_preview.jpg'); background-color: #222;">
+            <div class="panel-label">PHYSICAL UNIT</div>
+        </div>
+    </div>
 
-        // 3. РЕНДЕРЕР (Настройки качества)
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        // Включаем физически корректное освещение
-        renderer.useLegacyLights = false; 
-        renderer.toneMapping = THREE.ACESFilmicToneMapping; // Киношная цветокоррекция
-        renderer.toneMappingExposure = 1.0;
-        document.body.appendChild(renderer.domElement);
+    <section class="assets-grid">
+        <div class="grid-header">
+            <h2>PRINT REPOSITORY</h2>
+            <p style="color: #666; font-family: 'JetBrains Mono';">/// STL_FILES_DETECTED: 8</p>
+        </div>
 
-        // 4. ПРОФЕССИОНАЛЬНЫЙ СВЕТ (Схема из 3 источников)
+        <div class="file-card" onclick="openModal('COXA_JOINT_L', 'Carbon PETG', '45g', '100% Infill')">
+            <div>
+                <div class="file-icon">⬢</div>
+                <div class="file-name">COXA_JOINT_L.stl</div>
+                <div class="file-meta">REV_04 | 12MB</div>
+            </div>
+            <div class="download-fake-btn">VIEW SPECS</div>
+        </div>
+
+        <div class="file-card" onclick="openModal('FEMUR_STRUCTURE', 'ASA / ABS', '120g', '4 Walls')">
+            <div>
+                <div class="file-icon">⬢</div>
+                <div class="file-name">FEMUR_STRUC.stl</div>
+                <div class="file-meta">REV_05 | 24MB</div>
+            </div>
+            <div class="download-fake-btn">VIEW SPECS</div>
+        </div>
+
+        <div class="file-card" onclick="openModal('TIBIA_LOWER', 'TPU 95A', '30g', 'Flex / No Support')">
+            <div>
+                <div class="file-icon">⬢</div>
+                <div class="file-name">TIBIA_LOWER.stl</div>
+                <div class="file-meta">REV_02 | 8MB</div>
+            </div>
+            <div class="download-fake-btn">VIEW SPECS</div>
+        </div>
+
+        <div class="file-card" onclick="openModal('MAIN_CHASSIS_TOP', 'PETG-CF', '210g', '20% Gyroid')">
+            <div>
+                <div class="file-icon">⬢</div>
+                <div class="file-name">CHASSIS_TOP.stl</div>
+                <div class="file-meta">REV_09 | 45MB</div>
+            </div>
+            <div class="download-fake-btn">VIEW SPECS</div>
+        </div>
         
-        // A. Ambient Light (Мягкая подсветка теней)
-        const ambientLight = new THREE.AmbientLight(0x404040, 1.5); 
-        scene.add(ambientLight);
+        </section>
 
-        // B. Key Light (Основной прожектор - теплый белый)
-        const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
-        keyLight.position.set(2, 2, 2);
-        scene.add(keyLight);
-
-        // C. Rim Light (Контровой свет - холодный голубой для акцента)
-        // Светит сзади, чтобы подчеркнуть силуэт робота
-        const rimLight = new THREE.SpotLight(0x4a7dff, 5); 
-        rimLight.position.set(-1, 2, -2);
-        rimLight.lookAt(0, 0, 0);
-        scene.add(rimLight);
-
-        // 5. УПРАВЛЕНИЕ
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.target.set(0, 0.05, 0); // Точка вращения чуть выше уровня пола
-        controls.update();
-
-        // 6. ЗАГРУЗКА МОДЕЛИ
-        const loader = new GLTFLoader();
-        loader.load('web-robo-3D.glb', function (gltf) {
-            const model = gltf.scene;
-            scene.add(model);
+    <div class="modal-overlay" id="dlModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3 class="modal-title" id="m-title">FILENAME.STL</h3>
             
-            // Если модель слишком большая/маленькая, можно раскомментировать и поправить:
-            // model.scale.set(1, 1, 1);
-            
-            console.log("Модель загружена");
-        }, undefined, function (error) {
-            console.error(error);
-        });
+            <div class="spec-row">
+                <span>Rec. Material:</span>
+                <span class="spec-val" id="m-mat">PETG</span>
+            </div>
+            <div class="spec-row">
+                <span>Est. Weight:</span>
+                <span class="spec-val" id="m-weight">0g</span>
+            </div>
+            <div class="spec-row">
+                <span>Print Settings:</span>
+                <span class="spec-val" id="m-settings">Standard</span>
+            </div>
 
-        // 7. АНИМАЦИЯ
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
+            <div class="material-badge">
+                Recommended: <span id="m-mat-bad">Carbon Fiber PETG</span> for rigidity.
+            </div>
+
+            <p style="color: #666; font-size: 0.8rem; margin-top: 20px; line-height: 1.5;">
+                CAUTION: Ensure bed leveling is calibrated to < 0.1mm. Dimensional accuracy is critical for bearing fitment.
+            </p>
+
+            <a href="#" class="dl-btn">DOWNLOAD FILE</a>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('dlModal');
+        
+        function openModal(name, mat, weight, sett) {
+            document.getElementById('m-title').innerText = name;
+            document.getElementById('m-mat').innerText = mat;
+            document.getElementById('m-weight').innerText = weight;
+            document.getElementById('m-settings').innerText = sett;
+            document.getElementById('m-mat-bad').innerText = mat;
+            
+            modal.style.display = 'flex';
         }
-        animate();
 
-        // АДАПТАЦИЯ ЭКРАНА
-        window.addEventListener('resize', onWindowResize, false);
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        // Close on outside click
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
         }
     </script>
 </body>

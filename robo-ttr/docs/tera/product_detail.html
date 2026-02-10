@@ -55,6 +55,54 @@
             backdrop-filter: blur(5px);
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
+        /* --- SCROLL EFFECT (STEALTH MODE) --- */
+
+/* 1. The Navbar Background */
+nav.scrolled {
+    background: #0a0a0a; /* Solid dark grey (almost black) */
+    border-bottom: 1px solid #222; /* Dim border */
+    transition: all 0.4s ease;
+}
+
+/* 2. Kill the Logo Colors */
+nav.scrolled .logo, 
+nav.scrolled .logo span.accent {
+    color: #444; /* Turn the whole logo dark gray */
+    transition: 0.3s;
+}
+/* Optional: Light up slightly on hover even in stealth mode */
+nav.scrolled .logo:hover { color: #666; }
+
+/* 3. Kill the Status Dot (The Green Light) */
+nav.scrolled .status-dot {
+    background-color: #333; /* Turn it off */
+    box-shadow: none;       /* Remove glow */
+    animation: none;        /* Stop pulsing */
+    transition: 0.3s;
+}
+
+/* 4. Dim the Text */
+nav.scrolled .mono {
+    color: #333 !important; /* Make "NET_ACTIVE" very dark */
+}
+
+/* 5. Gray out the Buttons */
+nav.scrolled .btn-login {
+    color: #444;
+}
+nav.scrolled .btn-login:hover { color: #888; }
+
+nav.scrolled .btn-register {
+    border-color: #333;     /* Gray border */
+    color: #444;            /* Gray text */
+    background: transparent;
+    box-shadow: none;       /* Remove purple glow */
+}
+nav.scrolled .btn-register:hover {
+    border-color: #666;
+    color: #fff;
+    background: #222;
+}
 
         .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: #fff; }
         .status-dot {
@@ -357,6 +405,11 @@
                 Where GPS fails, Arttous creates its own reality. 
                 A <strong>16-DOF</strong> quadrupedal platform powered by <strong>ESP32-C6</strong> and localized via <strong>T3S3 LoRa Mesh</strong> Time-of-Flight ranging.
             </p>
+            <p class="stealth-text">
+             /// SYSTEM NOTICE: We are actively seeking kinematic specialists. 
+             Registration grants access to the verify_protocol. 
+             Complete the calibration tasks to unlock community entry.
+        </p>
             <div class="cta-group">
                 <a href="#specs" class="btn btn-primary">SYSTEM ARCHITECTURE</a>
                 <a href="#telemetry" class="btn btn-secondary">LIVE TELEMETRY</a>
@@ -635,6 +688,17 @@
         camera.aspect = container.clientWidth / container.clientHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+    // --- SCROLL MONITOR ---
+    window.addEventListener('scroll', () => {
+        const nav = document.querySelector('nav');
+        
+        // If we scroll down more than 50 pixels...
+        if (window.scrollY > 50) {
+            nav.classList.add('scrolled'); // Activate Stealth Mode
+        } else {
+            nav.classList.remove('scrolled'); // Back to full Neon Mode
+        }
     });
 </script>
 </body>
