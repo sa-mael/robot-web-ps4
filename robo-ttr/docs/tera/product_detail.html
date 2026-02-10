@@ -81,6 +81,58 @@
             width: 55%;
             z-index: 10;
         }
+        /* --- AUTH BUTTONS --- */
+.auth-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.btn-login {
+    color: var(--text-dim);
+    font-family: 'Orbitron';
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: 0.3s;
+    letter-spacing: 1px;
+}
+.btn-login:hover { color: #fff; }
+
+.btn-register {
+    border: 1px solid var(--accent-primary);
+    padding: 8px 20px;
+    font-family: 'Orbitron';
+    font-size: 0.8rem;
+    color: var(--accent-primary);
+    text-decoration: none;
+    transition: 0.3s;
+    background: rgba(124, 42, 232, 0.05);
+}
+.btn-register:hover {
+    background: var(--accent-primary);
+    color: #fff;
+    box-shadow: 0 0 15px var(--accent-primary);
+}
+
+/* --- THE GHOST TEXT (SECRET MESSAGE) --- */
+.stealth-text {
+    color: #0e0e0e; /* Almost matches background #050505 */
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    margin-top: 15px;
+    transition: all 0.5s ease;
+    cursor: help;
+    padding: 10px;
+    border-left: 2px solid transparent;
+}
+
+/* REVEAL ON HOVER */
+.stealth-text:hover {
+    color: var(--accent-glow); /* Lights up purple */
+    border-left: 2px solid var(--accent-primary);
+    background: linear-gradient(90deg, rgba(124, 42, 232, 0.1), transparent);
+    text-shadow: 0 0 5px var(--accent-primary);
+}
 
         .firmware-badge {
             font-family: 'JetBrains Mono';
@@ -286,10 +338,15 @@
 <body>
 
     <nav>
-        <div class="logo">ART<span class="accent">TOUS</span></div>
-        <div class="mono" style="font-size: 0.75rem; color: #888;">
-            <span class="status-dot"></span>SYSTEM_ONLINE
+    <div class="logo">ART<span class="accent">TOUS</span></div>
+    
+    <div class="auth-group">
+        <div class="mono" style="font-size: 0.7rem; color: #444; margin-right: 20px;">
+            <span class="status-dot"></span>NET_ACTIVE
         </div>
+        <a href="#" class="btn-login">LOG IN</a>
+        <a href="#" class="btn-register">JOIN MESH</a>
+       </div>
     </nav>
 
     <section class="hero">
