@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARTTOUS | Operator Uplink</title>
-    
+    <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     
     <style>
@@ -148,6 +148,17 @@
             .sidebar { border-right: none; border-bottom: 1px solid #222; }
             .missions-grid { grid-template-columns: 1fr; }
         }
+         /* FOOTER SIGNATURE */
+        .digital-sig {
+            margin-top: 80px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -260,8 +271,19 @@
                 </div>
                 <button class="action-btn" style="border-color: #fff; color: #fff;">BECOME A PATRON</button>
             </div>
+            
 
         </main>
+        <div class="digital-sig">
+            <div>
+                SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
+                HASH: 0x99a...f42
+            </div>
+            <div style="text-align: right;">
+                &copy; 2026 Arttous Robotics Inc.<br>
+                ALL RIGHTS RESERVED.
+            </div>
+        </div>
     </div>
 
 </body>

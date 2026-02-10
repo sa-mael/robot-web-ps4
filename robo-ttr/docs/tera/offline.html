@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SYSTEM FAILURE | RECOVERY MODE</title>
-    
+    <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@900&display=swap" rel="stylesheet">
 
@@ -111,6 +111,17 @@
             color: #fff;
             box-shadow: 0 0 15px var(--accent-color);
         }
+         /* FOOTER SIGNATURE */
+        .digital-sig {
+            margin-top: 80px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: #555;
+        } 
 
     </style>
 </head>
@@ -128,6 +139,16 @@
     </div>
 
     <button id="restartBtn" onclick="resetGame()">REBOOT SYSTEM</button>
+     <div class="digital-sig">
+            <div>
+                SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
+                HASH: 0x99a...f42
+            </div>
+            <div style="text-align: right;">
+                &copy; 2026 Arttous Robotics Inc.<br>
+                ALL RIGHTS RESERVED.
+            </div>
+        </div>
 
     <script>
         // --- GAME CONFIG ---

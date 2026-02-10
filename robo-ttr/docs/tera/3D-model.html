@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
     <title>ARTTOUS | 3D Fabrication Assets</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     
@@ -47,6 +48,7 @@
             background: rgba(0,0,0,0.5);
             transition: 0.3s;
         }
+        
         .twin-panel:hover::before { background: rgba(0,0,0,0.2); } /* Осветление при наведении */
         
         .panel-label {
@@ -157,6 +159,17 @@
             .twin-engine { grid-template-columns: 1fr; height: auto; }
             .twin-panel { height: 300px; }
         }
+         /* FOOTER SIGNATURE */
+        .digital-sig {
+            margin-top: 80px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -167,10 +180,10 @@
     </nav>
 
     <div class="twin-engine">
-        <div class="twin-panel" style="background-image: url('assets/images/main-robo.png'); background-color: #1a0525;">
+        <div class="twin-panel" style="background-image: url('../assets/images/main-robo.jpg'); background-color: #1a0525;">
             <div class="panel-label">DIGITAL TWIN</div>
         </div>
-        <div class="twin-panel" style="background-image: url('assets/images/applications.png'); background-color: #051a1a;">
+        <div class="twin-panel" style="background-image: url('../assets/images/applications.png'); background-color: #051a1a;">
             <div class="panel-label">PHYSICAL UNIT</div>
         </div>
     </div>
@@ -282,5 +295,15 @@
             if (event.target == modal) closeModal();
         }
     </script>
+    <div class="digital-sig">
+            <div>
+                SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
+                HASH: 0x99a...f42
+            </div>
+            <div style="text-align: right;">
+                &copy; 2026 Arttous Robotics Inc.<br>
+                ALL RIGHTS RESERVED.
+            </div>
+        </div>
 </body>
 </html>
