@@ -23,16 +23,15 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* NAV */
         nav { padding: 25px 5%; display: flex; justify-content: space-between; border-bottom: 1px solid #222; }
         .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; }
         .accent { color: var(--accent); }
 
-        /* TWIN ENGINE (Render vs Real) */
+        /* TWIN ENGINE */
         .twin-engine {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            height: 60vh;
+            height: 50vh; /* Чуть меньше, чтобы текст был виден */
             border-bottom: 1px solid #222;
         }
         .twin-panel {
@@ -42,113 +41,116 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
         }
         .twin-panel::before {
             content: ""; position: absolute; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.5);
+            transition: 0.3s;
         }
+        .twin-panel:hover::before { background: rgba(0,0,0,0.2); } /* Осветление при наведении */
+        
         .panel-label {
             position: relative;
             z-index: 2;
             font-family: var(--font-tech);
-            font-size: 2rem;
+            font-size: 1.5rem;
             border: 2px solid #fff;
             padding: 10px 30px;
             text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* --- NEW SECTION: LORE & TEXT --- */
+        .protocol-brief {
+            max-width: 900px;
+            margin: 80px auto;
+            padding: 0 5%;
+            text-align: center;
+        }
+        .protocol-brief h2 { font-family: var(--font-tech); font-size: 2.5rem; margin-bottom: 30px; }
+        .protocol-desc {
+            color: #aaa;
+            line-height: 1.8;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+        .spec-highlight {
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-weight: bold;
         }
 
         /* GRID SECTION */
         .assets-grid {
-            padding: 80px 5%;
+            padding: 40px 5% 100px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
+            border-top: 1px solid #222;
         }
-        .grid-header { grid-column: span 4; margin-bottom: 40px; }
-        .grid-header h2 { font-family: var(--font-tech); font-size: 2.5rem; }
+        .grid-header { grid-column: span 4; margin-bottom: 20px; margin-top: 40px; }
 
-        /* FILE CARD */
         .file-card {
             background: var(--bg-card);
             border: 1px solid #222;
-            padding: 20px;
+            padding: 25px;
             cursor: pointer;
             transition: 0.3s;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            height: 250px;
+            height: 280px;
         }
-        .file-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-5px);
-        }
-        .file-icon { font-size: 2rem; color: #444; margin-bottom: 10px; }
+        .file-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        .file-icon { font-size: 2rem; color: #444; margin-bottom: 15px; }
         .file-name { font-family: var(--font-mono); font-weight: bold; color: #fff; margin-bottom: 5px; }
         .file-meta { font-size: 0.8rem; color: #666; }
         .download-fake-btn {
             margin-top: auto;
             border: 1px solid #333;
             text-align: center;
-            padding: 8px;
+            padding: 10px;
             font-family: var(--font-mono);
             font-size: 0.75rem;
             color: #888;
+            text-transform: uppercase;
+            transition: 0.2s;
         }
+        .file-card:hover .download-fake-btn { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-        /* MODAL (Hidden) */
+        /* MODAL */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             z-index: 100;
-            display: none; /* Hidden by default */
+            display: none;
             align-items: center;
             justify-content: center;
         }
         .modal-content {
             background: #111;
             border: 1px solid var(--accent);
-            width: 500px;
-            padding: 40px;
+            width: 600px;
+            padding: 50px;
             position: relative;
             box-shadow: 0 0 50px rgba(124, 42, 232, 0.2);
         }
-        .close-modal {
-            position: absolute; top: 10px; right: 20px;
-            font-size: 2rem; cursor: pointer; color: #666;
-        }
-        .modal-title { font-family: var(--font-tech); font-size: 1.5rem; margin-bottom: 20px; color: #fff; }
+        .close-modal { position: absolute; top: 20px; right: 30px; font-size: 2rem; cursor: pointer; color: #666; }
+        .modal-title { font-family: var(--font-tech); font-size: 2rem; margin-bottom: 30px; color: #fff; }
         .spec-row {
             display: flex; justify-content: space-between;
             border-bottom: 1px solid #333;
-            padding: 10px 0;
+            padding: 12px 0;
             font-family: var(--font-mono);
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #aaa;
         }
         .spec-val { color: var(--accent); }
-        .material-badge {
-            display: inline-block;
-            background: #222;
-            color: #fff;
-            padding: 5px 10px;
-            font-size: 0.75rem;
-            margin-top: 15px;
-            border-left: 3px solid #2ecc71; /* Carbon PETG color code */
-        }
         .dl-btn {
-            display: block;
-            width: 100%;
-            background: var(--accent);
-            color: #fff;
-            text-align: center;
-            padding: 15px;
-            margin-top: 30px;
-            text-decoration: none;
-            font-family: var(--font-tech);
-            font-weight: bold;
+            display: block; width: 100%; background: var(--accent); color: #fff; text-align: center; padding: 18px; margin-top: 40px; text-decoration: none; font-family: var(--font-tech); font-weight: bold; letter-spacing: 2px;
         }
+        .dl-btn:hover { background: #9d50ff; }
 
         @media (max-width: 1024px) {
             .assets-grid { grid-template-columns: 1fr 1fr; }
@@ -165,18 +167,33 @@
     </nav>
 
     <div class="twin-engine">
-        <div class="twin-panel" style="background-image: url('assets/images/render_preview.jpg'); background-color: #111;">
+        <div class="twin-panel" style="background-image: url('assets/images/render_preview.jpg'); background-color: #1a0525;">
             <div class="panel-label">DIGITAL TWIN</div>
         </div>
-        <div class="twin-panel" style="background-image: url('assets/images/real_life_preview.jpg'); background-color: #222;">
+        <div class="twin-panel" style="background-image: url('assets/images/real_life_preview.jpg'); background-color: #051a1a;">
             <div class="panel-label">PHYSICAL UNIT</div>
         </div>
     </div>
 
+    <section class="protocol-brief">
+        <h2>FABRICATION PROTOCOLS</h2>
+        <p class="protocol-desc">
+            The Arttous platform relies on a distributed manufacturing model. We do not sell hardware; we provide the 
+            <span class="spec-highlight">Digital DNA</span> for you to synthesize it locally. The STL files provided below are 
+            optimized for FDM printing with a recommended layer height of 0.16mm.
+        </p>
+        <p class="protocol-desc">
+            <strong>Material Compliance:</strong> While standard PLA is sufficient for kinetic testing, field deployment requires 
+            materials with higher glass transition temperatures. We strongly recommend <span class="spec-highlight">Carbon Fiber PETG</span> 
+            for the chassis to reduce flex during high-torque maneuvers, and <span class="spec-highlight">TPU 95A</span> 
+            for the footpads to maximize the friction coefficient on concrete surfaces.
+        </p>
+    </section>
+
     <section class="assets-grid">
         <div class="grid-header">
-            <h2>PRINT REPOSITORY</h2>
-            <p style="color: #666; font-family: 'JetBrains Mono';">/// STL_FILES_DETECTED: 8</p>
+            <h3 style="font-family: 'Orbitron'; color: #fff; font-size: 1.5rem;">PRINT REPOSITORY</h3>
+            <p style="color: #666; font-family: 'JetBrains Mono'; margin-top: 5px;">/// SECURE ARCHIVE // ACCESS GRANTED</p>
         </div>
 
         <div class="file-card" onclick="openModal('COXA_JOINT_L', 'Carbon PETG', '45g', '100% Infill')">
@@ -184,8 +201,9 @@
                 <div class="file-icon">⬢</div>
                 <div class="file-name">COXA_JOINT_L.stl</div>
                 <div class="file-meta">REV_04 | 12MB</div>
+                <p style="font-size: 0.8rem; color: #555; margin-top: 10px;">Primary hip connection. Requires high shear strength.</p>
             </div>
-            <div class="download-fake-btn">VIEW SPECS</div>
+            <div class="download-fake-btn">ACCESS FILE</div>
         </div>
 
         <div class="file-card" onclick="openModal('FEMUR_STRUCTURE', 'ASA / ABS', '120g', '4 Walls')">
@@ -193,29 +211,32 @@
                 <div class="file-icon">⬢</div>
                 <div class="file-name">FEMUR_STRUC.stl</div>
                 <div class="file-meta">REV_05 | 24MB</div>
+                <p style="font-size: 0.8rem; color: #555; margin-top: 10px;">Main leg segment. Hollow channel for servo wiring.</p>
             </div>
-            <div class="download-fake-btn">VIEW SPECS</div>
+            <div class="download-fake-btn">ACCESS FILE</div>
         </div>
 
-        <div class="file-card" onclick="openModal('TIBIA_LOWER', 'TPU 95A', '30g', 'Flex / No Support')">
+        <div class="file-card" onclick="openModal('TIBIA_LOWER', 'TPU 95A', '30g', 'No Support')">
             <div>
                 <div class="file-icon">⬢</div>
                 <div class="file-name">TIBIA_LOWER.stl</div>
                 <div class="file-meta">REV_02 | 8MB</div>
+                <p style="font-size: 0.8rem; color: #555; margin-top: 10px;">Shock absorption unit. Print slowly (20mm/s).</p>
             </div>
-            <div class="download-fake-btn">VIEW SPECS</div>
+            <div class="download-fake-btn">ACCESS FILE</div>
         </div>
 
-        <div class="file-card" onclick="openModal('MAIN_CHASSIS_TOP', 'PETG-CF', '210g', '20% Gyroid')">
+        <div class="file-card" onclick="openModal('CHASSIS_CORE', 'PETG-CF', '210g', '20% Gyroid')">
             <div>
                 <div class="file-icon">⬢</div>
                 <div class="file-name">CHASSIS_TOP.stl</div>
                 <div class="file-meta">REV_09 | 45MB</div>
+                <p style="font-size: 0.8rem; color: #555; margin-top: 10px;">Central housing for ESP32 and T3S3 modules.</p>
             </div>
-            <div class="download-fake-btn">VIEW SPECS</div>
+            <div class="download-fake-btn">ACCESS FILE</div>
         </div>
         
-        </section>
+    </section>
 
     <div class="modal-overlay" id="dlModal">
         <div class="modal-content">
@@ -223,27 +244,23 @@
             <h3 class="modal-title" id="m-title">FILENAME.STL</h3>
             
             <div class="spec-row">
-                <span>Rec. Material:</span>
+                <span>Material Profile:</span>
                 <span class="spec-val" id="m-mat">PETG</span>
             </div>
             <div class="spec-row">
-                <span>Est. Weight:</span>
+                <span>Est. Mass:</span>
                 <span class="spec-val" id="m-weight">0g</span>
             </div>
             <div class="spec-row">
-                <span>Print Settings:</span>
+                <span>Infill Density:</span>
                 <span class="spec-val" id="m-settings">Standard</span>
             </div>
 
-            <div class="material-badge">
-                Recommended: <span id="m-mat-bad">Carbon Fiber PETG</span> for rigidity.
-            </div>
-
-            <p style="color: #666; font-size: 0.8rem; margin-top: 20px; line-height: 1.5;">
-                CAUTION: Ensure bed leveling is calibrated to < 0.1mm. Dimensional accuracy is critical for bearing fitment.
+            <p style="color: #888; font-size: 0.9rem; margin-top: 30px; font-family: 'JetBrains Mono'; border-left: 2px solid var(--accent); padding-left: 15px;">
+                NOTE: This component requires a brim for bed adhesion. Dimensional tolerance is ±0.1mm.
             </p>
 
-            <a href="#" class="dl-btn">DOWNLOAD FILE</a>
+            <a href="#" class="dl-btn">INITIATE DOWNLOAD</a>
         </div>
     </div>
 
@@ -255,20 +272,14 @@
             document.getElementById('m-mat').innerText = mat;
             document.getElementById('m-weight').innerText = weight;
             document.getElementById('m-settings').innerText = sett;
-            document.getElementById('m-mat-bad').innerText = mat;
-            
             modal.style.display = 'flex';
         }
 
         function closeModal() {
             modal.style.display = 'none';
         }
-
-        // Close on outside click
         window.onclick = function(event) {
-            if (event.target == modal) {
-                closeModal();
-            }
+            if (event.target == modal) closeModal();
         }
     </script>
 </body>
