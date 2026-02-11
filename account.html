@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARTTOUS | Operator Uplink</title>
-    <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
+    <title>ARTTOUS | Operator Command</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     
     <style>
@@ -14,9 +14,8 @@
             --accent: #7c2ae8;
             --accent-dim: rgba(124, 42, 232, 0.1);
             --text-main: #e0e0e0;
-            --text-muted: #666;
             --success: #2ecc71;
-            --warning: #f1c40f;
+            --alert: #e74c3c;
             --font-tech: 'Orbitron', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
             --font-body: 'Inter', sans-serif;
@@ -34,131 +33,187 @@
         }
 
         /* HEADER */
-        nav { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; background: #080808; }
+        nav { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; background: #080808; }
         .logo { font-family: var(--font-tech); font-size: 1.2rem; font-weight: 900; color: #fff; text-decoration: none; }
         .accent { color: var(--accent); }
         .user-badge { display: flex; align-items: center; gap: 15px; }
-        .avatar { width: 35px; height: 35px; background: #222; border-radius: 50%; border: 1px solid var(--accent); }
+        .avatar-small { width: 30px; height: 30px; background: #222; border-radius: 50%; border: 1px solid var(--accent); }
         .logout-btn { color: #666; font-size: 0.8rem; text-decoration: none; transition: 0.3s; }
-        .logout-btn:hover { color: #fff; }
+        .logout-btn:hover { color: var(--alert); }
 
-        /* LAYOUT */
+        /* LAYOUT GRID */
         .dashboard-container {
             display: grid;
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: 280px 1fr;
             flex: 1;
+            height: calc(100vh - 70px); /* Full height minus header */
+            overflow: hidden;
         }
 
-        /* SIDEBAR (Profile) */
+        /* SIDEBAR */
         .sidebar {
             background: #0a0a0a;
             border-right: 1px solid #222;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .profile-card { text-align: center; margin-bottom: 30px; }
+        .large-avatar { width: 80px; height: 80px; background: #1a1a1a; border-radius: 50%; margin: 0 auto 15px; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-tech); color: var(--accent); font-size: 1.5rem; }
+        .username { font-family: var(--font-tech); font-size: 1.1rem; color: #fff; }
+        .rank { font-family: var(--font-mono); font-size: 0.75rem; color: var(--success); margin-top: 5px; }
+
+        .nav-tabs { display: flex; flex-direction: column; gap: 5px; margin-top: 20px; }
+        .tab-btn {
+            background: transparent; border: none; text-align: left; padding: 12px 15px; color: #666; font-family: var(--font-mono); font-size: 0.85rem; cursor: pointer; transition: 0.2s; border-radius: 4px;
+        }
+        .tab-btn:hover { background: #111; color: #fff; }
+        .tab-btn.active { background: var(--accent-dim); color: var(--accent); border-left: 2px solid var(--accent); }
+
+        .xp-section { margin-top: auto; padding-top: 20px; border-top: 1px solid #222; }
+        .level-info { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 5px; font-family: var(--font-mono); color: #888; }
+        .progress-bar { width: 100%; height: 4px; background: #222; border-radius: 2px; }
+        .progress-fill { width: 65%; height: 100%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+
+        /* MAIN CONTENT AREA */
+        .content-area {
             padding: 40px;
-        }
-        
-        .profile-header { text-align: center; margin-bottom: 40px; }
-        .large-avatar { width: 100px; height: 100px; background: #1a1a1a; border-radius: 50%; margin: 0 auto 20px; border: 2px solid var(--accent); position: relative; }
-        .large-avatar::after { content: "OP"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: var(--font-tech); font-size: 1.5rem; color: var(--accent); }
-        
-        .username { font-family: var(--font-tech); font-size: 1.2rem; margin-bottom: 5px; color: #fff; }
-        .rank { font-family: var(--font-mono); font-size: 0.8rem; color: var(--success); }
-
-        .stats-list { list-style: none; margin-top: 40px; }
-        .stat-item { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; font-size: 0.9rem; }
-        .stat-key { color: #666; }
-        .stat-val { font-family: var(--font-mono); color: #fff; }
-
-        /* LEVEL BAR */
-        .level-container { margin-top: 40px; }
-        .level-info { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 8px; font-family: var(--font-mono); }
-        .progress-bar { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
-        .progress-fill { width: 75%; height: 100%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
-
-        /* MAIN CONTENT */
-        .main-panel {
-            padding: 40px 60px;
             overflow-y: auto;
-        }
-
-        h2 { font-family: var(--font-tech); font-size: 1.5rem; margin-bottom: 30px; border-bottom: 1px solid #222; padding-bottom: 15px; display: flex; justify-content: space-between; }
-        .section-tag { font-family: var(--font-mono); font-size: 0.8rem; color: #666; margin-top: 10px; }
-
-        /* API KEYS SECTION */
-        .api-box {
-            background: var(--bg-card);
-            border: 1px solid #222;
-            padding: 25px;
-            margin-bottom: 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .key-display {
-            font-family: var(--font-mono);
-            background: #000;
-            padding: 10px 20px;
-            color: var(--success);
-            border: 1px solid #333;
-            width: 70%;
-            letter-spacing: 2px;
-        }
-        .action-btn {
-            background: transparent; border: 1px solid var(--accent); color: var(--accent);
-            padding: 10px 20px; font-family: var(--font-tech); cursor: pointer; transition: 0.3s;
-        }
-        .action-btn:hover { background: var(--accent); color: #fff; }
-
-        /* MISSION BOARD (Help Us) */
-        .missions-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .mission-card {
-            background: var(--bg-card);
-            border: 1px solid #222;
-            padding: 25px;
             position: relative;
-            transition: 0.3s;
         }
-        .mission-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-        
-        .mission-type { 
-            position: absolute; top: 15px; right: 15px; 
-            font-family: var(--font-mono); font-size: 0.65rem; padding: 2px 8px; border: 1px solid #333; 
-        }
-        .type-code { color: #3498db; border-color: #3498db; }
-        .type-design { color: #9b59b6; border-color: #9b59b6; }
-        .type-test { color: #e67e22; border-color: #e67e22; }
 
-        .mission-title { font-family: var(--font-tech); font-size: 1rem; color: #fff; margin-bottom: 10px; margin-top: 10px; }
-        .mission-desc { font-size: 0.85rem; color: #888; line-height: 1.5; margin-bottom: 20px; }
-        
-        .xp-reward { font-family: var(--font-mono); color: var(--success); font-size: 0.8rem; }
-        
-        .join-btn {
-            width: 100%; margin-top: 15px; padding: 10px; border: 1px solid #333; background: transparent; color: #aaa; cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem;
-        }
-        .join-btn:hover { background: #222; color: #fff; border-color: #fff; }
+        /* TAB CONTENT SECTIONS */
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* RESPONSIVE */
+        h2 { font-family: var(--font-tech); font-size: 1.8rem; margin-bottom: 10px; }
+        .subtitle { font-family: var(--font-mono); font-size: 0.8rem; color: #666; margin-bottom: 40px; display: block; }
+
+        /* --- DASHBOARD WIDGETS --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: var(--bg-card); border: 1px solid #222; padding: 20px; }
+        .stat-num { font-family: var(--font-tech); font-size: 2rem; color: #fff; }
+        .stat-label { font-family: var(--font-mono); font-size: 0.75rem; color: #666; text-transform: uppercase; margin-top: 5px; }
+
+        /* HEATMAP (Fake GitHub Graph) */
+        .heatmap-box { border: 1px solid #222; padding: 20px; background: #080808; margin-bottom: 40px; }
+        .heatmap-grid { display: flex; gap: 4px; margin-top: 15px; flex-wrap: wrap; }
+        .h-col { display: flex; flex-direction: column; gap: 4px; }
+        .h-cell { width: 10px; height: 10px; background: #151515; border-radius: 2px; }
+        .h-l1 { background: #3c1466; } .h-l2 { background: #7c2ae8; } .h-l3 { background: #b07afc; }
+
+        /* --- FLEET MANAGEMENT (NEW) --- */
+        .fleet-list { display: flex; flex-direction: column; gap: 15px; }
+        .fleet-item { 
+            background: var(--bg-card); border: 1px solid #222; padding: 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .fleet-info h4 { color: #fff; font-family: var(--font-tech); margin-bottom: 5px; }
+        .fleet-meta { font-family: var(--font-mono); font-size: 0.75rem; color: #666; }
+        
+        .status-badge { 
+            padding: 5px 10px; font-size: 0.7rem; font-family: var(--font-mono); border-radius: 4px;
+            background: rgba(46, 204, 113, 0.1); color: var(--success); border: 1px solid var(--success);
+        }
+        .status-badge.offline { background: rgba(231, 76, 60, 0.1); color: var(--alert); border-color: var(--alert); }
+
+        .action-btn { 
+            background: transparent; border: 1px solid #444; color: #aaa; padding: 8px 15px; 
+            font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: 0.2s; 
+        }
+        .action-btn:hover { border-color: var(--accent); color: #fff; }
+
+        /* --- SETTINGS --- */
+        .settings-group { margin-bottom: 30px; border-bottom: 1px solid #222; padding-bottom: 30px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .setting-desc h4 { color: #fff; font-family: 'Inter'; font-size: 0.95rem; margin-bottom: 5px; }
+        .setting-desc p { color: #666; font-size: 0.8rem; }
+        
+        /* Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 4px; bottom: 4px; background-color: #888; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(20px); background-color: #fff; }
+
+        /* TERMINAL POPUP (For Ping) */
+        .terminal-overlay {
+            position: fixed; bottom: 20px; right: 20px; width: 350px; background: #000; border: 1px solid #333; 
+            padding: 15px; font-family: var(--font-mono); font-size: 0.75rem; color: #aaa; z-index: 100;
+            display: none; box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+        .term-line { margin-bottom: 5px; }
+
         @media (max-width: 900px) {
-            .dashboard-container { grid-template-columns: 1fr; }
+            .dashboard-container { grid-template-columns: 1fr; height: auto; }
             .sidebar { border-right: none; border-bottom: 1px solid #222; }
-            .missions-grid { grid-template-columns: 1fr; }
+            .content-area { padding: 20px; }
+            .stats-grid { grid-template-columns: 1fr; }
         }
-         /* FOOTER SIGNATURE */
-        .digital-sig {
-            margin-top: 80px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #555;
-        }
+        /* --- UPDATED SETTINGS STYLES --- */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.dark-input {
+    width: 100%;
+    background: #050505;
+    border: 1px solid #333;
+    padding: 12px 15px;
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    outline: none;
+    transition: 0.3s;
+    border-radius: 4px;
+}
+.dark-input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(124, 42, 232, 0.1); }
+.dark-input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.input-label {
+    font-size: 0.7rem; color: #888; display: block; margin-bottom: 8px; font-family: var(--font-tech); letter-spacing: 1px;
+}
+
+/* Hidden File Input */
+#avatarInput { display: none; }
+
+/* Password Reset Box (Hidden by default) */
+.password-box {
+    background: #111;
+    border: 1px dashed #333;
+    padding: 20px;
+    margin-top: 15px;
+    display: none;
+}
+.password-box.show { display: block; animation: fadeIn 0.3s ease; }
+
+/* Toast Notification (Popup message) */
+#toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: var(--accent);
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 100;
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%);
+    font-family: var(--font-tech);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+#toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+
+@keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+@keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} } 
     </style>
 </head>
 <body>
@@ -166,125 +221,462 @@
     <nav>
         <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
         <div class="user-badge">
-            <span style="font-family: 'JetBrains Mono'; font-size: 0.8rem; color: #fff;">OPERATOR_734</span>
-            <div class="avatar"></div>
-            <a href="index.html" class="logout-btn">DISCONNECT</a>
+            <span style="font-family: 'JetBrains Mono'; font-size: 0.8rem; color: #888;">ID: 0x92F1</span>
+            <div class="avatar-small"></div>
+            <a href="index.html" class="logout-btn">LOGOUT</a>
         </div>
     </nav>
 
     <div class="dashboard-container">
         
         <aside class="sidebar">
-            <div class="profile-header">
-                <div class="large-avatar"></div>
+            <div class="profile-card">
+                <div class="large-avatar">OP</div>
                 <div class="username">ALEX_MERCER</div>
-                <div class="rank">/// SENIOR SPECIALIST</div>
+                <div class="rank">/// RANK: SENIOR ENGINEER</div>
             </div>
 
-            <div class="level-container">
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="openTab('dashboard', this)">DASHBOARD</button>
+                <button class="tab-btn" onclick="openTab('fleet', this)">MY FLEET (3)</button>
+                <button class="tab-btn" onclick="openTab('missions', this)">MISSIONS</button>
+                <button class="tab-btn" onclick="openTab('settings', this)">SETTINGS</button>
+            </div>
+
+            <div class="xp-section">
                 <div class="level-info">
-                    <span>LEVEL 4</span>
-                    <span>1,240 / 2,000 XP</span>
+                    <span>LEVEL 04</span>
+                    <span>65%</span>
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill"></div>
                 </div>
             </div>
-
-            <ul class="stats-list">
-                <li class="stat-item">
-                    <span class="stat-key">Nodes Active</span>
-                    <span class="stat-val">3</span>
-                </li>
-                <li class="stat-item">
-                    <span class="stat-key">Contribution</span>
-                    <span class="stat-val">Top 5%</span>
-                </li>
-                <li class="stat-item">
-                    <span class="stat-key">Join Date</span>
-                    <span class="stat-val">Oct 2025</span>
-                </li>
-                <li class="stat-item">
-                    <span class="stat-key">Reputation</span>
-                    <span class="stat-val" style="color: var(--success);">EXCELLENT</span>
-                </li>
-            </ul>
         </aside>
 
-        <main class="main-panel">
-            
-            <h2>
-                SECURE CREDENTIALS
-                <span class="section-tag">Use this key for robot authentication</span>
-            </h2>
-            <div class="api-box">
-                <div class="key-display">sk_live_94f...x82m</div>
-                <button class="action-btn">REGENERATE KEY</button>
+        <main class="content-area">
+
+            <div id="dashboard" class="tab-content active">
+                <h2>OPERATOR OVERVIEW</h2>
+                <span class="subtitle">Welcome back. Systems are nominal.</span>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-num">3</div>
+                        <div class="stat-label">Active Units</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num" style="color: var(--success);">124</div>
+                        <div class="stat-label">Commits Merged</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num">850</div>
+                        <div class="stat-label">Reputation Points</div>
+                    </div>
+                </div>
+
+                <h3>CONTRIBUTION MATRIX</h3>
+                <div class="heatmap-box">
+                    <div class="heatmap-grid" id="heatmap"></div>
+                    <div style="text-align: right; font-family: var(--font-mono); font-size: 0.7rem; color: #444; margin-top: 10px;">
+                        LAST 30 DAYS ACTIVITY
+                    </div>
+                </div>
+
+                <h3>BADGE COLLECTION</h3>
+                <div style="display: flex; gap: 15px; margin-top: 15px;">
+                    <div style="width: 50px; height: 50px; background: #111; border: 1px solid #333; display: flex; align-items: center; justify-content: center; color: #444; font-size: 1.5rem;" title="Early Adopter">★</div>
+                    <div style="width: 50px; height: 50px; background: #111; border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.5rem;" title="Code Contributor">⌘</div>
+                    <div style="width: 50px; height: 50px; background: #111; border: 1px dashed #333; opacity: 0.5;"></div>
+                </div>
             </div>
 
-            <h2>
-                OPEN CONTRACTS
-                <span class="section-tag">Community tasks needed for Rhodium v54</span>
-            </h2>
-            
-            <div class="missions-grid">
+            <div id="fleet" class="tab-content">
+                <h2>FLEET MANAGEMENT</h2>
+                <span class="subtitle">Manage your registered ESP32-C6 units.</span>
+
+                <div class="fleet-list">
+                    
+                    <div class="fleet-item">
+                        <div class="fleet-info">
+                            <h4>UNIT_ALPHA</h4>
+                            <div class="fleet-meta">MAC: A0:B1:C2:D3:E4</div>
+                            <div class="fleet-meta">FW: v53.0 (Up to date)</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <div class="status-badge">ONLINE</div>
+                            <button class="action-btn" onclick="pingUnit('UNIT_ALPHA')">PING</button>
+                            <button class="action-btn">CONFIG</button>
+                        </div>
+                    </div>
+
+                    <div class="fleet-item">
+                        <div class="fleet-info">
+                            <h4>UNIT_BETA</h4>
+                            <div class="fleet-meta">MAC: F5:E6:D7:C8:B9</div>
+                            <div class="fleet-meta">FW: v52.4 (Update Available)</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <div class="status-badge">ONLINE</div>
+                            <button class="action-btn" onclick="pingUnit('UNIT_BETA')">PING</button>
+                            <button class="action-btn" style="color: var(--accent); border-color: var(--accent);">UPDATE</button>
+                        </div>
+                    </div>
+
+                    <div class="fleet-item">
+                        <div class="fleet-info">
+                            <h4 style="color: #666;">UNIT_GAMMA</h4>
+                            <div class="fleet-meta">MAC: 11:22:33:44:55</div>
+                            <div class="fleet-meta">FW: UNKNOWN</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <div class="status-badge offline">OFFLINE</div>
+                            <button class="action-btn" disabled style="opacity: 0.5;">PING</button>
+                            <button class="action-btn">REMOVE</button>
+                        </div>
+                    </div>
+
+                </div>
                 
-                <div class="mission-card">
-                    <div class="mission-type type-code">CODE</div>
-                    <div class="mission-title">OPTIMIZE IK SOLVER</div>
-                    <p class="mission-desc">
-                        Current inverse kinematics consume 12% CPU cycle. Goal: Reduce to < 8% using lookup tables for `acos` functions.
-                    </p>
-                    <div class="xp-reward">+500 XP // REWARD: Early Access v54</div>
-                    <button class="join-btn">VIEW REPO BRANCH</button>
-                </div>
-
-                <div class="mission-card">
-                    <div class="mission-type type-design">DESIGN</div>
-                    <div class="mission-title">TIBIA REINFORCEMENT</div>
-                    <p class="mission-desc">
-                        Lower leg snaps under 5kg load. We need a new STL design with internal ribbing for Carbon-PETG printing.
-                    </p>
-                    <div class="xp-reward">+300 XP // REWARD: Filament Pack</div>
-                    <button class="join-btn">DOWNLOAD SPECS</button>
-                </div>
-
-                <div class="mission-card">
-                    <div class="mission-type type-test">RELIABILITY</div>
-                    <div class="mission-title">STRESS TEST: SAND</div>
-                    <p class="mission-desc">
-                        Deploy unit in fine sand environment. Log servo temperatures over 20 minutes of continuous "Crawl" gait.
-                    </p>
-                    <div class="xp-reward">+800 XP // REWARD: Badge "Dune Walker"</div>
-                    <button class="join-btn">UPLOAD LOGS</button>
-                </div>
-
+                <button class="action-btn" style="margin-top: 20px; width: 100%; border-style: dashed;">+ REGISTER NEW DEVICE</button>
             </div>
 
-            <h2 style="margin-top: 60px;">
-                SERVER SUSTAINABILITY
-                <span class="section-tag">Keep the Mesh Network alive</span>
-            </h2>
-            <div class="api-box" style="border-color: #333; background: #080808;">
-                <div style="color: #888; font-size: 0.9rem;">
-                    Server costs for LoRa triangulation are currently $420/mo. Backing the project grants "Patron" status.
+            <div id="missions" class="tab-content">
+                <h2>OPEN CONTRACTS</h2>
+                <span class="subtitle">Help build the Rhodium infrastructure.</span>
+                <div style="padding: 20px; border: 1px solid #333; text-align: center; color: #666; font-family: var(--font-mono);">
+                    [ MISSION BOARD DATA LOADING... ]
                 </div>
-                <button class="action-btn" style="border-color: #fff; color: #fff;">BECOME A PATRON</button>
             </div>
+
+            <div id="settings" class="tab-content">
+    <h2>SYSTEM CONFIGURATION</h2>
+    <span class="subtitle">Manage identity protocols and data retention.</span>
+
+    <div class="settings-group">
+        <h4 style="color: #fff; margin-bottom: 20px; font-family: var(--font-tech);">IDENTITY MATRIX</h4>
+        
+        <div style="display: flex; gap: 25px; align-items: center; margin-bottom: 30px;">
+            <div id="settingsAvatarPreview" class="large-avatar" style="width: 80px; height: 80px; font-size: 1.2rem; margin: 0;">OP</div>
             
-
-        </main>
-        <div class="digital-sig">
             <div>
-                SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
-                HASH: 0x99a...f42
+                <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatarUpload(this)">
+                
+                <button class="action-btn" onclick="document.getElementById('avatarInput').click()">UPLOAD NEW AVATAR</button>
+                <button class="action-btn" style="border-color: #333; color: #666; margin-left: 10px;" onclick="resetAvatar()">RESET</button>
+                <div style="font-size: 0.7rem; color: #666; margin-top: 8px; font-family: var(--font-mono);">
+                    SUPPORTED: JPG, PNG, WEBP (MAX 2MB)
+                </div>
             </div>
-            <div style="text-align: right;">
-                &copy; 2026 Arttous Robotics Inc.<br>
-                ALL RIGHTS RESERVED.
+        </div>
+
+        <div class="form-grid">
+            <div>
+                <span class="input-label">OPERATOR ID (NICKNAME)</span>
+                <input type="text" id="inputNick" value="ALEX_MERCER" class="dark-input">
             </div>
+            <div>
+                <span class="input-label">FULL DESIGNATION</span>
+                <input type="text" id="inputName" value="Alex Mercer" class="dark-input">
+            </div>
+            <div style="grid-column: span 2;">
+                <span class="input-label">SECURE COMMS CHANNEL (EMAIL)</span>
+                <input type="email" id="inputEmail" value="alex@arttous.com" class="dark-input">
+            </div>
+        </div>
+        
+        <button class="action-btn" style="background: var(--accent); color: #fff; border: none; padding: 12px 30px;" onclick="saveIdentity()">SAVE IDENTITY</button>
+    </div>
+
+    <div class="settings-group">
+        <h4 style="color: #fff; margin-bottom: 20px; font-family: var(--font-tech);">SECURITY PROTOCOLS</h4>
+
+        <div class="setting-row">
+            <div class="setting-desc">
+                <h4>Encryption Key (Password)</h4>
+                <p>Last updated: 3 months ago.</p>
+            </div>
+            <button class="action-btn" onclick="togglePasswordBox()">UPDATE KEY</button>
+        </div>
+
+        <div id="passwordBox" class="password-box">
+            <div class="form-grid">
+                <div>
+                    <span class="input-label">CURRENT KEY</span>
+                    <input type="password" placeholder="•••••••" class="dark-input">
+                </div>
+                <div>
+                    <span class="input-label">NEW KEY</span>
+                    <input type="password" placeholder="New Password" class="dark-input">
+                </div>
+            </div>
+            <button class="action-btn" style="width: 100%; border-color: var(--success); color: var(--success);" onclick="updatePassword()">CONFIRM NEW KEY</button>
+        </div>
+
+        <div class="setting-row">
+            <div class="setting-desc">
+                <h4>Two-Factor Authentication</h4>
+                <p>Hardware token requirement.</p>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="check2FA" onchange="saveToggle('2fa', this.checked)">
+                <span class="slider"></span>
+            </label>
         </div>
     </div>
 
+    <div class="settings-group" style="border-color: #333;">
+        <h4 style="color: var(--success); margin-bottom: 20px; font-family: var(--font-tech);">ASSET MANAGEMENT</h4>
+
+        <div class="setting-row">
+            <div class="setting-desc">
+                <h4>RaaS Subscription</h4>
+                <p style="color: var(--success);">STATUS: ACTIVE (Tier 2)</p>
+            </div>
+            <button class="action-btn" style="border-color: #666; color: #888;" onclick="alert('SUBSCRIPTION FROZEN. Assets will be recalled.')">FREEZE CONTRACT</button>
+        </div>
+
+        <div class="setting-row">
+            <div class="setting-desc">
+                <h4>Telemetry Tracking</h4>
+                <p>Transmit Lidar/GPS data to HQ for diagnostics.</p>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="checkTrack" checked onchange="saveToggle('tracking', this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="settings-group" style="border: 1px solid var(--alert); padding: 20px; background: rgba(231, 76, 60, 0.05);">
+        <h4 style="color: var(--alert); margin-bottom: 20px; font-family: var(--font-tech);">TERMINAL COMMANDS</h4>
+
+        <div class="setting-row">
+            <div class="setting-desc">
+                <h4 style="color: #fff;">Export Neural Logs</h4>
+                <p>Download personal data in JSON format.</p>
+            </div>
+            <button class="action-btn" onclick="downloadData()">DOWNLOAD JSON</button>
+        </div>
+
+        <div class="setting-row" style="border-bottom: none; margin-bottom: 0;">
+            <div class="setting-desc">
+                <h4 style="color: #fff;">Burn Identity</h4>
+                <p>Irreversible deletion of account and fleet access.</p>
+            </div>
+            <button class="action-btn" style="background: var(--alert); color: #fff; border: none;" onclick="deleteAccount()">EXECUTE BURN</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast">SETTINGS SAVED</div>
+
+
+        </main>
+    </div>
+
+    <div id="terminal" class="terminal-overlay"></div>
+
+    <script>
+        // TAB LOGIC
+        function openTab(id, btn) {
+            // Hide all
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            // Show target
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // GENERATE HEATMAP
+        const heatContainer = document.getElementById('heatmap');
+        for(let i=0; i<50; i++) { // Columns
+            const col = document.createElement('div');
+            col.className = 'h-col';
+            for(let j=0; j<7; j++) { // Rows
+                const cell = document.createElement('div');
+                cell.className = 'h-cell';
+                if(Math.random() > 0.7) cell.classList.add('h-l1');
+                if(Math.random() > 0.85) cell.classList.add('h-l2');
+                if(Math.random() > 0.95) cell.classList.add('h-l3');
+                col.appendChild(cell);
+            }
+            heatContainer.appendChild(col);
+        }
+
+        // FAKE PING LOGIC
+        function pingUnit(name) {
+            const term = document.getElementById('terminal');
+            term.style.display = 'block';
+            term.innerHTML = `<div class="term-line">> PING ${name}...</div>`;
+            
+            setTimeout(() => {
+                term.innerHTML += `<div class="term-line" style="color: #fff;">> REPLY from ${name}: bytes=32 time=12ms TTL=54</div>`;
+            }, 500);
+            
+            setTimeout(() => {
+                term.innerHTML += `<div class="term-line" style="color: #fff;">> REPLY from ${name}: bytes=32 time=14ms TTL=54</div>`;
+            }, 1000);
+
+            setTimeout(() => {
+                term.innerHTML += `<div class="term-line" style="color: var(--success);">> CONNECTION STABLE</div>`;
+                setTimeout(() => { term.style.display = 'none'; }, 2000);
+            }, 1500);
+        }
+        // --- MEMORY SYSTEM V2.0 ---
+
+// 1. INITIALIZATION: Load data when page opens
+window.addEventListener('load', () => {
+    loadIdentity();
+    loadToggles();
+});
+
+// 2. AVATAR LOGIC (The Magic Part)
+function handleAvatarUpload(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const imageData = e.target.result; // This is the image code (Base64)
+            
+            // Save to Memory
+            localStorage.setItem('userAvatar', imageData);
+            
+            // Update UI immediately
+            applyAvatar(imageData);
+            showToast("AVATAR UPLOADED");
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function applyAvatar(imgSrc) {
+    // Finds all avatars on page (Sidebar, Header, Settings) and updates them
+    // Note: We use background-image for divs
+    const avatars = document.querySelectorAll('.large-avatar, .avatar-small');
+    avatars.forEach(av => {
+        av.style.backgroundImage = `url(${imgSrc})`;
+        av.style.backgroundSize = 'cover';
+        av.style.backgroundPosition = 'center';
+        av.innerText = ''; // Remove "OP" text
+    });
+}
+
+function resetAvatar() {
+    localStorage.removeItem('userAvatar');
+    location.reload(); // Refresh to reset
+}
+
+// 3. IDENTITY LOGIC (Name/Email)
+function saveIdentity() {
+    const nick = document.getElementById('inputNick').value;
+    const name = document.getElementById('inputName').value;
+    const email = document.getElementById('inputEmail').value;
+
+    localStorage.setItem('userNick', nick);
+    localStorage.setItem('userName', name);
+    localStorage.setItem('userEmail', email);
+
+    // Update UI
+    document.querySelector('.username').innerText = nick;
+    // (Optional) Update other places if needed
+    
+    showToast("IDENTITY MATRIX UPDATED");
+}
+
+function loadIdentity() {
+    // Get from memory or use default
+    const savedNick = localStorage.getItem('userNick') || 'ALEX_MERCER';
+    const savedName = localStorage.getItem('userName') || 'Alex Mercer';
+    const savedEmail = localStorage.getItem('userEmail') || 'alex@arttous.com';
+    const savedAvatar = localStorage.getItem('userAvatar');
+
+    // Set Inputs
+    if(document.getElementById('inputNick')) {
+        document.getElementById('inputNick').value = savedNick;
+        document.getElementById('inputName').value = savedName;
+        document.getElementById('inputEmail').value = savedEmail;
+    }
+
+    // Set Sidebar Name
+    const sidebarName = document.querySelector('.username');
+    if(sidebarName) sidebarName.innerText = savedNick;
+
+    // Apply Avatar if exists
+    if(savedAvatar) applyAvatar(savedAvatar);
+}
+
+// 4. PASSWORD & UI UTILS
+function togglePasswordBox() {
+    document.getElementById('passwordBox').classList.toggle('show');
+}
+
+function updatePassword() {
+    // We don't verify old pass in this demo, just simulate success
+    showToast("ENCRYPTION KEY ROTATED");
+    togglePasswordBox();
+    // Clear inputs
+    document.querySelectorAll('#passwordBox input').forEach(i => i.value = '');
+}
+
+function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.innerText = message;
+    toast.className = "show";
+    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+}
+
+// 5. TOGGLES MEMORY
+function saveToggle(key, isChecked) {
+    localStorage.setItem(key, isChecked);
+    // Visual feedback handled by CSS checkbox, but let's confirm
+    console.log(`${key} set to ${isChecked}`);
+}
+
+function loadToggles() {
+    const t2fa = localStorage.getItem('2fa');
+    const tTrack = localStorage.getItem('tracking');
+    
+    if(t2fa !== null) document.getElementById('check2FA').checked = (t2fa === 'true');
+    if(tTrack !== null) document.getElementById('checkTrack').checked = (tTrack === 'true');
+}
+
+// 6. DATA EXPORT & DELETION
+function downloadData() {
+    const data = {
+        identity: {
+            nick: localStorage.getItem('userNick'),
+            email: localStorage.getItem('userEmail')
+        },
+        settings: {
+            twoFactor: localStorage.getItem('2fa'),
+            tracking: localStorage.getItem('tracking')
+        },
+        logs: [
+            { event: "LOGIN", time: new Date().toISOString() },
+            { event: "FLEET_PING", unit: "UNIT_ALPHA" }
+        ]
+    };
+    
+    // Create downloadable file
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "operator_logs.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
+
+function deleteAccount() {
+    if(confirm("CRITICAL WARNING: This action will permanently erase your Operator ID from the Mesh. Proceed?")) {
+        localStorage.clear(); // Wipe memory
+        alert("IDENTITY BURNED. CONNECTION SEVERED.");
+        window.location.href = 'index.html';
+    }
+}
+    </script>
 </body>
 </html>

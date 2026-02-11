@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARTTOUS | Investor Relations</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-core: #050505;
+            --bg-card: #0e0e0e;
+            --accent: #7c2ae8;
+            --profit: #2ecc71; /* Зеленый для денег */
+            --text-main: #e0e0e0;
+            --text-dim: #666;
+            --font-tech: 'Orbitron', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-core);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; }
+        .accent { color: var(--accent); }
+        .secure-badge { 
+            border: 1px solid #333; padding: 5px 12px; font-family: var(--font-mono); font-size: 0.7rem; color: #888; letter-spacing: 1px;
+        }
+
+        /* HERO SECTION */
+        .invest-hero {
+            padding: 80px 5%;
+            text-align: center;
+            background: radial-gradient(circle at 50% 100%, rgba(46, 204, 113, 0.05), transparent 60%);
+        }
+        h1 { font-family: var(--font-tech); font-size: 3.5rem; margin-bottom: 20px; }
+        .subtitle { color: var(--text-dim); max-width: 700px; margin: 0 auto; line-height: 1.6; font-size: 1.1rem; }
+
+        /* METRICS GRID (UNIT ECONOMICS) */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 0 5%;
+        }
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            padding: 30px;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .metric-card:hover { border-color: var(--profit); transform: translateY(-5px); }
+        .metric-val { font-family: var(--font-tech); font-size: 2.5rem; color: #fff; margin-bottom: 5px; }
+        .metric-label { font-family: var(--font-mono); font-size: 0.8rem; color: #666; text-transform: uppercase; }
+        .growth-tag { color: var(--profit); font-size: 0.8rem; margin-top: 10px; display: block; }
+
+        /* ROADMAP (TIMELINE) */
+        .roadmap-section {
+            padding: 80px 5%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .section-title { font-family: var(--font-tech); font-size: 2rem; margin-bottom: 50px; text-align: center; }
+        
+        .timeline { position: relative; border-left: 2px solid #222; padding-left: 40px; margin-left: 20px; }
+        .timeline-item { margin-bottom: 60px; position: relative; }
+        
+        .timeline-dot {
+            width: 16px; height: 16px; background: #000; border: 2px solid var(--accent); border-radius: 50%;
+            position: absolute; left: -49px; top: 5px;
+        }
+        .timeline-dot.future { border-color: #444; }
+        
+        .phase-title { font-family: var(--font-mono); color: var(--accent); font-size: 0.9rem; margin-bottom: 10px; }
+        .milestone { font-family: var(--font-tech); font-size: 1.5rem; color: #fff; margin-bottom: 10px; }
+        .milestone-desc { color: #888; line-height: 1.6; }
+
+        /* INVESTMENT TIERS */
+        .tiers-section {
+            background: #0a0a0a;
+            padding: 80px 5%;
+            border-top: 1px solid #222;
+        }
+        .tiers-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .tier-card {
+            border: 1px solid #333;
+            padding: 40px;
+            background: var(--bg-core);
+            position: relative;
+        }
+        .tier-name { font-family: var(--font-mono); color: #fff; font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
+        .tier-list { list-style: none; margin-bottom: 30px; }
+        .tier-list li { color: #888; margin-bottom: 10px; font-size: 0.9rem; }
+        .tier-list li::before { content: "+ "; color: var(--accent); }
+        
+        .invest-btn {
+            width: 100%; padding: 15px; background: transparent; border: 1px solid var(--profit); color: var(--profit);
+            font-family: var(--font-tech); cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-block; text-align: center;
+        }
+        .invest-btn:hover { background: var(--profit); color: #000; }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid #222;
+            padding: 40px 0;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: #444;
+            margin-top: 0;
+        }
+
+        @media (max-width: 900px) {
+            .metrics-grid { grid-template-columns: 1fr; }
+            .tiers-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
+        <div class="secure-badge">SECURE DOC: IR_2026</div>
+    </nav>
+
+    <div class="invest-hero">
+        <h1>SCALING AUTONOMY</h1>
+        <p class="subtitle">
+            We are capitalizing on the $14B demand for GNSS-denied navigation. 
+            Arttous provides industrial RaaS (Robotics-as-a-Service) solutions for subterranean inspection and search & rescue.
+        </p>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-val">$850</div>
+            <div class="metric-label">Bill of Materials (BOM)</div>
+            <span class="growth-tag">Target: $600 by Q4 2026</span>
+        </div>
+        <div class="metric-card">
+            <div class="metric-val">$1,200</div>
+            <div class="metric-label">Monthly RaaS Fee</div>
+            <span class="growth-tag" style="color: #fff;">Recurring Revenue</span>
+        </div>
+        <div class="metric-card">
+            <div class="metric-val">84%</div>
+            <div class="metric-label">Gross Margin</div>
+            <span class="growth-tag">+12% YoY Efficiency</span>
+        </div>
+    </div>
+
+    <section class="roadmap-section">
+        <h2 class="section-title">STRATEGIC TIMELINE</h2>
+        
+        <div class="timeline">
+            
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="phase-title">PHASE 1: GENESIS (COMPLETED)</div>
+                <div class="milestone">Rhodium Firmware v53</div>
+                <p class="milestone-desc">
+                    Achieved stable 16-DOF locomotion and basic T3S3 Mesh networking. 
+                    Deployed open-source repo to build developer community.
+                </p>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="phase-title">PHASE 2: DEPLOYMENT (CURRENT)</div>
+                <div class="milestone">Pilot Fleet Alpha</div>
+                <p class="milestone-desc">
+                    Deployment of 50 units to Ontario mining partners. 
+                    Stress-testing "Symmetric Twist" kinematics in real-world subterranean environments.
+                </p>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-dot future"></div>
+                <div class="phase-title">PHASE 3: SWARM (2027)</div>
+                <div class="milestone">Hive Mind Protocol</div>
+                <p class="milestone-desc">
+                    Transition from single-unit mesh to distributed swarm intelligence. 
+                    Robots will share mapping data to create real-time 3D scans of hazardous areas.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="tiers-section">
+        <h2 class="section-title" style="margin-bottom: 40px;">CAPITAL ALLOCATION</h2>
+        
+        <div class="tiers-grid">
+            
+            <div class="tier-card">
+                <div class="tier-name">SEED ROUND (OPEN)</div>
+                <p style="color: #aaa; margin-bottom: 20px;">
+                    Fueling the transition from prototype to mass production injection molding.
+                </p>
+                <ul class="tier-list">
+                    <li>Min Ticket: $25k</li>
+                    <li>Instrument: SAFE (Valuation Cap $8M)</li>
+                    <li>Quarterly Engineering Briefs</li>
+                    <li>Early Access to "Black Site" Tests</li>
+                </ul>
+                <a href="contact.html" class="invest-btn">REQUEST PITCH DECK</a>
+            </div>
+
+            <div class="tier-card" style="border-color: #222; opacity: 0.6;">
+                <div class="tier-name">SERIES A (LOCKED)</div>
+                <p style="color: #666; margin-bottom: 20px;">
+                    Planned for Q3 2027. Expansion into military and federal search & rescue contracts.
+                </p>
+                <ul class="tier-list">
+                    <li>Target Raise: $12M</li>
+                    <li>Focus: Global Distribution</li>
+                    <li>Swarm AI Acquisition</li>
+                </ul>
+                <div style="font-family: 'JetBrains Mono'; color: #444; text-align: center; margin-top: 30px; border: 1px solid #333; padding: 10px;">
+                    STATUS: PENDING METRICS
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Arttous Robotics Inc. | <a href="index.html" style="color: #666; text-decoration: none;">Return to HQ</a></p>
+    </footer>
+
+</body>
+</html>
