@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARTTOUS | Secure Comms</title>
-    <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
+    <title>ARTTOUS | Secure Uplink</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-core: #050505;
-            --bg-card: #111; /* Чуть светлее фона */
-            --accent-primary: #7c2ae8;
+            --bg-card: #0e0e0e;
+            --accent: #7c2ae8;
             --text-main: #e0e0e0;
-            --text-dim: #888;
             --font-tech: 'Orbitron', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
             --font-body: 'Inter', sans-serif;
+            --success: #2ecc71;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,106 +25,61 @@
             color: var(--text-main);
             font-family: var(--font-body);
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         /* HEADER */
-        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; margin-bottom: 60px; }
+        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
         .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; letter-spacing: 3px; color: #fff; text-decoration: none; }
-        .accent { color: var(--accent-primary); }
+        .accent { color: var(--accent); }
 
-        /* LAYOUT GRID */
+        /* CONTAINER */
         .contact-container {
-            max-width: 1200px;
-            margin: 0 auto 100px;
+            max-width: 1000px;
+            margin: 60px auto;
             padding: 0 5%;
+            flex: 1;
         }
 
-        .header-block {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        h1 { font-family: var(--font-tech); font-size: 3rem; margin-bottom: 20px; }
-        .intro-text { color: var(--text-dim); max-width: 600px; margin: 0 auto; line-height: 1.6; }
+        .header-block { text-align: center; margin-bottom: 40px; }
+        h1 { font-family: var(--font-tech); font-size: 3rem; margin-bottom: 10px; }
+        .intro-text { color: #666; font-family: var(--font-mono); font-size: 0.9rem; }
 
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr; /* Левая колонка уже, правая шире */
-            gap: 40px;
-        }
-
-        /* LEFT COLUMN: INFO CARDS */
-        .info-card {
-            background: var(--bg-card);
-            padding: 30px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid var(--accent-primary); /* Фиолетовая полоска как на референсе */
-            transition: 0.3s;
-        }
-        .info-card:hover { transform: translateX(5px); box-shadow: 0 0 20px rgba(124, 42, 232, 0.1); }
-        
-        .card-title { font-family: var(--font-tech); font-size: 1.1rem; margin-bottom: 10px; color: #fff; }
-        .card-desc { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 15px; line-height: 1.5; }
-        .card-link { color: var(--accent-primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
-        .card-link:hover { color: #fff; }
-
-        /* RIGHT COLUMN: FORM */
+        /* --- FORM SECTION (CENTERED) --- */
         .form-wrapper {
-            background: var(--bg-card);
+            background: #0a0a0a;
             padding: 40px;
-            border-radius: 12px;
             border: 1px solid #222;
+            margin-bottom: 80px; /* Space before info cards */
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        
+        label { font-size: 0.7rem; color: #666; display: block; margin-bottom: 8px; font-family: var(--font-tech); letter-spacing: 1px; }
 
-        label {
-            display: block;
-            font-size: 0.85rem;
-            color: #fff;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        input, select, textarea {
+        .dark-input, select, textarea {
             width: 100%;
-            background: #1a1a1a;
+            background: #050505;
             border: 1px solid #333;
-            border-radius: 6px;
             padding: 12px 15px;
             color: #fff;
-            font-family: var(--font-body);
-            font-size: 0.95rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
             outline: none;
             transition: 0.3s;
+            border-radius: 0;
         }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--accent-primary);
-            background: #222;
-        }
-
-        /* Custom Select Arrow */
-        select {
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%237c2ae8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px top 50%;
-            background-size: 12px auto;
-        }
+        .dark-input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 
         button {
             width: 100%;
-            background: var(--accent-primary);
+            background: var(--accent);
             color: #fff;
             border: none;
             padding: 15px;
-            border-radius: 6px;
             font-family: var(--font-tech);
             font-size: 1rem;
             cursor: pointer;
@@ -134,48 +88,48 @@
         }
         button:hover { background: #9d50ff; box-shadow: 0 0 15px rgba(124, 42, 232, 0.3); }
 
-        /* FOOTER STATUS (THE TRICK) */
-        .system-footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            color: #555;
-        }
-        .bug-trigger {
-            width: 8px; height: 8px;
-            background: #2ecc71;
-            border-radius: 50%;
-            cursor: pointer;
+        /* --- INFO GRID (BOTTOM) --- */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            border-top: 1px solid #222;
+            padding-top: 40px;
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 900px) {
-            .content-grid { grid-template-columns: 1fr; }
-            .form-row { grid-template-columns: 1fr; }
+        .comm-channel {
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 2px solid #333; /* Top border style */
+            padding: 20px;
+            transition: 0.3s;
+        }
+        .comm-channel:hover {
+            background: rgba(124, 42, 232, 0.05);
+            border-top-color: var(--accent);
         }
 
-        /* --- BUG MODE STYLES --- */
+        .channel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .channel-name { font-family: var(--font-tech); font-size: 0.9rem; color: #fff; }
+        
+        .status-indicator { font-family: var(--font-mono); font-size: 0.65rem; color: #666; display: flex; align-items: center; gap: 6px; }
+        .dot { width: 6px; height: 6px; background: #444; border-radius: 50%; }
+        .dot.online { background: var(--success); box-shadow: 0 0 5px var(--success); }
+        .dot.busy { background: #e67e22; }
+
+        .channel-desc { font-size: 0.8rem; color: #888; line-height: 1.5; margin-bottom: 15px; min-height: 40px; }
+        .channel-link { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); text-decoration: none; }
+        .channel-link:hover { color: #fff; }
+
+        /* BUG REPORT MODE */
         body.bug-mode { background: #1a0505; }
-        body.bug-mode h1 { color: #e74c3c; content: "KERNEL PANIC"; }
-        body.bug-mode .info-card { border-left-color: #e74c3c; opacity: 0.5; }
+        body.bug-mode h1 { color: #e74c3c; }
+        body.bug-mode .comm-channel { border-top-color: #e74c3c; }
         body.bug-mode button { background: #e74c3c; }
-        body.bug-mode input, body.bug-mode textarea, body.bug-mode select { border-color: #e74c3c; color: #ffcccc; background: #2b0000; }
-        body.bug-mode .bug-trigger { background: #e74c3c; animation: blink 0.2s infinite; }
-        @keyframes blink { 0% {opacity:1;} 50% {opacity:0;} 100% {opacity:1;} }
-         /* FOOTER SIGNATURE */
-        .digital-sig {
-            margin-top: 80px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #555;
+        body.bug-mode .dark-input { border-color: #e74c3c; color: #ffcccc; background: #2b0000; }
+
+        @media (max-width: 900px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -189,112 +143,136 @@
     <div class="contact-container">
         
         <div class="header-block">
-            <h1 id="pageTitle">Let's Build the Future</h1>
-            <p class="intro-text" id="pageSub">
-                Whether you're looking for enterprise RaaS solutions, investment opportunities, 
-                or technical support for the T3S3 Mesh architecture, our team is ready to deploy.
-            </p>
+            <h1 id="pageTitle">ESTABLISH UPLINK</h1>
+            <p class="intro-text" id="pageSub">/// TRANSMIT DATA TO CENTRAL COMMAND</p>
         </div>
 
-        <div class="content-grid">
+        <div class="form-wrapper">
+            <form id="mainForm">
+                <div class="form-row">
+                    <div>
+                        <label id="lbl-name">OPERATOR ID</label>
+                        <input type="text" id="inpName" placeholder="Unknown Operator" class="dark-input">
+                    </div>
+                    <div>
+                        <label id="lbl-email">COMMS LINK (EMAIL)</label>
+                        <input type="email" id="inpEmail" placeholder="auth@mesh.net" class="dark-input">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label id="lbl-dept">ROUTING PROTOCOL</label>
+                    <select class="dark-input">
+                        <option>Sales / Enterprise</option>
+                        <option>Technical Support</option>
+                        <option>Investor Relations</option>
+                        <option>Press / Media</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label id="lbl-msg">PAYLOAD DATA</label>
+                    <textarea rows="6" placeholder="Enter transmission..." class="dark-input"></textarea>
+                </div>
+
+                <button type="button" id="submitBtn" onclick="sendTransmission()">TRANSMIT DATA</button>
+            </form>
+        </div>
+
+        <div class="info-grid">
             
-            <div class="info-side">
-                <div class="info-card">
-                    <div class="card-title">Sales & Enterprise</div>
-                    <p class="card-desc">For bulk orders, Robotics-as-a-Service (RaaS) leasing contracts, and industrial fleet deployment.</p>
-                    <a href="mailto:deploy@arttous.com" class="card-link">deploy@arttous.com</a>
+            <div class="comm-channel">
+                <div class="channel-header">
+                    <span class="channel-name">ENTERPRISE</span>
+                    <div class="status-indicator"><div class="dot online"></div> ONLINE</div>
                 </div>
+                <p class="channel-desc">RaaS leasing and fleet integration.</p>
+                <a href="mailto:deploy@arttous.com" class="channel-link">DEPLOY@ARTTOUS.COM</a>
+            </div>
 
-                <div class="info-card">
-                    <div class="card-title">Technical Support</div>
-                    <p class="card-desc">Assistance with MG90S calibration, Inverse Kinematics code integration, and firmware flashing.</p>
-                    <a href="mailto:support@arttous.com" class="card-link">support@arttous.com</a>
+            <div class="comm-channel">
+                <div class="channel-header">
+                    <span class="channel-name">ENGINEERING</span>
+                    <div class="status-indicator"><div class="dot busy"></div> BUSY</div>
                 </div>
+                <p class="channel-desc">Support for Firmware v53 & API.</p>
+                <a href="mailto:support@arttous.com" class="channel-link">SUPPORT@ARTTOUS.COM</a>
+            </div>
 
-                <div class="info-card">
-                    <div class="card-title">Headquarters</div>
-                    <p class="card-desc">
-                        123 Innovation Drive,<br>Strathroy, Ontario, Canada.<br>
-                        <span style="font-size: 0.8rem; opacity: 0.6;">(Secure Facility - Visits by appointment only)</span>
-                    </p>
+            <div class="comm-channel">
+                <div class="channel-header">
+                    <span class="channel-name">PHYSICAL HQ</span>
+                    <div class="status-indicator">SECURE</div>
                 </div>
+                <p class="channel-desc">123 Innovation Drive, Ontario, CA.<br>(Clearance Lvl 3)</p>
+                <div style="width: 10px; height: 10px; cursor: pointer;" onclick="activateBugMode()"></div>
             </div>
 
-            <div class="form-wrapper">
-                <form id="mainForm">
-                    <div class="form-row">
-                        <div>
-                            <label id="lbl-name">Full Name</label>
-                            <input type="text" placeholder="John Doe">
-                        </div>
-                        <div>
-                            <label id="lbl-email">Work Email</label>
-                            <input type="email" placeholder="john@company.com">
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label id="lbl-dept">Department</label>
-                        <select>
-                            <option>Sales / Enterprise</option>
-                            <option>Technical Support</option>
-                            <option>Investor Relations</option>
-                            <option>Press / Media</option>
-                            <option>Other</option>
-                        </select>
-                    </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label id="lbl-msg">Message</label>
-                        <textarea rows="6" placeholder="How can we help you?"></textarea>
-                    </div>
-
-                    <button type="button" id="submitBtn">Send Message</button>
-
-                    <div class="system-footer">
-                        <span>NODE: ONTARIO_PRIME</span>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span>SYSTEM STATUS: NORMAL</span>
-                            <div class="bug-trigger" onclick="activateBugMode()"></div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="digital-sig">
-            <div>
-                SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
-                HASH: 0x99a...f42
-            </div>
-            <div style="text-align: right;">
-                &copy; 2026 Arttous Robotics Inc.<br>
-                ALL RIGHTS RESERVED.
-            </div>
         </div>
 
-        </div>
     </div>
 
     <script>
+        // 1. AUTO-FILL (Memory)
+        window.addEventListener('load', () => {
+            const savedName = localStorage.getItem('userNick') || localStorage.getItem('userName');
+            const savedEmail = localStorage.getItem('userEmail');
+
+            if (savedName) document.getElementById('inpName').value = savedName;
+            if (savedEmail) document.getElementById('inpEmail').value = savedEmail;
+        });
+
+        // 2. SEND & REDIRECT LOGIC
+        function sendTransmission() {
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.innerText;
+            
+            // Step 1: Loading
+            btn.innerText = "ENCRYPTING & SENDING...";
+            btn.style.opacity = "0.7";
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                // Step 2: Success
+                btn.innerText = "TRANSMISSION SUCCESSFUL";
+                btn.style.background = "#2ecc71"; // Green
+                btn.style.color = "#000";
+                btn.style.opacity = "1";
+                
+                // Step 3: DECIDE WHERE TO GO
+                setTimeout(() => {
+                    const isLoggedIn = localStorage.getItem('userNick'); // Check if we know this user
+                    
+                    if (isLoggedIn) {
+                        btn.innerText = "REDIRECTING TO ACCOUNT...";
+                        setTimeout(() => { window.location.href = 'account.html'; }, 1000);
+                    } else {
+                        btn.innerText = "REDIRECTING TO HQ...";
+                        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+                    }
+                    
+                }, 0.500); // Wait 1.5s showing "Success" before redirecting
+            }, 0.500); // Wait 1.5s "Sending"
+        }
+
+        // 3. BUG MODE
         function activateBugMode() {
             document.body.classList.toggle('bug-mode');
             const title = document.getElementById('pageTitle');
             const sub = document.getElementById('pageSub');
             const btn = document.getElementById('submitBtn');
             const lblName = document.getElementById('lbl-name');
-            const lblDept = document.getElementById('lbl-dept');
 
             if (document.body.classList.contains('bug-mode')) {
                 title.innerText = "CRITICAL ERROR";
-                sub.innerText = "/// SYSTEM INSTABILITY DETECTED. MANUAL OVERRIDE REQUIRED. PLEASE UPLOAD CRASH DUMP.";
+                sub.innerText = "/// SYSTEM INSTABILITY DETECTED.";
                 btn.innerText = "UPLOAD DUMP";
-                lblName.innerText = "OPERATOR ID";
-                lblDept.innerText = "FAILURE SEVERITY";
+                lblName.innerText = "AFFECTED COMPONENT";
             } else {
-                title.innerText = "Let's Build the Future";
-                sub.innerText = "Whether you're looking for enterprise solutions, investment opportunities, or technical support, our team is ready.";
-                btn.innerText = "Send Message";
-                lblName.innerText = "Full Name";
-                lblDept.innerText = "Department";
+                title.innerText = "ESTABLISH UPLINK";
+                sub.innerText = "/// TRANSMIT DATA TO CENTRAL COMMAND";
+                btn.innerText = "TRANSMIT DATA";
+                lblName.innerText = "OPERATOR ID";
             }
         }
     </script>
