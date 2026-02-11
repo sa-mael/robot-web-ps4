@@ -400,6 +400,39 @@ nav.scrolled .btn-register:hover {
             .flow-grid { grid-template-columns: 1fr; }
             .footer-grid { grid-template-columns: 1fr; gap: 40px; }
         }
+        /* --- USER NAV PROFILE (LOGGED IN) --- */
+.user-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    background: rgba(124, 42, 232, 0.1);
+    border: 1px solid var(--accent-primary);
+    padding: 6px 15px;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+.user-nav-link:hover {
+    background: var(--accent-primary);
+    box-shadow: 0 0 15px var(--accent-primary);
+}
+
+.nav-avatar-small {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #333;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid #fff;
+}
+
+.nav-username {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #fff;
+    font-weight: bold;
+}
     </style>
 </head>
 <body>
@@ -407,13 +440,13 @@ nav.scrolled .btn-register:hover {
     <nav>
     <div class="logo">ART<span class="accent">TOUS</span></div>
     
-    <div class="auth-group">
-        <div class="mono" style="font-size: 0.7rem; color: #444; margin-right: 20px;">
-            <span class="status-dot"></span>NET_ACTIVE
-        </div>
-        <a href="login.html" class="btn-login">LOG IN</a>
-        <a href="login.html" class="btn-register">JOIN MESH</a>
-       </div>
+    <div class="auth-group" id="authSection">
+    <div class="mono" style="font-size: 0.7rem; color: #444; margin-right: 20px;">
+        <span class="status-dot"></span>NET_ACTIVE
+    </div>
+    <a href="login.html" class="btn-login">LOG IN</a>
+    <a href="login.html" class="btn-register">JOIN MESH</a>
+    </div>
     </nav>
 
     <section class="hero">
@@ -729,6 +762,31 @@ nav.scrolled .btn-register:hover {
             nav.classList.remove('scrolled'); // Back to full Neon Mode
         }
     });
+         // --- CHECK LOGIN STATUS ---
+window.addEventListener('load', () => {
+    // 1. Проверяем память
+    const userNick = localStorage.getItem('userNick');
+    const userAvatar = localStorage.getItem('userAvatar');
+    
+    // 2. Если пользователь найден
+    if (userNick) {
+        const authSection = document.getElementById('authSection');
+        
+        // Картинка аватара (или заглушка, если нет фото)
+        const avatarStyle = userAvatar ? `background-image: url('${userAvatar}');` : 'background-color: #7c2ae8;';
+        
+        // 3. Заменяем кнопки на Профиль
+        authSection.innerHTML = `
+            <div class="mono" style="font-size: 0.7rem; color: #444; margin-right: 20px;">
+                <span class="status-dot" style="background: #2ecc71; box-shadow: 0 0 5px #2ecc71;"></span>ONLINE
+            </div>
+            <a href="account.html" class="user-nav-link">
+                <div class="nav-avatar-small" style="${avatarStyle}"></div>
+                <span class="nav-username">${userNick}</span>
+            </a>
+        `;
+    }
+});
 </script>
 </body>
 </html>
