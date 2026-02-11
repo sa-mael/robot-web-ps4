@@ -214,6 +214,45 @@
 
 @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
 @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} } 
+/* --- НОВЫЕ СТИЛИ (CONTROL, CHAT, INVESTOR) --- */
+
+/* 1. Стили для управления роботом (Iframe) */
+.control-frame-container {
+    display: flex; flex-direction: column; height: 600px; background: #000; border: 1px solid #333;
+}
+.address-bar {
+    padding: 10px; background: #111; border-bottom: 1px solid #333; display: flex; gap: 10px;
+}
+.ip-input {
+    flex: 1; background: #000; border: 1px solid #333; color: #fff; font-family: 'JetBrains Mono'; padding: 8px;
+}
+.connect-btn {
+    background: var(--accent); color: #fff; border: none; padding: 0 20px; font-family: 'Orbitron'; cursor: pointer;
+}
+iframe { width: 100%; height: 100%; border: none; background: #000; }
+.frame-placeholder {
+    display: flex; align-items: center; justify-content: center; height: 100%; color: #444; font-family: 'JetBrains Mono'; flex-direction: column;
+}
+
+/* 2. Стили для Чата */
+.chat-layout { display: grid; grid-template-columns: 200px 1fr; height: 500px; border: 1px solid #333; background: #000; margin-top: 20px; }
+.chat-list { border-right: 1px solid #333; padding: 10px; }
+.friend { padding: 10px; color: #888; cursor: pointer; font-family: 'JetBrains Mono'; font-size: 0.8rem; }
+.friend.active { color: #fff; background: #111; border-left: 2px solid var(--accent); }
+.chat-window { display: flex; flex-direction: column; }
+.messages { flex: 1; padding: 20px; overflow-y: auto; font-family: 'JetBrains Mono'; font-size: 0.85rem; }
+.msg { margin-bottom: 10px; }
+.msg.me { text-align: right; color: var(--accent); }
+.msg.them { text-align: left; color: #aaa; }
+
+.chat-input-area { padding: 10px; border-top: 1px solid #333; display: flex; gap: 10px; }
+.chat-input { flex: 1; background: #111; border: 1px solid #333; padding: 10px; color: #fff; font-family: 'JetBrains Mono'; }
+
+/* 3. Стили для Инвесторов */
+.invest-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+.invest-card { background: #0e0e0e; border: 1px solid #222; padding: 20px; text-align: center; }
+.metric-val { font-family: 'Orbitron'; font-size: 1.5rem; color: #fff; }
+.metric-label { font-size: 0.7rem; color: #666; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -241,6 +280,9 @@
                 <button class="tab-btn" onclick="openTab('fleet', this)">MY FLEET (3)</button>
                 <button class="tab-btn" onclick="openTab('missions', this)">MISSIONS</button>
                 <button class="tab-btn" onclick="openTab('settings', this)">SETTINGS</button>
+                <button class="tab-btn" onclick="openTab('control', this)"> CONTROL LINK</button>
+                <button class="tab-btn" onclick="openTab('chat', this)">SECURE COMMS</button>
+                <button class="tab-btn" onclick="openTab('investor', this)">INVESTOR HUB</button>
             </div>
 
             <div class="xp-section">
@@ -350,14 +392,14 @@
             </div>
 
             <div id="settings" class="tab-content">
-    <h2>SYSTEM CONFIGURATION</h2>
-    <span class="subtitle">Manage identity protocols and data retention.</span>
+           <h2>SYSTEM CONFIGURATION</h2>
+          <span class="subtitle">Manage identity protocols and data retention.</span>
 
-    <div class="settings-group">
-        <h4 style="color: #fff; margin-bottom: 20px; font-family: var(--font-tech);">IDENTITY MATRIX</h4>
+         <div class="settings-group">
+            <h4 style="color: #fff; margin-bottom: 20px; font-family: var(--font-tech);">IDENTITY MATRIX</h4>
         
-        <div style="display: flex; gap: 25px; align-items: center; margin-bottom: 30px;">
-            <div id="settingsAvatarPreview" class="large-avatar" style="width: 80px; height: 80px; font-size: 1.2rem; margin: 0;">OP</div>
+          <div style="display: flex; gap: 25px; align-items: center; margin-bottom: 30px;">
+             <div id="settingsAvatarPreview" class="large-avatar" style="width: 80px; height: 80px; font-size: 1.2rem; margin: 0;">OP</div>
             
             <div>
                 <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatarUpload(this)">
@@ -368,9 +410,9 @@
                     SUPPORTED: JPG, PNG, WEBP (MAX 2MB)
                 </div>
             </div>
-        </div>
+          </div>
 
-        <div class="form-grid">
+         <div class="form-grid">
             <div>
                 <span class="input-label">OPERATOR ID (NICKNAME)</span>
                 <input type="text" id="inputNick" value="ALEX_MERCER" class="dark-input">
@@ -383,23 +425,23 @@
                 <span class="input-label">SECURE COMMS CHANNEL (EMAIL)</span>
                 <input type="email" id="inputEmail" value="alex@arttous.com" class="dark-input">
             </div>
-        </div>
+          </div>
         
-        <button class="action-btn" style="background: var(--accent); color: #fff; border: none; padding: 12px 30px;" onclick="saveIdentity()">SAVE IDENTITY</button>
-    </div>
+          <button class="action-btn" style="background: var(--accent); color: #fff; border: none; padding: 12px 30px;" onclick="saveIdentity()">SAVE IDENTITY</button>
+         </div>
 
-    <div class="settings-group">
-        <h4 style="color: #fff; margin-bottom: 20px; font-family: var(--font-tech);">SECURITY PROTOCOLS</h4>
+          <div class="settings-group">
+          <h4 style="color: #fff; margin-bottom: 20px; font-family: var(--font-tech);">SECURITY PROTOCOLS</h4>
 
-        <div class="setting-row">
+         <div class="setting-row">
             <div class="setting-desc">
                 <h4>Encryption Key (Password)</h4>
                 <p>Last updated: 3 months ago.</p>
             </div>
             <button class="action-btn" onclick="togglePasswordBox()">UPDATE KEY</button>
-        </div>
+         </div>
 
-        <div id="passwordBox" class="password-box">
+         <div id="passwordBox" class="password-box">
             <div class="form-grid">
                 <div>
                     <span class="input-label">CURRENT KEY</span>
@@ -411,9 +453,9 @@
                 </div>
             </div>
             <button class="action-btn" style="width: 100%; border-color: var(--success); color: var(--success);" onclick="updatePassword()">CONFIRM NEW KEY</button>
-        </div>
+         </div>
 
-        <div class="setting-row">
+         <div class="setting-row">
             <div class="setting-desc">
                 <h4>Two-Factor Authentication</h4>
                 <p>Hardware token requirement.</p>
@@ -423,9 +465,9 @@
                 <span class="slider"></span>
             </label>
         </div>
-    </div>
+     </div>
 
-    <div class="settings-group" style="border-color: #333;">
+     <div class="settings-group" style="border-color: #333;">
         <h4 style="color: var(--success); margin-bottom: 20px; font-family: var(--font-tech);">ASSET MANAGEMENT</h4>
 
         <div class="setting-row">
@@ -446,9 +488,9 @@
                 <span class="slider"></span>
             </label>
         </div>
-    </div>
+     </div>
 
-    <div class="settings-group" style="border: 1px solid var(--alert); padding: 20px; background: rgba(231, 76, 60, 0.05);">
+     <div class="settings-group" style="border: 1px solid var(--alert); padding: 20px; background: rgba(231, 76, 60, 0.05);">
         <h4 style="color: var(--alert); margin-bottom: 20px; font-family: var(--font-tech);">TERMINAL COMMANDS</h4>
 
         <div class="setting-row">
@@ -465,14 +507,75 @@
                 <p>Irreversible deletion of account and fleet access.</p>
             </div>
             <button class="action-btn" style="background: var(--alert); color: #fff; border: none;" onclick="deleteAccount()">EXECUTE BURN</button>
+         </div>
+       </div>
+     </div>
+
+     <div id="toast">SETTINGS SAVED</div><div id="control" class="tab-content">
+    <h2>DIRECT CONTROL UPLINK</h2>
+    <span class="subtitle">Connect to local Arttous unit via HTTP.</span>
+
+    <div class="control-frame-container">
+        <div class="address-bar">
+            <span style="color: #666; font-family: monospace; padding-top: 8px;">TARGET IP:</span>
+            <input type="text" id="targetIP" value="http://192.168.4.1" class="ip-input">
+            <button class="connect-btn" onclick="connectRobot()">ESTABLISH LINK</button>
+        </div>
+        
+        <div id="frameWrapper" style="flex: 1; position: relative;">
+            <div class="frame-placeholder">
+                <div style="font-size: 3rem; color: #222;">NO SIGNAL</div>
+                <p>Enter Robot IP Address above to begin FPV stream.</p>
+            </div>
+            <iframe id="robotFrame" src="" style="display:none;"></iframe>
         </div>
     </div>
 </div>
 
-<div id="toast">SETTINGS SAVED</div>
+<div id="chat" class="tab-content">
+    <h2>ENCRYPTED CHANNEL</h2>
+    
+    <div class="chat-layout">
+        <div class="chat-list">
+            <div class="friend active">Toto (Online)</div>
+            <div class="friend">System_Bot</div>
+        </div>
+        <div class="chat-window">
+            <div class="messages" id="msgArea">
+                <div class="msg them">[Toto]: Hey, system status check?</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Enter message...">
+                <button class="action-btn" onclick="sendChat()">SEND</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-
-        </main>
+<div id="investor" class="tab-content">
+    <h2>INVESTOR RELATIONS</h2>
+    <div class="invest-grid">
+        <div class="invest-card">
+            <div class="metric-val">$850</div>
+            <div class="metric-label">UNIT COST</div>
+        </div>
+        <div class="invest-card">
+            <div class="metric-val">$1,200</div>
+            <div class="metric-label">MRR / UNIT</div>
+        </div>
+        <div class="invest-card">
+            <div class="metric-val">84%</div>
+            <div class="metric-label">MARGIN</div>
+        </div>
+    </div>
+    
+    <div style="background: #111; border: 1px solid #333; padding: 20px;">
+        <h3>SEED ROUND (OPEN)</h3>
+        <p style="color: #666;">Fueling the transition to injection molding.</p>
+        <button class="action-btn" style="margin-top: 10px;">DOWNLOAD PITCH DECK</button>
+    </div>
+</div>
+</main>
     </div>
 
     <div id="terminal" class="terminal-overlay"></div>
@@ -677,6 +780,43 @@ function deleteAccount() {
         window.location.href = 'index.html';
     }
 }
-    </script>
+// --- ЛОГИКА НОВЫХ МОДУЛЕЙ ---
+
+// 1. Подключение к роботу (Iframe)
+function connectRobot() {
+    const ip = document.getElementById('targetIP').value;
+    const iframe = document.getElementById('robotFrame');
+    const placeholder = document.querySelector('.frame-placeholder');
+    
+    if(ip.length < 5) return alert("Invalid IP Address");
+
+    // Скрываем заглушку, показываем iframe
+    placeholder.style.display = 'none';
+    iframe.style.display = 'block';
+    iframe.src = ip; 
+}
+
+// 2. Чат (Отправка сообщений)
+function sendChat() {
+    const input = document.getElementById('chatInput');
+    const area = document.getElementById('msgArea');
+    const txt = input.value;
+    
+    if(txt.trim() === "") return;
+
+    // Добавляем твое сообщение
+    area.innerHTML += `<div class="msg me">[You]: ${txt}</div>`;
+    input.value = "";
+    
+    // Авто-скролл вниз
+    area.scrollTop = area.scrollHeight;
+
+    // Имитация ответа (через 1 секунду)
+    setTimeout(() => {
+        area.innerHTML += `<div class="msg them">[Toto]: Received.</div>`;
+        area.scrollTop = area.scrollHeight;
+    }, 1000);
+}
+</script>
 </body>
 </html>
