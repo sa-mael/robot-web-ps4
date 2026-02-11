@@ -7,14 +7,8 @@
     <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     
-
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script type="text/javascript">
-   (function(){
-      // ВАЖНО: Сюда ты потом вставишь свой PUBLIC KEY из EmailJS
-      emailjs.init("YOUR_PUBLIC_KEY");
-   })();
-</script>
+    
     <style>
         :root {
             --bg-core: #050505;
@@ -178,7 +172,7 @@
         .loading-status {
             font-family: var(--font-mono); font-size: 0.7rem; color: #444; margin-top: 10px;
         }
-         /* FOOTER SIGNATURE */
+        /* FOOTER SIGNATURE */
         .digital-sig {
             margin-top: 80px;
             padding-top: 20px;
@@ -209,9 +203,9 @@
                 <div class="tab" onclick="switchTab('register')">INITIATE</div>
             </div>
 
-            <form id="loginForm" onsubmit="startSequence(event)">
+            <form id="loginForm" onsubmit="startSequence(event, 'login')">
                 <div style="text-align: right; margin-bottom: 15px;">
-                       <a href="#" onclick="openRequestModal()" style="font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--accent); text-decoration: none;">REQUEST ACCESS KEY >></a>
+                        <a href="#" onclick="openRequestModal()" style="font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--accent); text-decoration: none;">REQUEST ACCESS KEY >></a>
                     </div>
                 
                 <div class="form-group">
@@ -231,14 +225,14 @@
                 <button type="submit" class="btn-submit">CONNECT</button>
             </form>
 
-            <form id="registerForm" style="display: none;" onsubmit="startSequence(event)">
+            <form id="registerForm" style="display: none;" onsubmit="startSequence(event, 'register')">
                 <div class="form-group">
                     <label>DESIGNATION (NAME)</label>
-                    <input type="text" placeholder="John Doe" required>
+                    <input type="text" id="regName" placeholder="John Doe" required>
                 </div>
                 <div class="form-group">
                     <label>COMMS CHANNEL (EMAIL)</label>
-                    <input type="email" placeholder="you@example.com" required>
+                    <input type="email" id="regEmail" placeholder="you@example.com" required>
                 </div>
 
                 <div class="oath-box">
@@ -250,6 +244,7 @@
 
                 <button type="submit" class="btn-submit">JOIN THE MESH</button>
             </form>
+
             <div class="digital-sig">
             <div>
                 SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
@@ -275,6 +270,7 @@
         </div>
         <div class="loading-status" id="loadStatus">ESTABLISHING NEURAL LINK...</div>
     </div>
+
     <div id="keyModal" class="neural-loader" style="background: rgba(0,0,0,0.9); display: none;">
     <div class="auth-card" style="position: relative;">
         <span onclick="closeRequestModal()" style="position: absolute; top: 15px; right: 20px; color: #666; cursor: pointer; font-family: monospace;">[X]</span>
@@ -304,132 +300,168 @@
     </div>
 </div>
 
-    <script>
-        // TAB LOGIC
-        function switchTab(mode) {
-            const login = document.getElementById('loginForm');
-            const reg = document.getElementById('registerForm');
-            const tabs = document.querySelectorAll('.tab');
+   <script>
+    // --- CONFIGURATION ---
+    const EMAILJS_PUBLIC_KEY = "cQwk9aX1X3KV0dW9n"; 
+    const EMAILJS_SERVICE_ID = "service_9mz4aq2";      
+    
+    // TWO TEMPLATES:
+    const TEMPLATE_LOST_KEY = "template_tjkqo37";    // Для "Lost Key"
+    const TEMPLATE_WELCOME = "template_b3iywlc";     // Для "Registration"
 
-            if (mode === 'login') {
-                login.style.display = 'block';
-                reg.style.display = 'none';
-                tabs[0].classList.add('active');
-                tabs[1].classList.remove('active');
-            } else {
-                login.style.display = 'none';
-                reg.style.display = 'block';
-                tabs[0].classList.remove('active');
-                tabs[1].classList.add('active');
+    // Initialize EmailJS immediately
+    (function(){
+        if(typeof emailjs !== 'undefined') {
+            emailjs.init(EMAILJS_PUBLIC_KEY);
+            console.log("Neural Link (EmailJS): READY");
+        } else {
+            console.error("Neural Link (EmailJS): MODULE MISSING");
+            alert("CRITICAL ERROR: Commuplink modules failed to load.");
+        }
+    })();
+
+    // --- TAB LOGIC ---
+    function switchTab(mode) {
+        const login = document.getElementById('loginForm');
+        const reg = document.getElementById('registerForm');
+        const tabs = document.querySelectorAll('.tab');
+
+        if (mode === 'login') {
+            login.style.display = 'block';
+            reg.style.display = 'none';
+            tabs[0].classList.add('active');
+            tabs[1].classList.remove('active');
+        } else {
+            login.style.display = 'none';
+            reg.style.display = 'block';
+            tabs[0].classList.remove('active');
+            tabs[1].classList.add('active');
+        }
+    }
+
+    // --- MOTIVATIONAL QUOTES ---
+    const quotes = [
+        { t: "The science of today is the technology of tomorrow.", a: "Edward Teller" },
+        { t: "Any sufficiently advanced technology is indistinguishable from magic.", a: "Arthur C. Clarke" },
+        { t: "I do not think there is any thrill that can go through the human heart like that felt by the inventor.", a: "Nikola Tesla" }
+    ];
+
+    // --- MAIN SEQUENCE LOGIC (LOGIN OR REGISTER) ---
+    function startSequence(e, type) {
+        e.preventDefault(); 
+        
+        // 1. Setup UI for Loading
+        const loader = document.getElementById('loader');
+        const qText = document.getElementById('qText');
+        const qAuth = document.getElementById('qAuth');
+        const fill = document.getElementById('loadFill');
+        const status = document.getElementById('loadStatus');
+
+        loader.style.display = 'flex';
+
+        // 2. IF REGISTERING -> SEND WELCOME EMAIL
+        if (type === 'register') {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const key = "OP-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+
+            // Save to memory
+            localStorage.setItem('userNick', name);
+            localStorage.setItem('userEmail', email);
+
+            // Send Email
+            const emailParams = {
+                user_name: name,
+                user_email: email, // Make sure template uses {{user_email}} or {{to_email}}
+                access_key: key
+            };
+            
+            emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_WELCOME, emailParams)
+                .then(() => console.log("WELCOME EMAIL SENT"));
+        }
+
+        // 3. Play Animation & Redirect
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 1;
+            fill.style.width = progress + '%';
+            
+            if(progress === 20) status.innerText = "ENCRYPTING DATA PACKETS...";
+            if(progress === 50) status.innerText = "SYNCING WITH MESH NETWORK...";
+            if(progress === 80) status.innerText = "AUTHENTICATING BIOMETRICS...";
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                window.location.href = 'account.html'; // Redirect
             }
-        }
+        }, 40); // 4 seconds total
 
-        // MOTIVATIONAL QUOTES
-        const quotes = [
-            { t: "The science of today is the technology of tomorrow.", a: "Edward Teller" },
-            { t: "Any sufficiently advanced technology is indistinguishable from magic.", a: "Arthur C. Clarke" },
-            { t: "I do not think there is any thrill that can go through the human heart like that felt by the inventor.", a: "Nikola Tesla" }
-        ];
+        // 4. Show Quote
+        const randomQ = quotes[Math.floor(Math.random() * quotes.length)];
+        qText.innerText = `"${randomQ.t}"`;
+        qAuth.innerText = `- ${randomQ.a}`;
+        
+        setTimeout(() => {
+            qText.style.opacity = 1;
+            qAuth.style.opacity = 1;
+        }, 500);
+    }
 
-        // SEQUENCE LOGIC
-        function startSequence(e) {
-            e.preventDefault(); // Stop normal form submit
-            
-            const loader = document.getElementById('loader');
-            const qText = document.getElementById('qText');
-            const qAuth = document.getElementById('qAuth');
-            const fill = document.getElementById('loadFill');
-            const status = document.getElementById('loadStatus');
+    // --- MODAL CONTROLS ---
+    function openRequestModal() {
+        document.getElementById('keyModal').style.display = 'flex';
+    }
+    function closeRequestModal() {
+        document.getElementById('keyModal').style.display = 'none';
+    }
 
-            // 1. Show Black Screen
-            loader.style.display = 'flex';
+    // --- LOST KEY EMAIL LOGIC ---
+    function sendAccessEmail(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById('reqBtn');
+        const emailInput = document.getElementById('reqEmail').value;
+        const freq = document.getElementById('reqFreq').value;
+        
+        btn.innerText = "GENERATING HASH...";
+        btn.style.opacity = "0.7";
+        btn.disabled = true;
+        
+        const randomKey = "OP-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+        
+        const templateParams = {
+            to_email: emailInput,   // For Lost Key Template
+            passcode: randomKey,    
+            time: "24 HOURS",       
+            frequency: freq         
+        };
 
-            // 2. Play Loading Animation (4 seconds total)
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 1;
-                fill.style.width = progress + '%';
+        emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_LOST_KEY, templateParams)
+            .then(function(response) {
+                console.log('SUCCESS!', response.status, response.text);
+                btn.innerText = "KEY TRANSMITTED";
+                btn.style.background = "#2ecc71";
+                btn.style.color = "#000";
                 
-                // Status Text Updates
-                if(progress === 20) status.innerText = "ENCRYPTING DATA PACKETS...";
-                if(progress === 50) status.innerText = "SYNCING WITH MESH NETWORK...";
-                if(progress === 80) status.innerText = "AUTHENTICATING BIOMETRICS...";
+                alert(`UPLINK SUCCESSFUL.\nAccess Key sent to: ${emailInput}`);
+                closeRequestModal();
                 
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    // 3. Redirect to Account Page
-                    window.location.href = 'account.html';
-                }
-            }, 40); // 40ms * 100 = 4000ms (4 seconds)
-
-            // 3. Show Quote immediately
-            const randomQ = quotes[Math.floor(Math.random() * quotes.length)];
-            qText.innerText = `"${randomQ.t}"`;
-            qAuth.innerText = `- ${randomQ.a}`;
-            
-            // Fade In Text
-            setTimeout(() => {
-                qText.style.opacity = 1;
-                qAuth.style.opacity = 1;
-            }, 500);
-        }
-        // --- MODAL CONTROLS ---
-function openRequestModal() {
-    document.getElementById('keyModal').style.display = 'flex';
-}
-function closeRequestModal() {
-    document.getElementById('keyModal').style.display = 'none';
-}
-
-// --- EMAIL LOGIC (FINAL) ---
-function sendAccessEmail(e) {
-    e.preventDefault();
-    
-    const btn = document.getElementById('reqBtn');
-    const emailInput = document.getElementById('reqEmail').value; // Твой email
-    const freq = document.getElementById('reqFreq').value;
-    
-    // 1. Генерация ключа
-    const randomKey = "OP-" + Math.random().toString(36).substr(2, 6).toUpperCase();
-    
-    btn.innerText = "GENERATING HASH...";
-    btn.style.opacity = "0.7";
-    
-    // 2. Упаковка данных (Они полетят в твой шаблон)
-    const templateParams = {
-        to_email: emailInput,   // ВАЖНО: В настройках EmailJS в поле "To Email" должно быть {{to_email}}
-        passcode: randomKey,    // Твой {{passcode}}
-        time: "24 HOURS",       // Твое {{time}}
-        frequency: freq         // Твое {{frequency}}
-    };
-
-    // 3. Отправка (С твоими ID)
-    emailjs.send("service_9mz4aq2", "template_tjkqo37", templateParams)
-        .then(function() {
-            // УСПЕХ
-            btn.innerText = "KEY TRANSMITTED";
-            btn.style.background = "#2ecc71"; // Зеленый
-            btn.style.color = "#000";
-            
-            alert(`UPLINK SUCCESSFUL.\nAccess Key sent to: ${emailInput}`);
-            closeRequestModal();
-            
-            setTimeout(() => {
-                btn.innerText = "TRANSMIT KEY";
-                btn.style.background = "";
-                btn.style.color = "";
-                btn.style.opacity = "1";
-            }, 3000);
-            
-        }, function(error) {
-            // ОШИБКА
-            console.error('FAILED...', error);
-            btn.innerText = "TRANSMISSION FAILED";
-            btn.style.background = "#e74c3c"; // Красный
-            alert("ERROR: Neural Link Offline. Check console (F12).");
-        });
-}
-    </script>
-
+                setTimeout(() => {
+                    btn.innerText = "TRANSMIT KEY";
+                    btn.style.background = "";
+                    btn.style.color = "";
+                    btn.style.opacity = "1";
+                    btn.disabled = false;
+                }, 3000);
+                
+            }, function(error) {
+                console.error('FAILED...', error);
+                btn.innerText = "TRANSMISSION FAILED";
+                btn.style.background = "#e74c3c";
+                btn.disabled = false;
+                alert("ERROR: Neural Link Offline.");
+            });
+    }
+</script>
 </body>
 </html>
