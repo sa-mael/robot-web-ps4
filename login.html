@@ -7,6 +7,14 @@
     <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script type="text/javascript">
+   (function(){
+      // ВАЖНО: Сюда ты потом вставишь свой PUBLIC KEY из EmailJS
+      emailjs.init("YOUR_PUBLIC_KEY");
+   })();
+</script>
     <style>
         :root {
             --bg-core: #050505;
@@ -202,6 +210,10 @@
             </div>
 
             <form id="loginForm" onsubmit="startSequence(event)">
+                <div style="text-align: right; margin-bottom: 15px;">
+                       <a href="#" onclick="openRequestModal()" style="font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--accent); text-decoration: none;">REQUEST ACCESS KEY >></a>
+                    </div>
+                
                 <div class="form-group">
                     <label>OPERATOR ID / EMAIL</label>
                     <input type="email" placeholder="operator@mesh.net" required>
@@ -263,6 +275,34 @@
         </div>
         <div class="loading-status" id="loadStatus">ESTABLISHING NEURAL LINK...</div>
     </div>
+    <div id="keyModal" class="neural-loader" style="background: rgba(0,0,0,0.9); display: none;">
+    <div class="auth-card" style="position: relative;">
+        <span onclick="closeRequestModal()" style="position: absolute; top: 15px; right: 20px; color: #666; cursor: pointer; font-family: monospace;">[X]</span>
+        
+        <h2 style="font-family: var(--font-tech); color: #fff; margin-bottom: 10px;">REQUEST CLEARANCE</h2>
+        <p style="color: #666; font-size: 0.8rem; font-family: var(--font-mono); margin-bottom: 20px;">
+            A one-time access key will be sent to your secure channel.
+        </p>
+
+        <form onsubmit="sendAccessEmail(event)">
+            <div class="form-group">
+                <label>COMMS CHANNEL (EMAIL)</label>
+                <input type="email" id="reqEmail" placeholder="pilot@mesh.net" required>
+            </div>
+
+            <div class="form-group">
+                <label>PING FREQUENCY</label>
+                <select id="reqFreq" style="width: 100%; background: #080808; border: 1px solid #333; padding: 12px; color: #fff; font-family: var(--font-mono); outline: none;">
+                    <option value="Daily Briefing">Daily Briefing</option>
+                    <option value="Weekly Summary">Weekly Summary</option>
+                    <option value="Critical Alerts Only">Critical Alerts Only</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-submit" id="reqBtn">TRANSMIT KEY</button>
+        </form>
+    </div>
+</div>
 
     <script>
         // TAB LOGIC
@@ -333,6 +373,62 @@
                 qAuth.style.opacity = 1;
             }, 500);
         }
+        // --- MODAL CONTROLS ---
+function openRequestModal() {
+    document.getElementById('keyModal').style.display = 'flex';
+}
+function closeRequestModal() {
+    document.getElementById('keyModal').style.display = 'none';
+}
+
+// --- EMAIL LOGIC (FINAL) ---
+function sendAccessEmail(e) {
+    e.preventDefault();
+    
+    const btn = document.getElementById('reqBtn');
+    const emailInput = document.getElementById('reqEmail').value; // Твой email
+    const freq = document.getElementById('reqFreq').value;
+    
+    // 1. Генерация ключа
+    const randomKey = "OP-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+    
+    btn.innerText = "GENERATING HASH...";
+    btn.style.opacity = "0.7";
+    
+    // 2. Упаковка данных (Они полетят в твой шаблон)
+    const templateParams = {
+        to_email: emailInput,   // ВАЖНО: В настройках EmailJS в поле "To Email" должно быть {{to_email}}
+        passcode: randomKey,    // Твой {{passcode}}
+        time: "24 HOURS",       // Твое {{time}}
+        frequency: freq         // Твое {{frequency}}
+    };
+
+    // 3. Отправка (С твоими ID)
+    emailjs.send("service_9mz4aq2", "template_tjkqo37", templateParams)
+        .then(function() {
+            // УСПЕХ
+            btn.innerText = "KEY TRANSMITTED";
+            btn.style.background = "#2ecc71"; // Зеленый
+            btn.style.color = "#000";
+            
+            alert(`UPLINK SUCCESSFUL.\nAccess Key sent to: ${emailInput}`);
+            closeRequestModal();
+            
+            setTimeout(() => {
+                btn.innerText = "TRANSMIT KEY";
+                btn.style.background = "";
+                btn.style.color = "";
+                btn.style.opacity = "1";
+            }, 3000);
+            
+        }, function(error) {
+            // ОШИБКА
+            console.error('FAILED...', error);
+            btn.innerText = "TRANSMISSION FAILED";
+            btn.style.background = "#e74c3c"; // Красный
+            alert("ERROR: Neural Link Offline. Check console (F12).");
+        });
+}
     </script>
 
 </body>
