@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARTTOUS | X-Ray Tech Spec</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-light: #AECAD6; 
+            --bg-dark: #111111;
+            --split-point: 60vh; /* Линия раздела фона */
+            
+            /* Настройки изображения */
+            --img-top-pos: 12.73vh; /* Отступ картинки сверху */
+            --img-height: 90vh;  /* Общая высота картинки */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background: var(--bg-dark);
+        }
+
+        /* --- ФОНОВЫЕ СЛОИ --- */
+        .bg-layer { position: absolute; width: 100%; left: 0; z-index: 0; }
+        
+        .bg-top {
+            top: 0; height: var(--split-point); background-color: var(--bg-light);
+        }
+        
+        .bg-bottom {
+            top: var(--split-point); height: calc(100vh - var(--split-point)); background-color: var(--bg-dark);
+        }
+        
+        /* Линия стыка (Декор) */
+        .seam-line {
+            position: absolute; top: var(--split-point); left: 0; width: 100%; height: 1px; background: rgba(0,0,0,0.1); z-index: 4;
+        }
+
+        /* --- КОНТЕНТ (Текст) --- */
+        .content-wrapper {
+            position: relative; z-index: 2; height: 100vh; width: 100%; pointer-events: none;
+        }
+
+        .hero-content {
+            position: absolute; top: 0; left: 0; width: 100%; padding: 40px 60px; pointer-events: auto;
+        }
+        .brand-tm {
+            font-family: 'Orbitron', sans-serif; font-size: 3rem; font-weight: 900; color: #111; border-left: 10px solid #000; padding-left: 20px;
+        }
+
+        .footer-content {
+            position: absolute; top: var(--split-point); left: 0; width: 100%; padding: 40px 60px;
+            display: flex; justify-content: space-between; align-items: flex-start; pointer-events: auto; color: #fff;
+        }
+        
+        .contact-header { font-family: 'Orbitron', sans-serif; margin-bottom: 20px; letter-spacing: 2px; }
+        .contact-link { font-size: 1.2rem; color: #fff; text-decoration: none; border-bottom: 1px solid #666; padding-bottom: 5px; }
+
+        .social-block { display: flex; flex-direction: column; gap: 15px; border-left: 1px solid #333; padding-left: 20px; }
+        .social-box { width: 20px; height: 20px; background: #444; }
+
+        /* --- РОБО-НОГА (ГЛАВНАЯ ЧАСТЬ) --- */
+        .image-wrapper {
+            position: absolute;
+            z-index: 5;
+            right: 0%;           /* Сдвигаем правее */
+            top: var(--img-top-pos);
+            height: var(--img-height);
+            width: 110vh;          /* Ширина зависит от высоты */
+            pointer-events: none; /* Чтобы клики проходили сквозь картинку */
+        }
+
+        .leg-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: contain; /* Картинка вписывается полностью */
+            
+            /* ФИЛЬТРЫ (Попытка скрыть серый фон, если он есть) */
+            /* mix-blend-mode: multiply;  <- Включи это для верхнего фото, если фон белый/светлый */
+        }
+
+        /* МАТЕМАТИКА РАЗРЕЗА:
+           Мы должны вычислить, где линия фона (60vh) пересекает картинку.
+           Картинка начинается на 10vh. Значит, линия раздела внутри картинки находится на отметке 50vh.
+           Высота картинки 80vh.
+           Процент разреза = 50 / 80 = 0.625 -> 62.5%
+        */
+
+        /* ВЕРХНЯЯ ЧАСТЬ (ЦВЕТНАЯ) */
+        .leg-color {
+            z-index: 2;
+            /* Показываем верхние 62.5%, остальное обрезаем */
+            clip-path: inset(0 0 47.5% 0); 
+        }
+
+        /* НИЖНЯЯ ЧАСТЬ (РЕНТГЕН) */
+        .leg-xray {
+            z-index: 1;
+            /* Показываем нижние 37.5%, верх обрезаем */
+            clip-path: inset(52.5% 0 0 0); 
+            
+            /* Эффекты для рентгена */
+            filter: grayscale(100%) contrast(1.5) brightness(1.2);
+            mix-blend-mode: screen; /* Это уберет черный фон, если он есть */
+            opacity: 0.9;
+        }
+
+        @media (max-width: 900px) {
+            .image-wrapper { right: -10%; width: 50vh; }
+            .brand-tm { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-layer bg-top"></div>
+    <div class="bg-layer bg-bottom"></div>
+    <div class="seam-line"></div>
+
+    <div class="content-wrapper">
+        <section class="hero-content">
+            <div class="brand-tm">TM</div>
+        </section>
+
+        <section class="footer-content">
+            <div class="contact-group">
+                <h3>CONTACT</h3>
+                <div class="contact-line"></div>
+                <a href="#" class="contact-link">Get In Touch</a>
+            </div>
+            
+            <div class="social-stack">
+                <div style="font-size: 0.7rem; color: #666; margin-bottom: 5px;">SOCIAL</div>
+                <div class="social-icon"></div>
+                <div class="social-icon"></div>
+                <div class="social-icon"></div>
+            </div>
+        </section>
+    </div>
+
+    <div class="image-wrapper">
+        <img src="assets/images/leg-color.png" class="leg-img leg-color" alt="Robotic Leg Color">
+        
+        <img src="assets/images/leg-xray.png" class="leg-img leg-xray" alt="Robotic Leg X-Ray">
+    </div>
+
+</body>
+</html>
