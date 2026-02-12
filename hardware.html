@@ -16,7 +16,12 @@
             --text-main: #e0e0e0;
             --font-tech: 'Orbitron', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
+            
+            /* Footer Settings */
+            --footer-split: 268px; /* Высота светлой части */
         }
+
+        * { box-sizing: border-box; }
 
         body { 
             background: var(--bg-core); 
@@ -54,7 +59,7 @@
         /* --- MAIN CONTENT AREA --- */
         .content-area {
             flex: 1;
-            padding: 60px 80px;
+            padding: 60px 80px 0 80px; /* Bottom padding removed for footer flow */
             overflow-y: auto;
             scroll-behavior: smooth;
             /* TACTICAL BACKGROUND TEXTURE */
@@ -70,26 +75,17 @@
 
         /* --- LAYOUTS --- */
         .split-view {
-            display: grid;
-            grid-template-columns: 1fr 300px; /* Text left, Image right */
-            gap: 40px;
-            align-items: start;
+            display: grid; grid-template-columns: 1fr 300px; gap: 40px; align-items: start;
         }
         .tech-img-box {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid #333;
-            padding: 20px;
-            text-align: center;
+            background: rgba(255,255,255,0.02); border: 1px solid #333; padding: 20px; text-align: center;
         }
         .tech-img {
-            max-width: 100%;
-            height: auto;
-            filter: drop-shadow(0 0 10px rgba(124,42,232,0.2));
-            transition: 0.3s;
+            max-width: 100%; height: auto; filter: drop-shadow(0 0 10px rgba(124,42,232,0.2)); transition: 0.3s;
         }
         .tech-img:hover { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(124,42,232,0.5)); }
 
-        /* --- HARDWARE TABLES (Pinout) --- */
+        /* --- HARDWARE TABLES --- */
         .pinout-table {
             width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.85rem; margin: 20px 0;
             background: rgba(0,0,0,0.5); border: 1px solid #222;
@@ -98,68 +94,35 @@
         .pinout-table td { border-bottom: 1px solid #222; color: #888; padding: 12px; }
         .pin-col { color: var(--accent) !important; font-weight: bold; }
 
-        /* --- BOM GRID (Components) --- */
+        /* --- BOM GRID --- */
         .bom-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 40px;
         }
         .part-card {
-            background: var(--bg-card);
-            border: 1px solid #333;
-            padding: 25px;
-            transition: 0.3s;
-            position: relative;
-            backdrop-filter: blur(5px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
+            background: var(--bg-card); border: 1px solid #333; padding: 25px; transition: 0.3s; position: relative;
+            backdrop-filter: blur(5px); display: flex; flex-direction: column; align-items: center; text-align: center;
         }
         .part-card:hover { border-color: var(--accent); transform: translateY(-5px); background: rgba(20,20,20,0.9); }
-        
         .part-img { height: 100px; width: auto; object-fit: contain; margin-bottom: 20px; }
-        
         .part-name { font-family: var(--font-tech); font-size: 1.1rem; color: #fff; margin-bottom: 5px; width: 100%; text-align: left; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .part-spec { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); display: block; margin: 10px 0; width: 100%; text-align: left;}
         .part-desc { font-size: 0.85rem; color: #888; line-height: 1.4; text-align: left; }
 
         /* --- BLUEPRINTS --- */
-        .blueprint-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-        }
-        .blueprint-card {
-            background: #000; border: 1px solid #333; padding: 10px;
-        }
+        .blueprint-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .blueprint-card { background: #000; border: 1px solid #333; padding: 10px; }
         .blueprint-img { width: 100%; opacity: 0.8; }
 
-        /* --- API CODE BLOCKS --- */
+        /* --- API CODE --- */
         .code-block {
-            background: #080808;
-            border: 1px solid #333;
-            border-left: 3px solid var(--accent);
-            border-radius: 0;
-            padding: 20px;
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            color: #ccc;
-            overflow-x: auto;
-            margin: 20px 0;
+            background: #080808; border: 1px solid #333; border-left: 3px solid var(--accent); border-radius: 0;
+            padding: 20px; font-family: var(--font-mono); font-size: 0.85rem; color: #ccc; overflow-x: auto; margin: 20px 0;
         }
-        .keyword { color: #cc7832; }
-        .func { color: #ffc66d; }
-        .string { color: #6a8759; }
-        .comment { color: #808080; }
+        .keyword { color: #cc7832; } .func { color: #ffc66d; } .string { color: #6a8759; } .comment { color: #808080; }
 
         /* --- WIRING DIAGRAM --- */
         .wiring-box {
-            background: #080808;
-            border: 1px solid #333;
-            padding: 30px;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            max-width: 800px;
+            background: #080808; border: 1px solid #333; padding: 30px; font-family: var(--font-mono); font-size: 0.8rem; max-width: 800px;
         }
         .wire-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #222; }
         .wire-row:last-child { border-bottom: none; }
@@ -168,14 +131,96 @@
         .wire-line { flex: 1; height: 2px; background: #333; margin: 0 20px; position: relative; }
         .wire-line::after { content: ""; position: absolute; top: -3px; left: 50%; width: 6px; height: 6px; background: #555; border-radius: 50%; }
 
-
-        /* --- FOOTER --- */
-        .digital-sig {
-            margin-top: 100px; padding-top: 20px; border-top: 1px solid #333;
-            display: flex; justify-content: space-between;
-            font-family: var(--font-mono); font-size: 0.75rem; color: #555;
+        /* --- FOOTER STYLES (SPLIT VIEW) --- */
+        .main-footer {
+            position: relative;
+            margin-top: 100px; /* Отступ от контента */
+            margin-left: -80px; /* Компенсация padding .content-area */
+            margin-right: -80px;
+            z-index: 5;
         }
 
+        /* 1. Light Top */
+        .footer-top-visual {
+            height: var(--footer-split);
+            background-color:rgb(124 42 232 / 20%); /* Technical Blue/Grey */
+            position: relative;
+        }
+
+        /* 2. Dark Bottom */
+        .footer-content-dark {
+            background-color: #0a0a0a;
+            color: rgba(150, 150, 150, 0.7); /* Серый прозрачный текст */
+            padding: 60px 0px 0px 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-grid {
+            display: grid; grid-template-columns: 1fr 1.9fr 1.45fr; gap: 110px; max-width: 1200px;
+        }
+
+        .footer-col h4 {
+            font-family: var(--font-tech);
+            color: rgba(255, 255, 255, 0.7) !important; /* Заголовки тоже серые */
+            margin-bottom: 25px; font-size: 1.1rem; letter-spacing: 1px;
+        }
+
+        .footer-link {
+            display: block; color: rgba(150, 150, 150, 0.7); /* Ссылки серые */
+            text-decoration: none; margin-bottom: 12px; font-family: var(--font-mono); font-size: 0.85rem; transition: 0.3s;
+        }
+        .footer-link:hover { color: var(--accent); opacity: 1; transform: translateX(5px); }
+
+        /* Social Icons */
+        .social-links { display: flex; gap: 15px; }
+        .social-icon {
+            width: 40px; height: 40px; background: #111; border: 1px solid #333;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 4px; transition: 0.3s; 
+            color: rgba(150, 150, 150, 0.7);
+            font-family: var(--font-mono); text-decoration: none;
+        }
+        .social-icon:hover { border-color: var(--accent); background: var(--accent); color: #fff; opacity: 1; }
+
+        /* Copyright */
+        .copy-bar {
+            margin-top: 40px; padding-top: 25px; border-top: 1px solid #222;
+            text-align: center; font-family: var(--font-mono); font-size: 0.7rem;
+            color: rgba(150, 150, 150, 0.5);
+            display: flex; justify-content: space-between;
+        }
+
+        /* --- X-RAY MODEL LOGIC --- */
+        .xray-leg-wrapper {
+            position: absolute;
+            right: 0%;  /* Прижато к правому краю */
+            top: -132px; 
+            width: 1000px;
+            height: 800px;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .leg-img {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain;
+        }
+
+        /* Clip Path Math: 500px split / 800px img = 0.625 */
+        .leg-color {
+            z-index: 2;
+            clip-path: inset(0 0 50% 0); 
+        }
+
+        .leg-xray {
+            z-index: 1;
+            clip-path: inset(50% 0 0 0);
+            filter: grayscale(100%) contrast(1.2) brightness(1.2);
+            mix-blend-mode: screen;
+            opacity: 0.8;
+        }
+
+        /* Responsive */
         @media (max-width: 1100px) {
             .split-view { grid-template-columns: 1fr; }
             .tech-img-box { margin-bottom: 20px; }
@@ -183,99 +228,18 @@
         @media (max-width: 900px) {
             body { flex-direction: column; overflow: auto; }
             .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #222; }
-            .content-area { padding: 40px 20px; }
+            .content-area { padding: 0px 20px; }
+            
+            :root { --footer-split: 300px; }
+            .main-footer { margin-left: -20px; margin-right: -20px; }
+            .xray-leg-wrapper { width: 300px; right: 0%; top: -50px; height: 500px; }
+            /* Recalculate clip roughly for mobile */
+            .leg-color { clip-path: inset(0 0 40% 0); }
+            .leg-xray { clip-path: inset(60% 0 0 0); }
+            
+            .footer-grid { grid-template-columns: 1fr; gap: 170px; }
+            .footer-content-dark { padding: 0px 0px; }
         }
-
-          /* --- NEW FOOTER STYLES (REFERENCE IMAGE) --- */
-.main-footer {
-    position: relative;
-    margin-top: 0; /* Remove margin, let it flow */
-    z-index: 5;
-}
-
-/* 1. Верхняя светлая часть (Blueprint Area) */
-.footer-top-visual {
-    height: 350px; /* Высота светлого блока */
-    background-color: #a8c0d0; /* Цвет с референса */
-    position: relative;
-    overflow: visible; /* Важно! Позволяет картинке вылезать */
-    border-bottom: 1px solid #111;
-}
-
-/* Картинка-чертеж, которая накладывается */
-.blueprint-overlay {
-    position: absolute;
-    top: -50px; /* Поднимаем, чтобы она начиналась раньше */
-    right: 5%;
-    width: 45%; /* Размер чертежа */
-    min-width: 450px;
-    z-index: 10; /* Поверх темного блока */
-    filter: drop-shadow(0px 10px 20px rgba(0,0,0,0.5)); /* Тень для объема */
-    transform: rotate(-5deg); /* Небольшой наклон для динамики */
-}
-
-/* 2. Нижняя темная часть (Content Area) */
-.footer-content-dark {
-    background-color: #0a0a0a;
-    color: #e0e0e0;
-    padding: 80px 80px 40px;
-    position: relative;
-    z-index: 1; /* Под картинкой */
-}
-
-.footer-grid {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr;
-    gap: 60px;
-    max-width: 1200px;
-}
-
-.footer-col h4 {
-    font-family: var(--font-tech);
-    color: #fff;
-    margin-bottom: 25px;
-    font-size: 1.1rem;
-    letter-spacing: 1px;
-}
-
-.footer-link {
-    display: block;
-    color: #888;
-    text-decoration: none;
-    margin-bottom: 12px;
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    transition: 0.3s;
-}
-.footer-link:hover { color: var(--accent); transform: translateX(5px); }
-
-/* Соц. иконки (заглушки) */
-.social-links { display: flex; gap: 15px; }
-.social-icon {
-    width: 40px; height: 40px; background: #111; border: 1px solid #333;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 4px; transition: 0.3s; color: #fff; font-family: var(--font-mono); text-decoration: none;
-}
-.social-icon:hover { border-color: var(--accent); background: var(--accent); }
-
-/* Копирайт */
-.copy-bar {
-    margin-top: 80px;
-    padding-top: 25px;
-    border-top: 1px solid #222;
-    text-align: center;
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    color: #555;
-    display: flex; justify-content: space-between;
-}
-
-@media (max-width: 900px) {
-    .footer-top-visual { height: 200px; }
-    .blueprint-overlay { width: 80%; right: 10%; top: 20px; opacity: 0.5; }
-    .footer-grid { grid-template-columns: 1fr; gap: 40px; }
-    .footer-content-dark { padding: 60px 30px; }
-}
 
     </style>
 </head>
@@ -320,21 +284,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="pin-col">GPIO 6</td>
-                            <td>SDA (Data)</td>
-                            <td>PCA9685 / IMU</td>
-                        </tr>
-                        <tr>
-                            <td class="pin-col">GPIO 7</td>
-                            <td>SCL (Clock)</td>
-                            <td>PCA9685 / IMU</td>
-                        </tr>
-                        <tr>
-                            <td class="pin-col">GPIO 9</td>
-                            <td>INT</td>
-                            <td>MPU6050 Wake</td>
-                        </tr>
+                        <tr><td class="pin-col">GPIO 6</td><td>SDA (Data)</td><td>PCA9685 / IMU</td></tr>
+                        <tr><td class="pin-col">GPIO 7</td><td>SCL (Clock)</td><td>PCA9685 / IMU</td></tr>
+                        <tr><td class="pin-col">GPIO 9</td><td>INT</td><td>MPU6050 Wake</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -347,28 +299,24 @@
 
         <h2 id="bom">Bill of Materials</h2>
         <div class="bom-grid">
-            
             <div class="part-card">
                 <img src="assets/images/brain.png" class="part-img">
                 <div class="part-name">ESP32-C6</div>
                 <span class="part-spec">RISC-V 32-bit | WiFi 6</span>
                 <p class="part-desc">Central processing unit handling inverse kinematics and mesh networking protocol.</p>
             </div>
-
             <div class="part-card">
                 <img src="assets/images/PCA9685.png" class="part-img">
                 <div class="part-name">PCA9685</div>
                 <span class="part-spec">16-Channel PWM | I2C</span>
                 <p class="part-desc">Dedicated servo driver. Offloads PWM generation to ensure jitter-free leg movement.</p>
             </div>
-
             <div class="part-card">
                 <img src="assets/images/main-robo.jpg" class="part-img" style="border-radius: 4px;">
                 <div class="part-name">SPIDER CHASSIS</div>
                 <span class="part-spec">PETG / ABS Composite</span>
                 <p class="part-desc">Main structural frame. Hexapod configuration with 3DOF per leg (18DOF total).</p>
             </div>
-
             <div class="part-card">
                 <img src="assets/images/robo-5_26_32.png" class="part-img">
                 <div class="part-name">MG90S SERVOS</div>
@@ -393,31 +341,11 @@
 
         <h2 id="wiring">Wiring Schematic</h2>
         <div class="wiring-box">
-            <div class="wire-row">
-                <span class="pin-l">ESP32 (3V3)</span>
-                <div class="wire-line"></div>
-                <span class="pin-r">PCA9685 (VCC)</span>
-            </div>
-            <div class="wire-row">
-                <span class="pin-l">ESP32 (GND)</span>
-                <div class="wire-line"></div>
-                <span class="pin-r">PCA9685 (GND)</span>
-            </div>
-            <div class="wire-row">
-                <span class="pin-l">ESP32 (GPIO 6)</span>
-                <div class="wire-line" style="background: #2ecc71;"></div>
-                <span class="pin-r">PCA9685 (SDA)</span>
-            </div>
-            <div class="wire-row">
-                <span class="pin-l">ESP32 (GPIO 7)</span>
-                <div class="wire-line" style="background: #e74c3c;"></div>
-                <span class="pin-r">PCA9685 (SCL)</span>
-            </div>
-            <div class="wire-row">
-                <span class="pin-l">BATTERY (7.4V)</span>
-                <div class="wire-line" style="height: 4px; background: #f1c40f;"></div>
-                <span class="pin-r">PCA9685 (V+) SERVOS</span>
-            </div>
+            <div class="wire-row"><span class="pin-l">ESP32 (3V3)</span><div class="wire-line"></div><span class="pin-r">PCA9685 (VCC)</span></div>
+            <div class="wire-row"><span class="pin-l">ESP32 (GND)</span><div class="wire-line"></div><span class="pin-r">PCA9685 (GND)</span></div>
+            <div class="wire-row"><span class="pin-l">ESP32 (GPIO 6)</span><div class="wire-line" style="background: #2ecc71;"></div><span class="pin-r">PCA9685 (SDA)</span></div>
+            <div class="wire-row"><span class="pin-l">ESP32 (GPIO 7)</span><div class="wire-line" style="background: #e74c3c;"></div><span class="pin-r">PCA9685 (SCL)</span></div>
+            <div class="wire-row"><span class="pin-l">BATTERY (7.4V)</span><div class="wire-line" style="height: 4px; background: #f1c40f;"></div><span class="pin-r">PCA9685 (V+) SERVOS</span></div>
         </div>
 
         <h2 id="input">Input Peripherals</h2>
@@ -456,55 +384,56 @@
 }
         </div>
 
-          <footer class="main-footer">
-    
-    <div class="footer-top-visual">
-        <img src="assets/images/mat.png" class="blueprint-overlay" alt="Arttous Robot Blueprint">
-    </div>
-
-    <div class="footer-content-dark">
-        <div class="footer-grid">
+        <footer class="main-footer">
             
-            <div class="footer-col">
-                <img src="assets/images/logo-ttr-wh.png" style="width: 140px; margin-bottom: 25px;">
-                <h4 style="color: var(--accent);">GET IN TOUCH</h4>
-                <p style="color: #888; font-size: 0.9rem; max-width: 300px; line-height: 1.6; margin-bottom: 25px;">
-                    Pushing the boundaries of autonomous robotics. Join the mesh network and build the future.
-                </p>
-                <div>
-                    <a href="mailto:contact@arttous.com" class="footer-link">contact@arttous.com</a>
-                    <a href="#" class="footer-link">Ontario, Canada</a>
+            <div class="footer-top-visual"></div>
+
+            <div class="footer-content-dark">
+                <div class="footer-grid">
+                    
+                    <div class="footer-col">
+                        <h4>GET IN TOUCH</h4>
+                        <p style="max-width: 300px; line-height: 1.6; margin-bottom: 25px;">
+                            Pushing the boundaries of autonomous robotics. Join the mesh network and build the future.
+                        </p>
+                        <div>
+                            <a href="mailto:contact@arttous.com" class="footer-link">contact@arttous.com</a>
+                        </div>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>EXPLORE</h4>
+                        <a href="index.html" class="footer-link">Home Hub</a>
+                        <a href="#core" class="footer-link">Documentation</a>
+                        <a href="account.html" class="footer-link">Operator Portal</a>
+                        <a href="#" class="footer-link">Investor Relations</a>
+                        <a href="#" class="footer-link">Press Kit</a>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>CONNECT</h4>
+                        <div class="social-links">
+                            <a href="#" class="social-icon">IN</a>
+                            <a href="#" class="social-icon">X</a>
+                            <a href="#" class="social-icon">GH</a>
+                            <a href="#" class="social-icon">YT</a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="copy-bar">
+                    <div>&copy; 2026 Arttous Robotics Inc. | ALL RIGHTS RESERVED.</div>
+                    <div>SYSTEM HASH: 0x99a...f42</div>
                 </div>
             </div>
 
-            <div class="footer-col">
-                <h4>EXPLORE</h4>
-                <a href="index.html" class="footer-link">Home Hub</a>
-                <a href="#core" class="footer-link">Documentation</a>
-                <a href="account.html" class="footer-link">Operator Portal</a>
-                <a href="#" class="footer-link">Investor Relations</a>
-                <a href="#" class="footer-link">Press Kit</a>
+            <div class="xray-leg-wrapper">
+                <img src="assets/images/leg-color.png" class="leg-img leg-color" alt="Leg Color">
+                <img src="assets/images/leg-xray.png" class="leg-img leg-xray" alt="Leg X-Ray">
             </div>
 
-            <div class="footer-col">
-                <h4>CONNECT</h4>
-                <div class="social-links">
-                    <a href="#" class="social-icon">IN</a>
-                    <a href="#" class="social-icon">X</a>
-                    <a href="#" class="social-icon">GH</a>
-                    <a href="#" class="social-icon">YT</a>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="copy-bar">
-            <div>&copy; 2026 Arttous Robotics Inc. | ALL RIGHTS RESERVED.</div>
-            <div>SYSTEM HASH: 0x99a...f42</div>
-        </div>
-
-    </div>
-</footer>
+        </footer>
 
     </div>
 
