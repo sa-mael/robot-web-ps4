@@ -532,6 +532,47 @@ iframe { width: 100%; height: 100%; border: none; background: #000; }
     .completed-card { flex-direction: column; text-align: center; }
     .btn-view-artstation { width: 100%; }
 }
+/* --- MISSION MODALS & ACTIVE PROJECT --- */
+
+/* Модальное окно (Предупреждение и Загрузка) */
+.modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 9999;
+    align-items: center; justify-content: center;
+}
+.mission-modal {
+    background: #0a0a0a; border: 1px solid var(--accent); width: 500px; max-width: 90%;
+    padding: 30px; position: relative; box-shadow: 0 0 30px rgba(124, 42, 232, 0.2);
+}
+.modal-warning-header { color: #e74c3c; font-family: var(--font-tech); font-size: 1.5rem; border-bottom: 1px solid #e74c3c; padding-bottom: 10px; margin-bottom: 20px; }
+.modal-text { color: #ccc; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin-bottom: 20px; }
+.skill-list { background: #111; padding: 15px; border-left: 2px solid #f1c40f; margin-bottom: 20px; font-family: var(--font-mono); font-size: 0.8rem; color: #aaa; }
+.modal-actions { display: flex; justify-content: space-between; margin-top: 30px; }
+
+/* Рабочий стол активного проекта (Скрыт по умолчанию) */
+#activeProjectView { display: none; animation: fadeIn 0.3s ease; }
+.project-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+.btn-back { background: transparent; border: none; color: #888; font-family: var(--font-mono); cursor: pointer; transition: 0.2s; }
+.btn-back:hover { color: #fff; }
+
+.project-grid { display: grid; grid-template-columns: 1fr 300px; gap: 30px; }
+.project-main-img { width: 100%; border: 1px solid #333; border-radius: 4px; margin-bottom: 20px; }
+
+/* Информационные блоки внутри проекта */
+.info-panel { background: #080808; border: 1px solid #222; padding: 20px; margin-bottom: 20px; }
+.info-panel h4 { font-family: var(--font-tech); color: var(--accent); margin-bottom: 15px; font-size: 1rem; }
+.resource-link { display: block; color: #3498db; text-decoration: none; font-family: var(--font-mono); font-size: 0.8rem; margin-bottom: 10px; }
+.resource-link:hover { text-decoration: underline; }
+
+/* Чек-лист (План) */
+.checklist-item {
+    display: flex; align-items: center; gap: 10px; padding: 12px; background: #111; border: 1px solid #333;
+    margin-bottom: 10px; cursor: pointer; transition: 0.2s; font-family: var(--font-mono); font-size: 0.8rem; color: #ccc;
+}
+.checklist-item:hover { border-color: var(--accent); }
+.checklist-status { width: 15px; height: 15px; border: 1px solid #666; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+.checklist-item.pending { border-color: #f1c40f; color: #f1c40f; pointer-events: none; }
+.checklist-item.pending .checklist-status { border-color: #f1c40f; content: "⌛"; }
     </style>
 </head>
 <body>
@@ -680,25 +721,140 @@ iframe { width: 100%; height: 100%; border: none; background: #000; }
             <div class="stat-label">TOTAL EARNINGS</div>
         </div>
         <div class="stat-box">
-            <div class="stat-val">98.2%</div>
+            <div class="stat-val">8.2%</div>
             <div class="stat-label">REPUTATION SCORE</div>
         </div>
     </div>
 
     <div class="mission-list">
         
-        <div class="mission-card">
-            <div class="ms-icon">📡</div>
-            <div class="ms-info">
-                <h4>SECTOR SCAN: GRID 9</h4>
-                <div class="ms-desc">Autonomous mapping of unknown terrain. Requires LIDAR module.</div>
+        <div id="activeProjectView">
+        <div class="project-header-row">
+            <div>
+                <button class="btn-back" onclick="closeProject()">← ABORT / BACK TO BOARD</button>
+                <h2 style="margin: 10px 0 0 0; color: #fff; text-transform: uppercase;">PROJECT "REPLICATOR" | 6-AXIS CNC ARM</h2>
+                <div style="color: #888; font-family: var(--font-mono); font-size: 0.8rem; margin-top: 5px;">
+                    Phase 1: V1 Mother  ///  Objective: Precision metal milling & partial self-replication
+                </div>
             </div>
-            <div class="ms-tags">
-                <span class="tag-diff" style="color:#2ecc71; border-color:#2ecc71;">CLASS C</span>
-                <span class="tag-reward">+$150 CREDITS</span>
+            <div style="text-align: right;">
+                <span style="color: #f1c40f; font-family: var(--font-mono); font-size: 0.8rem;">STATUS: IN PROGRESS</span>
             </div>
-            <button class="btn-accept" onclick="acceptMission(this)">ACCEPT</button>
         </div>
+
+        <div class="project-grid">
+            <div>
+                <img src="assets/images/3D robot rig animation.jpg" class="project-main-img" alt="6-Axis Robot Arm">
+                
+                <div class="info-panel">
+                    <h4>HARDWARE BOM (KEY COMPONENTS)</h4>
+                    <ul style="color: #aaa; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; padding-left: 20px;">
+                        <li><strong style="color:#ccc;">Motors:</strong> Nema 23 (J1-J3, >2.2Nm) & Nema 17 (J4-J6 Wrist)</li>
+                        <li><strong style="color:#ccc;">Drives:</strong> Custom 1:100 Cycloidal (Dual-disc, 686ZZ Bearings)</li>
+                        <li><strong style="color:#ccc;">Spindle:</strong> RATTM MOTOR 0.8kW Water-Cooled (65mm, ER11)</li>
+                        <li><strong style="color:#ccc;">Payload Comp:</strong> Gas Springs (200N-300N force)</li>
+                        <li><strong style="color:#ccc;">Logic:</strong> 32-bit MCU (Teensy 4.1/STM32) + DM542 Drivers</li>
+                    </ul>
+                </div>
+
+                <div class="info-panel">
+                    <h4>DATA & REFERENCES</h4>
+                    <a href="#" class="resource-link">▶ [YOUTUBE] Assembly Guide: 1:100 Cycloidal Drives</a>
+                    <a href="#" class="resource-link">📄 [DOCS] Kinematic Architecture (750-800mm Reach)</a>
+                    <a href="#" class="resource-link">📄 [DOCS] CNC Strategy: Trochoidal Milling (800+ mm/min)</a>
+                    <a href="#" class="resource-link">⚙️ [GITHUB] GRBL-HAL / ROS Control Firmware</a>
+                </div>
+            </div>
+
+            <div>
+                <div class="info-panel">
+                    <h4>EXECUTION PLAN (VON NEUMANN)</h4>
+                    <p style="color: #666; font-family: var(--font-mono); font-size: 0.7rem; margin-bottom: 15px;">
+                        Click a task to upload photo/screenshot proof. Admin verification required for progression.
+                    </p>
+                    
+                    <div class="checklist-item" onclick="openUploadModal('Phase 1: 3D Print V1 Shells (PETG/ABS)')">
+                        <div class="checklist-status"></div>
+                        <div>1. Print V1 Shells & Fill (Epoxy-Granite)</div>
+                    </div>
+                    
+                    <div class="checklist-item" onclick="openUploadModal('Task: J1-J3 Heavy Axis Assembly')">
+                        <div class="checklist-status"></div>
+                        <div>2. Assemble J1-J3 (Nema 23 + Cycloidal)</div>
+                    </div>
+
+                    <div class="checklist-item" onclick="openUploadModal('Task: Gravity Compensation')">
+                        <div class="checklist-status"></div>
+                        <div>3. Install 200N-300N Gas Springs</div>
+                    </div>
+
+                    <div class="checklist-item" onclick="openUploadModal('Task: J4-J6 Wrist & Spindle')">
+                        <div class="checklist-status"></div>
+                        <div>4. Mount Nema 17 Wrist & 0.8kW Spindle</div>
+                    </div>
+
+                    <div class="checklist-item" onclick="openUploadModal('Phase 2: CNC Mill V2 Aluminum Parts')">
+                        <div class="checklist-status" style="border-color: var(--accent);"></div>
+                        <div style="color: var(--accent);">5. [PHASE 2] Mill V2 Daughter Parts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <div id="missionModal" class="modal-overlay">
+        <div class="mission-modal">
+            
+            <div id="modalStep1">
+                <div class="modal-warning-header">INDUSTRIAL HAZARD WARNING</div>
+                <div class="modal-text">
+                    <strong>WARNING:</strong> Project "Replicator" is strictly restricted. It involves high-torque Nema 23 steppers, high-load inverse kinematics, and a 24,000 RPM 0.8kW spindle capable of milling steel. <br><br>
+                    <span style="color: #e74c3c;">Not suitable for children or uncertified operators. Physical injury risk is HIGH.</span>
+                </div>
+                <div class="skill-list">
+                    <strong>REQUIRED CAPABILITIES:</strong><br>
+                    - Advanced 3D Printing (PETG/ABS + Epoxy-Granite)<br>
+                    - Precision Mechanics (Zero-Backlash Cycloidal Assembly)<br>
+                    - CNC CAM Strategies (Adaptive Clearing / Trochoidal)<br>
+                    - 32-bit MCU Firmware Configuration
+                </div>
+                <div class="modal-actions">
+                    <button class="action-btn" style="border-color: #666; color: #666;" onclick="closeModal('missionModal')">DECLINE RISK</button>
+                    <button class="action-btn" onclick="nextModalStep()">ACKNOWLEDGE & PROCEED</button>
+                </div>
+            </div>
+
+            <div id="modalStep2" style="display: none;">
+                <h3 style="color: #fff; font-family: var(--font-tech); margin-bottom: 15px;">CONFIRM UPLINK</h3>
+                <div class="modal-text">
+                    Are you ready to bind Project "Replicator" to your Operator ID? 
+                    <br><br>You will be required to submit photographic evidence of structural integrity and kinematic calibration to System Admins.
+                </div>
+                <div class="modal-actions">
+                    <button class="action-btn" style="border-color: #666; color: #666;" onclick="closeModal('missionModal')">CANCEL</button>
+                    <button class="action-btn" style="background: var(--accent); color: #fff;" onclick="startProject()">CONFIRM INITIATION</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="uploadModal" class="modal-overlay">
+        <div class="mission-modal" style="border-color: #3498db;">
+            <h3 style="color: #3498db; font-family: var(--font-tech); margin-bottom: 15px;">UPLOAD PROOF</h3>
+            <div class="modal-text" id="uploadTaskName">Task Name Here</div>
+            
+            <div style="border: 2px dashed #444; padding: 40px; text-align: center; margin-bottom: 20px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.borderColor='#3498db'" onmouseout="this.style.borderColor='#444'">
+                <div style="font-size: 2rem; margin-bottom: 10px;">📸</div>
+                <span style="color: #888; font-family: var(--font-mono);">CLICK TO BROWSE OR DRAG PHOTO / SCREENSHOT</span>
+                <div style="font-size: 0.6rem; color: #555; margin-top: 10px;">Supported formats: JPG, PNG, MP4 (Max 50MB)</div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="action-btn" style="border-color: #666; color: #666;" onclick="closeModal('uploadModal')">CANCEL</button>
+                <button class="action-btn" style="border-color: #3498db; color: #3498db;" onclick="submitProof()">TRANSMIT TO ADMIN</button>
+            </div>
+        </div>
+    </div>
 
         <div class="mission-card">
             <div class="ms-icon">🧬</div>
@@ -1366,27 +1522,68 @@ function sendChat() {
         }
     }
 
-    // --- MISSION LOGIC ---
-    function acceptMission(btn) {
-        // Эффект нажатия
-        const originalText = btn.innerText;
-        btn.innerText = "DEPLOYING...";
-        btn.style.background = "#2ecc71";
-        btn.style.color = "#000";
-        
-        setTimeout(() => {
-            // Удаляем карточку с анимацией
-            const card = btn.closest('.mission-card');
-            card.style.opacity = '0';
-            card.style.transform = 'translateX(50px)';
-            
-            setTimeout(() => {
-                card.style.display = 'none';
-                alert("CONTRACT ACCEPTED. Data package downloading to local unit...");
-            }, 300);
-        }, 1500);
+    // --- MISSION & PROJECT LOGIC ---
+
+    // 1. Управление окном принятия миссии
+    function openMissionModal() {
+        document.getElementById('missionModal').style.display = 'flex';
+        document.getElementById('modalStep1').style.display = 'block';
+        document.getElementById('modalStep2').style.display = 'none';
     }
-    
+
+    function nextModalStep() {
+        document.getElementById('modalStep1').style.display = 'none';
+        document.getElementById('modalStep2').style.display = 'block';
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+
+    // 2. Переход к рабочему столу проекта
+    function startProject() {
+        closeModal('missionModal');
+        
+        // Скрываем список миссий и показываем рабочий стол
+        document.querySelector('.mission-list').style.display = 'none';
+        document.querySelector('.mission-stats-row').style.display = 'none';
+        
+        document.getElementById('activeProjectView').style.display = 'block';
+    }
+
+    // Возврат назад
+    function closeProject() {
+        document.getElementById('activeProjectView').style.display = 'none';
+        
+        document.querySelector('.mission-list').style.display = 'flex';
+        document.querySelector('.mission-stats-row').style.display = 'grid';
+    }
+
+    // 3. Логика Чек-листа и Загрузки
+    let currentTaskElement = null;
+
+    function openUploadModal(taskName) {
+        currentTaskElement = event.currentTarget; // Запоминаем, на какой пункт нажали
+        
+        document.getElementById('uploadTaskName').innerText = "Verifying: " + taskName;
+        document.getElementById('uploadModal').style.display = 'flex';
+    }
+
+    function submitProof() {
+        closeModal('uploadModal');
+        
+        // Меняем статус пункта чек-листа на "В ожидании"
+        if(currentTaskElement) {
+            currentTaskElement.classList.add('pending');
+            currentTaskElement.innerHTML = `
+                <div class="checklist-status">⌛</div>
+                <div style="flex: 1;">${currentTaskElement.innerText}</div>
+                <div style="color: #f1c40f; font-size: 0.6rem;">PENDING ADMIN</div>
+            `;
+        }
+        
+        alert("UPLOAD SUCCESSFUL.\nData transmitted to System Admin for verification.");
+    }
 </script>
 </body>
 </html>

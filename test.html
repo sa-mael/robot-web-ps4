@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARTTOUS | Operator Command</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-core: #050505;
+            --bg-card: #0e0e0e;
+            --accent: #7c2ae8;
+            --accent-dim: rgba(124, 42, 232, 0.1);
+            --text-main: #e0e0e0;
+            --success: #2ecc71;
+            --alert: #e74c3c;
+            --font-tech: 'Orbitron', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-core);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        nav { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; background: #080808; position: fixed; z-index: 100; width: 100vw; height: 70px; }
+        .logo { font-family: var(--font-tech); font-size: 1.2rem; font-weight: 900; color: #fff; text-decoration: none; }
+        .accent { color: var(--accent); }
+        .user-badge { display: flex; align-items: center; gap: 15px; }
+        .avatar-small { width: 30px; height: 30px; background: #222; border-radius: 50%; border: 1px solid var(--accent); }
+        .logout-btn { color: #666; font-size: 0.8rem; text-decoration: none; transition: 0.3s; }
+        .logout-btn:hover { color: var(--alert); }
+
+        /* LAYOUT GRID */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            flex: 1;
+            height: calc(100vh - 70px);
+            overflow: hidden;
+            margin-top: 70px;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: #0a0a0a;
+            border-right: 1px solid #222;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .profile-card { text-align: center; margin-bottom: 30px; }
+        .large-avatar { width: 80px; height: 80px; background: #1a1a1a; border-radius: 50%; margin: 0 auto 15px; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-tech); color: var(--accent); font-size: 1.5rem; }
+        .username { font-family: var(--font-tech); font-size: 1.1rem; color: #fff; }
+        .rank { font-family: var(--font-mono); font-size: 0.75rem; color: var(--success); margin-top: 5px; }
+
+        .nav-tabs { display: flex; flex-direction: column; gap: 5px; margin-top: 20px; }
+        .tab-btn {
+            background: transparent; border: none; text-align: left; padding: 12px 15px; color: #666; font-family: var(--font-mono); font-size: 0.85rem; cursor: pointer; transition: 0.2s; border-radius: 4px;
+        }
+        .tab-btn:hover { background: #111; color: #fff; }
+        .tab-btn.active { background: var(--accent-dim); color: var(--accent); border-left: 2px solid var(--accent); }
+
+        .xp-section { margin-top: auto; padding-top: 20px; border-top: 1px solid #222; }
+        .level-info { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 5px; font-family: var(--font-mono); color: #888; }
+        .progress-bar { width: 100%; height: 4px; background: #222; border-radius: 2px; }
+        .progress-fill { width: 65%; height: 100%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+
+        /* MAIN CONTENT AREA */
+        .content-area {
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* TAB CONTENT SECTIONS */
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { font-family: var(--font-tech); font-size: 1.8rem; margin-bottom: 10px; }
+        .subtitle { font-family: var(--font-mono); font-size: 0.8rem; color: #666; margin-bottom: 40px; display: block; }
+
+        /* --- DASHBOARD WIDGETS --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: var(--bg-card); border: 1px solid #222; padding: 20px; }
+        .stat-num { font-family: var(--font-tech); font-size: 2rem; color: #fff; }
+        .stat-label { font-family: var(--font-mono); font-size: 0.75rem; color: #666; text-transform: uppercase; margin-top: 5px; }
+
+        .heatmap-box { border: 1px solid #222; padding: 20px; background: #080808; margin-bottom: 40px; }
+        .heatmap-grid { display: flex; gap: 4px; margin-top: 15px; flex-wrap: wrap; }
+        .h-col { display: flex; flex-direction: column; gap: 4px; }
+        .h-cell { width: 10px; height: 10px; background: #151515; border-radius: 2px; }
+        .h-l1 { background: #3c1466; } .h-l2 { background: #7c2ae8; } .h-l3 { background: #b07afc; }
+
+        /* --- FLEET MANAGEMENT --- */
+        .fleet-list { display: flex; flex-direction: column; gap: 15px; }
+        .fleet-item { background: var(--bg-card); border: 1px solid #222; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .fleet-info h4 { color: #fff; font-family: var(--font-tech); margin-bottom: 5px; }
+        .fleet-meta { font-family: var(--font-mono); font-size: 0.75rem; color: #666; }
+        .status-badge { padding: 5px 10px; font-size: 0.7rem; font-family: var(--font-mono); border-radius: 4px; background: rgba(46, 204, 113, 0.1); color: var(--success); border: 1px solid var(--success); }
+        .status-badge.offline { background: rgba(231, 76, 60, 0.1); color: var(--alert); border-color: var(--alert); }
+        .action-btn { background: transparent; border: 1px solid #444; color: #aaa; padding: 8px 15px; font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
+        .action-btn:hover { border-color: var(--accent); color: #fff; }
+
+        /* --- SETTINGS --- */
+        .settings-group { margin-bottom: 30px; border-bottom: 1px solid #222; padding-bottom: 30px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .setting-desc h4 { color: #fff; font-family: 'Inter'; font-size: 0.95rem; margin-bottom: 5px; }
+        .setting-desc p { color: #666; font-size: 0.8rem; }
+        
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 4px; bottom: 4px; background-color: #888; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(20px); background-color: #fff; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .dark-input { width: 100%; background: #050505; border: 1px solid #333; padding: 12px 15px; color: #fff; font-family: var(--font-mono); font-size: 0.9rem; outline: none; transition: 0.3s; border-radius: 4px; }
+        .dark-input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(124, 42, 232, 0.1); }
+        .input-label { font-size: 0.7rem; color: #888; display: block; margin-bottom: 8px; font-family: var(--font-tech); letter-spacing: 1px; }
+        #avatarInput { display: none; }
+        .password-box { background: #111; border: 1px dashed #333; padding: 20px; margin-top: 15px; display: none; }
+        .password-box.show { display: block; animation: fadeIn 0.3s ease; }
+
+        /* Toast */
+        #toast { visibility: hidden; min-width: 250px; background-color: var(--accent); color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); font-family: var(--font-tech); box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} } 
+
+        /* --- CONTROL LINK --- */
+        .control-frame-container { display: flex; flex-direction: column; height: 600px; background: #000; border: 1px solid #333; }
+        .address-bar { padding: 10px; background: #06090d; border-bottom: 1px solid #333; display: flex; gap: 10px; align-items: center;}
+        .ip-input { flex: 1; background: #000; border: 1px solid #333; color: #fff; font-family: var(--font-mono); padding: 8px; }
+        .connect-btn { background: var(--accent); color: #fff; border: none; padding: 0 20px; font-family: var(--font-tech); cursor: pointer; }
+        iframe { width: 100%; height: 100%; border: none; background: #000; }
+        .frame-placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: #444; font-family: var(--font-mono); flex-direction: column; }
+
+        /* --- CHAT SYSTEM --- */
+        .chat-layout { display: grid; grid-template-columns: 260px 1fr; height: 600px; border: 1px solid #333; background: #000; margin-top: 20px; position: relative; }
+        .chat-list { border-right: 1px solid #333; display: flex; flex-direction: column; background: #080808; }
+        .search-bar-container { padding: 15px; border-bottom: 1px solid #333; }
+        .friend-search { width: 100%; background: #111; border: 1px solid #333; padding: 10px; color: #fff; font-family: var(--font-mono); font-size: 0.8rem; }
+        .friends-scroll { flex: 1; overflow-y: auto; }
+        .friend { padding: 15px; color: #666; cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem; border-bottom: 1px solid #111; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .friend:hover { background: #111; color: #ccc; }
+        .friend.active { background: #1a1a1a; color: #fff; border-left: 3px solid var(--accent); }
+        .friend.project-member { color: var(--accent); }
+        .friend.project-member .project-badge { background: rgba(124, 42, 232, 0.2); border: 1px solid var(--accent); color: #fff; font-size: 9px; padding: 2px 4px; border-radius: 2px; }
+        .chat-window { display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; }
+        .messages { flex: 1; padding: 20px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.85rem; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 80%; padding: 8px 12px; border-radius: 4px; line-height: 1.4; }
+        .msg.me { align-self: flex-end; text-align: right; color: #a0a0ff; background: rgba(124, 42, 232, 0.1); border: 1px solid rgba(124, 42, 232, 0.3); }
+        .msg.them { align-self: flex-start; text-align: left; color: #aaa; background: #111; border: 1px solid #333; }
+        .chat-input-area { padding: 15px; border-top: 1px solid #333; background: #080808; display: flex; gap: 10px; flex-shrink: 0; }
+        .chat-input { flex: 1; background: #111; border: 1px solid #333; padding: 12px; color: #fff; font-family: var(--font-mono); outline: none; }
+        .ctx-menu { display: none; position: fixed; background: #111; border: 1px solid var(--accent); min-width: 180px; box-shadow: 0 5px 20px rgba(0,0,0,0.9); z-index: 9999; }
+        .ctx-item { padding: 12px 15px; border-bottom: 1px solid #222; cursor: pointer; color: #ccc; font-size: 0.8rem; }
+        .ctx-item:hover { background: var(--accent); color: #fff; }
+        .chat-top-controls { display: flex; gap: 10px; margin-bottom: 10px; }
+        .top-pill-btn { background: #111; border: 1px solid #333; color: #666; padding: 5px 12px; font-size: 0.7rem; font-family: var(--font-mono); cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .badge-count { background: var(--alert); color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 10px; }
+
+        /* --- INVESTOR --- */
+        .invest-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+        .invest-card { background: #0e0e0e; border: 1px solid #222; padding: 20px; text-align: center; }
+        .metric-val { font-family: var(--font-tech); font-size: 1.5rem; color: #fff; }
+        .metric-label { font-size: 0.7rem; color: #666; margin-top: 5px; }
+
+        /* --- MISSION CONTROL BOARD --- */
+        .mission-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stat-box { background: linear-gradient(180deg, #111 0%, #080808 100%); border: 1px solid #333; padding: 15px; position: relative; display: flex; flex-direction: column; justify-content: center; }
+        .stat-box::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--accent); opacity: 0.5; }
+        .stat-val { font-family: var(--font-tech); font-size: 1.4rem; color: #fff; margin-bottom: 5px; }
+        
+        .mission-list { display: flex; flex-direction: column; gap: 15px; padding-right: 5px; }
+        .mission-card { background: #0a0a0a; border: 1px solid #222; padding: 20px; display: grid; grid-template-columns: 50px 1fr 120px 100px; gap: 20px; align-items: center; transition: 0.3s; position: relative; overflow: hidden; }
+        .mission-card:hover { border-color: #444; background: #0f0f0f; transform: translateX(5px); }
+        .mission-card::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #333; transition: 0.3s; }
+        .mission-card:hover::after { background: var(--accent); }
+        .ms-icon { width: 40px; height: 40px; background: #111; border: 1px solid #333; color: #666; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 1.2rem; }
+        .ms-info h4 { color: #fff; font-family: var(--font-tech); margin-bottom: 5px; font-size: 1rem; }
+        .ms-desc { color: #666; font-size: 0.75rem; font-family: var(--font-mono); }
+        .ms-tags { display: flex; flex-direction: column; gap: 5px; text-align: right; }
+        .tag-diff { font-size: 0.7rem; color: #e67e22; font-family: var(--font-mono); border: 1px solid #e67e22; padding: 2px 5px; display: inline-block; width: fit-content; align-self: flex-end; }
+        .tag-reward { font-size: 0.8rem; color: #2ecc71; font-weight: bold; font-family: var(--font-mono); }
+        .btn-accept { background: transparent; border: 1px solid #333; color: #888; padding: 8px 0; cursor: pointer; font-family: var(--font-tech); font-size: 0.7rem; transition: 0.2s; }
+        .btn-accept:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+        /* --- COMPLETED PROJECTS (ARCHIVE) --- */
+        .completed-section-title { font-family: var(--font-tech); color: #666; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 1px dashed #333; font-size: 1.2rem; }
+        .completed-card { background: #050505; border: 1px solid #222; padding: 20px; display: flex; gap: 20px; align-items: center; transition: 0.3s; }
+        .completed-card:hover { border-color: var(--accent); }
+        .completed-img { width: 100px; height: 100px; object-fit: cover; border: 1px solid #333; border-radius: 4px; }
+        .completed-info { flex: 1; }
+        .completed-info h4 { color: #fff; font-family: var(--font-tech); margin-bottom: 5px; font-size: 1.1rem; letter-spacing: 1px; }
+        .completed-desc { color: #888; font-size: 0.8rem; font-family: var(--font-mono); line-height: 1.5; margin-bottom: 10px; }
+        .author-tag { color: var(--accent); font-size: 0.7rem; font-family: var(--font-mono); }
+        .btn-view-artstation { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 10px 20px; font-family: var(--font-tech); font-size: 0.7rem; cursor: pointer; text-decoration: none; display: inline-block; transition: 0.3s; text-align: center; }
+        .btn-view-artstation:hover { background: var(--accent); color: #fff; box-shadow: 0 0 15px rgba(124, 42, 232, 0.4); }
+
+        /* --- MISSION MODALS & ACTIVE PROJECT --- */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 9999; align-items: center; justify-content: center; }
+        .mission-modal { background: #0a0a0a; border: 1px solid var(--accent); width: 500px; max-width: 90%; padding: 30px; position: relative; box-shadow: 0 0 30px rgba(124, 42, 232, 0.2); }
+        .modal-warning-header { color: #e74c3c; font-family: var(--font-tech); font-size: 1.5rem; border-bottom: 1px solid #e74c3c; padding-bottom: 10px; margin-bottom: 20px; }
+        .modal-text { color: #ccc; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin-bottom: 20px; }
+        .skill-list { background: #111; padding: 15px; border-left: 2px solid #f1c40f; margin-bottom: 20px; font-family: var(--font-mono); font-size: 0.8rem; color: #aaa; }
+        .modal-actions { display: flex; justify-content: space-between; margin-top: 30px; }
+
+        #activeProjectView { display: none; animation: fadeIn 0.3s ease; }
+        .project-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+        .btn-back { background: transparent; border: none; color: #888; font-family: var(--font-mono); cursor: pointer; transition: 0.2s; }
+        .btn-back:hover { color: #fff; }
+        .project-grid { display: grid; grid-template-columns: 1fr 300px; gap: 30px; }
+        .project-main-img { width: 100%; border: 1px solid #333; border-radius: 4px; margin-bottom: 20px; }
+        .info-panel { background: #080808; border: 1px solid #222; padding: 20px; margin-bottom: 20px; }
+        .info-panel h4 { font-family: var(--font-tech); color: var(--accent); margin-bottom: 15px; font-size: 1rem; }
+        .resource-link { display: block; color: #3498db; text-decoration: none; font-family: var(--font-mono); font-size: 0.8rem; margin-bottom: 10px; }
+        .resource-link:hover { text-decoration: underline; }
+        .checklist-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: #111; border: 1px solid #333; margin-bottom: 10px; cursor: pointer; transition: 0.2s; font-family: var(--font-mono); font-size: 0.8rem; color: #ccc; }
+        .checklist-item:hover { border-color: var(--accent); }
+        .checklist-status { width: 15px; height: 15px; border: 1px solid #666; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        .checklist-item.pending { border-color: #f1c40f; color: #f1c40f; pointer-events: none; }
+        .checklist-item.pending .checklist-status { border-color: #f1c40f; content: "⌛"; }
+
+        /* Terminal Overlay for Ping */
+        .terminal-overlay { position: fixed; bottom: 20px; right: 20px; width: 350px; background: #000; border: 1px solid #333; padding: 15px; font-family: var(--font-mono); font-size: 0.75rem; color: #aaa; z-index: 1000; display: none; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+        .term-line { margin-bottom: 5px; }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
+        <div class="user-badge">
+            <span style="font-family: 'JetBrains Mono'; font-size: 0.8rem; color: #888;">ID: 0x92F1</span>
+            <div class="avatar-small"></div>
+            <a href="index.html" class="logout-btn">LOGOUT</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="profile-card">
+                <div class="large-avatar" id="sidebarAvatar">OP</div>
+                <div class="username">ALEX_MERCER</div>
+                <div class="rank">/// RANK: SENIOR ENGINEER</div>
+            </div>
+
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="openTab('dashboard', this)">DASHBOARD</button>
+                <button class="tab-btn" onclick="openTab('fleet', this)">MY FLEET (3)</button>
+                <button class="tab-btn" onclick="openTab('missions', this)">MISSIONS</button>
+                <button class="tab-btn" onclick="openTab('control', this)">CONTROL LINK</button>
+                <button class="tab-btn" onclick="openTab('chat', this)">SECURE COMMS</button>
+                <button class="tab-btn" onclick="openTab('investor', this)">INVESTOR HUB</button>
+                <button class="tab-btn" onclick="openTab('settings', this)">SETTINGS</button>
+            </div>
+
+            <div class="xp-section">
+                <div class="level-info">
+                    <span>LEVEL 04</span>
+                    <span>65%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="content-area">
+
+            <div id="dashboard" class="tab-content active">
+                <h2>OPERATOR OVERVIEW</h2>
+                <span class="subtitle">Welcome back. Systems are nominal.</span>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-num">3</div>
+                        <div class="stat-label">Active Units</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num" style="color: var(--success);">124</div>
+                        <div class="stat-label">Commits Merged</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num">850</div>
+                        <div class="stat-label">Reputation Points</div>
+                    </div>
+                </div>
+
+                <h3>CONTRIBUTION MATRIX</h3>
+                <div class="heatmap-box">
+                    <div class="heatmap-grid" id="heatmap"></div>
+                    <div style="text-align: right; font-family: var(--font-mono); font-size: 0.7rem; color: #444; margin-top: 10px;">
+                        LAST 30 DAYS ACTIVITY
+                    </div>
+                </div>
+
+                <h3>BADGE COLLECTION</h3>
+                <div style="display: flex; gap: 15px; margin-top: 15px;">
+                    <div style="width: 50px; height: 50px; background: #111; border: 1px solid #333; display: flex; align-items: center; justify-content: center; color: #444; font-size: 1.5rem;" title="Early Adopter">★</div>
+                    <div style="width: 50px; height: 50px; background: #111; border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.5rem;" title="Code Contributor">⌘</div>
+                    <div style="width: 50px; height: 50px; background: #111; border: 1px dashed #333; opacity: 0.5;"></div>
+                </div>
+            </div>
+
+            <div id="fleet" class="tab-content">
+                <h2>FLEET MANAGEMENT</h2>
+                <span class="subtitle">Manage your registered ESP32-C6 units.</span>
+
+                <div class="fleet-list">
+                    <div class="fleet-item">
+                        <div class="fleet-info">
+                            <h4>UNIT_ALPHA</h4>
+                            <div class="fleet-meta">MAC: A0:B1:C2:D3:E4</div>
+                            <div class="fleet-meta">FW: v53.0 (Up to date)</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <div class="status-badge">ONLINE</div>
+                            <button class="action-btn" onclick="pingUnit('UNIT_ALPHA')">PING</button>
+                            <button class="action-btn">CONFIG</button>
+                        </div>
+                    </div>
+
+                    <div class="fleet-item">
+                        <div class="fleet-info">
+                            <h4>UNIT_BETA</h4>
+                            <div class="fleet-meta">MAC: F5:E6:D7:C8:B9</div>
+                            <div class="fleet-meta">FW: v52.4 (Update Available)</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <div class="status-badge">ONLINE</div>
+                            <button class="action-btn" onclick="pingUnit('UNIT_BETA')">PING</button>
+                            <button class="action-btn" style="color: var(--accent); border-color: var(--accent);">UPDATE</button>
+                        </div>
+                    </div>
+
+                    <div class="fleet-item">
+                        <div class="fleet-info">
+                            <h4 style="color: #666;">UNIT_GAMMA</h4>
+                            <div class="fleet-meta">MAC: 11:22:33:44:55</div>
+                            <div class="fleet-meta">FW: UNKNOWN</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <div class="status-badge offline">OFFLINE</div>
+                            <button class="action-btn" disabled style="opacity: 0.5;">PING</button>
+                            <button class="action-btn">REMOVE</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="action-btn" style="margin-top: 20px; width: 100%; border-style: dashed;">+ REGISTER NEW DEVICE</button>
+            </div>
+
+            <div id="missions" class="tab-content"> 
+                
+                <div class="mission-header-section" id="missionHeaders">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+                        <div>
+                            <h2>OPEN CONTRACTS</h2>
+                            <span class="subtitle">Contribute computing power or hardware to earn credits.</span>
+                        </div>
+                        <button class="action-btn" style="border-style: dashed;">REFRESH BOARD</button>
+                    </div>
+
+                    <div class="mission-stats-row">
+                        <div class="stat-box">
+                            <div class="stat-val" style="color: var(--accent);">LVL 4</div>
+                            <div class="stat-label">OPERATOR RANK</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-val" style="color: #2ecc71;">$1,450</div>
+                            <div class="stat-label">TOTAL EARNINGS</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-val">98.2%</div>
+                            <div class="stat-label">REPUTATION SCORE</div>
+                        </div>
+                    </div>
+
+                    <div class="mission-list">
+                        
+                        <div class="mission-card">
+                            <div class="ms-icon">🦾</div>
+                            <div class="ms-info">
+                                <h4>PROJECT REPLICATOR: 6-AXIS ARM</h4>
+                                <div class="ms-desc">Build an industrial-grade CNC robotic arm. Phase 1 Assembly.</div>
+                            </div>
+                            <div class="ms-tags">
+                                <span class="tag-diff" style="color:#e74c3c; border-color:#e74c3c;">CLASS A</span>
+                                <span class="tag-reward">+$2500 CREDITS</span>
+                            </div>
+                            <button class="btn-accept" onclick="openMissionModal()">ACCEPT</button>
+                        </div>
+
+                        <div class="mission-card">
+                            <div class="ms-icon">🧬</div>
+                            <div class="ms-info">
+                                <h4>NEURAL TRAINING: GAIT V2</h4>
+                                <div class="ms-desc">Donate GPU cycles to train the new walking algorithm.</div>
+                            </div>
+                            <div class="ms-tags">
+                                <span class="tag-diff" style="color:#f1c40f; border-color:#f1c40f;">CLASS B</span>
+                                <span class="tag-reward">+$400 CREDITS</span>
+                            </div>
+                            <button class="btn-accept">ACCEPT</button>
+                        </div>
+
+                        <div class="mission-card">
+                            <div class="ms-icon">⚡</div>
+                            <div class="ms-info">
+                                <h4>STRESS TEST: SERVO ARRAY</h4>
+                                <div class="ms-desc">Execute high-load calibration sequence (Risk of overheating).</div>
+                            </div>
+                            <div class="ms-tags">
+                                <span class="tag-diff" style="color:#e74c3c; border-color:#e74c3c;">CLASS A</span>
+                                <span class="tag-reward">+$950 CREDITS</span>
+                            </div>
+                            <button class="btn-accept">ACCEPT</button>
+                        </div>
+
+                        <div class="mission-card" style="opacity: 0.5;">
+                            <div class="ms-icon">🔒</div>
+                            <div class="ms-info">
+                                <h4>ENCRYPTED PAYLOAD</h4>
+                                <div class="ms-desc">Locked. Requires Rank: SENIOR ENGINEER.</div>
+                            </div>
+                            <div class="ms-tags">
+                                <span class="tag-diff">CLASS S</span>
+                                <span class="tag-reward">UNKNOWN</span>
+                            </div>
+                            <button class="btn-accept" disabled style="cursor: not-allowed; border-color: #333; background: #111; color:#333;">LOCKED</button>
+                        </div>
+                        
+                        <h3 class="completed-section-title">COMPLETED PROJECTS (ARCHIVE)</h3>
+                        <div class="completed-card">
+                            <img src="assets/images/photo_2025-12-15_19-08-27.jpg" class="completed-img" alt="The Cyber-Oni">
+                            <div class="completed-info">
+                                <h4>THE CYBER-ONI</h4>
+                                <div class="completed-desc">
+                                    "A style you can put together yourself - part of the interior is part of your vision."<br>
+                                    Concept design, 3D modeling, and physical fabrication.
+                                </div>
+                                <div class="author-tag">/// LEAD DESIGNER: ROSTISLAV KOVALENKO</div>
+                            </div>
+                            <div>
+                                <a href="https://www.artstation.com/artwork/oJvwaJ" target="_blank" class="btn-view-artstation">
+                                    VIEW ON<br>ARTSTATION
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="activeProjectView">
+                    <div class="project-header-row">
+                        <div>
+                            <button class="btn-back" onclick="closeProject()">← ABORT / BACK TO BOARD</button>
+                            <h2 style="margin: 10px 0 0 0; color: #fff; text-transform: uppercase;">PROJECT "REPLICATOR" | 6-AXIS CNC ARM</h2>
+                            <div style="color: #888; font-family: var(--font-mono); font-size: 0.8rem; margin-top: 5px;">
+                                Phase 1: V1 Mother  ///  Objective: Precision metal milling & partial self-replication
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="color: #f1c40f; font-family: var(--font-mono); font-size: 0.8rem;">STATUS: PHASE 1 IN PROGRESS</span>
+                        </div>
+                    </div>
+
+                    <div class="project-grid">
+                        <div>
+                            <img src="assets/images/3D robot rig animation.jpg" class="project-main-img" alt="6-Axis Robot Arm">
+                            
+                            <div class="info-panel">
+                                <h4>CORE BOM (KEY COMPONENTS)</h4>
+                                <ul style="color: #aaa; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; padding-left: 20px;">
+                                    <li><strong style="color:#ccc;">Motors:</strong> Nema 23 (J1-J3, >2.2Nm) & Nema 17 (J4-J6 Wrist)</li>
+                                    <li><strong style="color:#ccc;">Drives:</strong> Custom 1:100 Cycloidal (Dual-disc, 686ZZ Bearings)</li>
+                                    <li><strong style="color:#ccc;">Spindle:</strong> RATTM MOTOR 0.8kW Water-Cooled (65mm, ER11)</li>
+                                    <li><strong style="color:#ccc;">Payload Comp:</strong> Gas Springs (200N-300N force)</li>
+                                    <li><strong style="color:#ccc;">Logic:</strong> 32-bit MCU (Teensy 4.1/STM32) + DM542 Drivers</li>
+                                </ul>
+                            </div>
+
+                            <div class="info-panel">
+                                <h4>DATA & REFERENCES</h4>
+                                <a href="#" class="resource-link">▶ [YOUTUBE] Assembly Guide: 1:100 Cycloidal Drives</a>
+                                <a href="#" class="resource-link">📄 [DOCS] Kinematic Architecture (750-800mm Reach)</a>
+                                <a href="#" class="resource-link">⚙️ [CAM] CNC Strategy: Trochoidal Milling (800+ mm/min)</a>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="info-panel">
+                                <h4>EXECUTION PLAN (VON NEUMANN)</h4>
+                                <p style="color: #666; font-family: var(--font-mono); font-size: 0.7rem; margin-bottom: 15px;">
+                                    Click a task to upload photo/screenshot proof. Admin verification required for progression.
+                                </p>
+                                
+                                <div class="checklist-item" onclick="openUploadModal('Phase 1: 3D Print V1 Shells (PETG/ABS)')">
+                                    <div class="checklist-status"></div>
+                                    <div>1. Print V1 Shells & Fill (Epoxy-Granite)</div>
+                                </div>
+                                
+                                <div class="checklist-item" onclick="openUploadModal('Task: J1-J3 Heavy Axis Assembly')">
+                                    <div class="checklist-status"></div>
+                                    <div>2. Assemble J1-J3 (Nema 23 + Cycloidal)</div>
+                                </div>
+
+                                <div class="checklist-item" onclick="openUploadModal('Task: Gravity Compensation')">
+                                    <div class="checklist-status"></div>
+                                    <div>3. Install 200N-300N Gas Springs</div>
+                                </div>
+
+                                <div class="checklist-item" onclick="openUploadModal('Task: J4-J6 Wrist & Spindle')">
+                                    <div class="checklist-status"></div>
+                                    <div>4. Mount Nema 17 Wrist & 0.8kW Spindle</div>
+                                </div>
+
+                                <div class="checklist-item" onclick="openUploadModal('Phase 2: CNC Mill V2 Aluminum Parts')">
+                                    <div class="checklist-status" style="border-color: var(--accent);"></div>
+                                    <div style="color: var(--accent);">5. [PHASE 2] Mill V2 Daughter Parts</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="control" class="tab-content">
+                <h2>DIRECT CONTROL UPLINK</h2>
+                <span class="subtitle">Connect to local Arttous unit via HTTP.</span>
+
+                <div class="control-frame-container">
+                    <div class="address-bar">
+                        <img src="assets/images/ps4.png" style="height: 34px; opacity: 0.7;">
+                        <span style="color: #666; font-family: monospace; padding-top: 8px;">TARGET IP:</span>
+                        <input type="text" id="targetIP" value="http://192.168.4.1" class="ip-input">
+                        <button class="connect-btn" onclick="connectRobot()">ESTABLISH LINK</button>
+                    </div>
+                    
+                    <div id="frameWrapper" style="flex: 1; position: relative;">
+                        <div class="frame-placeholder">
+                            <div style="font-size: 3rem; color: #222;">NO SIGNAL</div>
+                            <p>Enter Robot IP Address above to begin FPV stream.</p>
+                        </div>
+                        <iframe id="robotFrame" src="" style="display:none;"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chat" class="tab-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h2>ENCRYPTED CHANNEL</h2>
+                    <button class="action-btn" onclick="addFriend()">+ ADD NODE ID</button>
+                </div>
+
+                <div class="chat-top-controls">
+                    <button class="top-pill-btn" onclick="showRequests()">
+                        <span>INCOMING REQUESTS</span>
+                        <span class="badge-count" id="reqCount">2</span>
+                    </button>
+                    <button class="top-pill-btn" onclick="showBlocked()">
+                        <span>BLOCKED NODES</span>
+                    </button>
+                </div>
+
+                <div class="chat-layout">
+                    <div class="chat-list">
+                        <div class="search-bar-container">
+                            <input type="text" id="friendSearch" class="friend-search" placeholder="Filter Nodes..." onkeyup="filterFriends()">
+                        </div>
+                        
+                        <div id="friendsList" class="friends-scroll">
+                            <div class="friend project-member active" onclick="loadChat('Sarah_Connor', this)">
+                                <span>Sarah_Connor</span>
+                                <span class="project-badge">PROJECT</span>
+                            </div>
+
+                            <div class="friend" onclick="loadChat('Toto', this)">
+                                <span>Toto</span>
+                                <span style="font-size:9px; color:#444;">IDLE</span>
+                            </div>
+
+                            <div class="friend" onclick="loadChat('System_Bot', this)">
+                                <span>System_Bot</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-window">
+                        <div class="messages" id="msgArea">
+                            </div>
+
+                        <div class="chat-input-area">
+                            <input type="text" id="chatInput" class="chat-input" placeholder="Enter message..." onkeypress="handleChat(event)">
+                            <button class="action-btn" onclick="sendChat()">SEND</button>
+                        </div>
+                    </div>
+
+                    <div id="contextMenu" class="ctx-menu">
+                        <div class="ctx-item" onclick="toggleProjectAccess()">📡 Toggle Project Access</div>
+                        <div class="ctx-item" onclick="muteUser()">🔕 Mute Notifications</div>
+                        <div class="ctx-item" style="color:#e74c3c;" onclick="blockUser()">🚫 Block Node</div>
+                        <div class="ctx-item" style="color:#e74c3c;" onclick="deleteUser()">❌ Disconnect</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="investor" class="tab-content">
+                <h2>INVESTOR RELATIONS</h2>
+                <div class="invest-grid">
+                    <div class="invest-card">
+                        <div class="metric-val">$850</div>
+                        <div class="metric-label">UNIT COST</div>
+                    </div>
+                    <div class="invest-card">
+                        <div class="metric-val">$1,200</div>
+                        <div class="metric-label">MRR / UNIT</div>
+                    </div>
+                    <div class="invest-card">
+                        <div class="metric-val">84%</div>
+                        <div class="metric-label">MARGIN</div>
+                    </div>
+                </div>
+                
+                <div style="background: #111; border: 1px solid #333; padding: 20px;">
+                    <h3>SEED ROUND (OPEN)</h3>
+                    <p style="color: #666;">Fueling the transition to injection molding.</p>
+                    <button class="action-btn" style="margin-top: 10px;">DOWNLOAD PITCH DECK</button>
+                </div>
+            </div>
+
+            <div id="settings" class="tab-content">
+                <h2>SYSTEM CONFIGURATION</h2>
+                <span class="subtitle">Manage identity protocols and data retention.</span>
+
+                <div class="settings-group">
+                    <h4 style="color: #fff; margin-bottom: 20px; font-family: var(--font-tech);">IDENTITY MATRIX</h4>
+                
+                    <div style="display: flex; gap: 25px; align-items: center; margin-bottom: 30px;">
+                        <div id="settingsAvatarPreview" class="large-avatar" style="width: 80px; height: 80px; font-size: 1.2rem; margin: 0;">OP</div>
+                        <div>
+                            <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatarUpload(this)">
+                            <button class="action-btn" onclick="document.getElementById('avatarInput').click()">UPLOAD NEW AVATAR</button>
+                            <button class="action-btn" style="border-color: #333; color: #666; margin-left: 10px;" onclick="resetAvatar()">RESET</button>
+                            <div style="font-size: 0.7rem; color: #666; margin-top: 8px; font-family: var(--font-mono);">
+                                SUPPORTED: JPG, PNG, WEBP (MAX 2MB)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div>
+                            <span class="input-label">OPERATOR ID (NICKNAME)</span>
+                            <input type="text" id="inputNick" value="ALEX_MERCER" class="dark-input">
+                        </div>
+                        <div>
+                            <span class="input-label">FULL DESIGNATION</span>
+                            <input type="text" id="inputName" value="Alex Mercer" class="dark-input">
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <span class="input-label">SECURE COMMS CHANNEL (EMAIL)</span>
+                            <input type="email" id="inputEmail" value="alex@arttous.com" class="dark-input">
+                        </div>
+                    </div>
+                
+                    <button class="action-btn" style="background: var(--accent); color: #fff; border: none; padding: 12px 30px;" onclick="saveIdentity()">SAVE IDENTITY</button>
+                </div>
+
+                <div class="settings-group">
+                    <h4 style="color: #fff; margin-bottom: 20px; font-family: var(--font-tech);">SECURITY PROTOCOLS</h4>
+
+                    <div class="setting-row">
+                        <div class="setting-desc">
+                            <h4>Encryption Key (Password)</h4>
+                            <p>Last updated: 3 months ago.</p>
+                        </div>
+                        <button class="action-btn" onclick="togglePasswordBox()">UPDATE KEY</button>
+                    </div>
+
+                    <div id="passwordBox" class="password-box">
+                        <div class="form-grid">
+                            <div>
+                                <span class="input-label">CURRENT KEY</span>
+                                <input type="password" placeholder="•••••••" class="dark-input">
+                            </div>
+                            <div>
+                                <span class="input-label">NEW KEY</span>
+                                <input type="password" placeholder="New Password" class="dark-input">
+                            </div>
+                        </div>
+                        <button class="action-btn" style="width: 100%; border-color: var(--success); color: var(--success);" onclick="updatePassword()">CONFIRM NEW KEY</button>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-desc">
+                            <h4>Two-Factor Authentication</h4>
+                            <p>Hardware token requirement.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="check2FA" onchange="saveToggle('2fa', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-group" style="border-color: #333;">
+                    <h4 style="color: var(--success); margin-bottom: 20px; font-family: var(--font-tech);">ASSET MANAGEMENT</h4>
+                    <div class="setting-row">
+                        <div class="setting-desc">
+                            <h4>RaaS Subscription</h4>
+                            <p style="color: var(--success);">STATUS: ACTIVE (Tier 2)</p>
+                        </div>
+                        <button class="action-btn" style="border-color: #666; color: #888;" onclick="alert('SUBSCRIPTION FROZEN. Assets will be recalled.')">FREEZE CONTRACT</button>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-desc">
+                            <h4>Telemetry Tracking</h4>
+                            <p>Transmit Lidar/GPS data to HQ for diagnostics.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="checkTrack" checked onchange="saveToggle('tracking', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-group" style="border: 1px solid var(--alert); padding: 20px; background: rgba(231, 76, 60, 0.05);">
+                    <h4 style="color: var(--alert); margin-bottom: 20px; font-family: var(--font-tech);">TERMINAL COMMANDS</h4>
+                    <div class="setting-row">
+                        <div class="setting-desc">
+                            <h4 style="color: #fff;">Export Neural Logs</h4>
+                            <p>Download personal data in JSON format.</p>
+                        </div>
+                        <button class="action-btn" onclick="downloadData()">DOWNLOAD JSON</button>
+                    </div>
+                    <div class="setting-row" style="border-bottom: none; margin-bottom: 0;">
+                        <div class="setting-desc">
+                            <h4 style="color: #fff;">Burn Identity</h4>
+                            <p>Irreversible deletion of account and fleet access.</p>
+                        </div>
+                        <button class="action-btn" style="background: var(--alert); color: #fff; border: none;" onclick="deleteAccount()">EXECUTE BURN</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <div id="toast">SETTINGS SAVED</div>
+    <div id="terminal" class="terminal-overlay"></div>
+
+    <div id="missionModal" class="modal-overlay">
+        <div class="mission-modal">
+            <div id="modalStep1">
+                <div class="modal-warning-header">INDUSTRIAL HAZARD WARNING</div>
+                <div class="modal-text">
+                    <strong>WARNING:</strong> Project "Replicator" is strictly restricted. It involves high-torque Nema 23 steppers, high-load inverse kinematics, and a 24,000 RPM 0.8kW spindle capable of milling steel. <br><br>
+                    <span style="color: #e74c3c;">Not suitable for children or uncertified operators. Physical injury risk is HIGH.</span>
+                </div>
+                <div class="skill-list">
+                    <strong>REQUIRED CAPABILITIES:</strong><br>
+                    - Advanced 3D Printing (PETG/ABS + Epoxy-Granite)<br>
+                    - Precision Mechanics (Zero-Backlash Cycloidal Assembly)<br>
+                    - CNC CAM Strategies (Adaptive Clearing / Trochoidal)<br>
+                    - 32-bit MCU Firmware Configuration
+                </div>
+                <div class="modal-actions">
+                    <button class="action-btn" style="border-color: #666; color: #666;" onclick="closeModal('missionModal')">DECLINE RISK</button>
+                    <button class="action-btn" onclick="nextModalStep()">ACKNOWLEDGE & PROCEED</button>
+                </div>
+            </div>
+
+            <div id="modalStep2" style="display: none;">
+                <h3 style="color: #fff; font-family: var(--font-tech); margin-bottom: 15px;">CONFIRM UPLINK</h3>
+                <div class="modal-text">
+                    Are you ready to bind Project "Replicator" to your Operator ID? 
+                    <br><br>You will be required to submit photographic evidence of structural integrity and kinematic calibration to System Admins.
+                </div>
+                <div class="modal-actions">
+                    <button class="action-btn" style="border-color: #666; color: #666;" onclick="closeModal('missionModal')">CANCEL</button>
+                    <button class="action-btn" style="background: var(--accent); color: #fff;" onclick="startProject()">CONFIRM INITIATION</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="uploadModal" class="modal-overlay">
+        <div class="mission-modal" style="border-color: #3498db;">
+            <h3 style="color: #3498db; font-family: var(--font-tech); margin-bottom: 15px;">UPLOAD PROOF</h3>
+            <div class="modal-text" id="uploadTaskName">Task Name Here</div>
+            
+            <div style="border: 2px dashed #444; padding: 40px; text-align: center; margin-bottom: 20px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.borderColor='#3498db'" onmouseout="this.style.borderColor='#444'">
+                <div style="font-size: 2rem; margin-bottom: 10px;">📸</div>
+                <span style="color: #888; font-family: var(--font-mono);">CLICK TO BROWSE OR DRAG PHOTO / SCREENSHOT</span>
+                <div style="font-size: 0.6rem; color: #555; margin-top: 10px;">Supported formats: JPG, PNG, MP4 (Max 50MB)</div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="action-btn" style="border-color: #666; color: #666;" onclick="closeModal('uploadModal')">CANCEL</button>
+                <button class="action-btn" style="border-color: #3498db; color: #3498db;" onclick="submitProof()">TRANSMIT TO ADMIN</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. GLOBALS & INIT ---
+        let currentTarget = "Sarah_Connor"; 
+        let selectedFriendEl = null;
+
+        window.addEventListener('load', () => {
+            loadIdentity();
+            loadToggles();
+            
+            // Setup Heatmap
+            const heatContainer = document.getElementById('heatmap');
+            if(heatContainer) {
+                for(let i=0; i<50; i++) { 
+                    const col = document.createElement('div'); col.className = 'h-col';
+                    for(let j=0; j<7; j++) { 
+                        const cell = document.createElement('div'); cell.className = 'h-cell';
+                        if(Math.random() > 0.7) cell.classList.add('h-l1');
+                        if(Math.random() > 0.85) cell.classList.add('h-l2');
+                        if(Math.random() > 0.95) cell.classList.add('h-l3');
+                        col.appendChild(cell);
+                    }
+                    heatContainer.appendChild(col);
+                }
+            }
+
+            // Setup Chat Listeners
+            updateContextListeners();
+            document.addEventListener('click', () => {
+                const menu = document.getElementById('contextMenu');
+                if(menu) menu.style.display = 'none';
+            });
+            const activeFriend = document.querySelector('.friend.active');
+            if(activeFriend) loadChat('Sarah_Connor', activeFriend);
+        });
+
+        // --- 2. TAB LOGIC ---
+        function openTab(id, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // --- 3. IDENTITY & AVATAR LOGIC ---
+        function handleAvatarUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageData = e.target.result; 
+                    localStorage.setItem('userAvatar', imageData);
+                    applyAvatar(imageData);
+                    showToast("AVATAR UPLOADED");
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function applyAvatar(imgSrc) {
+            document.querySelectorAll('.large-avatar, .avatar-small').forEach(av => {
+                av.style.backgroundImage = `url(${imgSrc})`;
+                av.style.backgroundSize = 'cover';
+                av.style.backgroundPosition = 'center';
+                av.innerText = ''; 
+            });
+        }
+
+        function resetAvatar() {
+            localStorage.removeItem('userAvatar');
+            location.reload(); 
+        }
+
+        function saveIdentity() {
+            const nick = document.getElementById('inputNick').value;
+            const name = document.getElementById('inputName').value;
+            const email = document.getElementById('inputEmail').value;
+            localStorage.setItem('userNick', nick);
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userEmail', email);
+            document.querySelectorAll('.username').forEach(el => el.innerText = nick);
+            showToast("IDENTITY MATRIX UPDATED");
+        }
+
+        function loadIdentity() {
+            const savedNick = localStorage.getItem('userNick') || 'ALEX_MERCER';
+            const savedName = localStorage.getItem('userName') || 'Alex Mercer';
+            const savedEmail = localStorage.getItem('userEmail') || 'alex@arttous.com';
+            const savedAvatar = localStorage.getItem('userAvatar');
+
+            if(document.getElementById('inputNick')) {
+                document.getElementById('inputNick').value = savedNick;
+                document.getElementById('inputName').value = savedName;
+                document.getElementById('inputEmail').value = savedEmail;
+            }
+            document.querySelectorAll('.username').forEach(el => el.innerText = savedNick);
+            if(savedAvatar) applyAvatar(savedAvatar);
+        }
+
+        // --- 4. SETTINGS & UTILS ---
+        function togglePasswordBox() { document.getElementById('passwordBox').classList.toggle('show'); }
+        function updatePassword() {
+            showToast("ENCRYPTION KEY ROTATED");
+            togglePasswordBox();
+            document.querySelectorAll('#passwordBox input').forEach(i => i.value = '');
+        }
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message; toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+        function saveToggle(key, isChecked) { localStorage.setItem(key, isChecked); }
+        function loadToggles() {
+            const t2fa = localStorage.getItem('2fa');
+            const tTrack = localStorage.getItem('tracking');
+            if(t2fa !== null) document.getElementById('check2FA').checked = (t2fa === 'true');
+            if(tTrack !== null) document.getElementById('checkTrack').checked = (tTrack === 'true');
+        }
+        function downloadData() { alert("DOWNLOADING JSON LOGS..."); }
+        function deleteAccount() {
+            if(confirm("CRITICAL WARNING: This action will permanently erase your Operator ID. Proceed?")) {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
+
+        // --- 5. FLEET PING LOGIC ---
+        function pingUnit(name) {
+            const term = document.getElementById('terminal');
+            term.style.display = 'block';
+            term.innerHTML = `<div class="term-line">> PING ${name}...</div>`;
+            setTimeout(() => { term.innerHTML += `<div class="term-line" style="color: #fff;">> REPLY from ${name}: bytes=32 time=12ms TTL=54</div>`; }, 500);
+            setTimeout(() => { term.innerHTML += `<div class="term-line" style="color: #fff;">> REPLY from ${name}: bytes=32 time=14ms TTL=54</div>`; }, 1000);
+            setTimeout(() => { 
+                term.innerHTML += `<div class="term-line" style="color: var(--success);">> CONNECTION STABLE</div>`;
+                setTimeout(() => { term.style.display = 'none'; }, 2000);
+            }, 1500);
+        }
+
+        // --- 6. CONTROL LINK LOGIC ---
+        function connectRobot() {
+            const ip = document.getElementById('targetIP').value;
+            const iframe = document.getElementById('robotFrame');
+            const placeholder = document.querySelector('.frame-placeholder');
+            if(ip.length < 5) return alert("Invalid IP Address");
+            placeholder.style.display = 'none';
+            iframe.style.display = 'block';
+            iframe.src = ip; 
+        }
+
+        // --- 7. CHAT LOGIC ---
+        function filterFriends() {
+            const filter = document.getElementById('friendSearch').value.toUpperCase();
+            const friends = document.getElementById("friendsList").getElementsByClassName("friend");
+            for (let i = 0; i < friends.length; i++) {
+                const span = friends[i].querySelector("span"); 
+                if (span && span.innerText.toUpperCase().indexOf(filter) > -1) {
+                    friends[i].style.display = "flex"; 
+                } else {
+                    friends[i].style.display = "none";
+                }
+            }
+        }
+
+        function loadChat(name, el) {
+            currentTarget = name;
+            document.querySelectorAll('.friend').forEach(f => f.classList.remove('active'));
+            if(el) el.classList.add('active');
+            
+            const area = document.getElementById('msgArea');
+            area.innerHTML = ''; 
+
+            if(name.includes('Sarah')) {
+                area.innerHTML += `<div class="msg them">[${name}]: I've updated the locomotion config. Check it out.</div>`;
+                area.innerHTML += `<div class="msg me">[You]: Copy that. Deploying to Unit Alpha now.</div>`;
+            } else if (name === 'System_Bot') {
+                area.innerHTML += `<div class="msg them">[SYSTEM]: Welcome back, Operator. Systems nominal.</div>`;
+            } else {
+                 area.innerHTML += `<div class="msg them" style="color:#444; text-align:center; font-size:0.7rem;">--- ENCRYPTED LOG STARTED ---</div>`;
+            }
+        }
+
+        function updateContextListeners() {
+            document.querySelectorAll('.friend').forEach(f => {
+                f.oncontextmenu = function(e) {
+                    e.preventDefault();
+                    openContextMenu(e, this);
+                };
+            });
+        }
+
+        function openContextMenu(e, el) {
+            const menu = document.getElementById('contextMenu');
+            selectedFriendEl = el;
+            menu.style.display = 'block';
+            menu.style.left = e.clientX + 'px'; 
+            menu.style.top = e.clientY + 'px';
+        }
+
+        function toggleProjectAccess() {
+            if (!selectedFriendEl) return;
+            const nameSpan = selectedFriendEl.querySelector('span');
+            const nameText = nameSpan ? nameSpan.innerText : selectedFriendEl.innerText;
+
+            if (selectedFriendEl.classList.contains('project-member')) {
+                selectedFriendEl.classList.remove('project-member');
+                const badge = selectedFriendEl.querySelector('.project-badge');
+                if(badge) badge.remove();
+                alert(`Access REVOKED for ${nameText}`);
+            } else {
+                selectedFriendEl.classList.add('project-member');
+                if (!selectedFriendEl.querySelector('.project-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'project-badge';
+                    badge.innerText = 'PROJECT';
+                    selectedFriendEl.appendChild(badge);
+                }
+                alert(`Access GRANTED to ${nameText}`);
+            }
+        }
+
+        function muteUser() { alert("Notifications muted."); }
+        function blockUser() { 
+            if(selectedFriendEl && confirm("Block this user?")) { 
+                selectedFriendEl.remove(); 
+                document.getElementById('msgArea').innerHTML = ''; 
+            } 
+        }
+        function deleteUser() { if(selectedFriendEl && confirm("Disconnect node?")) selectedFriendEl.remove(); }
+        function addFriend() {
+            const id = prompt("Enter Node ID to add:");
+            if(id) {
+                const list = document.getElementById('friendsList');
+                const newFriend = document.createElement('div');
+                newFriend.className = 'friend';
+                newFriend.innerHTML = `<span>${id}</span>`;
+                newFriend.onclick = function() { loadChat(id, this); };
+                list.appendChild(newFriend);
+                updateContextListeners();
+            }
+        }
+        function handleChat(e) { if(e.key === 'Enter') sendChat(); }
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const area = document.getElementById('msgArea');
+            const txt = input.value;
+            if(txt.trim() === "") return;
+
+            const myNick = localStorage.getItem('userNick') || 'ME';
+            area.innerHTML += `<div class="msg me">[${myNick}]: ${txt}</div>`;
+            input.value = "";
+            area.scrollTop = area.scrollHeight;
+
+            if(currentTarget === 'System_Bot') {
+                 setTimeout(() => {
+                    area.innerHTML += `<div class="msg them">[SYSTEM]: Command "${txt}" processed.</div>`;
+                    area.scrollTop = area.scrollHeight;
+                }, 600);
+            }
+        }
+        function showRequests() { alert("INCOMING REQUESTS:\n1. Alex_V9 (Wants to join)\n2. Router_X (Ping)"); }
+        function showBlocked() { alert("BLOCKED USERS:\n- Spammer_123"); }
+
+        // --- 8. MISSION MODALS & LOGIC ---
+        function openMissionModal() {
+            document.getElementById('missionModal').style.display = 'flex';
+            document.getElementById('modalStep1').style.display = 'block';
+            document.getElementById('modalStep2').style.display = 'none';
+        }
+        function nextModalStep() {
+            document.getElementById('modalStep1').style.display = 'none';
+            document.getElementById('modalStep2').style.display = 'block';
+        }
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+        function startProject() {
+            closeModal('missionModal');
+            document.getElementById('missionHeaders').style.display = 'none';
+            document.getElementById('activeProjectView').style.display = 'block';
+        }
+        function closeProject() {
+            document.getElementById('activeProjectView').style.display = 'none';
+            document.getElementById('missionHeaders').style.display = 'block';
+        }
+        
+        let currentTaskElement = null;
+        function openUploadModal(taskName) {
+            currentTaskElement = event.currentTarget; 
+            document.getElementById('uploadTaskName').innerText = "Verifying: " + taskName;
+            document.getElementById('uploadModal').style.display = 'flex';
+        }
+        function submitProof() {
+            closeModal('uploadModal');
+            if(currentTaskElement) {
+                currentTaskElement.classList.add('pending');
+                currentTaskElement.innerHTML = `
+                    <div class="checklist-status">⌛</div>
+                    <div style="flex: 1;">${currentTaskElement.innerText}</div>
+                    <div style="color: #f1c40f; font-size: 0.6rem;">PENDING ADMIN</div>
+                `;
+            }
+            alert("UPLOAD SUCCESSFUL.\nData transmitted to System Admin for verification.");
+        }
+    </script>
+</body>
+</html>
