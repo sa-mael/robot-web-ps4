@@ -33,7 +33,7 @@
         }
 
         /* HEADER */
-        nav { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; background: #080808; }
+        nav { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; background: #080808; position: fixed; z-index: 1 ;width: 100vw; }
         .logo { font-family: var(--font-tech); font-size: 1.2rem; font-weight: 900; color: #fff; text-decoration: none; }
         .accent { color: var(--accent); }
         .user-badge { display: flex; align-items: center; gap: 15px; }
@@ -48,6 +48,7 @@
             flex: 1;
             height: calc(100vh - 70px); /* Full height minus header */
             overflow: hidden;
+            margin-top: 10vh;
         }
 
         /* SIDEBAR */
@@ -405,7 +406,7 @@ iframe { width: 100%; height: 100%; border: none; background: #000; }
 /* Список миссий */
 .mission-list {
     display: flex; flex-direction: column; gap: 15px;
-    max-height: 500px; overflow-y: auto; padding-right: 5px;
+     overflow-y: auto; padding-right: 5px;
 }
 
 .mission-card {
@@ -447,6 +448,89 @@ iframe { width: 100%; height: 100%; border: none; background: #000; }
     .ms-icon { margin: 0 auto; }
     .ms-tags { align-items: center; text-align: center; }
     .tag-diff { align-self: center; }
+}
+/* --- COMPLETED PROJECTS (ARCHIVE) --- */
+.completed-section-title {
+    font-family: var(--font-tech);
+    color: #666;
+    margin: 40px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #333;
+    font-size: 1.2rem;
+}
+
+.completed-card {
+    background: #050505;
+    border: 1px solid #222;
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.completed-card:hover {
+    border-color: var(--accent);
+}
+
+.completed-img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 1px solid #333;
+    border-radius: 4px;
+}
+
+.completed-info {
+    flex: 1;
+}
+
+.completed-info h4 {
+    color: #fff;
+    font-family: var(--font-tech);
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+
+.completed-desc {
+    color: #888;
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.author-tag {
+    color: var(--accent);
+    font-size: 0.7rem;
+    font-family: var(--font-mono);
+}
+
+.btn-view-artstation {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 10px 20px;
+    font-family: var(--font-tech);
+    font-size: 0.7rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: 0.3s;
+    text-align: center;
+}
+
+.btn-view-artstation:hover {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(124, 42, 232, 0.4);
+}
+
+/* Адаптивность для телефона */
+@media (max-width: 900px) {
+    .completed-card { flex-direction: column; text-align: center; }
+    .btn-view-artstation { width: 100%; }
 }
     </style>
 </head>
@@ -654,6 +738,29 @@ iframe { width: 100%; height: 100%; border: none; background: #000; }
             </div>
             <button class="btn-accept" disabled style="cursor: not-allowed; border-color: #333; background: #111; color:#333;">LOCKED</button>
         </div>
+        <h3 class="completed-section-title">COMPLETED PROJECTS (ARCHIVE)</h3>
+    <div class="mission-list">
+        
+        <div class="completed-card">
+            <img src="assets/images/photo_2025-12-15_19-08-27.jpg" class="completed-img" alt="The Cyber-Oni">
+            
+            <div class="completed-info">
+                <h4>THE CYBER-ONI</h4>
+                <div class="completed-desc">
+                    "A style you can put together yourself - part of the interior is part of your vision."<br>
+                    Concept design, 3D modeling, and physical fabrication.
+                </div>
+                <div class="author-tag">/// LEAD DESIGNER: ROSTISLAV KOVALENKO</div>
+            </div>
+            
+            <div>
+                <a href="https://www.artstation.com/artwork/oJvwaJ" target="_blank" class="btn-view-artstation">
+                    VIEW ON<br>ARTSTATION
+                </a>
+            </div>
+        </div>
+
+    </div>
 
     </div>
 </div>
