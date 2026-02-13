@@ -253,6 +253,201 @@ iframe { width: 100%; height: 100%; border: none; background: #000; }
 .invest-card { background: #0e0e0e; border: 1px solid #222; padding: 20px; text-align: center; }
 .metric-val { font-family: 'Orbitron'; font-size: 1.5rem; color: #fff; }
 .metric-label { font-size: 0.7rem; color: #666; margin-top: 5px; }
+/* --- CHAT SYSTEM V2 --- */
+
+/* Главный контейнер чата - фиксируем высоту */
+.chat-layout { 
+    display: grid; 
+    grid-template-columns: 260px 1fr; /* Левая колонка шире для поиска */
+    height: 600px; /* Фиксированная высота всего окна */
+    border: 1px solid #333; 
+    background: #000; 
+    margin-top: 20px; 
+    position: relative;
+}
+
+/* Левая колонка (Список) */
+.chat-list { 
+    border-right: 1px solid #333; 
+    display: flex; 
+    flex-direction: column; 
+    background: #080808;
+}
+
+.search-bar-container {
+    padding: 15px; 
+    border-bottom: 1px solid #333;
+}
+.friend-search {
+    width: 100%; background: #111; border: 1px solid #333; 
+    padding: 10px; color: #fff; font-family: var(--font-mono); font-size: 0.8rem;
+}
+.friend-search:focus { border-color: var(--accent); outline: none; }
+
+/* Список друзей (Скролл внутри) */
+.friends-scroll {
+    flex: 1; overflow-y: auto;
+}
+
+.friend { 
+    padding: 15px; 
+    color: #666; /* По умолчанию серые */
+    cursor: pointer; 
+    font-family: var(--font-mono); 
+    font-size: 0.85rem; 
+    border-bottom: 1px solid #111;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: 0.2s;
+}
+.friend:hover { background: #111; color: #ccc; }
+.friend.active { background: #1a1a1a; color: #fff; border-left: 3px solid var(--accent); }
+
+/* Те, кто в проекте (Фиолетовые) */
+.friend.project-member {
+    color: var(--accent); /* Цвет текста */
+}
+.friend.project-member .project-badge {
+    background: rgba(124, 42, 232, 0.2);
+    border: 1px solid var(--accent);
+    color: #fff;
+    font-size: 9px; padding: 2px 4px; border-radius: 2px;
+}
+
+/* Правая колонка (Сообщения) */
+.chat-window { 
+    display: flex; 
+    flex-direction: column; 
+    height: 100%; /* Занимает всю высоту */
+    position: relative;
+    overflow: hidden; /* Чтобы ничего не вылезало */
+}
+
+/* Область сообщений (Скролл тут) */
+.messages { 
+    flex: 1; /* Занимает все свободное место */
+    padding: 20px; 
+    overflow-y: auto; /* Скролл ТОЛЬКО здесь */
+    font-family: var(--font-mono); 
+    font-size: 0.85rem; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px;
+}
+
+.msg { max-width: 80%; padding: 8px 12px; border-radius: 4px; line-height: 1.4; }
+.msg.me { 
+    align-self: flex-end; 
+    text-align: right; 
+    color: #a0a0ff; /* Цвет моих сообщений */
+    background: rgba(124, 42, 232, 0.1); border: 1px solid rgba(124, 42, 232, 0.3);
+}
+.msg.them { 
+    align-self: flex-start; 
+    text-align: left; 
+    color: #aaa; 
+    background: #111; border: 1px solid #333;
+}
+
+/* Поле ввода (Прижато к низу) */
+.chat-input-area { 
+    padding: 15px; 
+    border-top: 1px solid #333; 
+    background: #080808; 
+    display: flex; gap: 10px; 
+    flex-shrink: 0; /* Не сжиматься */
+}
+.chat-input { 
+    flex: 1; background: #111; border: 1px solid #333; 
+    padding: 12px; color: #fff; font-family: var(--font-mono); outline: none;
+}
+.chat-input:focus { border-color: var(--accent); }
+
+/* Контекстное меню */
+.ctx-menu {
+    display: none; position: fixed; /* Fixed лучше чем absolute */
+    background: #111; border: 1px solid var(--accent);
+    min-width: 180px; box-shadow: 0 5px 20px rgba(0,0,0,0.9); z-index: 9999;
+}
+.ctx-item { padding: 12px 15px; border-bottom: 1px solid #222; cursor: pointer; color: #ccc; font-size: 0.8rem; }
+.ctx-item:hover { background: var(--accent); color: #fff; }
+
+/* Верхние кнопки управления (Blocked/Requests) */
+.chat-top-controls {
+    display: flex; gap: 10px; margin-bottom: 10px;
+}
+.top-pill-btn {
+    background: #111; border: 1px solid #333; color: #666;
+    padding: 5px 12px; font-size: 0.7rem; font-family: var(--font-mono);
+    cursor: pointer; display: flex; align-items: center; gap: 5px;
+}
+.top-pill-btn:hover { border-color: #666; color: #fff; }
+.badge-count { 
+    background: var(--alert); color: #fff; font-size: 9px; 
+    padding: 1px 5px; border-radius: 10px; 
+}
+/* --- MISSION CONTROL BOARD --- */
+
+/* Статистика сверху */
+.mission-stats-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;
+}
+.stat-box {
+    background: linear-gradient(180deg, #111 0%, #080808 100%);
+    border: 1px solid #333; padding: 15px; position: relative;
+    display: flex; flex-direction: column; justify-content: center;
+}
+.stat-box::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--accent); opacity: 0.5;
+}
+.stat-val { font-family: var(--font-tech); font-size: 1.4rem; color: #fff; margin-bottom: 5px; }
+.stat-label { font-family: var(--font-mono); font-size: 0.7rem; color: #666; text-transform: uppercase; }
+
+/* Список миссий */
+.mission-list {
+    display: flex; flex-direction: column; gap: 15px;
+    max-height: 500px; overflow-y: auto; padding-right: 5px;
+}
+
+.mission-card {
+    background: #0a0a0a; border: 1px solid #222; padding: 20px;
+    display: grid; grid-template-columns: 50px 1fr 120px 100px; gap: 20px;
+    align-items: center; transition: 0.3s;
+    position: relative; overflow: hidden;
+}
+.mission-card:hover {
+    border-color: #444; background: #0f0f0f; transform: translateX(5px);
+}
+.mission-card::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #333; transition: 0.3s;
+}
+.mission-card:hover::after { background: var(--accent); }
+
+/* Элементы карточки */
+.ms-icon {
+    width: 40px; height: 40px; background: #111; border: 1px solid #333; color: #666;
+    display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 1.2rem;
+}
+.ms-info h4 { color: #fff; font-family: var(--font-tech); margin-bottom: 5px; font-size: 1rem; }
+.ms-desc { color: #666; font-size: 0.75rem; font-family: var(--font-mono); }
+
+.ms-tags { display: flex; flex-direction: column; gap: 5px; text-align: right; }
+.tag-diff { font-size: 0.7rem; color: #e67e22; font-family: var(--font-mono); border: 1px solid #e67e22; padding: 2px 5px; display: inline-block; width: fit-content; align-self: flex-end; }
+.tag-reward { font-size: 0.8rem; color: #2ecc71; font-weight: bold; font-family: var(--font-mono); }
+
+/* Кнопка "Принять" */
+.btn-accept {
+    background: transparent; border: 1px solid #333; color: #888;
+    padding: 8px 0; cursor: pointer; font-family: var(--font-tech); font-size: 0.7rem; transition: 0.2s;
+}
+.btn-accept:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* Адаптивность для мобильных */
+@media (max-width: 800px) {
+    .mission-card { grid-template-columns: 1fr; gap: 10px; text-align: center; }
+    .ms-icon { margin: 0 auto; }
+    .ms-tags { align-items: center; text-align: center; }
+    .tag-diff { align-self: center; }
+}
     </style>
 </head>
 <body>
@@ -383,13 +578,85 @@ iframe { width: 100%; height: 100%; border: none; background: #000; }
                 <button class="action-btn" style="margin-top: 20px; width: 100%; border-style: dashed;">+ REGISTER NEW DEVICE</button>
             </div>
 
-            <div id="missions" class="tab-content">
-                <h2>OPEN CONTRACTS</h2>
-                <span class="subtitle">Help build the Rhodium infrastructure.</span>
-                <div style="padding: 20px; border: 1px solid #333; text-align: center; color: #666; font-family: var(--font-mono);">
-                    [ MISSION BOARD DATA LOADING... ]
-                </div>
+            <div id="missions" class="tab-content"> <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+        <div>
+            <h2>OPEN CONTRACTS</h2>
+            <span class="subtitle">Contribute computing power or hardware to earn credits.</span>
+        </div>
+        <button class="action-btn" style="border-style: dashed;">REFRESH BOARD</button>
+    </div>
+
+    <div class="mission-stats-row">
+        <div class="stat-box">
+            <div class="stat-val" style="color: var(--accent);">LVL 4</div>
+            <div class="stat-label">OPERATOR RANK</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val" style="color: #2ecc71;">$1,450</div>
+            <div class="stat-label">TOTAL EARNINGS</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val">98.2%</div>
+            <div class="stat-label">REPUTATION SCORE</div>
+        </div>
+    </div>
+
+    <div class="mission-list">
+        
+        <div class="mission-card">
+            <div class="ms-icon">📡</div>
+            <div class="ms-info">
+                <h4>SECTOR SCAN: GRID 9</h4>
+                <div class="ms-desc">Autonomous mapping of unknown terrain. Requires LIDAR module.</div>
             </div>
+            <div class="ms-tags">
+                <span class="tag-diff" style="color:#2ecc71; border-color:#2ecc71;">CLASS C</span>
+                <span class="tag-reward">+$150 CREDITS</span>
+            </div>
+            <button class="btn-accept" onclick="acceptMission(this)">ACCEPT</button>
+        </div>
+
+        <div class="mission-card">
+            <div class="ms-icon">🧬</div>
+            <div class="ms-info">
+                <h4>NEURAL TRAINING: GAIT V2</h4>
+                <div class="ms-desc">Donate GPU cycles to train the new walking algorithm.</div>
+            </div>
+            <div class="ms-tags">
+                <span class="tag-diff" style="color:#f1c40f; border-color:#f1c40f;">CLASS B</span>
+                <span class="tag-reward">+$400 CREDITS</span>
+            </div>
+            <button class="btn-accept" onclick="acceptMission(this)">ACCEPT</button>
+        </div>
+
+        <div class="mission-card">
+            <div class="ms-icon">⚡</div>
+            <div class="ms-info">
+                <h4>STRESS TEST: SERVO ARRAY</h4>
+                <div class="ms-desc">Execute high-load calibration sequence (Risk of overheating).</div>
+            </div>
+            <div class="ms-tags">
+                <span class="tag-diff" style="color:#e74c3c; border-color:#e74c3c;">CLASS A</span>
+                <span class="tag-reward">+$950 CREDITS</span>
+            </div>
+            <button class="btn-accept" onclick="acceptMission(this)">ACCEPT</button>
+        </div>
+
+        <div class="mission-card" style="opacity: 0.5;">
+            <div class="ms-icon">🔒</div>
+            <div class="ms-info">
+                <h4>ENCRYPTED PAYLOAD</h4>
+                <div class="ms-desc">Locked. Requires Rank: SENIOR ENGINEER.</div>
+            </div>
+            <div class="ms-tags">
+                <span class="tag-diff">CLASS S</span>
+                <span class="tag-reward">UNKNOWN</span>
+            </div>
+            <button class="btn-accept" disabled style="cursor: not-allowed; border-color: #333; background: #111; color:#333;">LOCKED</button>
+        </div>
+
+    </div>
+</div>
 
             <div id="settings" class="tab-content">
            <h2>SYSTEM CONFIGURATION</h2>
@@ -534,22 +801,66 @@ iframe { width: 100%; height: 100%; border: none; background: #000; }
 </div>
 
 <div id="chat" class="tab-content">
-    <h2>ENCRYPTED CHANNEL</h2>
     
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h2>ENCRYPTED CHANNEL</h2>
+        <button class="action-btn" onclick="addFriend()">+ ADD NODE ID</button>
+    </div>
+
+    <div class="chat-top-controls">
+        <button class="top-pill-btn" onclick="showRequests()">
+            <span>INCOMING REQUESTS</span>
+            <span class="badge-count" id="reqCount">2</span>
+        </button>
+        <button class="top-pill-btn" onclick="showBlocked()">
+            <span>BLOCKED NODES</span>
+        </button>
+    </div>
+
     <div class="chat-layout">
+        
         <div class="chat-list">
-            <div class="friend active">Toto (Online)</div>
-            <div class="friend">System_Bot</div>
-        </div>
-        <div class="chat-window">
-            <div class="messages" id="msgArea">
-                <div class="msg them">[Toto]: Hey, system status check?</div>
+            <div class="search-bar-container">
+                <input type="text" id="friendSearch" class="friend-search" placeholder="Filter Nodes..." onkeyup="filterFriends()">
             </div>
+            
+            <div id="friendsList" class="friends-scroll">
+                
+                <div class="friend project-member active" onclick="loadChat('Sarah_Connor', this)">
+                    <span>Sarah_Connor</span>
+                    <span class="project-badge">PROJECT</span>
+                </div>
+
+                <div class="friend" onclick="loadChat('Toto', this)">
+                    <span>Toto</span>
+                    <span style="font-size:9px; color:#444;">IDLE</span>
+                </div>
+
+                <div class="friend" onclick="loadChat('System_Bot', this)">
+                    <span>System_Bot</span>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="chat-window">
+            
+            <div class="messages" id="msgArea">
+                </div>
+
             <div class="chat-input-area">
-                <input type="text" id="chatInput" class="chat-input" placeholder="Enter message...">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Enter message..." onkeypress="handleChat(event)">
                 <button class="action-btn" onclick="sendChat()">SEND</button>
             </div>
         </div>
+
+        <div id="contextMenu" class="ctx-menu">
+            <div class="ctx-item" onclick="toggleProjectAccess()">📡 Toggle Project Access</div>
+            <div class="ctx-item" onclick="muteUser()">🔕 Mute Notifications</div>
+            <div class="ctx-item" style="color:#e74c3c;" onclick="blockUser()">🚫 Block Node</div>
+            <div class="ctx-item" style="color:#e74c3c;" onclick="deleteUser()">❌ Disconnect</div>
+        </div>
+
     </div>
 </div>
 
@@ -818,6 +1129,157 @@ function sendChat() {
         area.scrollTop = area.scrollHeight;
     }, 1000);
 }
+// --- CHAT SYSTEM LOGIC ---
+
+    // Глобальная переменная для текущего выбранного друга
+    let currentTarget = "Toto";
+
+    // 1. Фильтр друзей (Поиск)
+    function filterFriends() {
+        const input = document.getElementById('friendSearch');
+        const filter = input.value.toUpperCase();
+        const list = document.getElementById("friendsList");
+        const friends = list.getElementsByClassName("friend");
+
+        for (let i = 0; i < friends.length; i++) {
+            const txtValue = friends[i].innerText || friends[i].textContent;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                friends[i].style.display = "";
+            } else {
+                friends[i].style.display = "none";
+            }
+        }
+    }
+
+    // 2. Открытие чата + Открытие меню при клике (левой кнопкой для простоты на тачскринах)
+    // Чтобы открыть меню, давай сделаем: Клик = чат, Двойной клик (или долгий) = меню? 
+    // Или добавим иконку меню. 
+    // ДЛЯ ТЕБЯ: Сделал так, что клик открывает чат.
+    // А чтобы открыть меню, добавим слушатель "contextmenu" (правая кнопка мыши) на друзей.
+    
+    // Инициализация при загрузке
+    window.addEventListener('load', () => {
+        const friends = document.querySelectorAll('.friend');
+        friends.forEach(f => {
+            f.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                openContextMenu(e, this);
+            });
+        });
+        
+        // Клик в любом месте закрывает меню
+        document.addEventListener('click', () => {
+            document.getElementById('contextMenu').style.display = 'none';
+        });
+    });
+
+    function loadChat(name, el) {
+        currentTarget = name;
+        // Визуальное выделение
+        document.querySelectorAll('.friend').forEach(f => f.classList.remove('active'));
+        if(el) el.classList.add('active');
+        
+        // Очистка и имитация загрузки истории
+        const area = document.getElementById('msgArea');
+        area.innerHTML = `<div class="msg them" style="color: #666; font-size: 0.7rem; text-align: center;">--- LOADING HISTORY FOR ${name.toUpperCase()} ---</div>`;
+    }
+
+    // 3. Логика Контекстного Меню
+    let selectedFriendEl = null; // Запоминаем, на кого нажали
+
+    function openContextMenu(e, el) {
+        const menu = document.getElementById('contextMenu');
+        selectedFriendEl = el;
+        
+        // Позиционируем меню там, где был клик
+        // Важно: нужно учитывать скролл и позицию relative родителя
+        // Для простоты ставим фиксированно рядом с мышкой
+        const rect = el.getBoundingClientRect();
+        
+        // Получаем координаты внутри .chat-layout (так как у него position: relative)
+        // Но проще использовать fixed/absolute относительно body, если меню в body.
+        // Так как меню внутри chat-layout, используем offsetX/Y приблизительно
+        
+        menu.style.display = 'block';
+        menu.style.left = (e.layerX + 20) + 'px'; 
+        menu.style.top = (e.layerY) + 'px';
+    }
+
+    // Действия меню
+    function toggleProjectAccess() {
+        if(!selectedFriendEl) return;
+        const hasBadge = selectedFriendEl.querySelector('.project-badge');
+        if(hasBadge) {
+            hasBadge.remove();
+            alert(`Project Access REVOKED for ${currentTarget}`);
+        } else {
+            selectedFriendEl.innerHTML += ' <span class="project-badge">PROJECT ACCESS</span>';
+            alert(`Project Access GRANTED to ${currentTarget}`);
+        }
+    }
+
+    function muteUser() { alert(`Notifications muted for ${currentTarget}`); }
+    function blockUser() { alert(`Node ${currentTarget} has been BLOCKED.`); }
+    function reportUser() { alert(`Report sent to Admin regarding ${currentTarget}.`); }
+    function deleteUser() { 
+        if(confirm(`Are you sure you want to disconnect ${currentTarget}?`)) {
+            selectedFriendEl.remove();
+            document.getElementById('msgArea').innerHTML = "";
+        }
+    }
+
+    // 4. Отправка сообщений (С твоим именем + Enter)
+    function handleChat(e) {
+        if(e.key === 'Enter') sendChat();
+    }
+
+    function sendChat() {
+        const input = document.getElementById('chatInput');
+        const area = document.getElementById('msgArea');
+        const txt = input.value;
+        
+        if(txt.trim() === "") return;
+
+        // Берем имя из localStorage или ставим "ME"
+        const myNick = localStorage.getItem('userNick') || 'ME';
+
+        // Добавляем сообщение
+        area.innerHTML += `<div class="msg me" style="text-align: right; color: var(--accent);">[${myNick}]: ${txt}</div>`;
+        input.value = "";
+        
+        // Авто-скролл
+        area.scrollTop = area.scrollHeight;
+
+        // Ответ бота (если пишем System_Bot)
+        if(currentTarget === 'System_Bot') {
+             setTimeout(() => {
+                area.innerHTML += `<div class="msg them" style="text-align: left; color: #aaa;">[SYSTEM]: Command received: "${txt}". Processing...</div>`;
+                area.scrollTop = area.scrollHeight;
+            }, 800);
+        }
+    }
+
+    // --- MISSION LOGIC ---
+    function acceptMission(btn) {
+        // Эффект нажатия
+        const originalText = btn.innerText;
+        btn.innerText = "DEPLOYING...";
+        btn.style.background = "#2ecc71";
+        btn.style.color = "#000";
+        
+        setTimeout(() => {
+            // Удаляем карточку с анимацией
+            const card = btn.closest('.mission-card');
+            card.style.opacity = '0';
+            card.style.transform = 'translateX(50px)';
+            
+            setTimeout(() => {
+                card.style.display = 'none';
+                alert("CONTRACT ACCEPTED. Data package downloading to local unit...");
+            }, 300);
+        }, 1500);
+    }
+    
 </script>
 </body>
 </html>
