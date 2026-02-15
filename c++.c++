@@ -93,13 +93,21 @@ float calibSumP = 0, calibSumR = 0;
 // ---------------------------------------------------------------------------
 // 4. GAIT SCHEDULER (NEW IN v54)
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// v54.1 GAIT SCHEDULER (GEOMETRY FIX)
+// ---------------------------------------------------------------------------
 class GaitScheduler {
   private:
     float phase = 0.0f;       
     float stepHeight = 40.0f; 
 
+    // EXACT GEOMETRY FROM THREE.JS VISUALIZER
+    // X = Width (Side-to-Side) / 2 = 77.6 / 2 = ~38.8
+    // Y = Length (Front-to-Back) / 2 = 134.8 / 2 = ~67.4
+    const float MOUNT_X = 38.8f; 
+    const float MOUNT_Y = 67.4f; 
+
   public:
-    // Output Vectors for each leg (X, Y, Z, Twist)
     float legX[4], legY[4], legZ[4], legT[4];
 
     void rotate2D(float &x, float &y, float angle_rad) {
@@ -116,17 +124,16 @@ class GaitScheduler {
       bool moving = (abs(velocityX)>1 || abs(velocityY)>1 || abs(velocityTwist)>1) && (speedInput > 0.1);
       
       if(moving) {
-        phase += (speedInput * 0.15f) * dt * 50.0f; // Scale to Hz
+        phase += (speedInput * 0.15f) * dt * 50.0f; 
         if(phase >= 1.0f) phase -= 1.0f;
       } else {
         if(phase > 0.9f) phase = 0.0f; 
-        if(phase > 0.1f && phase < 0.9f) phase += 0.05f; // Auto-finish step
+        if(phase > 0.1f && phase < 0.9f) phase += 0.05f; 
       }
 
-      // Reset
       for(int i=0; i<4; i++) { legX[i]=0; legY[i]=0; legZ[i]=0; legT[i]=0; }
 
-      // CREEP GAIT: FL -> BR -> FR -> BL
+      // CREEP GAIT SEQUENCER
       int activeLeg = -1;
       float localPhase = 0;
 
@@ -137,42 +144,67 @@ class GaitScheduler {
 
       for(int i=0; i<4; i++) {
         if(i == activeLeg && moving) {
-          // SWING
           legZ[i] = sin(localPhase * PI_F) * stepHeight; 
           float stepProgress = -cos(localPhase * PI_F); 
           legX[i] = velocityX * stepProgress;
           legY[i] = velocityY * stepProgress;
         } else {
-          // STANCE
           legX[i] = -velocityX; 
           legY[i] = -velocityY;
           legZ[i] = 0;
         }
       }
 
-      // TWIST GEOMETRY (Pinned Feet)
+      // ---------------------------------------------------------
+      // FIXED TWIST GEOMETRY ENGINE
+      // ---------------------------------------------------------
       float twistRad = (velocityTwist) * (PI_F / 180.0f); 
       
       for(int i=0; i<4; i++) {
-        // Calculate Rest Position relative to CoM
-        float footX = legX[i] + (80.0f * CFG[i].xSign); 
-        float footY = legY[i] + (80.0f * CFG[i].ySign); 
+        // 1. Calculate TRUE Rest Position relative to Center of Mass
+        // using the dimensions from your 3D model (38.8, 67.4)
+        // NOTE: In the code, Y is Forward/Back, X is Left/Right
         
-        // Apply Rotation Matrix (Inverse Body Rotation)
-        float rotX = footX; 
-        float rotY = footY;
+        // Leg 0 (FL): +X (Left), +Y (Front) -> check CFG for signs
+        // CFG uses standard quadrants. We map 38.8/67.4 to them.
+        
+        // In the LegConfig struct:
+        // xSign is Forward/Back (so apply to 67.4)
+        // ySign is Left/Right (so apply to 38.8)
+        
+        // Wait! Let's verify standard conventions vs your struct:
+        // struct LegConfig { int xSign; int ySign; ... }
+        // CFG[0] = { +1, +1 ... } -> Front Left
+        // Usually X is Forward in Robotics, Y is Lateral. 
+        // My previous code used: lx = (150 + gX) * xSign.
+        
+        // Let's stick to the Firmware's established frame:
+        // xSign is the LONG axis (Front/Back) -> 67.4mm
+        // ySign is the SHORT axis (Left/Right) -> 38.8mm
+        
+        float bodyOffsetX = 67.4f * CFG[i].xSign; 
+        float bodyOffsetY = 38.8f * CFG[i].ySign;
+        
+        // 2. Add the current step offset (gait)
+        float currentFootX = bodyOffsetX + legX[i];
+        float currentFootY = bodyOffsetY + legY[i];
+        
+        // 3. Rotate this point around (0,0)
+        // We apply the NEGATIVE twist to the feet to make the body appear to rotate POSITIVE
+        float rotX = currentFootX;
+        float rotY = currentFootY;
         rotate2D(rotX, rotY, -twistRad); 
         
-        // Difference is the IK offset
-        legX[i] += (rotX - footX);
-        legY[i] += (rotY - footY);
+        // 4. The IK Target is the difference
+        // We overwrite the gait command with the Rotation Compensation
+        legX[i] = (rotX - bodyOffsetX);
+        legY[i] = (rotY - bodyOffsetY);
         
-        // Pass Twist command to servo (Banking)
+        // 5. Banking (Twist Servo)
         legT[i] = velocityTwist; 
       }
     }
 };
-
 // ---------------------------------------------------------------------------
 // 5. DRIVER CLASSES (FLOAT PRECISION)
 // ---------------------------------------------------------------------------
@@ -463,7 +495,7 @@ void setup() {
   Serial.begin(115200); 
   
   #if defined(CONFIG_IDF_TARGET_ESP32C6)
-    Wire.begin(6, 7); 
+    Wire.begin(22, 23); 
   #else
     Wire.begin();     
   #endif
