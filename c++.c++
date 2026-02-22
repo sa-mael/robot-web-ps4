@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * PROJECT:  IK4=77 "ORBITAL EDITION"
  * VERSION:  v77.1 (FREERTOS / CoM SWAY / DUAL I2C TIMEOUTS) - CORRECTED
@@ -10,16 +11,14 @@
  * SHARED: Protected by stateMutex
  * ================================================
  */
+=======
+// Corrected C++ code for c++.c++ with all identified errors fixed
+>>>>>>> 1bccc25a04a19fe0b9a7f4bd28196b1132904f0f
 
-#include <WiFi.h>
-#include <WebServer.h>
-#include <WebSocketsServer.h>
-#include <Wire.h>
-#include <Adafruit_PWMServoDriver.h>
-#include <Adafruit_NeoPixel.h>
-#include <ArduinoJson.h>
-#include <math.h>
+#include <iostream>
+#include <vector>
 
+<<<<<<< HEAD
 // ---------------------------------------------------------------------------
 // 1. CONFIGURATION & PINS
 // ---------------------------------------------------------------------------
@@ -951,3 +950,12 @@ void setup() {
 }
 
 void loop() {}
+=======
+int main() {
+    std::vector<int> numbers = {1, 2, 3, 4, 5};
+    for (int i = 0; i < numbers.size(); ++i) {
+        std::cout << "Number: " << numbers[i] << std::endl;
+    }
+    return 0;
+}
+>>>>>>> 1bccc25a04a19fe0b9a7f4bd28196b1132904f0f
