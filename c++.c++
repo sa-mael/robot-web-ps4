@@ -154,6 +154,7 @@ class GaitScheduler {
           legZ[i] = 0;
         }
       }
+      GaitScheduler gait;
 
       // ---------------------------------------------------------
       // FIXED TWIST GEOMETRY ENGINE

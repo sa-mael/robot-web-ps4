@@ -18,7 +18,7 @@
             --font-mono: 'JetBrains Mono', monospace;
             
             /* Footer Settings */
-            --footer-split: 268px; /* Высота светлой части */
+            --footer-split: 268px;
         }
 
         * { box-sizing: border-box; }
@@ -59,10 +59,9 @@
         /* --- MAIN CONTENT AREA --- */
         .content-area {
             flex: 1;
-            padding: 60px 80px 0 80px; /* Bottom padding removed for footer flow */
+            padding: 60px 80px 0 80px;
             overflow-y: auto;
             scroll-behavior: smooth;
-            /* TACTICAL BACKGROUND TEXTURE */
             background: linear-gradient(rgba(5,5,5,0.95), rgba(5,5,5,0.9)), url('assets/images/topo_bg.jpg');
             background-size: cover;
             background-attachment: fixed;
@@ -75,7 +74,7 @@
 
         /* --- LAYOUTS --- */
         .split-view {
-            display: grid; grid-template-columns: 1fr 300px; gap: 40px; align-items: end;;
+            display: grid; grid-template-columns: 1fr 300px; gap: 40px; align-items: start;
         }
         .tech-img-box {
             background: rgba(255,255,255,0.02); border: 1px solid #333; padding: 20px; text-align: center;
@@ -133,94 +132,42 @@
 
         /* --- FOOTER STYLES (SPLIT VIEW) --- */
         .main-footer {
-            position: relative;
-            margin-top: 100px; /* Отступ от контента */
-            margin-left: -80px; /* Компенсация padding .content-area */
-            margin-right: -80px;
-            z-index: 5;
+            position: relative; margin-top: 100px; margin-left: -80px; margin-right: -80px; z-index: 5;
         }
-
-        /* 1. Light Top */
         .footer-top-visual {
-            height: var(--footer-split);
-            background-color:rgb(124 42 232 / 20%); /* Technical Blue/Grey */
-            position: relative;
+            height: var(--footer-split); background-color:rgb(124 42 232 / 20%); position: relative;
         }
-
-        /* 2. Dark Bottom */
         .footer-content-dark {
-            background-color: #0a0a0a;
-            color: rgba(150, 150, 150, 0.7); /* Серый прозрачный текст */
-            padding: 60px 0px 0px 40px;
-            position: relative;
-            z-index: 1;
+            background-color: #0a0a0a; color: rgba(150, 150, 150, 0.7); padding: 60px 0px 0px 40px; position: relative; z-index: 1;
         }
-
         .footer-grid {
             display: grid; grid-template-columns: 1fr 1.9fr 1.45fr; gap: 110px; max-width: 1200px;
         }
-
         .footer-col h4 {
-            font-family: var(--font-tech);
-            color: rgba(255, 255, 255, 0.7) !important; /* Заголовки тоже серые */
-            margin-bottom: 25px; font-size: 1.1rem; letter-spacing: 1px;
+            font-family: var(--font-tech); color: rgba(255, 255, 255, 0.7) !important; margin-bottom: 25px; font-size: 1.1rem; letter-spacing: 1px;
         }
-
         .footer-link {
-            display: block; color: rgba(150, 150, 150, 0.7); /* Ссылки серые */
-            text-decoration: none; margin-bottom: 12px; font-family: var(--font-mono); font-size: 0.85rem; transition: 0.3s;
+            display: block; color: rgba(150, 150, 150, 0.7); text-decoration: none; margin-bottom: 12px; font-family: var(--font-mono); font-size: 0.85rem; transition: 0.3s;
         }
         .footer-link:hover { color: var(--accent); opacity: 1; transform: translateX(5px); }
-
-        /* Social Icons */
         .social-links { display: flex; gap: 15px; }
         .social-icon {
-            width: 40px; height: 40px; background: #111; border: 1px solid #333;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 4px; transition: 0.3s; 
-            color: rgba(150, 150, 150, 0.7);
-            font-family: var(--font-mono); text-decoration: none;
+            width: 40px; height: 40px; background: #111; border: 1px solid #333; display: flex; align-items: center; justify-content: center;
+            border-radius: 4px; transition: 0.3s; color: rgba(150, 150, 150, 0.7); font-family: var(--font-mono); text-decoration: none;
         }
         .social-icon:hover { border-color: var(--accent); background: var(--accent); color: #fff; opacity: 1; }
-
-        /* Copyright */
         .copy-bar {
-            margin-top: 40px; padding-top: 25px; border-top: 1px solid #222;
-            text-align: center; font-family: var(--font-mono); font-size: 0.7rem;
-            color: rgba(150, 150, 150, 0.5);
-            display: flex; justify-content: space-between;
+            margin-top: 40px; padding-top: 25px; border-top: 1px solid #222; text-align: center; font-family: var(--font-mono); font-size: 0.7rem; color: rgba(150, 150, 150, 0.5); display: flex; justify-content: space-between;
         }
 
         /* --- X-RAY MODEL LOGIC --- */
         .xray-leg-wrapper {
-            position: absolute;
-            right: 0%;  /* Прижато к правому краю */
-            top: -132px; 
-            width: 1000px;
-            height: 800px;
-            z-index: 20;
-            pointer-events: none;
+            position: absolute; right: 0%; top: -132px; width: 1000px; height: 800px; z-index: 20; pointer-events: none;
         }
+        .leg-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
+        .leg-color { z-index: 2; clip-path: inset(0 0 50% 0); }
+        .leg-xray { z-index: 1; clip-path: inset(50% 0 0 0); filter: grayscale(100%) contrast(1.2) brightness(1.2); mix-blend-mode: screen; opacity: 0.8; }
 
-        .leg-img {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain;
-        }
-
-        /* Clip Path Math: 500px split / 800px img = 0.625 */
-        .leg-color {
-            z-index: 2;
-            clip-path: inset(0 0 50% 0); 
-        }
-
-        .leg-xray {
-            z-index: 1;
-            clip-path: inset(50% 0 0 0);
-            filter: grayscale(100%) contrast(1.2) brightness(1.2);
-            mix-blend-mode: screen;
-            opacity: 0.8;
-        }
-
-        /* Responsive */
         @media (max-width: 1100px) {
             .split-view { grid-template-columns: 1fr; }
             .tech-img-box { margin-bottom: 20px; }
@@ -229,18 +176,14 @@
             body { flex-direction: column; overflow: auto; }
             .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #222; }
             .content-area { padding: 0px 20px; }
-            
             :root { --footer-split: 300px; }
             .main-footer { margin-left: -20px; margin-right: -20px; }
             .xray-leg-wrapper { width: 300px; right: 0%; top: -50px; height: 500px; }
-            /* Recalculate clip roughly for mobile */
             .leg-color { clip-path: inset(0 0 40% 0); }
             .leg-xray { clip-path: inset(60% 0 0 0); }
-            
             .footer-grid { grid-template-columns: 1fr; gap: 170px; }
             .footer-content-dark { padding: 0px 0px; }
         }
-
     </style>
 </head>
 <body>
@@ -250,16 +193,16 @@
         
         <div class="nav-group">
             <div class="nav-header">Architecture</div>
-            <a href="#core" class="nav-link active">Core Processing</a>
+            <a href="#core" class="nav-link active">Hardware & RTOS</a>
             <a href="#bom" class="nav-link">Bill of Materials</a>
             <a href="#assembly" class="nav-link">Mechanical Assembly</a>
-            <a href="#wiring" class="nav-link">Wiring Map</a>
+            <a href="#wiring" class="nav-link">I2C Bus Wiring</a>
         </div>
 
         <div class="nav-group">
             <div class="nav-header">Control Systems</div>
             <a href="#ik-solver" class="nav-link">Kinematics API</a>
-            <a href="#input" class="nav-link">Input Devices</a>
+            <a href="#rtos-arch" class="nav-link">Dual-Core Processing</a>
         </div>
         
         <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #222;">
@@ -270,64 +213,84 @@
     <div class="content-area">
         
         <h1 id="core">System Architecture</h1>
-        <p>The Arttous Rhodium v53 is powered by the ESP32-C6 RISC-V SoC. Below is the strict pin mapping for the main bus.</p>
+        <p>The Arttous platform is powered by the <strong>ESP32-S3 (N8R8) Dual-Core SoC</strong> running FreeRTOS (Firmware IK4=75). To prevent I2C starvation, peripherals are split across two independent hardware buses.</p>
 
         <div class="split-view">
             <div>
-                <h3>Main Bus (I2C)</h3>
+                <h3>Hardware Interfaces</h3>
                 <table class="pinout-table">
                     <thead>
                         <tr>
-                            <th>ESP32 PIN</th>
+                            <th>ESP32-S3 PIN</th>
                             <th>FUNCTION</th>
                             <th>TARGET</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td class="pin-col">GPIO 6</td><td>SDA (Data)</td><td>PCA9685 / IMU</td></tr>
-                        <tr><td class="pin-col">GPIO 7</td><td>SCL (Clock)</td><td>PCA9685 / IMU</td></tr>
-                        <tr><td class="pin-col">GPIO 9</td><td>INT</td><td>MPU6050 Wake</td></tr>
+                        <tr><td class="pin-col">GPIO 4</td><td>SDA (Bus 0)</td><td>PCA9685 (Servos)</td></tr>
+                        <tr><td class="pin-col">GPIO 5</td><td>SCL (Bus 0)</td><td>PCA9685 (Servos)</td></tr>
+                        <tr><td class="pin-col">GPIO 6</td><td>SDA (Bus 1)</td><td>MPU6050 (IMU)</td></tr>
+                        <tr><td class="pin-col">GPIO 7</td><td>SCL (Bus 1)</td><td>MPU6050 (IMU)</td></tr>
+                        <tr><td class="pin-col">GPIO 38</td><td>DATA</td><td>RGB Status LED</td></tr>
                     </tbody>
                 </table>
             </div>
             
             <div class="tech-img-box">
-                <img src="assets/images/brain.png" class="tech-img" alt="ESP32 C6">
-                <div style="font-family: var(--font-mono); font-size: 0.7rem; color: #666; margin-top: 10px;">FIG 1.0: ESP32-C6 COMPUTE UNIT</div>
+                <img src="assets/images/brain.png" class="tech-img" alt="ESP32 S3">
+                <div style="font-family: var(--font-mono); font-size: 0.7rem; color: #666; margin-top: 10px;">FIG 1.0: ESP32-S3 COMPUTE UNIT</div>
             </div>
         </div>
+
+        <h2 id="rtos-arch">FreeRTOS Task Management</h2>
+        <p>The standard single-threaded loop has been deprecated. Processing is strictly locked to dedicated silicon cores to ensure the Kinematic Engine never misses a 50Hz deadline.</p>
+        
+        <div class="bom-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="part-card" style="align-items: flex-start; text-align: left;">
+                <div class="part-name" style="color: #3498db;">CORE 0: TaskNetwork</div>
+                <span class="part-spec">Priority: 1 | Unpinned Timing</span>
+                <p class="part-desc" style="margin-top: 10px;">Handles asynchronous events: WiFi connection, HTTP Server rendering, and WebSockets JSON telemetry broadcast every 100ms.</p>
+            </div>
+            <div class="part-card" style="align-items: flex-start; text-align: left;">
+                <div class="part-name" style="color: var(--accent);">CORE 1: TaskControl</div>
+                <span class="part-spec">Priority: 2 | Strict 50Hz (20ms) Loop</span>
+                <p class="part-desc" style="margin-top: 10px;">Executes IMU sensor fusion, Inverse Kinematics (Law of Cosines), Gait Scheduling, and generates hardware PWM signals.</p>
+            </div>
+        </div>
+        <p style="font-family: var(--font-mono); font-size: 0.8rem; color: #888;">
+            * Memory space between cores is secured via <code>SemaphoreHandle_t stateMutex</code> to prevent race conditions during payload transfer.
+        </p>
 
         <h2 id="bom">Bill of Materials</h2>
         <div class="bom-grid">
             <div class="part-card">
                 <img src="assets/images/brain.png" class="part-img">
-                <div class="part-name">ESP32-C6</div>
-                <span class="part-spec">RISC-V 32-bit | WiFi 6</span>
-                <p class="part-desc">Central processing unit handling inverse kinematics and mesh networking protocol.</p>
+                <div class="part-name">ESP32-S3 (N8R8)</div>
+                <span class="part-spec">Dual-Core | FreeRTOS</span>
+                <p class="part-desc">Primary logic board. Handles matrix math and dual I2C routing.</p>
             </div>
             <div class="part-card">
                 <img src="assets/images/PCA9685.png" class="part-img">
                 <div class="part-name">PCA9685</div>
-                <span class="part-spec">16-Channel PWM | I2C</span>
-                <p class="part-desc">Dedicated servo driver. Offloads PWM generation to ensure jitter-free leg movement.</p>
+                <span class="part-spec">16-Channel PWM | Bus 0</span>
+                <p class="part-desc">Dedicated servo driver. Offloads PWM generation to ensure jitter-free legs.</p>
             </div>
             <div class="part-card">
                 <img src="assets/images/main-robo.jpg" class="part-img" style="border-radius: 4px;">
-                <div class="part-name">SPIDER CHASSIS</div>
-                <span class="part-spec">PETG / ABS Composite</span>
-                <p class="part-desc">Main structural frame. Hexapod configuration with 3DOF per leg (18DOF total).</p>
+                <div class="part-name">MPU6050 IMU</div>
+                <span class="part-spec">6-DOF Sensor | Bus 1</span>
+                <p class="part-desc">Provides Pitch/Roll data for active Z-axis gravity compensation.</p>
             </div>
             <div class="part-card">
                 <img src="assets/images/mg90s.png" class="part-img">
                 <div class="part-name">MG90S SERVOS</div>
                 <span class="part-spec">Metal Gear | High Torque</span>
-                <p class="part-desc">Micro servos for joint actuation. Requires 12-18 units depending on configuration.</p>
+                <p class="part-desc">Actuators for the 3DOF legs. Driven dynamically by IK engine.</p>
             </div>
         </div>
 
         <h2 id="assembly">Mechanical Assembly</h2>
         <p>Reference schematics for chassis assembly and frame orientation.</p>
-        
         <div class="blueprint-grid">
             <div class="blueprint-card">
                 <img src="assets/images/fr-po.png" class="blueprint-img">
@@ -339,49 +302,31 @@
             </div>
         </div>
 
-        <h2 id="wiring">Wiring Schematic</h2>
+        <h2 id="wiring">Dual I2C Wiring Schematic</h2>
         <div class="wiring-box">
-            <div class="wire-row"><span class="pin-l">ESP32 (3V3)</span><div class="wire-line"></div><span class="pin-r">PCA9685 (VCC)</span></div>
-            <div class="wire-row"><span class="pin-l">ESP32 (GND)</span><div class="wire-line"></div><span class="pin-r">PCA9685 (GND)</span></div>
-            <div class="wire-row"><span class="pin-l">ESP32 (GPIO 6)</span><div class="wire-line" style="background: #2ecc71;"></div><span class="pin-r">PCA9685 (SDA)</span></div>
-            <div class="wire-row"><span class="pin-l">ESP32 (GPIO 7)</span><div class="wire-line" style="background: #e74c3c;"></div><span class="pin-r">PCA9685 (SCL)</span></div>
-            <div class="wire-row"><span class="pin-l">BATTERY (7.4V)</span><div class="wire-line" style="height: 4px; background: #f1c40f;"></div><span class="pin-r">PCA9685 (V+) SERVOS</span></div>
+            <div class="wire-row"><span class="pin-l">ESP32 (GPIO 4)</span><div class="wire-line" style="background: #2ecc71;"></div><span class="pin-r">PCA9685 (SDA)</span></div>
+            <div class="wire-row"><span class="pin-l">ESP32 (GPIO 5)</span><div class="wire-line" style="background: #e74c3c;"></div><span class="pin-r">PCA9685 (SCL)</span></div>
+            <div class="wire-row"><span class="pin-l">ESP32 (GPIO 6)</span><div class="wire-line" style="background: #3498db;"></div><span class="pin-r">MPU6050 (SDA)</span></div>
+            <div class="wire-row"><span class="pin-l">ESP32 (GPIO 7)</span><div class="wire-line" style="background: #f1c40f;"></div><span class="pin-r">MPU6050 (SCL)</span></div>
+            <div class="wire-row"><span class="pin-l">BATTERY (7.4V)</span><div class="wire-line" style="height: 4px; background: #95a5a6;"></div><span class="pin-r">PCA9685 (V+)</span></div>
         </div>
 
-        <h2 id="input">Input Peripherals</h2>
-        <div class="split-view">
-            <div>
-                <h3>DualShock 4 Interface</h3>
-                <p>The system natively supports DS4 controllers via Bluetooth.</p>
-                <ul style="color: #888; font-size: 0.9rem; line-height: 1.6;">
-                    <li><strong>L-Stick:</strong> Translation (X/Y)</li>
-                    <li><strong>R-Stick:</strong> Rotation (Yaw/Pitch)</li>
-                    <li><strong>R1/L1:</strong> Height Adjustment</li>
-                    <li><strong>Triangle:</strong> Toggle Gait Mode</li>
-                </ul>
-            </div>
-            <div class="tech-img-box">
-                <img src="assets/images/ps4.png" class="tech-img">
-                <div style="font-family: var(--font-mono); font-size: 0.7rem; color: #666; margin-top: 10px;">BLUETOOTH CONTROLLER MAP</div>
-            </div>
-        </div>
-
-        <h2 id="ik-solver">Kinematics API</h2>
-        <p>Example implementation of the 3DOF solver.</p>
+        <h2 id="ik-solver">Kinematics API & Stabilization</h2>
+        <p>Implementation of the 3DOF solver with active IMU balancing and NaN-protection clamps.</p>
 
         <div class="code-block">
-<span class="keyword">void</span> <span class="func">solve_IK</span>(<span class="keyword">float</span> x, <span class="keyword">float</span> y, <span class="keyword">float</span> z, <span class="keyword">int</span> leg_id) {
-    <span class="comment">// 1. Calculate Coxa Angle</span>
-    <span class="keyword">float</span> theta1 = <span class="func">atan2</span>(y, x);
-    
-    <span class="comment">// 2. Calculate Femur-Tibia distance</span>
-    <span class="keyword">float</span> L = <span class="func">sqrt</span>(x*x + y*y) - COXA_LENGTH;
-    
-    <span class="comment">// 3. Apply Cosine Rule for Servo 2 & 3</span>
-    <span class="keyword">float</span> alpha = <span class="func">acos</span>((FEMUR*FEMUR + D*D - TIBIA*TIBIA) / (2*FEMUR*D));
-    
-    <span class="func">setServo</span>(leg_id, theta1, alpha);
-}
+<span class="comment">// 1. Active Z-Axis Balancing (IMU Compensation)</span>
+<span class="keyword">float</span> p = <span class="func">constrain</span>(pitch, -20.0f, 20.0f) * (PI_F/180.0f);
+<span class="keyword">float</span> r = <span class="func">constrain</span>(roll, -20.0f, 20.0f) * (PI_F/180.0f);
+balZ[i] = (lx * <span class="func">sin</span>(p)) + (ly * <span class="func">sin</span>(r));
+
+<span class="comment">// 2. Target Z calculation</span>
+<span class="keyword">float</span> lz = (currentHeight + gait.legZ[i]) - balZ[i];
+
+<span class="comment">// 3. Law of Cosines (NaN Protection Clamp)</span>
+<span class="keyword">float</span> D = <span class="func">sqrt</span>(u*u + lz*lz);
+<span class="keyword">float</span> cA = <span class="func">constrain</span>((FEMUR_SQ + D*D - TIBIA_SQ) / (2.0f * FEMUR * D), -1.0f, 1.0f);
+<span class="keyword">float</span> alpha = <span class="func">acos</span>(cA);
         </div>
 
         <footer class="main-footer">
