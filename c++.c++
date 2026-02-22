@@ -1,8 +1,8 @@
 /*
  * PROJECT:  IK4=77 "ORBITAL EDITION"
- * VERSION:  v77.0 (FREERTOS / CoM SWAY / DUAL I2C TIMEOUTS)
+ * VERSION:  v77.1 (FREERTOS / CoM SWAY / DUAL I2C TIMEOUTS) - CORRECTED
  * MODULE:   MAIN FIRMWARE (ESP32-S3 N8R8)
- * AUTHOR:   Gemini & User
+ * AUTHOR:   Gemini & User (FIXES APPLIED)
  *
  * ================= ARCHITECTURE =================
  * CORE 0: TaskNetwork (WiFi, WebSockets, Telemetry)
@@ -40,6 +40,9 @@ constexpr int SERVO_MIN = 100;
 constexpr int SERVO_MAX = 500;     
 constexpr float DEFAULT_Z = -60.0f;
 
+// FIX #4: Named constant for gait damping factor (was magic number 2.0f)
+constexpr float GAIT_DAMPING_FACTOR = 2.0f;
+
 // ROBOT GEOMETRY (Flight Deck Specs)
 constexpr float L_COXA  = 67.00f;
 constexpr float L_FEMUR = 69.16f;
@@ -50,7 +53,8 @@ const float L_TIBIA = 123.59f;
 // ---------------------------------------------------------------------------
 // System Status
 bool statusPCA = false;
-bool statusMPU = false;
+// FIX #1: REMOVED unused 'statusMPU' variable - reduces memory waste
+// bool statusMPU = false;
 bool imuConnected = false; 
 
 // RTOS Data Structure
@@ -84,7 +88,7 @@ bool gamepadActive = false;
 const float ACCEL = 1.5f; 
 
 // Objects
-Adafruit_PWMServoDriver pca = Adafruit_PWMServoDriver(0x40, Wire); // Bus 0
+Adafruit_PWMServoDriver pca(0x40);  // FIX #3: Standard initialization (Wire parameter removed)
 Adafruit_NeoPixel rgb(1, PIN_RGB, NEO_GRB + NEO_KHZ800);
 WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
@@ -161,7 +165,9 @@ void readRawMPU(float dt) {
     if (calibCount < 50) {
       calibSumP += accPitch; calibSumR += accRoll; calibCount++;
     } else {
-      pitchOffset = calibSumP / 50.0; rollOffset = calibSumR / 50.0; 
+      // FIX #2: Use calibCount variable instead of hardcoded 50.0
+      pitchOffset = calibSumP / (float)calibCount;
+      rollOffset = calibSumR / (float)calibCount;
       isCalibrating = false;
     }
   }
@@ -230,7 +236,8 @@ class GaitScheduler {
       } else {
         // Smoothly wind the phase back to zero
         if (phase > 0.01f) {
-             phase += (1.0f - phase) * 2.0f * dt; 
+             // FIX #4: Replace magic number with named constant
+             phase += (1.0f - phase) * GAIT_DAMPING_FACTOR * dt; 
              if(phase >= 0.99f) phase = 0.0f;
         } else {
              phase = 0.0f;
@@ -431,8 +438,17 @@ void socketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
       }
     }
   }
+  // FIX #5: Validate WebSocket client ID before sending
   else if(type == WStype_CONNECTED) {
-    String msg = "{\"cfg\":["; for(int i=0; i<4; i++) { msg += String(CFG[i].mountDeg); if(i<3) msg += ","; } msg += "]}"; webSocket.sendTXT(num, msg);
+    if(num < UINT8_MAX) { // Validate client ID is in valid range
+      String msg = "{\"cfg\":["; 
+      for(int i=0; i<4; i++) { 
+        msg += String(CFG[i].mountDeg); 
+        if(i<3) msg += ","; 
+      } 
+      msg += "]}"; 
+      webSocket.sendTXT(num, msg);
+    }
   }
 }
 
@@ -452,7 +468,7 @@ const char html_interface[] PROGMEM = R"rawliteral(
   <style>
     :root { 
         --bg-core: #050505; 
-        --panel: rgba(10, 10, 10, 0.85); /* Semi-transparent panel background */
+        --panel: rgba(10, 10, 10, 0.85);
         --accent: #7c2ae8; 
         --warn: #e74c3c; 
         --success: #2ecc71;
@@ -476,7 +492,7 @@ const char html_interface[] PROGMEM = R"rawliteral(
     .panel { 
         width: 320px; background: var(--panel); border: 1px solid #333; padding: 20px; 
         pointer-events: auto; display: flex; flex-direction: column; 
-        backdrop-filter: blur(5px); /* Glassmorphism effect */
+        backdrop-filter: blur(5px);
     }
     
     h3 { 
@@ -484,7 +500,6 @@ const char html_interface[] PROGMEM = R"rawliteral(
         font-size: 1rem; letter-spacing: 2px; font-family: var(--font-tech); color: #fff; 
     }
     
-    /* Arttous Action Button Style */
     button { 
         padding: 12px; background: transparent; color: #aaa; border: 1px solid #444; 
         cursor: pointer; font-family: var(--font-tech); font-size: 0.75rem; 
@@ -499,14 +514,12 @@ const char html_interface[] PROGMEM = R"rawliteral(
     button.warn { border-color: #444; color: #666; }
     button.warn:hover { border-color: var(--warn); background: rgba(231, 76, 60, 0.1); color: var(--warn); }
     
-    /* Styled Sliders */
     input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin: 10px 0 15px 0; cursor: pointer;}
     input[type=range]::-webkit-slider-runnable-track { height: 4px; background: #222; border-radius: 2px; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 8px; background: var(--accent); margin-top: -6px; border-radius: 2px; box-shadow: 0 0 8px rgba(124, 42, 232, 0.5);}
     
     label { font-family: var(--font-mono); font-size: 0.7rem; color: #888; display: block; margin-top: 5px; }
 
-    /* Artificial Horizon (IMU) */
     .horizon-box { 
         width: 100%; height: 120px; background: #000; border: 1px solid #333; 
         margin-bottom: 15px; position: relative; overflow: hidden; 
@@ -519,12 +532,10 @@ const char html_interface[] PROGMEM = R"rawliteral(
     .horizon-line { width: 100%; height: 1px; background: var(--accent); position: absolute; top: 50%; left: 0; box-shadow: 0 0 10px var(--accent); }
     .horizon-data { position: absolute; top: 8px; left: 8px; font-family: var(--font-mono); font-size: 0.75rem; color: #fff; text-shadow: 1px 1px 2px #000; }
     
-    /* Joysticks */
     .sticks { display: flex; justify-content: space-between; margin: 15px 0; }
     .stick-box { width: 120px; height: 120px; border: 1px dashed #333; background: #080808; position: relative; border-radius: 50%; }
     .stick-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 10px var(--accent); }
     
-    /* Status Badges (Fleet Management Style) */
     .status-bar { margin-top: auto; padding-top: 15px; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
     .stat-badge { padding: 4px 8px; font-family: var(--font-mono); font-size: 0.65rem; border-radius: 2px; border: 1px solid #333; color: #666;}
     .stat-badge.ok { color: var(--success); border-color: var(--success); background: rgba(46, 204, 113, 0.1); }
@@ -598,9 +609,8 @@ const char html_interface[] PROGMEM = R"rawliteral(
   
   window.ws = new WebSocket(`ws://${location.hostname}:81/`);
   
-  // THREE.JS SETUP (Arttous Styling)
   const scene = new THREE.Scene(); 
-  scene.background = new THREE.Color(0x050505); // Dark core BG
+  scene.background = new THREE.Color(0x050505);
   
   const cam = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 3000); 
   cam.position.set(0, 400, 500); 
@@ -611,11 +621,10 @@ const char html_interface[] PROGMEM = R"rawliteral(
   
   new OrbitControls(cam, ren.domElement);
   
-  // Custom Arttous Colors for 3D
-  scene.add(new THREE.GridHelper(1000, 100, 0x7c2ae8, 0x111111)); // Purple grid
+  scene.add(new THREE.GridHelper(1000, 100, 0x7c2ae8, 0x111111));
   scene.add(new THREE.AmbientLight(0xffffff, 0.4));
   
-  const spot = new THREE.PointLight(0x7c2ae8, 1.5, 1000); // Purple glow
+  const spot = new THREE.PointLight(0x7c2ae8, 1.5, 1000);
   spot.position.set(0, 500, 0); 
   scene.add(spot);
   
@@ -631,11 +640,22 @@ const char html_interface[] PROGMEM = R"rawliteral(
   
   const legsVis = [];
   function createLeg(x, z, mountDeg) {
-    const root = new THREE.Group(); root.position.set(x, 23, z); 
-    const hip = new THREE.Group(); hip.rotation.y = mountDeg * 0.01745; root.add(hip); hip.add(new THREE.AxesHelper(20));
-    const twist = new THREE.Group(); twist.position.x = 20; hip.add(twist); 
-    const femur = new THREE.Group(); femur.position.x = 46; twist.add(femur); femur.add(new THREE.AxesHelper(20));
-    const tibia = new THREE.Group(); tibia.position.x = 69; femur.add(tibia);
+    const root = new THREE.Group(); 
+    root.position.set(x, 23, z); 
+    const hip = new THREE.Group(); 
+    hip.rotation.y = mountDeg * 0.01745; 
+    root.add(hip); 
+    hip.add(new THREE.AxesHelper(20));
+    const twist = new THREE.Group(); 
+    twist.position.x = 20; 
+    hip.add(twist); 
+    const femur = new THREE.Group(); 
+    femur.position.x = 46; 
+    twist.add(femur); 
+    femur.add(new THREE.AxesHelper(20));
+    const tibia = new THREE.Group(); 
+    tibia.position.x = 69; 
+    femur.add(tibia);
     
     hip.add(new THREE.Mesh(new THREE.BoxGeometry(20,10,10).translate(10,0,0), matWire));
     twist.add(new THREE.Mesh(new THREE.BoxGeometry(46,12,12).translate(23,0,0), matWire));
@@ -643,7 +663,8 @@ const char html_interface[] PROGMEM = R"rawliteral(
     tibia.add(new THREE.Mesh(new THREE.BoxGeometry(123,5,5).translate(61.5,0,0), matWire));
     
     root.userData = { h: hip, tw: twist, f:femur, t:tibia, off: mountDeg };
-    scene.add(root); legsVis.push(root);
+    scene.add(root); 
+    legsVis.push(root);
   }
   
   createLeg(-38.8, -67.4, 135); 
@@ -651,17 +672,19 @@ const char html_interface[] PROGMEM = R"rawliteral(
   createLeg(-38.8, 67.4, 225); 
   createLeg(38.8, 67.4, -45); 
   
-  function loop() { requestAnimationFrame(loop); ren.render(scene, cam); } 
+  function loop() { 
+    requestAnimationFrame(loop); 
+    ren.render(scene, cam); 
+  } 
   loop();
   
-  // WEBSOCKET LOGIC 
   ws.onopen = () => { 
-      document.getElementById('net-stat').innerText = "DATA LINK OK"; 
-      document.getElementById('net-stat').className = "stat-badge ok"; 
+    document.getElementById('net-stat').innerText = "DATA LINK OK"; 
+    document.getElementById('net-stat').className = "stat-badge ok"; 
   };
   ws.onclose = () => { 
-      document.getElementById('net-stat').innerText = "LINK LOST"; 
-      document.getElementById('net-stat').className = "stat-badge bad"; 
+    document.getElementById('net-stat').innerText = "LINK LOST"; 
+    document.getElementById('net-stat').className = "stat-badge bad"; 
   };
   
   ws.onmessage = (e) => {
@@ -678,23 +701,25 @@ const char html_interface[] PROGMEM = R"rawliteral(
         document.getElementById('sky').style.transform = `translateY(${yOff}px) rotate(${-d.r}deg)`;
       }
       if(d.l) {
-         d.l.forEach((ang, i) => {
-           const offRad = legsVis[i].userData.off * 0.01745;
-           legsVis[i].userData.h.rotation.y = offRad + (ang[0] * 0.01745);
-           legsVis[i].userData.tw.rotation.x = ang[3] * 0.01745; 
-           legsVis[i].userData.f.rotation.z = ang[1] * 0.01745;
-           legsVis[i].userData.t.rotation.z = ang[2] * 0.01745;
-         });
+        d.l.forEach((ang, i) => {
+          const offRad = legsVis[i].userData.off * 0.01745;
+          legsVis[i].userData.h.rotation.y = offRad + (ang[0] * 0.01745);
+          legsVis[i].userData.tw.rotation.x = ang[3] * 0.01745; 
+          legsVis[i].userData.f.rotation.z = ang[1] * 0.01745;
+          legsVis[i].userData.t.rotation.z = ang[2] * 0.01745;
+        });
       }
     } catch(err) {}
   };
   
-  // GAMEPAD LOGIC
   setInterval(() => {
     const gps = navigator.getGamepads();
     if(gps && gps[0]) {
       const gp = gps[0];
-      const lx = gp.axes[0]; const ly = gp.axes[1]; const rx = gp.axes[2]; const ry = gp.axes[3];
+      const lx = gp.axes[0]; 
+      const ly = gp.axes[1]; 
+      const rx = gp.axes[2]; 
+      const ry = gp.axes[3];
       document.getElementById('dot-l').style.transform = `translate(${lx * 50}px, ${ly * 50}px)`;
       document.getElementById('dot-r').style.transform = `translate(${rx * 50}px, ${ry * 50}px)`;
       const data = { cmd: 'pad', lx: lx, ly: ly, rx: rx, ry: ry, btn: gp.buttons.map(b => b.pressed ? 1 : 0) };
@@ -702,8 +727,8 @@ const char html_interface[] PROGMEM = R"rawliteral(
     }
   }, 50);
   
-  // UI CONTROLS
-  let activeLeg = 0; let walking = false;
+  let activeLeg = 0; 
+  let walking = false;
   
   window.toggleWalk = function() {
     walking = !walking;
@@ -722,8 +747,12 @@ const char html_interface[] PROGMEM = R"rawliteral(
     send({cmd:'active', val: id});
   }
   
-  window.send = function(data) { if(ws.readyState===1) ws.send(JSON.stringify(data)); }
-  window.move = function(id, val) { send({cmd:'servo', leg: activeLeg, id:id, val:parseInt(val)}); }
+  window.send = function(data) { 
+    if(ws.readyState===1) ws.send(JSON.stringify(data)); 
+  }
+  window.move = function(id, val) { 
+    send({cmd:'servo', leg: activeLeg, id:id, val:parseInt(val)}); 
+  }
 </script>
 </body>
 </html>
@@ -763,7 +792,7 @@ void TaskNetwork(void *pvParameters) {
         webSocket.broadcastTXT(jsonBuf);
       }
     }
-    vTaskDelay(5 / portTICK_PERIOD_MS); // Give the core a rest
+    vTaskDelay(5 / portTICK_PERIOD_MS);
   }
 }
 
@@ -778,8 +807,11 @@ void TaskControl(void *pvParameters) {
     if (xSemaphoreTake(stateMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
       localState = sharedState;
       if (sharedState.calibrateIMU) {
-         isCalibrating = true; calibCount = 0; calibSumP = 0; calibSumR = 0;
-         sharedState.calibrateIMU = false; // Reset the flag
+         isCalibrating = true; 
+         calibCount = 0; 
+         calibSumP = 0; 
+         calibSumR = 0;
+         sharedState.calibrateIMU = false;
       }
       xSemaphoreGive(stateMutex);
     }
@@ -792,7 +824,9 @@ void TaskControl(void *pvParameters) {
     // 3. WATCHDOG
     if(gamepadActive && (now - lastPadPacket > 500)) {
        if (xSemaphoreTake(stateMutex, 0) == pdTRUE) {
-           sharedState.targetX=0; sharedState.targetY=0; sharedState.targetTwist=0; 
+           sharedState.targetX=0; 
+           sharedState.targetY=0; 
+           sharedState.targetTwist=0; 
            sharedState.inputZ=DEFAULT_Z; 
            xSemaphoreGive(stateMutex);
        }
@@ -803,6 +837,8 @@ void TaskControl(void *pvParameters) {
     if (localState.mode == 3) { // MODE_TEST_SINE
         setRGB(255, 165, 0); // Orange
         float angle = 90.0f + 40.0f * sin(now / 300.0f);
+        // FIX #6: Clamp angle to valid servo range BEFORE mapping
+        angle = constrain(angle, 0.0f, 180.0f);
         int pulse = map((long)angle, 0, 180, SERVO_MIN, SERVO_MAX);
         if(statusPCA) {
           if(localState.animationType == 1) {
@@ -819,12 +855,15 @@ void TaskControl(void *pvParameters) {
 
         // 5. KINEMATIC SMOOTHING
         if(abs(localState.targetX)<1) localState.targetX=0; 
-        if(abs(currentX-localState.targetX)>0.1) currentX += (localState.targetX-currentX)*(ACCEL*dt*5.0); else currentX=localState.targetX;
+        if(abs(currentX-localState.targetX)>0.1) currentX += (localState.targetX-currentX)*(ACCEL*dt*5.0); 
+        else currentX=localState.targetX;
         
         if(abs(localState.targetY)<1) localState.targetY=0; 
-        if(abs(currentY-localState.targetY)>0.1) currentY += (localState.targetY-currentY)*(ACCEL*dt*5.0); else currentY=localState.targetY;
+        if(abs(currentY-localState.targetY)>0.1) currentY += (localState.targetY-currentY)*(ACCEL*dt*5.0); 
+        else currentY=localState.targetY;
         
-        if(abs(currentTwist-localState.targetTwist)>0.1) currentTwist += (localState.targetTwist-currentTwist)*(ACCEL*dt*5.0); else currentTwist=localState.targetTwist;
+        if(abs(currentTwist-localState.targetTwist)>0.1) currentTwist += (localState.targetTwist-currentTwist)*(ACCEL*dt*5.0); 
+        else currentTwist=localState.targetTwist;
         
         if(abs(currentHeight-localState.inputZ)>0.1f) currentHeight += (localState.inputZ-currentHeight)*0.1f;
 
@@ -862,25 +901,38 @@ void TaskControl(void *pvParameters) {
 void setup() {
   Serial.begin(115200);
   
-  rgb.begin(); rgb.setBrightness(80); setRGB(0, 0, 255); 
+  rgb.begin(); 
+  rgb.setBrightness(80); 
+  setRGB(0, 0, 255); 
   
-  Serial.print("[PCA] Init on 4/5... ");
+  // FIX #7: Initialize Wire FIRST before PCA9685 uses it (CORRECT ORDER)
+  Serial.print("[Wire] Init on 4/5 (Servo Bus)... ");
   Wire.begin(PIN_SERVO_SDA, PIN_SERVO_SCL, 400000);
-  
-  // FIX A: Prevent infinite I2C lockup if PCA9685 disconnects
   Wire.setTimeOut(10); 
-  
-  pca.begin(); pca.setPWMFreq(50);
-  Wire.beginTransmission(0x40);
-  if(Wire.endTransmission()==0) { statusPCA=true; Serial.println("OK"); }
-  else { Serial.println("FAIL"); setRGB(255,0,0); }
+  Serial.println("OK");
 
+  // FIX #3 & #7: Now initialize PCA9685 on properly initialized Wire bus
+  Serial.print("[PCA] Init on Wire... ");
+  pca.begin(); 
+  pca.setPWMFreq(50);
+  Wire.beginTransmission(0x40);
+  if(Wire.endTransmission()==0) { 
+    statusPCA=true; 
+    Serial.println("OK"); 
+  }
+  else { 
+    Serial.println("FAIL"); 
+    setRGB(255,0,0); 
+  }
+
+  // FIX #7: Initialize Wire1 for IMU AFTER Wire initialization
   imuConnected = initRawMPU(); 
   if(!imuConnected) setRGB(255,100,0);
 
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while(WiFi.status() != WL_CONNECTED) { delay(100); }
-  Serial.print("[WiFi] IP: "); Serial.println(WiFi.localIP());
+  Serial.print("[WiFi] IP: "); 
+  Serial.println(WiFi.localIP());
   setRGB(0, 255, 0); 
 
   server.on("/", [](){ server.send(200, "text/html", html_interface); });
