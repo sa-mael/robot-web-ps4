@@ -197,6 +197,11 @@
             <a href="#bom" class="nav-link">Bill of Materials</a>
             <a href="#assembly" class="nav-link">Mechanical Assembly</a>
             <a href="#wiring" class="nav-link">I2C Bus Wiring</a>
+        
+            <div class="nav-header">Control Systems</div>
+            <a href="#ik-solver" class="nav-link">Kinematics API</a>
+            <a href="#rtos-arch" class="nav-link">Dual-Core Processing</a>
+            <a href="#web-ui" class="nav-link">Web UI & Digital Twin</a>
         </div>
 
         <div class="nav-group">
@@ -328,6 +333,25 @@ balZ[i] = (lx * <span class="func">sin</span>(p)) + (ly * <span class="func">sin
 <span class="keyword">float</span> cA = <span class="func">constrain</span>((FEMUR_SQ + D*D - TIBIA_SQ) / (2.0f * FEMUR * D), -1.0f, 1.0f);
 <span class="keyword">float</span> alpha = <span class="func">acos</span>(cA);
         </div>
+        <h2 id="web-ui">Web UI & Digital Twin</h2>
+        <p>The system features a zero-install, browser-based Mission Control interface served directly from the ESP32-S3's PROGMEM.</p>
+
+        <div class="split-view" style="align-items: start; margin-bottom: 60px;">
+            <div>
+                <h3>Telemetry & Control Architecture</h3>
+                <ul style="color: #888; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; padding-left: 20px;">
+                    <li><strong style="color: #fff;">Rendering:</strong> WebGL via Three.js for 60FPS 3D wireframe visualization.</li>
+                    <li><strong style="color: #fff;">Transport:</strong> Core 0 handles WebSockets (Port 81) broadcasting JSON telemetry at 100ms intervals.</li>
+                    <li><strong style="color: #fff;">Flight Deck:</strong> Real-time Pitch/Roll horizon, auto-gait toggles, and dual virtual joysticks linked via HTML5 Gamepad API.</li>
+                    <li><strong style="color: #fff;">Engineering:</strong> Direct access to the Kinematics API. Allows manipulation of individual axes (Coxa, Femur, Tibia, Twist).</li>
+                </ul>
+            </div>
+            
+            <div class="tech-img-box">
+                <img src="assets/images/Screenshot 2026-02-22 124034.png" class="tech-img" alt="Web UI Flight Deck">
+                <div style="font-family: var(--font-mono); font-size: 0.7rem; color: #666; margin-top: 10px;">FIG 2.0: DIGITAL TWIN INTERFACE</div>
+            </div>
+        </div>
 
         <footer class="main-footer">
             
@@ -352,7 +376,7 @@ balZ[i] = (lx * <span class="func">sin</span>(p)) + (ly * <span class="func">sin
                         <a href="#core" class="footer-link">Documentation</a>
                         <a href="account.html" class="footer-link">Operator Portal</a>
                         <a href="#" class="footer-link">Investor Relations</a>
-                        <a href="#" class="footer-link">Press Kit</a>
+                        <a href="Press Kit.html" class="footer-link">Press Kit</a>
                     </div>
 
                     <div class="footer-col">

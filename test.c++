@@ -1,6 +1,6 @@
 /*
- * PROJECT:  IK4=75 "RTOS EDITION"
- * VERSION:  v75.0 (FREERTOS / DUAL CORE / MUTEX PROTECTED)
+ * PROJECT:  IK4=77 "ORBITAL EDITION"
+ * VERSION:  v77.0 (FREERTOS / CoM SWAY / DUAL I2C TIMEOUTS)
  * MODULE:   MAIN FIRMWARE (ESP32-S3 N8R8)
  * AUTHOR:   Gemini & User
  *
@@ -109,7 +109,7 @@ bool initRawMPU() {
     Serial.println("Wire1 Error!"); return false; 
   }
   
-  Wire1.setTimeOut(10); 
+  Wire1.setTimeOut(10); // Prevent infinite loop if wire disconnects
 
   Wire1.beginTransmission(MPU_ADDR);
   if (Wire1.endTransmission() != 0) {
@@ -171,7 +171,7 @@ void readRawMPU(float dt) {
 }
 
 // ---------------------------------------------------------------------------
-// 4. KINEMATICS ENGINE
+// 4. KINEMATICS ENGINE & CoM SWAY
 // ---------------------------------------------------------------------------
 struct LegConfig { int xSign; int ySign; int gammaSign; int twistSign; float mountDeg; };
 
@@ -199,36 +199,46 @@ class GaitScheduler {
     float smoothVy = 0.0f;
     float smoothTwist = 0.0f;
 
+    // Center of Mass (CoM) Shift Variables
+    float swayX = 0.0f;
+    float swayY = 0.0f;
+    float swayMagnitude = 15.0f; // Max mm to shift body away from lifting leg
+
     inline void rotate2D(float &x, float &y, float rad) __attribute__((always_inline)) {
       float c = cos(rad), s = sin(rad);
       float nx = x*c - y*s; y = x*s + y*c; x = nx;
     }
 
     void run(float speed, float targetVx, float targetVy, float targetVTwist, float dt) {
-      // FIX 3: Smooth amplitude decay (Soft leg parking)
-      // Instead of an instant stop, we smoothly dampen the motion vectors.
-      // The smoothing factor (here 4.0f) determines the "braking" speed.
+      // Smooth amplitude decay (Soft leg parking)
       smoothVx += (targetVx - smoothVx) * (4.0f * dt);
       smoothVy += (targetVy - smoothVy) * (4.0f * dt);
       smoothTwist += (targetVTwist - smoothTwist) * (4.0f * dt);
 
-      // Check if there is actual movement (even residual)
       bool moving = (abs(smoothVx)>0.5f || abs(smoothVy)>0.5f || abs(smoothTwist)>0.5f) && (speed > 0.1f);
       
       if(moving) {
         // Phase advances only if we are moving
         phase += (speed * 0.2f) * dt * 5.0f; 
         if(phase >= 1.0f) phase -= 1.0f;
+        
+        // Calculate Body Sway (Only when moving)
+        // Generates a circular offset that shifts weight to the planted legs
+        swayX = sin(phase * PI_F * 2.0f) * swayMagnitude;
+        swayY = cos(phase * PI_F * 2.0f) * swayMagnitude;
+        
       } else {
-        // If stopped, smoothly "wind" the phase to the nearest convenient position (0.0, 0.25, 0.5, 0.75), 
-        // so all legs stand firmly on the ground.
-        // For simplicity, we currently just smoothly reset the phase to zero if the amplitude has dropped.
+        // Smoothly wind the phase back to zero
         if (phase > 0.01f) {
-             phase += (1.0f - phase) * 2.0f * dt; // Smooth return to 0
+             phase += (1.0f - phase) * 2.0f * dt; 
              if(phase >= 0.99f) phase = 0.0f;
         } else {
              phase = 0.0f;
         }
+        
+        // Dampen sway back to dead center
+        swayX += (0.0f - swayX) * (4.0f * dt);
+        swayY += (0.0f - swayY) * (4.0f * dt);
       }
 
       for(int i=0; i<4; i++) { legX[i]=0; legY[i]=0; legZ[i]=0; legT[i]=0; }
@@ -243,21 +253,19 @@ class GaitScheduler {
 
       for(int i=0; i<4; i++) {
         if(i == swingLeg && moving) {
-          // Leg lift height. Can be tied to motion amplitude for a more natural step at low speeds.
           legZ[i] = sin(swingProgress * PI_F) * 35.0f; 
           float stride = -cos(swingProgress * PI_F);
-          // Use smoothed values (smoothVx, smoothVy) instead of sharp ones (vx, vy)
-          legX[i] = smoothVx * stride;
-          legY[i] = smoothVy * stride;
+          // Apply Step Target AND Body Sway Compensation
+          legX[i] = (smoothVx * stride) + swayX;
+          legY[i] = (smoothVy * stride) + swayY;
         } else {
-          // Legs on the ground push in the opposite direction
-          legX[i] = -smoothVx;
-          legY[i] = -smoothVy;
+          // Legs on the ground push in the opposite direction + Sway Comp
+          legX[i] = -smoothVx + swayX;
+          legY[i] = -smoothVy + swayY;
           legZ[i] = 0; 
         }
       }
 
-      // Use smoothed twist
       float tRad = smoothTwist * (PI_F / 180.0f);
       for(int i=0; i<4; i++) {
         float bx = MOUNT_L * CFG[i].xSign;
@@ -272,10 +280,15 @@ class GaitScheduler {
       }
     }
 };
+GaitScheduler gait;
 
 // ---------------------------------------------------------------------------
-// 5. LEG SYSTEM
+// 5. LEG SYSTEM & INVERSE KINEMATICS
 // ---------------------------------------------------------------------------
+// Leg mounting yaw angles relative to the robot's center
+// +X = Forward, +Y = Right
+const float LEG_YAW[4] = { -45.0f, 45.0f, -135.0f, 135.0f };
+
 class Leg {
   public:
     int id; LegConfig cfg;
@@ -296,11 +309,22 @@ class Leg {
       pca.setPWM(ch, 0, deg2pwm(constrain(deg, 0.0f, 180.0f)));
     }
 
-    void run(float x, float y, float z, float t) {
-      float lx = (150 + x) * cfg.xSign;
-      float ly = (0 + y) * cfg.ySign;
+    void run(float global_x, float global_y, float z, float t) {
+      // 1. ROTATION MATRIX (Global -> Local)
+      // Translate global step vector into local foot offset vector
+      float yawRad = LEG_YAW[id] * (PI_F / 180.0f);
+      float s = sin(yawRad);
+      float c = cos(yawRad);
+      
+      float local_dx = global_x * c + global_y * s; 
+      float local_dy = -global_x * s + global_y * c; 
+
+      // 2. BASE FOOT POSITION (150mm default radial extension)
+      float lx = 150.0f + local_dx;
+      float ly = local_dy;
       float lz = z;
 
+      // Mathematics now operate in correct local axes
       float G_rad = atan2(ly, lx);
       float G_deg = degrees(G_rad);
       
@@ -320,6 +344,7 @@ class Leg {
       float A_deg = degrees(atan2(lz, u) + a2);
       float B_deg = degrees(b_rad) - 180.0f;
       
+      // 3. APPLY TO SERVOS
       float twistPWM = constrain(45.0f + (t * cfg.twistSign), 0.0f, 90.0f);
       float drvCoxa  = constrain(45.0f + (G_deg * cfg.gammaSign), 15.0f, 105.0f); 
       float drvFemur = constrain(90.0f + A_deg, 0.0f, 180.0f);
@@ -344,7 +369,6 @@ class Leg {
       if(motorId==3) setServo(pinTw, val);
     }
 };
-
 Leg legs[4] = { Leg(0,0), Leg(1,4), Leg(2,8), Leg(3,12) };
 
 // ---------------------------------------------------------------------------
@@ -421,88 +445,190 @@ const char html_interface[] PROGMEM = R"rawliteral(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>IK4=75 RTOS</title>
+  <title>ARTTOUS | IK4=77 UPLINK</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+  
   <style>
-    :root { --bg: #0b0b0b; --panel: #141414; --accent: #00f3ff; --warn: #ff0055; --text: #eee; }
-    body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', monospace; overflow: hidden; }
+    :root { 
+        --bg-core: #050505; 
+        --panel: rgba(10, 10, 10, 0.85); /* Semi-transparent panel background */
+        --accent: #7c2ae8; 
+        --warn: #e74c3c; 
+        --success: #2ecc71;
+        --text: #e0e0e0;
+        --font-tech: 'Orbitron', sans-serif;
+        --font-mono: 'JetBrains Mono', monospace;
+    }
+    
+    body { 
+        margin: 0; background: var(--bg-core); color: var(--text); 
+        font-family: 'Inter', sans-serif; overflow: hidden; 
+    }
+    
     canvas { position: absolute; top: 0; left: 0; z-index: -1; }
-    .ui { position: absolute; width: 100%; height: 100%; pointer-events: none; display: flex; justify-content: space-between; padding: 10px; box-sizing: border-box; }
-    .panel { width: 300px; background: var(--panel); border: 1px solid #333; padding: 15px; pointer-events: auto; display: flex; flex-direction: column; border-radius: 6px; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
-    h3 { border-bottom: 2px solid var(--accent); padding-bottom: 5px; margin: 0 0 10px 0; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
-    button { padding: 12px; background: rgba(0,243,255,0.05); color: var(--accent); border: 1px solid var(--accent); cursor: pointer; font-weight: bold; margin-bottom: 5px; width: 100%; transition: 0.2s; font-size: 11px; }
-    button:hover { background: var(--accent); color: #000; }
-    button.sel { background: var(--accent); color: #000; }
-    button.calib { border-color: #fc0; color: #fc0; }
-    button.warn { border-color: var(--warn); color: var(--warn); }
-    button.warn:hover { background: var(--warn); color: #fff; }
-    input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; height: 5px; background: #333; margin: 10px 0; }
-    .horizon-box { width: 100%; height: 120px; background: #000; border: 1px solid var(--accent); margin-bottom: 10px; position: relative; overflow: hidden; border-radius: 4px; }
-    .horizon-sky { width: 300%; height: 300%; background: linear-gradient(to bottom, #005566 50%, #333 50%); position: absolute; top: -100%; left: -100%; transition: transform 0.05s linear; pointer-events: none; opacity: 0.6; }
-    .horizon-line { width: 100%; height: 2px; background: var(--accent); position: absolute; top: 50%; left: 0; box-shadow: 0 0 5px var(--accent); }
-    .horizon-data { position: absolute; top: 5px; left: 5px; font-size: 10px; font-weight: bold; color: #fff; text-shadow: 1px 1px 0 #000; }
-    .sticks { display: flex; justify-content: space-between; margin: 10px 0; }
-    .stick-box { width: 120px; height: 120px; border: 1px solid #333; background: #000; position: relative; border-radius: 4px; }
-    .stick-dot { width: 8px; height: 8px; background: #fff; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 8px var(--accent); }
-    .status-bar { margin-top: auto; padding-top: 10px; border-top: 1px solid #333; font-size: 10px; display: flex; justify-content: space-between; }
-    .ok { color: #0f0; } .bad { color: var(--warn); }
+    
+    .ui { 
+        position: absolute; width: 100%; height: 100%; pointer-events: none; 
+        display: flex; justify-content: space-between; padding: 20px; box-sizing: border-box; 
+    }
+    
+    .panel { 
+        width: 320px; background: var(--panel); border: 1px solid #333; padding: 20px; 
+        pointer-events: auto; display: flex; flex-direction: column; 
+        backdrop-filter: blur(5px); /* Glassmorphism effect */
+    }
+    
+    h3 { 
+        border-bottom: 1px solid #333; padding-bottom: 10px; margin: 0 0 15px 0; 
+        font-size: 1rem; letter-spacing: 2px; font-family: var(--font-tech); color: #fff; 
+    }
+    
+    /* Arttous Action Button Style */
+    button { 
+        padding: 12px; background: transparent; color: #aaa; border: 1px solid #444; 
+        cursor: pointer; font-family: var(--font-tech); font-size: 0.75rem; 
+        margin-bottom: 8px; width: 100%; transition: 0.2s; 
+    }
+    button:hover { border-color: var(--accent); color: #fff; }
+    button.sel { background: rgba(124, 42, 232, 0.2); border-color: var(--accent); color: #fff; }
+    
+    button.calib { border-color: #444; color: #f1c40f; }
+    button.calib:hover { border-color: #f1c40f; background: rgba(241, 196, 15, 0.1); color: #fff;}
+    
+    button.warn { border-color: #444; color: #666; }
+    button.warn:hover { border-color: var(--warn); background: rgba(231, 76, 60, 0.1); color: var(--warn); }
+    
+    /* Styled Sliders */
+    input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin: 10px 0 15px 0; cursor: pointer;}
+    input[type=range]::-webkit-slider-runnable-track { height: 4px; background: #222; border-radius: 2px; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 8px; background: var(--accent); margin-top: -6px; border-radius: 2px; box-shadow: 0 0 8px rgba(124, 42, 232, 0.5);}
+    
+    label { font-family: var(--font-mono); font-size: 0.7rem; color: #888; display: block; margin-top: 5px; }
+
+    /* Artificial Horizon (IMU) */
+    .horizon-box { 
+        width: 100%; height: 120px; background: #000; border: 1px solid #333; 
+        margin-bottom: 15px; position: relative; overflow: hidden; 
+    }
+    .horizon-sky { 
+        width: 300%; height: 300%; 
+        background: linear-gradient(to bottom, rgba(124, 42, 232, 0.3) 50%, #111 50%); 
+        position: absolute; top: -100%; left: -100%; transition: transform 0.05s linear; pointer-events: none; 
+    }
+    .horizon-line { width: 100%; height: 1px; background: var(--accent); position: absolute; top: 50%; left: 0; box-shadow: 0 0 10px var(--accent); }
+    .horizon-data { position: absolute; top: 8px; left: 8px; font-family: var(--font-mono); font-size: 0.75rem; color: #fff; text-shadow: 1px 1px 2px #000; }
+    
+    /* Joysticks */
+    .sticks { display: flex; justify-content: space-between; margin: 15px 0; }
+    .stick-box { width: 120px; height: 120px; border: 1px dashed #333; background: #080808; position: relative; border-radius: 50%; }
+    .stick-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 10px var(--accent); }
+    
+    /* Status Badges (Fleet Management Style) */
+    .status-bar { margin-top: auto; padding-top: 15px; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+    .stat-badge { padding: 4px 8px; font-family: var(--font-mono); font-size: 0.65rem; border-radius: 2px; border: 1px solid #333; color: #666;}
+    .stat-badge.ok { color: var(--success); border-color: var(--success); background: rgba(46, 204, 113, 0.1); }
+    .stat-badge.bad { color: var(--warn); border-color: var(--warn); background: rgba(231, 76, 60, 0.1); }
   </style>
 </head>
 <body>
 <div class="ui">
   <div class="panel">
-    <h3>Flight Deck</h3>
+    <h3>FLIGHT DECK</h3>
     <div class="horizon-box">
       <div class="horizon-sky" id="sky"></div>
       <div class="horizon-line"></div>
-      <div class="horizon-data">P:<span id="val-p">0</span> R:<span id="val-r">0</span></div>
+      <div class="horizon-data">PITCH: <span id="val-p" style="color:var(--accent);">0</span>°<br>ROLL: <span id="val-r" style="color:var(--accent);">0</span>°</div>
     </div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
       <button onclick="send({cmd:'mode', val:'stand'})">STAND (X)</button>
       <button id="btn-walk" onclick="toggleWalk()">AUTO WALK (O)</button>
     </div>
-    <button class="calib" onclick="send({cmd:'calib'})">CALIBRATE GYRO</button>
+    <button class="calib" onclick="send({cmd:'calib'})">CALIBRATE IMU</button>
+    
     <div class="sticks">
       <div class="stick-box"><div id="dot-l" class="stick-dot"></div></div>
       <div class="stick-box"><div id="dot-r" class="stick-dot"></div></div>
     </div>
+    
+    <label>Z-AXIS CLEARANCE (HEIGHT)</label>
     <input type="range" min="-140" max="-40" value="-60" oninput="send({cmd:'h', val:this.value})">
-    <div class="status-bar"><span id="imu-stat" class="bad">IMU DEAD</span><span id="net-stat" class="bad">OFFLINE</span></div>
-  </div>
-  <div class="panel">
-    <h3>Engineering</h3>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:10px;">
-      <button id="l0" class="sel" onclick="selLeg(0)">FL</button><button id="l1" onclick="selLeg(1)">FR</button>
-      <button id="l2" onclick="selLeg(2)">BL</button><button id="l3" onclick="selLeg(3)">BR</button>
+    
+    <div class="status-bar">
+        <span id="imu-stat" class="stat-badge bad">IMU DEAD</span>
+        <span id="net-stat" class="stat-badge bad">OFFLINE</span>
     </div>
-    <label style="font-size:10px; color:#aaa;">HIP</label><input type="range" min="-45" max="45" value="0" oninput="move(0,this.value)">
-    <label style="font-size:10px; color:#aaa;">FEMUR</label><input type="range" min="-90" max="90" value="0" oninput="move(1,this.value)">
-    <label style="font-size:10px; color:#aaa;">TIBIA</label><input type="range" min="-90" max="90" value="0" oninput="move(2,this.value)">
-    <label style="font-size:10px; color:var(--accent);">TWIST</label><input type="range" min="-45" max="45" value="0" oninput="move(3,this.value)">
-    <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
-    <h3>Diagnostics</h3>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
-      <button class="warn" onclick="send({cmd:'test', val:1})">TEST 4</button>
-      <button class="warn" onclick="send({cmd:'test', val:2})">TEST 16</button>
+  </div>
+
+  <div class="panel">
+    <h3>ENGINEERING</h3>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+      <button id="l0" class="sel" onclick="selLeg(0)">LEG FL</button>
+      <button id="l1" onclick="selLeg(1)">LEG FR</button>
+      <button id="l2" onclick="selLeg(2)">LEG BL</button>
+      <button id="l3" onclick="selLeg(3)">LEG BR</button>
+    </div>
+    
+    <label>J1_COXA (HIP)</label>
+    <input type="range" min="-45" max="45" value="0" oninput="move(0,this.value)">
+    
+    <label>J2_FEMUR (SHOULDER)</label>
+    <input type="range" min="-90" max="90" value="0" oninput="move(1,this.value)">
+    
+    <label>J3_TIBIA (ELBOW)</label>
+    <input type="range" min="-90" max="90" value="0" oninput="move(2,this.value)">
+    
+    <label style="color:var(--accent);">J4_TWIST (WRIST)</label>
+    <input type="range" min="-45" max="45" value="0" oninput="move(3,this.value)">
+    
+    <hr style="border:0; border-top:1px dashed #333; margin:20px 0 10px 0;">
+    
+    <h3>DIAGNOSTICS</h3>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <button class="warn" onclick="send({cmd:'test', val:1})">TEST 4CH</button>
+      <button class="warn" onclick="send({cmd:'test', val:2})">TEST 16CH</button>
     </div>
   </div>
 </div>
+
 <script type="module">
   import * as THREE from 'https://esm.sh/three@0.160.0';
   import { OrbitControls } from 'https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+  
   window.ws = new WebSocket(`ws://${location.hostname}:81/`);
-  const scene = new THREE.Scene(); scene.background = new THREE.Color(0x0b0b0b);
+  
+  // THREE.JS SETUP (Arttous Styling)
+  const scene = new THREE.Scene(); 
+  scene.background = new THREE.Color(0x050505); // Dark core BG
+  
   const cam = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 3000); 
   cam.position.set(0, 400, 500); 
-  const ren = new THREE.WebGLRenderer({antialias:true}); ren.setSize(window.innerWidth, window.innerHeight); document.body.appendChild(ren.domElement);
+  
+  const ren = new THREE.WebGLRenderer({antialias:true}); 
+  ren.setSize(window.innerWidth, window.innerHeight); 
+  document.body.appendChild(ren.domElement);
+  
   new OrbitControls(cam, ren.domElement);
-  scene.add(new THREE.GridHelper(1000, 100, 0x00f3ff, 0x141414)); scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-  const spot = new THREE.PointLight(0x00f3ff, 1.0, 1000); spot.position.set(0, 500, 0); scene.add(spot);
-  const matWire = new THREE.MeshBasicMaterial({color:0x00f3ff, wireframe:true, opacity:0.3});
-  const matSolid = new THREE.MeshStandardMaterial({color:0x1a1a1a, roughness:0.4}); 
+  
+  // Custom Arttous Colors for 3D
+  scene.add(new THREE.GridHelper(1000, 100, 0x7c2ae8, 0x111111)); // Purple grid
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+  
+  const spot = new THREE.PointLight(0x7c2ae8, 1.5, 1000); // Purple glow
+  spot.position.set(0, 500, 0); 
+  scene.add(spot);
+  
+  const matWire = new THREE.MeshBasicMaterial({color:0x7c2ae8, wireframe:true, opacity:0.4, transparent: true});
+  const matSolid = new THREE.MeshStandardMaterial({color:0x111111, roughness:0.7}); 
+  
   const body = new THREE.Group();
   body.add(new THREE.Mesh(new THREE.BoxGeometry(77, 46, 134), matSolid));
   body.add(new THREE.Mesh(new THREE.BoxGeometry(77, 46, 134), matWire));
-  body.add(new THREE.AxesHelper(60)); body.position.y = 23; scene.add(body);
+  body.add(new THREE.AxesHelper(60)); 
+  body.position.y = 23; 
+  scene.add(body);
+  
   const legsVis = [];
   function createLeg(x, z, mountDeg) {
     const root = new THREE.Group(); root.position.set(x, 23, z); 
@@ -510,25 +636,44 @@ const char html_interface[] PROGMEM = R"rawliteral(
     const twist = new THREE.Group(); twist.position.x = 20; hip.add(twist); 
     const femur = new THREE.Group(); femur.position.x = 46; twist.add(femur); femur.add(new THREE.AxesHelper(20));
     const tibia = new THREE.Group(); tibia.position.x = 69; femur.add(tibia);
+    
     hip.add(new THREE.Mesh(new THREE.BoxGeometry(20,10,10).translate(10,0,0), matWire));
     twist.add(new THREE.Mesh(new THREE.BoxGeometry(46,12,12).translate(23,0,0), matWire));
     femur.add(new THREE.Mesh(new THREE.BoxGeometry(69,8,8).translate(34.5,0,0), matWire));
     tibia.add(new THREE.Mesh(new THREE.BoxGeometry(123,5,5).translate(61.5,0,0), matWire));
+    
     root.userData = { h: hip, tw: twist, f:femur, t:tibia, off: mountDeg };
     scene.add(root); legsVis.push(root);
   }
-  createLeg(-38.8, -67.4, 135); createLeg(38.8, -67.4, 45); createLeg(-38.8, 67.4, 45); createLeg(38.8, 67.4, -225);
-  function loop() { requestAnimationFrame(loop); ren.render(scene, cam); } loop();
-  ws.onopen = () => { document.getElementById('net-stat').innerText = "ONLINE"; document.getElementById('net-stat').className = "ok"; };
-  ws.onclose = () => { document.getElementById('net-stat').innerText = "OFFLINE"; document.getElementById('net-stat').className = "bad"; };
+  
+  createLeg(-38.8, -67.4, 135); 
+  createLeg(38.8, -67.4, 45); 
+  createLeg(-38.8, 67.4, 225); 
+  createLeg(38.8, 67.4, -45); 
+  
+  function loop() { requestAnimationFrame(loop); ren.render(scene, cam); } 
+  loop();
+  
+  // WEBSOCKET LOGIC 
+  ws.onopen = () => { 
+      document.getElementById('net-stat').innerText = "DATA LINK OK"; 
+      document.getElementById('net-stat').className = "stat-badge ok"; 
+  };
+  ws.onclose = () => { 
+      document.getElementById('net-stat').innerText = "LINK LOST"; 
+      document.getElementById('net-stat').className = "stat-badge bad"; 
+  };
+  
   ws.onmessage = (e) => {
     try {
       const d = JSON.parse(e.data);
       if(d.p !== undefined) {
-        document.getElementById('imu-stat').innerText = "IMU LIVE"; document.getElementById('imu-stat').className = "ok";
-        document.getElementById('val-p').innerText = d.p.toFixed(0);
-        document.getElementById('val-r').innerText = d.r.toFixed(0);
-        body.rotation.x = d.p * 0.01745; body.rotation.z = d.r * 0.01745;
+        document.getElementById('imu-stat').innerText = "IMU LIVE"; 
+        document.getElementById('imu-stat').className = "stat-badge ok";
+        document.getElementById('val-p').innerText = d.p.toFixed(1);
+        document.getElementById('val-r').innerText = d.r.toFixed(1);
+        body.rotation.x = d.p * 0.01745; 
+        body.rotation.z = d.r * 0.01745;
         const yOff = d.p * 3.0; 
         document.getElementById('sky').style.transform = `translateY(${yOff}px) rotate(${-d.r}deg)`;
       }
@@ -543,6 +688,8 @@ const char html_interface[] PROGMEM = R"rawliteral(
       }
     } catch(err) {}
   };
+  
+  // GAMEPAD LOGIC
   setInterval(() => {
     const gps = navigator.getGamepads();
     if(gps && gps[0]) {
@@ -554,18 +701,27 @@ const char html_interface[] PROGMEM = R"rawliteral(
       if(ws.readyState === 1) ws.send(JSON.stringify(data));
     }
   }, 50);
+  
+  // UI CONTROLS
   let activeLeg = 0; let walking = false;
+  
   window.toggleWalk = function() {
     walking = !walking;
     const btn = document.getElementById('btn-walk');
     btn.innerText = walking ? "STOP WALK" : "AUTO WALK (O)";
-    btn.style.color = walking ? "#000" : "#00f3ff"; btn.style.background = walking ? "#00f3ff" : "rgba(0,243,255,0.05)";
+    btn.style.color = walking ? "#fff" : "#aaa"; 
+    btn.style.background = walking ? "rgba(124, 42, 232, 0.3)" : "transparent";
+    btn.style.borderColor = walking ? "var(--accent)" : "#444";
     send({cmd:'mode', val: walking ? 'walk' : 'stand', auto: walking});
   }
+  
   window.selLeg = function(id) {
-    activeLeg = id; document.querySelectorAll('.panel button.sel').forEach(b => b.classList.remove('sel'));
-    document.getElementById('l'+id).classList.add('sel'); send({cmd:'active', val: id});
+    activeLeg = id; 
+    document.querySelectorAll('.panel button.sel').forEach(b => b.classList.remove('sel'));
+    document.getElementById('l'+id).classList.add('sel'); 
+    send({cmd:'active', val: id});
   }
+  
   window.send = function(data) { if(ws.readyState===1) ws.send(JSON.stringify(data)); }
   window.move = function(id, val) { send({cmd:'servo', leg: activeLeg, id:id, val:parseInt(val)}); }
 </script>
@@ -678,14 +834,12 @@ void TaskControl(void *pvParameters) {
           gait.run(speedVal, currentX, currentY, currentTwist, dt);
 
           float balZ[4] = {0,0,0,0};
-          // FIX 2: Always balance when IMU is connected
           if(imuConnected) {
              float p = constrain(pitch, -20.0f, 20.0f) * (PI_F/180.0f);
              float r = constrain(roll, -20.0f, 20.0f) * (PI_F/180.0f);
              for(int i=0; i<4; i++) {
                float lx = 80 * legs[i].cfg.xSign;
                float ly = 60 * legs[i].cfg.ySign;
-               // sin() provides more accurate height compensation during pitch/roll
                balZ[i] = (lx * sin(p)) + (ly * sin(r));
              }
           }
@@ -712,6 +866,10 @@ void setup() {
   
   Serial.print("[PCA] Init on 4/5... ");
   Wire.begin(PIN_SERVO_SDA, PIN_SERVO_SCL, 400000);
+  
+  // FIX A: Prevent infinite I2C lockup if PCA9685 disconnects
+  Wire.setTimeOut(10); 
+  
   pca.begin(); pca.setPWMFreq(50);
   Wire.beginTransmission(0x40);
   if(Wire.endTransmission()==0) { statusPCA=true; Serial.println("OK"); }
