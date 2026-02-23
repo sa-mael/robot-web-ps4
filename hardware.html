@@ -72,9 +72,95 @@
         h2 { font-family: var(--font-tech); font-size: 1.5rem; margin: 60px 0 30px; color: #fff; border-bottom: 1px solid #333; padding-bottom: 10px; }
         p { line-height: 1.7; color: #bbb; margin-bottom: 20px; max-width: 800px; }
 
+        /* --- MATRIX SHOWCASE (VIDEO + CODE) --- */
+        .matrix-showcase {
+            display: flex;
+            width: 100%;
+            height: 450px;
+            margin: 40px 0 60px 0;
+            background: #000;
+            border: 1px solid #333;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            border-radius: 8px; /* Скругленные углы для всего блока */
+            overflow: hidden;
+        }
+
+        .matrix-video {
+            flex: 1;
+            background: #050505;
+            border-right: 2px solid #1a1a1a;
+            position: relative;
+        }
+        
+        .matrix-video iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .matrix-code-wrapper {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(90deg, #000 0%, #0a0a0a 100%);
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .code-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        .code-scroll-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-content {
+            padding: 20px 30px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 12px; /* Чуть меньше шрифт, чтобы больше влезло */
+            line-height: 1.6;
+            color: #bcbcbc;
+            text-shadow: 0 0 5px rgba(124, 42, 232, 0.4); /* В тон акценту */
+            letter-spacing: 0.5px;
+            font-family: var(--font-mono);
+        }
+
+        @keyframes scrollUp {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .code-layer:nth-child(2) {
+            animation: flicker 0.15s infinite;
+            animation-delay: 0.05s;
+        }
+        
+        @media (max-width: 1100px) {
+            .matrix-showcase {
+                flex-direction: column;
+                height: 800px;
+            }
+            .matrix-video {
+                border-right: none;
+                border-bottom: 2px solid #1a1a1a;
+            }
+        }
+
         /* --- LAYOUTS --- */
         .split-view {
-            display: grid; grid-template-columns: 1fr 300px; gap: 40px; align-items: start;
+            display: grid; grid-template-columns: 1fr 300px; gap: 40px; align-items: center;
         }
         .tech-img-box {
             background: rgba(255,255,255,0.02); border: 1px solid #333; padding: 20px; text-align: center;
@@ -168,10 +254,6 @@
         .leg-color { z-index: 2; clip-path: inset(0 0 50% 0); }
         .leg-xray { z-index: 1; clip-path: inset(50% 0 0 0); filter: grayscale(100%) contrast(1.2) brightness(1.2); mix-blend-mode: screen; opacity: 0.8; }
 
-        @media (max-width: 1100px) {
-            .split-view { grid-template-columns: 1fr; }
-            .tech-img-box { margin-bottom: 20px; }
-        }
         @media (max-width: 900px) {
             body { flex-direction: column; overflow: auto; }
             .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #222; }
@@ -203,12 +285,6 @@
             <a href="#rtos-arch" class="nav-link">Dual-Core Processing</a>
             <a href="#web-ui" class="nav-link">Web UI & Digital Twin</a>
         </div>
-
-        <div class="nav-group">
-            <div class="nav-header">Control Systems</div>
-            <a href="#ik-solver" class="nav-link">Kinematics API</a>
-            <a href="#rtos-arch" class="nav-link">Dual-Core Processing</a>
-        </div>
         
         <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #222;">
             <a href="index.html" class="nav-link" style="color: #666;">&lt; Return to Hub</a>
@@ -220,6 +296,18 @@
         <h1 id="core">System Architecture</h1>
         <p>The Arttous platform is powered by the <strong>ESP32-S3 (N8R8) Dual-Core SoC</strong> running FreeRTOS (Firmware IK4=75). To prevent I2C starvation, peripherals are split across two independent hardware buses.</p>
 
+        <div class="matrix-showcase">
+            <div class="matrix-video">
+                <iframe 
+                    src="https://www.youtube.com/embed/gxWSZZUWUTQ?autoplay=1&mute=1&loop=1&playlist=gxWSZZUWUTQ&controls=0&showinfo=0&rel=0" 
+                    title="YouTube video player" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <div class="matrix-code-wrapper" id="inline-code-container"></div>
+        </div>
         <div class="split-view">
             <div>
                 <h3>Hardware Interfaces</h3>
@@ -360,12 +448,9 @@ balZ[i] = (lx * <span class="func">sin</span>(p)) + (ly * <span class="func">sin
         </div>
 
         <footer class="main-footer">
-            
             <div class="footer-top-visual"></div>
-
             <div class="footer-content-dark">
                 <div class="footer-grid">
-                    
                     <div class="footer-col">
                         <h4>GET IN TOUCH</h4>
                         <p style="max-width: 300px; line-height: 1.6; margin-bottom: 25px;">
@@ -394,7 +479,6 @@ balZ[i] = (lx * <span class="func">sin</span>(p)) + (ly * <span class="func">sin
                             <a href="#" class="social-icon">YT</a>
                         </div>
                     </div>
-
                 </div>
 
                 <div class="copy-bar">
@@ -407,10 +491,85 @@ balZ[i] = (lx * <span class="func">sin</span>(p)) + (ly * <span class="func">sin
                 <img src="assets/images/leg-color.png" class="leg-img leg-color" alt="Leg Color">
                 <img src="assets/images/leg-xray.png" class="leg-img leg-xray" alt="Leg X-Ray">
             </div>
-
         </footer>
 
     </div>
 
+    <script>
+        const myCode = `
+// ===== FIRMWARE KINEMATICS CORE =====
+void updateLegPositions(float targetX, float targetY, float targetZ) {
+  for(int i = 0; i < 4; i++) {
+    if(legs[i].isActive) {
+      // Calculate inverse kinematics
+      float coxaAngle = atan2(targetY, targetX);
+      float femurAngle = acos((sq(L1) + sq(targetZ) - sq(L2)) / (2 * L1 * targetZ));
+      float tibiaAngle = acos((sq(L1) + sq(L2) - sq(targetZ)) / (2 * L1 * L2));
+      
+      // Apply smoothing filter
+      legs[i].coxa.writeMicroseconds(map(coxaAngle, -PI/2, PI/2, 500, 2500));
+      legs[i].femur.writeMicroseconds(map(femurAngle, 0, PI, 500, 2500));
+      legs[i].tibia.writeMicroseconds(map(tibiaAngle, 0, PI, 500, 2500));
+    }
+  }
+}
+
+// System tick 330Hz
+void rtosTick() {
+  if (xSemaphoreTake(kinematicsMutex, portMAX_DELAY)) {
+    calculateGait();
+    sendPWM();
+    xSemaphoreGive(kinematicsMutex);
+  }
+}
+`.repeat(10);
+
+        const CONFIG = {
+            numLayers: 5,
+            minSpeed: 400, 
+            maxSpeed: 900,
+            layerOffset: 70,
+            opacityStep: 0.9 / 5
+        };
+
+        function initializeCodeLayers() {
+            const container = document.getElementById('inline-code-container');
+            if (!container) return;
+            const fragment = document.createDocumentFragment();
+
+            for (let i = 0; i < CONFIG.numLayers; i++) {
+                const layer = document.createElement('div');
+                layer.className = 'code-layer';
+                
+                const opacity = 1 - (i * CONFIG.opacityStep);
+                layer.style.opacity = opacity;
+                layer.style.left = `${i * CONFIG.layerOffset}px`;
+                
+                const randomSpeed = Math.random() * (CONFIG.maxSpeed - CONFIG.minSpeed) + CONFIG.minSpeed;
+                
+                layer.innerHTML = `
+                    <div class="code-scroll-wrapper" style="animation: scrollUp ${randomSpeed}s linear infinite;">
+                        <div class="code-content">${escapeHtml(myCode)}</div>
+                        <div class="code-content">${escapeHtml(myCode)}</div>
+                    </div>
+                `;
+                layer.style.zIndex = CONFIG.numLayers - i;
+                fragment.appendChild(layer);
+            }
+            container.appendChild(fragment);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            requestAnimationFrame(() => {
+                initializeCodeLayers();
+            });
+        });
+    </script>
 </body>
 </html>

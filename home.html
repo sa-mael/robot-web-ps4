@@ -1,138 +1,359 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Arttous - Advanced Quadruped Robotics Platform.">
-  <title>Arttous Robotics | Autonomous Mobility</title>
-  
-  <link rel="icon" href="../bono/images/logo-ttr.png" type="image/png">
-  <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
-  <script src="../bono/js/main.js" defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix Code Interface</title>
+<link rel="icon" href="assets/images/logo-ttr.png" type="image/png">
+<style>
+    /* Базовые стили страницы */
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background-color: #000;
+        color: #fff;
+        font-family: 'Courier New', Courier, monospace;
+        overflow: hidden;
+    }
+
+    /* Главный контейнер (Flexbox для двух колонок) */
+    .main-wrapper {
+        display: flex;
+        width: 100%;
+        height: 100vh;
+    }
+
+    /* Левый блок для видео */
+    .left-video {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0a0a0a 0%, #050505 100%);
+        padding: 20px;
+        border-right: 2px solid #1a1a1a; /* Граница теперь здесь */
+    }
+
+    /* Стили для видео */
+    .left-video video {
+        width: 100%;
+        max-height: 100%;
+        border-radius: 8px;
+        outline: none;
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+    }
+
+    /* Правый блок с кодом */
+    .right-code {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(90deg, #000 0%, #0a0a0a 100%);
+        perspective: 1000px; /* Улучшенный 3D эффект */
+    }
+
+    /* Контейнер для каждого из слоев кода */
+    .code-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        will-change: transform; /* Оптимизация производительности */
+    }
+
+    /* Анимированная обертка, которая ползет вверх */
+    .code-scroll-wrapper {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Сам текст кода */
+    .code-content {
+        padding: 20px 40px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #bcbcbc;
+        text-shadow: 0 0 5px rgba(0, 255, 65, 0.3);
+        letter-spacing: 0.5px;
+    }
+
+    /* Улучшенная анимация скролла */
+    @keyframes scrollUp {
+        0% { 
+            transform: translateY(0);
+        }
+        100% { 
+            transform: translateY(-50%);
+        }
+    }
+
+    /* Дополнительная анимация для эффекта гибернации */
+    @keyframes flicker {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.95; }
+    }
+
+    /* Для слоев - эффект мигания на фоне */
+    .code-layer:nth-child(2) {
+        animation: flicker 0.15s infinite;
+        animation-delay: 0.05s;
+    }
+
+    /* Адаптивный дизайн */
+    @media (max-width: 1024px) {
+        .main-wrapper {
+            flex-direction: column;
+        }
+
+        .left-video {
+            flex: 1;
+            border-right: none;
+            border-bottom: 2px solid #1a1a1a;
+        }
+
+        .right-code {
+            flex: 1;
+        }
+
+        .code-content {
+            font-size: 12px;
+            padding: 15px 20px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .code-content {
+            font-size: 10px;
+            padding: 10px 15px;
+        }
+    }
+
+    /* Плавное появление элементов */
+    .code-layer {
+        animation-fill-mode: both;
+    }
+</style>
 </head>
 <body>
-  
-  <header class="site-header">
-    <div class="circle-blink-container"></div>
-    <div class="header-inner">
-      <div class="logo-shell">
-        <a href="main.html">
-          <img src="../bono/images/logo-ttr-wh.png" alt="Arttous Logo" class="logo-img"/>
-        </a>
-      </div>
-      <nav class="main-nav">
-        <ul>
-          <li><a href="index.html" class="active">Home</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="technology.html">Technology</a></li>
-          <li><a href="investors.html">Investors</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav>
-      <div class="search">
-        <input type="search" placeholder="Search..." aria-label="Search">
-      </div>
+
+<div class="main-wrapper">
+    <div class="left-video">
+        <video controls autoplay loop muted>
+            <source src="https://youtu.be/gxWSZZUWUTQ?si=LtaWPOsZt640Jcf1" type="video/mp4">
+            Ваш браузер не поддерживает видеотег.
+        </video>
     </div>
-  </header>
 
-  <main>
-    
-    <section class="home-hero">
-      <div class="hero-overlay"></div>
-      <div class="home-hero-content">
-        <span class="purple-kicker">Next-Gen Mobility</span>
-        <h1>Redefining Legged<br>Locomotion</h1>
-        <p>
-          Meet Arttous: An autonomous quadruped robot engineered with high-torque servo kinematics 
-          for geological exploration and hazardous environment inspection.
-        </p>
-        <div class="cta-group">
-          <a href="technology.html" class="btn-primary">Explore Technology</a>
-          <a href="investors.html" class="btn-secondary">Investor Deck</a>
-        </div>
-      </div>
-      </section>
+    <div class="right-code" id="code-container"></div>
+</div>
 
-    <section class="value-props">
-      <div class="prop-card">
-        <div class="prop-icon">⚙️</div>
-        <h3>Metal Gear Precision</h3>
-        <p>12x MG90S actuators provide industrial-grade torque and durability unlike standard hobby servos.</p>
-      </div>
-      <div class="prop-card">
-        <div class="prop-icon">🧠</div>
-        <h3>Smart Kinematics</h3>
-        <p>Real-time Inverse Kinematics (IK) running on ESP32 ensures stability on uneven terrain.</p>
-      </div>
-      <div class="prop-card">
-        <div class="prop-icon">🎮</div>
-        <h3>Zero Latency</h3>
-        <p>Direct PS4 controller integration offers instant tactile feedback for remote operators.</p>
-      </div>
-    </section>
+<script>
+    /**
+     * Matrix Code Interface
+     * Улучшенная версия с оптимизацией производительности и лучшей структурой
+     */
 
-    <section class="innovation-highlight">
-      <div class="highlight-image">
-        <img src="../bono/images/TECH.png" alt="Engineering Process">
-      </div>
-      <div class="highlight-text">
-        <h2>Built From Chaos</h2>
-        <p>
-          We didn't just buy a kit. We engineered Arttous from the ground up, turning a mess of wires 
-          into a streamlined, modular platform. Our evolution from basic DC motors to advanced 
-          servo-articulation marks a new standard in accessible robotics.
-        </p>
-        <a href="about.html" class="text-link">Read Our Story ➜</a>
-      </div>
-    </section>
+    const myCode = `
+// ===== EVENT HANDLER (RTOS MUTEX PROTECTED) =====
+void socketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
+  if(type == WStype_TEXT) {
+    JsonDocument doc; 
+    DeserializationError error = deserializeJson(doc, payload);
+    if(error) return;
 
-    <section class="applications-preview">
-      <div class="app-content">
-        <h2>Mission Critical Ready</h2>
-        <p>Designed for more than just walking. Arttous is a platform for data collection.</p>
-      </div>
-      <div class="app-grid">
-        <div class="app-item">
-          <img src="../bono/images/applications.png" alt="Mapping">
-          <h4>Geo-Mapping</h4>
-        </div>
-        <div class="app-item">
-          <img src="../bono/images/locomotion.jpg" alt="Inspection">
-          <h4>Site Inspection</h4>
-        </div>
-      </div>
-    </section>
+    if(doc.containsKey("cmd")) {
+      String cmd = doc["cmd"].as<String>();
 
-  </main>
+      if (xSemaphoreTake(stateMutex, pdMS_TO_TICKS(10)) == pdTRUE) {
+        
+        if(cmd == "mode") { 
+          String val = doc["val"].as<String>();
+          if(val == "stand") {
+            sharedState.mode = 0;
+            currentX = 0; 
+            currentY = 0; 
+            currentTwist = 0;
+            currentHeight = DEFAULT_Z;
+            for(int i = 0; i < 4; i++) {
+              for(int j = 0; j < 4; j++) {
+                manualOverride[i][j] = false;
+              }
+            }
+          }
+          if(val == "walk") { 
+            sharedState.mode = 1; 
+            for(int i = 0; i < 4; i++) {
+              for(int j = 0; j < 4; j++) {
+                manualOverride[i][j] = false;
+              }
+            }
+            if(doc["auto"]) { sharedState.targetX=0; sharedState.targetY=30.0; } 
+            else { sharedState.targetX=0; sharedState.targetY=0; } 
+          }
+        }
+        
+        if(cmd == "test") { 
+          sharedState.mode = 3; 
+          sharedState.animationType = doc["val"].as<int>(); 
+          isTestMode = true;
+        }
+        
+        if(cmd == "test_stop") {
+          sharedState.mode = 0;
+          isTestMode = false;
+          currentX = 0;
+          currentY = 0;
+          currentTwist = 0;
+          currentHeight = DEFAULT_Z;
+        }
+        
+        if(cmd == "h") sharedState.inputZ = doc["val"].as<float>();
+        if(cmd == "active") sharedState.activeLegID = doc["val"].as<int>();
+        
+        if(cmd == "servo") { 
+          sharedState.mode = 2; 
+          lastManualInput = millis(); 
+          int lIndex = doc["leg"].as<int>();
+          if (lIndex >= 0 && lIndex < 4) {
+             legs[lIndex].setManual(doc["id"].as<int>(), doc["val"].as<float>());
+          }
+        }
+        
+        if(cmd == "calib") sharedState.calibrateIMU = true;
+        
+        if(cmd == "pad") {
+          gamepadActive = true; 
+          lastPadPacket = millis(); 
+          sharedState.targetX = doc["ly"].as<float>() * -40.0; 
+          sharedState.targetY = doc["lx"].as<float>() * 40.0; 
+          sharedState.targetTwist = doc["rx"].as<float>() * 20.0;
+          float ry = doc["ry"].as<float>(); 
+          if(abs(ry) > 0.2) sharedState.inputZ += ry * 2.0; 
+          sharedState.inputZ = constrain(sharedState.inputZ, -140.0f, -40.0f);
+          JsonArray btn = doc["btn"]; 
+          if(!btn.isNull()) { 
+            if(btn[0]==1) sharedState.mode = 1; 
+            if(btn[1]==1) sharedState.mode = 0; 
+          }
+        }
+        
+        xSemaphoreGive(stateMutex);
+      }
+    }
+  }
+  else if(type == WStype_CONNECTED) {
+    if(num < UINT8_MAX) {
+      String msg = "{\\"cfg\\":["; 
+      for(int i=0; i<4; i++) { 
+        msg += String(CFG[i].mountDeg); 
+        if(i<3) msg += ","; 
+      } 
+      msg += "]}"; 
+      webSocket.sendTXT(num, msg);
+    }
+  }
+}
+`.repeat(10);
 
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div class="footer-section">
-        <h4>Explore</h4>
-        <ul>
-          <li><a href="technology.html">Technology Stack</a></li>
-          <li><a href="about.html">Our Mission</a></li>
-          <li><a href="investors.html">Investment</a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h4>Legal</h4>
-        <ul>
-          <li><a href="#">Privacy Policy</a></li>
-          <li><a href="#">Terms of Use</a></li>
-        </ul>
-      </div>
-      <div class="footer-section social">
-        <h4>Social</h4>
-        <a href="#" class="social-icon">🐦</a>
-        <a href="#" class="social-icon">📘</a>
-        <a href="#" class="social-icon">🔗</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 Arttous Inc.</p>
-    </div>
-  </footer>
+    /**
+     * Конфигурация слоев
+     */
+    const CONFIG = {
+        numLayers: 5,
+        minSpeed: 550,
+        maxSpeed: 900,
+        layerOffset: 50,
+        opacityStep: 0.6 / 4 // Для 5 слоев: 1.0, 0.8, 0.6, 0.4, 0.2
+    };
 
+    /**
+     * Инициализация кода в контейнер
+     */
+    function initializeCodeLayers() {
+        const container = document.getElementById('code-container');
+        
+        // Проверка на наличие контейнера
+        if (!container) {
+            console.error('Code container not found');
+            return;
+        }
+
+        // Используем DocumentFragment для лучшей производительности
+        const fragment = document.createDocumentFragment();
+
+        for (let i = 0; i < CONFIG.numLayers; i++) {
+            const layer = createCodeLayer(i);
+            fragment.appendChild(layer);
+        }
+
+        container.appendChild(fragment);
+    }
+
+    /**
+     * Создание одного слоя кода
+     * @param {number} index - Индекс слоя
+     * @returns {HTMLElement} Элемент слоя
+     */
+    function createCodeLayer(index) {
+        const layer = document.createElement('div');
+        layer.className = 'code-layer';
+        
+        // Вычисляем прозрачность: 1.0, 0.8, 0.6, 0.4, 0.2
+        const opacity = 1 - (index * CONFIG.opacityStep);
+        layer.style.opacity = opacity;
+        
+        // Смещение для эффекта 3D-шлейфа
+        layer.style.left = `${index * CONFIG.layerOffset}px`;
+        
+        // Рандомная скорость скролла
+        const randomSpeed = Math.random() * (CONFIG.maxSpeed - CONFIG.minSpeed) + CONFIG.minSpeed;
+        
+        // Собираем HTML с анимацией
+        layer.innerHTML = `
+            <div class="code-scroll-wrapper" style="animation: scrollUp ${randomSpeed}s linear infinite;">
+                <div class="code-content">${escapeHtml(myCode)}</div>
+                <div class="code-content">${escapeHtml(myCode)}</div>
+            </div>
+        `;
+        
+        // Z-index для правильного наложения слоев (яркий слой сверху)
+        layer.style.zIndex = CONFIG.numLayers - index;
+        
+        return layer;
+    }
+
+    /**
+     * Экранирование HTML для безопасности
+     * @param {string} text - Текст для экранирования
+     * @returns {string} Экранированный текст
+     */
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * Обработчик события готовности DOM
+     */
+    document.addEventListener('DOMContentLoaded', function() {
+        // Используем requestAnimationFrame для лучшей синхронизации
+        requestAnimationFrame(() => {
+            initializeCodeLayers();
+        });
+    });
+
+    /**
+     * Обработчик изменения размера окна (для адаптивности)
+     */
+    window.addEventListener('resize', function() {
+        // Здесь можно добавить логику пересчета размеров, если необходимо
+    });
+</script>
 </body>
 </html>
