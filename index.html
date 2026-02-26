@@ -60,8 +60,8 @@
         nav.scrolled .status-dot { background-color: #333; box-shadow: none; animation: none; transition: 0.3s; }
         nav.scrolled .mono { color: #333 !important; }
         
-        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: #fff; transition: all 0.3s ease; }
-        .logo:hover { color: var(--accent-glow); text-shadow: 0 0 10px rgba(157, 80, 255, 0.5); } /* FIX: Added visual hover feedback */
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: #fff; transition: all 0.3s ease; text-decoration: none; }
+        .logo:hover { color: var(--accent-glow); text-shadow: 0 0 10px rgba(157, 80, 255, 0.5); text-decoration: none; } /* FIX: Added visual hover feedback */
         
         .status-dot {
             height: 6px; width: 6px; background-color: var(--accent-primary); border-radius: 50%; 
@@ -91,15 +91,17 @@
         nav.scrolled .btn-register:hover { border-color: #666; color: #fff; background: #222; transform: none;}
 
         /* --- HERO --- */
-        .hero { min-height: 100vh; display: flex; align-items: center; padding: 0 5%; position: relative; }
+        .hero { min-height: 100vh; display: flex; align-items: center; padding: 0 5%; position: relative; text-decoration: none;}
         
         .hero-text { 
             width: 55%; 
-            position: relative; /* FIX: Added relative positioning */
-            z-index: 20;        /* FIX: Locks text and buttons strictly ABOVE the 3D canvas */
-            pointer-events: auto;
+            position: relative;   /* NEW: Required to make z-index work */
+            z-index: 50;          /* NEW: Elevate strictly above the 3D Canvas */
+            pointer-events: none;text-decoration: none; /* NEW: Let mouse events pass through empty gaps */
         }
-        
+        .hero-text > * {
+            pointer-events: auto;text-decoration: none; /* NEW: Re-enable clicks for H1, P, and CTA group */
+        }
         .firmware-badge {
             font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--accent-glow);
             border: 1px solid rgba(124, 42, 232, 0.3); padding: 6px 12px; display: inline-block;
