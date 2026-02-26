@@ -2,340 +2,418 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ARTTOUS | SYSTEM RECOVERY v75.4</title>
-    <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARTTOUS | Secure Comms Uplink v75.4</title>
+    <link rel="icon" href="assets/images/logo-ttr.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <style>
         :root {
-            --bg-color: #050505;
-            --accent-color: #7c2ae8; 
-            --accent-dim: rgba(124, 42, 232, 0.3);
-            --text-color: #e0e0e0;
-            --error-color: #e74c3c;
+            --bg-core: #050505;       
+            --bg-panel: rgba(14, 14, 14, 0.75);      
+            --accent-primary: #7c2ae8; 
+            --accent-glow: #9d50ff;   
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --text-main: #e0e0e0;     
+            --text-dim: #666666;      
+            --grid-color: rgba(124, 42, 232, 0.03);
+            --ease-tech: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-core);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
             background-image: 
-                linear-gradient(var(--accent-dim) 1px, transparent 1px),
-                linear-gradient(90deg, var(--accent-dim) 1px, transparent 1px);
-            background-size: 30px 30px;
-            background-position: center;
-            color: var(--text-color);
-            font-family: 'JetBrains Mono', monospace;
-            height: 100vh;
-            overflow: hidden; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0; 
+            visibility: hidden;
+        }
+
+     
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3, h4 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .accent { color: var(--accent-primary); }
+        .glow-text { color: var(--accent-glow); text-shadow: 0 0 15px rgba(157, 80, 255, 0.4); }
+
+        /* --- HEADER --- */
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 25px 5%; position: fixed; width: 100%; z-index: 100;
+            background: linear-gradient(180deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0) 100%);
+            backdrop-filter: blur(5px); border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: background 0.4s var(--ease-tech), border-color 0.4s var(--ease-tech);
+        }
+        nav.scrolled { background: #0a0a0a; border-bottom: 1px solid #222; }
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: #fff; transition: color 0.3s ease; text-decoration: none;}
+        .sys-badge { border: 1px solid #333; padding: 5px 12px; font-family: var(--font-mono); font-size: 0.75rem; color: #888; background: rgba(0,0,0,0.5); }
+
+        /* --- HERO --- */
+        .comms-hero {
+            padding: 150px 5% 60px;
+            text-align: center;
             position: relative;
+            z-index: 10;
         }
-
-       
-        /* --- BOOT SEQUENCE --- */
-        .boot-wrapper {
-            position: absolute; z-index: 40; text-align: center;
-            animation: fadeOutBoot 0.5s 2s forwards;
-        }
-        .boot-wrapper h2 { font-family: 'Orbitron'; color: var(--accent-color); font-size: 2rem; letter-spacing: 5px; animation: glitch 0.2s infinite;}
-
-        /* --- UI ELEMENTS (Hidden during boot) --- */
-        .game-ui {
-            opacity: 0; display: flex; flex-direction: column; align-items: center; z-index: 20;
-            animation: fadeInUI 1s 2.5s forwards;
-        }
-
-        .error-container { text-align: center; margin-bottom: 30px; }
-
         h1 {
-            font-family: 'Orbitron', sans-serif; font-size: 3rem; color: var(--text-color);
-            text-transform: uppercase; position: relative; letter-spacing: 2px;
-            animation: glitch 3s infinite; text-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+            font-size: 4rem; line-height: 1.1; margin-bottom: 20px;
+            background: linear-gradient(180deg, #fff 20%, #666 100%);
+            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-desc { color: var(--text-dim); max-width: 600px; margin: 0 auto; line-height: 1.6; font-size: 1.1rem; }
+        .cursor { display: inline-block; width: 12px; height: 1.2em; background: var(--accent-primary); animation: blink 1s step-end infinite; vertical-align: bottom; margin-left: 5px; }
+
+        /* --- LAYOUT GRID --- */
+        .comms-container {
+            max-width: 1400px;
+            margin: 0 auto 100px;
+            padding: 0 5%;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 60px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* LEFT: CHANNELS */
+        .channels-col { display: flex; flex-direction: column; gap: 20px; }
+        .channel-card {
+            background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05); padding: 30px;
+            backdrop-filter: blur(10px); display: flex; align-items: flex-start; gap: 20px;
+            text-decoration: none; transition: all 0.4s var(--ease-tech);
+            will-change: transform, box-shadow; position: relative; overflow: hidden;
+        }
+        .channel-card::before {
+            content: ''; position: absolute; left: 0; top: 0; width: 3px; height: 100%; background: #333; transition: 0.4s var(--ease-tech);
+        }
+        .channel-card:hover {
+            transform: translateY(-4px) scale(1.01); background: #111;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5); border-color: rgba(124, 42, 232, 0.3);
+        }
+        .channel-card:hover::before { background: var(--accent-primary); box-shadow: 0 0 15px var(--accent-primary); }
+        
+        .c-icon { font-size: 2rem; color: #444; transition: 0.4s; }
+        .channel-card:hover .c-icon { color: var(--accent-primary); text-shadow: 0 0 15px var(--accent-primary); }
+        .c-title { font-family: var(--font-tech); font-size: 1.1rem; color: #fff; margin-bottom: 5px; }
+        .c-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; font-family: var(--font-mono); }
+
+        /* RIGHT: TRANSMISSION FORM */
+        .form-col {
+            background: rgba(5,5,5,0.8); border: 1px solid #222; padding: 50px;
+            position: relative; backdrop-filter: blur(15px); box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        /* Tech border accents */
+        .form-col::after {
+            content: ''; position: absolute; top: -1px; left: -1px; width: 30px; height: 30px;
+            border-top: 2px solid var(--accent-primary); border-left: 2px solid var(--accent-primary);
+        }
+        .form-col::before {
+            content: ''; position: absolute; bottom: -1px; right: -1px; width: 30px; height: 30px;
+            border-bottom: 2px solid var(--accent-primary); border-right: 2px solid var(--accent-primary);
+        }
+
+        .form-group { margin-bottom: 25px; position: relative; }
+        .form-group label {
+            display: block; font-family: var(--font-mono); font-size: 0.75rem; color: #888;
+            margin-bottom: 8px; letter-spacing: 1px; transition: 0.3s;
         }
         
-        .status-msg {
-            color: var(--error-color); font-size: 0.85rem; margin-top: 10px; letter-spacing: 2px;
-            background: rgba(231, 76, 60, 0.1); border: 1px solid var(--error-color); padding: 5px 15px;
-            animation: pulseWarning 1.5s infinite;
+        .form-control {
+            width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 15px;
+            color: #fff; font-family: var(--font-mono); font-size: 0.9rem; outline: none;
+            transition: all 0.3s var(--ease-tech);
+        }
+        textarea.form-control { resize: vertical; min-height: 120px; }
+        
+        .form-control:focus {
+            border-color: var(--accent-primary); background: #000;
+            box-shadow: inset 0 0 15px rgba(124, 42, 232, 0.1);
+        }
+        .form-control:focus + .input-highlight { width: 100%; }
+        
+        .input-highlight {
+            position: absolute; bottom: 0; left: 0; height: 1px; width: 0%;
+            background: var(--accent-primary); transition: width 0.4s var(--ease-tech);
         }
 
-        /* --- GAME CANVAS --- */
-        .canvas-wrapper { position: relative; }
-        canvas {
-            border: 2px solid #333; background: rgba(0,0,0,0.8);
-            box-shadow: 0 0 30px rgba(124, 42, 232, 0.15); cursor: crosshair;
-            backdrop-filter: blur(5px);
+        .btn-transmit {
+            width: 100%; background: var(--accent-primary); color: #fff; border: none; padding: 18px;
+            font-family: var(--font-tech); font-size: 1rem; cursor: pointer; margin-top: 10px;
+            transition: all 0.4s var(--ease-tech); position: relative; overflow: hidden; letter-spacing: 2px;
+            font-weight: 700;
         }
-
-        /* --- INSTRUCTIONS & BUTTONS --- */
-        .controls { margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center; line-height: 1.6;}
-        .controls span { color: var(--accent-color); font-weight: bold; animation: textGlow 1.5s infinite alternate;}
-
-        #restartBtn {
-            display: none; margin-top: 20px; padding: 12px 40px; background: transparent;
-            border: 1px solid var(--accent-color); color: var(--accent-color);
-            font-family: 'Orbitron'; font-weight: bold; cursor: pointer; transition: 0.3s;
-            position: relative; overflow: hidden; letter-spacing: 1px;
-        }
-        #restartBtn::before {
+        .btn-transmit::before {
             content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(124,42,232,0.4), transparent); transform: skewX(-20deg); transition: 0.5s;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: skewX(-20deg); transition: 0.5s;
         }
-        #restartBtn:hover { background: var(--accent-color); color: #fff; box-shadow: 0 0 20px var(--accent-color); }
-        #restartBtn:hover::before { left: 200%; }
+        .btn-transmit:hover { background: #8e44ad; box-shadow: 0 10px 30px rgba(124, 42, 232, 0.4); transform: translateY(-2px); }
+        .btn-transmit:hover::before { left: 200%; }
 
-        .digital-sig {
-            position: absolute; bottom: 20px; width: 90%; display: flex; justify-content: space-between;
-            font-size: 0.7rem; color: #444; z-index: 20;
+        /* TERMINAL LOG PROGRESS */
+        .transmission-log {
+            margin-top: 30px; border-top: 1px dashed #333; padding-top: 20px;
+            font-family: var(--font-mono); font-size: 0.75rem; color: #666;
+            display: none; flex-direction: column; gap: 8px;
         }
+        .log-line { opacity: 0; transform: translateX(-10px); }
 
-        /* --- KEYFRAMES --- */
-        @keyframes glitch {
-            0%, 100% { transform: translate(0) }
-            20% { transform: translate(-2px, 1px) }
-            40% { transform: translate(-1px, -2px) }
-            60% { transform: translate(2px, 1px) }
-            80% { transform: translate(1px, -1px) }
+        /* FOOTER */
+        footer { border-top: 1px solid #222; padding: 40px 5%; margin-top: auto; position: relative; z-index: 5; background: #050505;}
+        .digital-sig { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.75rem; color: #555; max-width: 1400px; margin: 0 auto; }
+        .digital-sig a { color: #555; text-decoration: none; transition: 0.3s; }
+        .digital-sig a:hover { color: var(--accent-primary); }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes textGlow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
+
+        @media (max-width: 1024px) {
+            .comms-container { grid-template-columns: 1fr; }
+            h1 { font-size: 3rem; }
         }
-        @keyframes fadeOutBoot { to { opacity: 0; visibility: hidden; } }
-        @keyframes fadeInUI { to { opacity: 1; } }
-        @keyframes pulseWarning { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        @keyframes textGlow { from { text-shadow: 0 0 5px var(--accent-color); } to { text-shadow: 0 0 15px var(--accent-color); } }
-
-        @media (min-width: 768px) { canvas { transform: scale(1.2); margin: 40px 0; } }
+        @media (max-width: 600px) {
+            .digital-sig { flex-direction: column; gap: 15px; text-align: center; }
+            .digital-sig div { text-align: center !important; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="boot-wrapper">
-        <h2>ERR_KERNEL_PANIC</h2>
-        <div style="color: #666; font-size: 0.8rem; margin-top: 10px;">DUMPING MEMORY... FATAL AT 0x00A4</div>
+    <nav>
+        <a href="index.html" class="logo page-link">ART<span class="accent">TOUS</span></a>
+        <div class="sys-badge">SYS: COMMS_v75.4</div>
+    </nav>
+
+    <div class="comms-hero gs-reveal">
+        <h1 id="hero-title"></h1>
+        <p class="hero-desc">
+            Initiate a direct, encrypted uplink to the Arttous Engineering division. For bug reports, hardware integration inquiries, or investor relations, transmit your payload below.
+        </p>
     </div>
 
-    <div class="game-ui">
-        <div class="error-container">
-            <h1>CORE_DESYNC</h1>
-            <div class="status-msg">/// RTOS TASK_CONTROL FAILURE /// MANUAL MEMORY STACKING REQUIRED</div>
-        </div>
-
-        <div class="canvas-wrapper">
-            <canvas id="gameCanvas" width="300" height="400"></canvas>
-        </div>
+    <div class="comms-container">
         
-        <div class="controls" id="controlsText">
-            ALIGN THE KERNEL BLOCKS.<br>
-            <span>TAP SCREEN</span> or PRESS <span>[SPACE]</span> TO LOCK MEMORY.
+        <div class="channels-col">
+            <a href="community.html" class="channel-card gs-stagger page-link">
+                <div class="c-icon">#</div>
+                <div>
+                    <div class="c-title">DISCORD_OPS</div>
+                    <div class="c-desc">Immediate tactical support and kinematic mesh troubleshooting from the operator community.</div>
+                </div>
+            </a>
+
+            <a href="repo.html" class="channel-card gs-stagger page-link">
+                <div class="c-icon">⌘</div>
+                <div>
+                    <div class="c-title">GITHUB_ISSUE</div>
+                    <div class="c-desc">Submit RTOS kernel panics, firmware bugs, or hardware chassis revision requests.</div>
+                </div>
+            </a>
+
+            <a href="investor.html" class="channel-card gs-stagger page-link">
+                <div class="c-icon">◆</div>
+                <div>
+                    <div class="c-title">INVESTOR_RELATIONS</div>
+                    <div class="c-desc">Seed round inquiries, RaaS enterprise scaling, and cap table documentation requests.</div>
+                </div>
+            </a>
+            
+            <div class="mono" style="font-size: 0.7rem; color: #444; margin-top: 20px; padding-left: 30px;" class="gs-stagger">
+                /// ENCRYPTION: RSA-4096<br>
+                /// SERVER: NA-EAST-01
+            </div>
         </div>
 
-        <button id="restartBtn" onclick="resetGame()">REBOOT KERNEL</button>
+        <div class="form-col gs-stagger">
+            <form id="contactForm" onsubmit="handleTransmission(event)">
+                
+                <div class="form-group">
+                    <label>OPERATOR DESIGNATION</label>
+                    <input type="text" id="opName" class="form-control" placeholder="E.g. Alex Mercer" required>
+                    <div class="input-highlight"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>SECURE COMMS CHANNEL (EMAIL)</label>
+                    <input type="email" id="opEmail" class="form-control" placeholder="operator@mesh.net" required>
+                    <div class="input-highlight"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>TRANSMISSION TYPE</label>
+                    <select id="opType" class="form-control" style="cursor: pointer; appearance: none;">
+                        <option value="Hardware Integration">Hardware Integration</option>
+                        <option value="RTOS Firmware Bug">RTOS Firmware Bug</option>
+                        <option value="Enterprise RaaS">Enterprise RaaS Partnership</option>
+                        <option value="General Uplink">General Uplink</option>
+                    </select>
+                    <div class="input-highlight"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>ENCRYPTED PAYLOAD</label>
+                    <textarea id="opMessage" class="form-control" placeholder="Enter logic data..." required></textarea>
+                    <div class="input-highlight"></div>
+                </div>
+
+                <button type="submit" class="btn-transmit" id="submitBtn">TRANSMIT DATA</button>
+            </form>
+
+            <div class="transmission-log" id="transLog">
+                <div class="log-line" id="log1">> Allocating Core 0 Network Task... OK</div>
+                <div class="log-line" id="log2">> Encrypting payload (RSA-4096)... OK</div>
+                <div class="log-line" id="log3">> Routing via T3S3 LoRa Mesh...</div>
+                <div class="log-line" id="log4" style="color: var(--success); font-weight: bold; font-size: 0.85rem; margin-top: 10px;">> TRANSMISSION DELIVERED.</div>
+            </div>
+        </div>
+
     </div>
 
-    <div class="digital-sig">
-        <div>SYS_VER: v75.4_RTOS<br>HASH: 0x99a...f42</div>
-        <div style="text-align: right;">&copy; 2026 Arttous Robotics<br>RECOVERY TERMINAL</div>
-    </div>
+    <footer>
+        <div class="digital-sig">
+            <div>
+                SIGNED: <span style="color: var(--accent-primary);">SYSTEM_ADMIN</span><br>
+                HASH: 0x99a...f42
+            </div>
+            <div style="text-align: right;">
+                &copy; 2026 Arttous Robotics Inc.<br>
+                <a href="index.html" class="page-link">Return to Mission Control</a>
+            </div>
+        </div>
+    </footer>
 
     <script>
-        // --- ADVANCED GAME ENGINE ---
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const restartBtn = document.getElementById('restartBtn');
-        const controlsText = document.getElementById('controlsText');
+        // --- EMAILJS CONFIG (From Login.html) ---
+        const EMAILJS_PUBLIC_KEY = "cQwk9aX1X3KV0dW9n"; 
+        const EMAILJS_SERVICE_ID = "service_9mz4aq2";      
+        const TEMPLATE_CONTACT = "template_b3iywlc"; // Assume using the welcome template or a generic one
 
-        // Colors
-        const COLOR_BG = 'rgba(0, 0, 0, 0)'; 
-        const COLOR_BLOCK = '#7c2ae8'; 
-        const COLOR_HIGHLIGHT = '#9d50ff'; 
-
-        // Game State
-        let score = 0;
-        let gameOver = false;
-        let speed = 2.5; 
-        let blockHeight = 22;
-        let currentLevel = 0;
-        let shakeTime = 0; // Screen shake duration
-
-        // Arrays
-        let stack = [];
-        let debris = []; // Physics objects for cut pieces
-        let activeBlock = {};
-
-        // --- PHYSICS & RENDER LOOP ---
-        function draw() {
-            // Apply Screen Shake
-            ctx.save();
-            if (shakeTime > 0) {
-                const magnitude = (shakeTime / 15) * 5;
-                const dx = (Math.random() - 0.5) * magnitude;
-                const dy = (Math.random() - 0.5) * magnitude;
-                ctx.translate(dx, dy);
-                shakeTime--;
+        (function(){
+            if(typeof emailjs !== 'undefined') {
+                emailjs.init(EMAILJS_PUBLIC_KEY);
             }
+        })();
 
-            // Clear Screen
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        document.addEventListener('DOMContentLoaded', () => {
+            gsap.registerPlugin(ScrollTrigger);
+            gsap.set("body", { visibility: "visible" });
 
-            // Draw Score Background
-            ctx.fillStyle = 'rgba(124, 42, 232, 0.1)';
-            ctx.font = '120px Orbitron';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(score, canvas.width/2, canvas.height/2);
+            // 1. Initial Load Timeline
+            const tlLoad = gsap.timeline();
+            tlLoad.to("body", { opacity: 1, duration: 0.5, ease: "none" })
+                  .from("nav", { y: -50, opacity: 0, duration: 1, ease: "power3.out" }, "-=0.2")
+                  .from(".gs-reveal", { y: 40, opacity: 0, duration: 1.2, ease: "power4.out" }, "-=0.8")
+                  .from(".gs-stagger", { y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: "power3.out" }, "-=0.8");
 
-            // Draw Static Stack
-            stack.forEach((block, index) => {
-                // Main Block
-                ctx.fillStyle = (index === stack.length - 1 && !gameOver) ? COLOR_HIGHLIGHT : COLOR_BLOCK;
-                ctx.fillRect(block.x, block.y, block.w, block.h);
-                
-                // Tech border detailing
-                ctx.strokeStyle = '#000';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(block.x + 2, block.y + 2, block.w - 4, block.h - 4);
+            // 2. Typing Effect for Title
+            const titleTarget = document.getElementById('hero-title');
+            const titleText = "SECURE COMMS UPLINK";
+            let i = 0;
+            
+            // Wait for GSAP fade in, then type
+            setTimeout(() => {
+                let iv = setInterval(() => {
+                    titleTarget.innerHTML = titleText.substring(0, i) + '<span class="cursor"></span>';
+                    i++;
+                    if(i > titleText.length) {
+                        clearInterval(iv);
+                    }
+                }, 50);
+            }, 600);
+
+            // 3. Navbar Scroll Stealth Mode
+            window.addEventListener('scroll', () => {
+                const nav = document.querySelector('nav');
+                if (window.scrollY > 50) nav.classList.add('scrolled');
+                else nav.classList.remove('scrolled');
             });
 
-            // Draw Active Block
-            if (!gameOver) {
-                ctx.fillStyle = '#fff'; 
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = COLOR_HIGHLIGHT;
-                ctx.fillRect(activeBlock.x, activeBlock.y, activeBlock.w, activeBlock.h);
-                ctx.shadowBlur = 0; // Reset
-            }
-
-            // Draw Debris (Falling pieces)
-            ctx.fillStyle = 'rgba(124, 42, 232, 0.5)';
-            for (let i = 0; i < debris.length; i++) {
-                let d = debris[i];
-                ctx.fillRect(d.x, d.y, d.w, d.h);
-            }
-
-            ctx.restore(); // Restore shake translation
-        }
-
-        function update() {
-            if (!gameOver) {
-                // Move Active Block
-                activeBlock.x += speed * activeBlock.dir;
-                if (activeBlock.x + activeBlock.w > canvas.width || activeBlock.x < 0) {
-                    activeBlock.dir *= -1; // Bounce
-                }
-            }
-
-            // Update Debris Physics
-            for (let i = debris.length - 1; i >= 0; i--) {
-                let d = debris[i];
-                d.vy += 0.5; // Gravity
-                d.y += d.vy;
-                d.x += d.vx;
-                if (d.y > canvas.height) {
-                    debris.splice(i, 1); // Remove off-screen debris
-                }
-            }
-
-            draw();
-            requestAnimationFrame(update);
-        }
-
-        // --- CORE MECHANIC ---
-        function placeBlock() {
-            if (gameOver) return;
-
-            const prevBlock = stack[stack.length - 1];
-            let overlap = activeBlock.w - Math.abs(activeBlock.x - prevBlock.x);
-
-            if (overlap > 0) {
-                // Hit
-                score++;
-                shakeTime = 8; // Screen shake on hit
-                if (score % 3 === 0) speed += 0.5; // Speed ramps up
-
-                let newWidth = overlap;
-                let newX = activeBlock.x < prevBlock.x ? prevBlock.x : activeBlock.x; 
-
-                // Calculate Debris (Cut portion)
-                let cutWidth = activeBlock.w - newWidth;
-                if (cutWidth > 0) {
-                    debris.push({
-                        x: activeBlock.x < prevBlock.x ? activeBlock.x : prevBlock.x + newWidth,
-                        y: activeBlock.y,
-                        w: cutWidth,
-                        h: blockHeight,
-                        vx: activeBlock.x < prevBlock.x ? -2 : 2, // Fly left or right
-                        vy: -3 // Slight upward bounce
+            // 4. Page Transition Interceptor
+            document.querySelectorAll('a.page-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetUrl = e.currentTarget.href;
+                    gsap.to("body", {
+                        opacity: 0, y: -20, duration: 0.5, ease: "power2.inOut",
+                        onComplete: () => { window.location.href = targetUrl; }
                     });
-                }
-
-                // Add to stack
-                stack.push({ x: newX, y: activeBlock.y, w: newWidth, h: blockHeight });
-
-                // Move Camera (Fake scroll)
-                if (stack.length > 10) {
-                    stack.forEach(b => b.y += blockHeight);
-                    stack.shift(); 
-                } else {
-                    activeBlock.y -= blockHeight;
-                }
-
-                // Setup next block
-                activeBlock.x = 0;
-                activeBlock.w = newWidth; 
-                activeBlock.dir = speed > 0 ? 1 : -1;
-
-            } else {
-                // Complete Miss
-                shakeTime = 20; // Big shake
-                
-                // Turn entire active block into debris
-                debris.push({
-                    x: activeBlock.x, y: activeBlock.y, w: activeBlock.w, h: activeBlock.h,
-                    vx: 0, vy: 2
                 });
-                
-                endGame();
+            });
+        });
+
+        // --- TRANSMISSION LOGIC ---
+        function handleTransmission(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const logBox = document.getElementById('transLog');
+            
+            // Disable button
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.5';
+            btn.innerText = "TRANSMITTING...";
+
+            // Show log box
+            logBox.style.display = 'flex';
+            
+            // GSAP Terminal Log Animation
+            const logTl = gsap.timeline();
+            
+            logTl.to("#log1", { x: 0, opacity: 1, duration: 0.3 })
+                 .to("#log2", { x: 0, opacity: 1, duration: 0.3 }, "+=0.4")
+                 .to("#log3", { x: 0, opacity: 1, duration: 0.3 }, "+=0.6");
+
+            // Actual EmailJS Submission
+            const templateParams = {
+                user_name: document.getElementById('opName').value,
+                user_email: document.getElementById('opEmail').value,
+                message: `[TYPE: ${document.getElementById('opType').value}] \n\n${document.getElementById('opMessage').value}`
+            };
+
+            if(typeof emailjs !== 'undefined') {
+                emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_CONTACT, templateParams)
+                    .then(function() {
+                        // Success Step
+                        logTl.to("#log4", { x: 0, opacity: 1, duration: 0.3 }, "+=1");
+                        setTimeout(() => {
+                            btn.innerText = "UPLINK CLOSED";
+                            btn.style.background = "transparent";
+                            btn.style.border = "1px solid #2ecc71";
+                            btn.style.color = "#2ecc71";
+                            document.getElementById('contactForm').reset();
+                        }, 2500);
+                    }, function(error) {
+                        // Fail Step
+                        document.getElementById('log4').innerText = "> ERR: NEURAL LINK FAILED.";
+                        document.getElementById('log4').style.color = "var(--danger)";
+                        logTl.to("#log4", { x: 0, opacity: 1, duration: 0.3 });
+                        btn.innerText = "RETRY TRANSMISSION";
+                        btn.style.opacity = '1';
+                        btn.style.pointerEvents = 'auto';
+                    });
+            } else {
+                // Simulation Mode (if EmailJS fails to load)
+                logTl.to("#log4", { x: 0, opacity: 1, duration: 0.3 }, "+=1.5");
+                setTimeout(() => {
+                    btn.innerText = "DATA SAVED LOCALLY";
+                    document.getElementById('contactForm').reset();
+                }, 3000);
             }
         }
-
-        function endGame() {
-            gameOver = true;
-            restartBtn.style.display = 'block';
-            controlsText.style.display = 'none';
-            document.querySelector('.status-msg').innerText = "/// SYNC FAILED /// KERNEL CORRUPTED";
-        }
-
-        // --- CONTROLS ---
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') { e.preventDefault(); placeBlock(); }
-        });
-        canvas.addEventListener('mousedown', placeBlock);
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); placeBlock(); });
-
-        // --- INITIALIZATION ---
-        function resetGame() {
-            score = 0;
-            gameOver = false;
-            speed = 3;
-            debris = [];
-            stack = [{ x: 50, y: 380, w: 200, h: blockHeight }];
-            activeBlock = { x: 0, y: 380 - blockHeight, w: 200, h: blockHeight, dir: 1 };
-            
-            restartBtn.style.display = 'none';
-            controlsText.style.display = 'block';
-            document.querySelector('.status-msg').innerText = "/// RTOS TASK_CONTROL FAILURE /// MANUAL MEMORY STACKING REQUIRED";
-        }
-
-        // Start the engine after CSS boot animation (2.5s)
-        setTimeout(() => {
-            resetGame();
-            update();
-        }, 2500);
-
     </script>
 </body>
 </html>
