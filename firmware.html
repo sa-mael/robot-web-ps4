@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ARTTOUS | Rhodium Firmware</title>
+    <title>ARTTOUS | Firmware Archive</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
     <style>
@@ -10,12 +10,13 @@
             --bg-core: #050505;
             --accent: #7c2ae8;
             --success: #2ecc71;
+            --warn: #f1c40f;
             --text-main: #e0e0e0;
             --font-tech: 'Orbitron', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
         }
 
-        body { background: var(--bg-core); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; }
+        body { background: var(--bg-core); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
 
         nav { padding: 25px 5%; display: flex; justify-content: space-between; border-bottom: 1px solid #222; }
         .logo { font-family: var(--font-tech); font-weight: 900; color: #fff; text-decoration: none; font-size: 1.5rem; }
@@ -26,26 +27,26 @@
             padding: 80px 5%;
             text-align: center;
             border-bottom: 1px solid #111;
-            background: radial-gradient(circle at 50% 0%, rgba(124, 42, 232, 0.08), transparent 60%);
+            background: radial-gradient(circle at 50% 0%, rgba(124, 42, 232, 0.1), transparent 60%);
+            animation: fadeIn 1s ease-out;
         }
+        
         .version-tag {
             background: rgba(124, 42, 232, 0.1); border: 1px solid var(--accent);
             color: var(--accent); padding: 5px 15px; font-family: var(--font-mono); font-size: 0.8rem;
             display: inline-block; margin-bottom: 20px;
+            animation: pulseGlow 2s infinite alternate;
         }
+        
         h1 { font-family: var(--font-tech); font-size: 3.5rem; margin-bottom: 10px; }
         
         /* DOWNLOAD AREA */
         .dl-area {
-            max-width: 700px;
-            margin: 40px auto;
-            background: #0e0e0e;
-            border: 1px solid #222;
-            padding: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            max-width: 700px; margin: 40px auto; background: #0a0a0a; border: 1px solid #222;
+            padding: 30px; display: flex; align-items: center; justify-content: space-between;
+            transition: 0.3s;
         }
+        .dl-area:hover { border-color: var(--accent); box-shadow: 0 10px 30px rgba(124, 42, 232, 0.1); transform: translateY(-5px); }
         .dl-info { text-align: left; }
         .dl-filename { color: #fff; font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem; }
         .dl-meta { color: #666; font-size: 0.8rem; margin-top: 5px; }
@@ -53,43 +54,52 @@
         .flash-btn {
             background: var(--accent); color: #fff; border: none; padding: 15px 30px;
             font-family: var(--font-tech); cursor: pointer; transition: 0.3s;
-            text-decoration: none; display: inline-block;
+            text-decoration: none; display: inline-block; position: relative; overflow: hidden;
         }
-        .flash-btn:hover { background: #9d50ff; box-shadow: 0 0 20px rgba(124, 42, 232, 0.4); }
+        .flash-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: skewX(-20deg); animation: flashSweep 3s infinite;
+        }
+        .flash-btn:hover { background: #9d50ff; box-shadow: 0 0 20px rgba(124, 42, 232, 0.6); }
 
         /* CHANGELOG TERMINAL */
-        .changelog-section {
-            max-width: 900px;
-            margin: 60px auto;
-            padding: 0 5%;
-        }
+        .changelog-section { max-width: 900px; margin: 60px auto; padding: 0 5%; }
         .terminal {
-            background: #000;
-            border: 1px solid #333;
-            padding: 20px;
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-            color: #aaa;
+            background: #000; border: 1px solid #333; padding: 30px;
+            font-family: var(--font-mono); font-size: 0.9rem; color: #aaa;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        .log-entry { margin-bottom: 15px; padding-left: 20px; border-left: 2px solid #333; }
-        .log-entry.new { border-left-color: var(--success); color: #fff; }
-        .hash { color: var(--accent); margin-right: 10px; }
         
-        .release-notes {
-            margin-top: 10px; font-size: 0.8rem; color: #666; line-height: 1.5;
+        .terminal-header { color: #666; margin-bottom: 30px; min-height: 20px; }
+        .cursor { display: inline-block; width: 8px; height: 15px; background: var(--accent); animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 5px; }
+
+        /* LOG ENTRIES (Animated) */
+        .log-entry { 
+            margin-bottom: 25px; padding: 15px 20px; border-left: 2px solid #333; 
+            opacity: 0; transform: translateX(-20px); transition: 0.3s;
+            background: transparent;
         }
-         /* FOOTER SIGNATURE */
+        .log-entry:hover { background: rgba(255,255,255,0.02); border-left-color: #666; transform: translateX(5px) !important; }
+        .log-entry.new { border-left-color: var(--success); }
+        .log-entry.new:hover { border-left-color: var(--success); background: rgba(46, 204, 113, 0.05); }
+        
+        .hash { color: var(--accent); margin-right: 10px; font-weight: bold; }
+        .release-notes { margin-top: 10px; font-size: 0.8rem; color: #888; line-height: 1.6; }
+        
+        /* FOOTER SIGNATURE */
         .digital-sig {
-            margin-top: 80px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #555;
+            margin-top: 80px; padding-top: 20px; border-top: 1px solid #333;
+            display: flex; justify-content: space-between; font-family: var(--font-mono);
+            font-size: 0.75rem; color: #555; padding-bottom: 40px;
         }
+
+        /* KEYFRAMES */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulseGlow { from { box-shadow: 0 0 5px rgba(124, 42, 232, 0.2); } to { box-shadow: 0 0 15px rgba(124, 42, 232, 0.6); } }
+        @keyframes flashSweep { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
 
     </style>
 </head>
@@ -97,58 +107,142 @@
 
     <nav>
         <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">SYS: RHODIUM_FW</div>
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">SYS: RTOS_ARCHIVE_V75</div>
     </nav>
 
     <div class="release-hero">
-        <div class="version-tag">LATEST STABLE: v53.0.2</div>
-        <h1>RHODIUM FIRMWARE</h1>
-        <p style="color: #666; max-width: 500px; margin: 0 auto;">
-            The core operating logic for Arttous 16-DOF platforms. Includes Symmetric Twist Kinematics solver and T3S3 Mesh networking stack.
+        <div class="version-tag">LATEST STABLE: v75.4.1</div>
+        <h1>FIRMWARE ARCHIVE</h1>
+        <p style="color: #666; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+            The complete evolutionary timeline of the Arttous logic core. From simple I2C sweeps to Dual-Core FreeRTOS kinematics and autonomous mesh networking.
         </p>
 
         <div class="dl-area">
             <div class="dl-info">
-                <div class="dl-filename">firmware_v53_0_2.bin</div>
-                <div class="dl-meta">SHA-256: 8a9...f41 | 4.2 MB | ESP32-C6</div>
+                <div class="dl-filename">firmware_v75_4_1_RTOS.bin</div>
+                <div class="dl-meta">SHA-256: 9b2...e14 | 5.2 MB | ESP32-S3 (N8R8)</div>
             </div>
-            <a href="404.html" class="flash-btn">DOWNLOAD .BIN</a>
+            <a href="#" class="flash-btn" onclick="alert('INITIATING OTA FLASH PROTOCOL...')">DOWNLOAD CURRENT</a>
         </div>
     </div>
 
     <div class="changelog-section">
-        <h3 style="font-family: 'Orbitron'; margin-bottom: 20px;">RELEASE LOG</h3>
-        
         <div class="terminal">
-            <div style="color: #666; margin-bottom: 20px;">// FETCHING UPSTREAM... DONE.</div>
+            
+            <div class="terminal-header" id="typewriter"></div>
 
-            <div class="log-entry new">
-                <div><span class="hash">#v53.0.2</span> <span style="color: var(--success);">[CURRENT]</span> - Hotfix</div>
-                <div class="release-notes">
-                    - Fixed floating point error in inverse kinematics for extreme inclination.<br>
-                    - Patched T3S3 packet loss during rapid movement.<br>
-                    - Increased servo refresh rate to 330Hz.
+            <div id="logs-container">
+                <div class="log-entry new">
+                    <div><span class="hash">#v75.4.1</span> <span style="color: var(--success);">[CURRENT STABLE]</span> - RTOS Hotfix</div>
+                    <div class="release-notes">
+                        - Fixed memory leak in <code>TaskNetwork</code> during rapid WebSocket reconnections.<br>
+                        - Optimized Core 1 IK math, reducing calculation time from 2.1ms to 1.4ms.<br>
+                        - Patched WebGL rendering tearing on mobile devices.
+                    </div>
                 </div>
-            </div>
 
-            <div class="log-entry">
-                <div><span class="hash">#v53.0.0</span> - Major Update</div>
-                <div class="release-notes">
-                    - Implemented "Symmetric Twist" walking gait.<br>
-                    - Added support for MPU-6050 active stabilization.<br>
-                    - Initial Mesh Network capability.
+                <div class="log-entry">
+                    <div><span class="hash">#v75.0.0</span> - Architecture Overhaul</div>
+                    <div class="release-notes">
+                        - <strong>Major Update:</strong> Migrated to ESP32-S3 FreeRTOS Dual-Core.<br>
+                        - Implemented <code>stateMutex</code> (SemaphoreHandle_t) to prevent memory race conditions.<br>
+                        - Added Smooth Amplitude Decay (<code>smoothVx</code>) for soft leg parking.<br>
+                        - Separated I2C busses (Pins 4/5 for PCA9685, Pins 6/7 for MPU6050).
+                    </div>
                 </div>
-            </div>
 
-            <div class="log-entry">
-                <div><span class="hash">#v52.4.1</span> - Legacy</div>
-                <div class="release-notes">
-                    - Battery optimization for 2S LiPo.<br>
-                    - WebSerial API support added.
+                <div class="log-entry">
+                    <div><span class="hash">#v68.2.0</span> - CNC Milling Integration</div>
+                    <div class="release-notes">
+                        - Added API support for Trochoidal Milling paths.<br>
+                        - Increased Z-axis rigidity parameters for the "Replicator" build.<br>
+                        - Implemented thermal shutdown limits for spindle operations.
+                    </div>
+                </div>
+
+                <div class="log-entry">
+                    <div><span class="hash">#v62.0.0</span> - Adaptive Holonomics</div>
+                    <div class="release-notes">
+                        - Holonomic Twist Geometry rewritten for true 360-degree lateral movement.<br>
+                        - Added dynamic stance widening based on terrain pitch/roll angles.
+                    </div>
+                </div>
+
+                <div class="log-entry">
+                    <div><span class="hash">#v54.1.0</span> - Safety Clamps</div>
+                    <div class="release-notes">
+                        - Added <code>NaN</code> safety clamps to Law of Cosines functions to prevent CPU crashes.<br>
+                        - Implemented 500ms Gamepad Watchdog: Auto-stand if signal is lost.
+                    </div>
+                </div>
+
+                <div class="log-entry">
+                    <div><span class="hash">#v53.0.2</span> - The "Rhodium" Gait</div>
+                    <div class="release-notes">
+                        - Implemented the "Symmetric Twist" walking gait.<br>
+                        - Initial release of the HTML5 Mission Control UI served from PROGMEM.
+                    </div>
+                </div>
+
+                <div class="log-entry">
+                    <div><span class="hash">#v48.5.0</span> - Digital Twin</div>
+                    <div class="release-notes">
+                        - Integrated Three.js WebGL visualization for live telemetry.<br>
+                        - Increased WebSocket broadcast rate to 100ms.
+                    </div>
+                </div>
+
+                <div class="log-entry">
+                    <div><span class="hash">#v42.0.0</span> - Active Gravity Comp</div>
+                    <div class="release-notes">
+                        - MPU-6050 sensor fusion implementation.<br>
+                        - Added trigonometric Z-axis balancing: <code>balZ = (lx * sin(P)) + (ly * sin(R))</code>.
+                    </div>
+                </div>
+
+                <div class="log-entry">
+                    <div><span class="hash">#v35.1.0</span> - Custom Actuation</div>
+                    <div class="release-notes">
+                        - Added PWM mapping for custom 1:100 Cycloidal Drives.<br>
+                        - Adjusted servo limits (100 - 500) for MG90S 180-degree limits.
+                    </div>
+                </div>
+
+                <div class="log-entry">
+                    <div><span class="hash">#v28.0.0</span> - IK Engine V2</div>
+                    <div class="release-notes">
+                        - Deprecated linear interpolation. Introduced full Inverse Kinematics utilizing the Law of Cosines.
+                    </div>
+                </div>
+
+                <div class="log-entry">
+                    <div><span class="hash">#v21.3.0</span> - Mesh Genesis</div>
+                    <div class="release-notes">
+                        - Initial integration of the LilyGo T3S3 module.<br>
+                        - Basic LoRa Ping/Pong protocol established between two nodes.
+                    </div>
+                </div>
+
+                <div class="log-entry">
+                    <div><span class="hash">#v10.0.0</span> - First Steps</div>
+                    <div class="release-notes">
+                        - Programmed basic Creep Gait (Tripod stability).<br>
+                        - Note: Movement is highly unstable. Legacy code kept for archival purposes only.
+                    </div>
+                </div>
+
+                <div class="log-entry">
+                    <div><span class="hash">#v1.0.0</span> - Project Genesis</div>
+                    <div class="release-notes">
+                        - Initial commit.<br>
+                        - Basic I2C communication established with PCA9685.<br>
+                        - Hardcoded servo sweep tests.
+                    </div>
                 </div>
             </div>
 
         </div>
+
         <div class="digital-sig">
             <div>
                 SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
@@ -161,5 +255,37 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. Typewriter Effect
+            const textToType = "// FETCHING UPSTREAM REPOSITORY HISTORY... DONE.";
+            const typeTarget = document.getElementById('typewriter');
+            let i = 0;
+            
+            function typeWriter() {
+                if (i < textToType.length) {
+                    typeTarget.innerHTML = textToType.substring(0, i+1) + '<span class="cursor"></span>';
+                    i++;
+                    setTimeout(typeWriter, 40); // Typing speed
+                } else {
+                    typeTarget.innerHTML = textToType; // Remove cursor when done
+                    startLogAnimations(); // Start fading in logs
+                }
+            }
+            
+            // 2. Staggered Slide In for Logs
+            function startLogAnimations() {
+                const logs = document.querySelectorAll('.log-entry');
+                logs.forEach((log, index) => {
+                    // Delay each log by 150ms multiplied by its index
+                    log.style.animation = `slideIn 0.5s ease-out ${index * 0.15}s forwards`;
+                });
+            }
+
+            // Start sequence
+            setTimeout(typeWriter, 500);
+        });
+    </script>
 </body>
 </html>
