@@ -8,18 +8,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <style>
         :root {
-            /* ПАЛИТРА: ТОЛЬКО 3 БАЗОВЫХ ЦВЕТА */
-            --bg-core: #050505;       /* 1. Глубокий черный */
-            --bg-panel: #0e0e0e;      /* 2. Темный серый (панели) */
-            --accent-primary: #7c2ae8; /* 3. Насыщенный Фиолетовый (Saturated Purple) */
-            
-            --accent-glow: #9d50ff;   /* Светлый фиолетовый для свечения */
-            --text-main: #e0e0e0;     /* Белый/Серый текст */
-            --text-dim: #666666;      /* Темный текст */
+            --bg-core: #050505;       
+            --bg-panel: #0e0e0e;      
+            --accent-primary: #7c2ae8; 
+            --accent-glow: #9d50ff;   
+            --text-main: #e0e0e0;     
+            --text-dim: #666666;      
             --grid-color: rgba(124, 42, 232, 0.03);
+            --ease-tech: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -29,296 +31,156 @@
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            /* Сетка теперь еле заметная фиолетовая */
             background-image: 
                 linear-gradient(var(--grid-color) 1px, transparent 1px),
                 linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
             background-size: 60px 60px;
+            opacity: 0; 
+            visibility: hidden;
         }
 
         /* --- TYPOGRAPHY --- */
-        h1, h2, h3, h4 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; z-index: -1;}
+        h1, h2, h3, h4 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .accent { color: var(--accent-primary); }
         .glow-text { color: var(--accent-glow); text-shadow: 0 0 15px rgba(157, 80, 255, 0.4); }
 
-        /* --- HEADER --- */
+        /* --- HEADER & NAVIGATION --- */
         nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 25px 5%;
-            position: fixed;
-            width: 100%;
-            z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 25px 5%; position: fixed; width: 100%; 
+            z-index: 1000; /* FIX: Bumped to top interactive layer */
             background: linear-gradient(180deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0) 100%);
-            backdrop-filter: blur(5px);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(5px); border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: background 0.4s var(--ease-tech), border-color 0.4s var(--ease-tech);
         }
-        /* --- SCROLL EFFECT (STEALTH MODE) --- */
-
-/* 1. The Navbar Background */
-nav.scrolled {
-    background: #0a0a0a; /* Solid dark grey (almost black) */
-    border-bottom: 1px solid #222; /* Dim border */
-    transition: all 0.4s ease;
-}
-
-/* 2. Kill the Logo Colors */
-nav.scrolled .logo, 
-nav.scrolled .logo span.accent {
-    color: #444; /* Turn the whole logo dark gray */
-    transition: 0.3s;
-}
-/* Optional: Light up slightly on hover even in stealth mode */
-nav.scrolled .logo:hover { color: #666; }
-
-/* 3. Kill the Status Dot (The Green Light) */
-nav.scrolled .status-dot {
-    background-color: #333; /* Turn it off */
-    box-shadow: none;       /* Remove glow */
-    animation: none;        /* Stop pulsing */
-    transition: 0.3s;
-}
-
-/* 4. Dim the Text */
-nav.scrolled .mono {
-    color: #333 !important; /* Make "NET_ACTIVE" very dark */
-}
-
-/* 5. Gray out the Buttons */
-nav.scrolled .btn-login {
-    color: #444;
-}
-nav.scrolled .btn-login:hover { color: #888; }
-
-nav.scrolled .btn-register {
-    border-color: #333;     /* Gray border */
-    color: #444;            /* Gray text */
-    background: transparent;
-    box-shadow: none;       /* Remove purple glow */
-}
-nav.scrolled .btn-register:hover {
-    border-color: #666;
-    color: #fff;
-    background: #222;
-}
-
-        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: #fff; }
+        nav.scrolled { background: #0a0a0a; border-bottom: 1px solid #222; }
+        nav.scrolled .logo, nav.scrolled .logo span.accent { color: #444; transition: 0.3s; }
+        nav.scrolled .logo:hover { color: #888; }
+        nav.scrolled .status-dot { background-color: #333; box-shadow: none; animation: none; transition: 0.3s; }
+        nav.scrolled .mono { color: #333 !important; }
+        
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: #fff; transition: all 0.3s ease; }
+        .logo:hover { color: var(--accent-glow); text-shadow: 0 0 10px rgba(157, 80, 255, 0.5); } /* FIX: Added visual hover feedback */
+        
         .status-dot {
-            height: 6px; width: 6px; 
-            background-color: var(--accent-primary); 
-            border-radius: 50%; 
-            display: inline-block; 
-            margin-right: 8px;
-            box-shadow: 0 0 10px var(--accent-primary);
+            height: 6px; width: 6px; background-color: var(--accent-primary); border-radius: 50%; 
+            display: inline-block; margin-right: 8px; box-shadow: 0 0 10px var(--accent-primary);
             animation: pulse 2s infinite;
         }
         @keyframes pulse { 0% {opacity: 0.5;} 50% {opacity: 1;} 100% {opacity: 0.5;} }
 
-        /* --- HERO --- */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 0 5%;
-            position: relative;
-        }
-
-        .hero-text {
-            width: 55%;
-            z-index: 10;
-        }
         /* --- AUTH BUTTONS --- */
-.auth-group {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
+        .auth-group { display: flex; gap: 15px; align-items: center; }
+        .btn-login { color: var(--text-dim); font-family: 'Orbitron'; font-size: 0.8rem; text-decoration: none; transition: 0.3s; letter-spacing: 1px; }
+        .btn-login:hover { color: #fff; }
+        .btn-register {
+            border: 1px solid var(--accent-primary); padding: 8px 20px; font-family: 'Orbitron';
+            font-size: 0.8rem; color: var(--accent-primary); text-decoration: none;
+            background: rgba(124, 42, 232, 0.05); transition: all 0.4s var(--ease-tech);
+            will-change: transform, box-shadow;
+        }
+        .btn-register:hover {
+            background: rgba(124, 42, 232, 0.15); color: #fff;
+            box-shadow: 0 0 20px rgba(124, 42, 232, 0.4); transform: translateY(-1px);
+        }
 
-.btn-login {
-    color: var(--text-dim);
-    font-family: 'Orbitron';
-    font-size: 0.8rem;
-    text-decoration: none;
-    transition: 0.3s;
-    letter-spacing: 1px;
-}
-.btn-login:hover { color: #fff; }
+        nav.scrolled .btn-login { color: #444; }
+        nav.scrolled .btn-login:hover { color: #888; }
+        nav.scrolled .btn-register { border-color: #333; color: #444; background: transparent; box-shadow: none; }
+        nav.scrolled .btn-register:hover { border-color: #666; color: #fff; background: #222; transform: none;}
 
-.btn-register {
-    border: 1px solid var(--accent-primary);
-    padding: 8px 20px;
-    font-family: 'Orbitron';
-    font-size: 0.8rem;
-    color: var(--accent-primary);
-    text-decoration: none;
-    transition: 0.3s;
-    background: rgba(124, 42, 232, 0.05);
-}
-.btn-register:hover {
-    background: var(--accent-primary);
-    color: #fff;
-    box-shadow: 0 0 15px var(--accent-primary);
-}
-
-/* --- THE GHOST TEXT (SECRET MESSAGE) --- */
-.stealth-text {
-    color: #0e0e0e; /* Almost matches background #050505 */
-    font-family: 'JetBrains Mono';
-    font-size: 0.75rem;
-    margin-top: 15px;
-    transition: all 0.5s ease;
-    cursor: help;
-    padding: 10px;
-    border-left: 2px solid transparent;
-}
-
-/* REVEAL ON HOVER */
-.stealth-text:hover {
-    color: var(--accent-glow); /* Lights up purple */
-    border-left: 2px solid var(--accent-primary);
-    background: linear-gradient(90deg, rgba(124, 42, 232, 0.1), transparent);
-    text-shadow: 0 0 5px var(--accent-primary);
-}
-
+        /* --- HERO --- */
+        .hero { min-height: 100vh; display: flex; align-items: center; padding: 0 5%; position: relative; }
+        
+        .hero-text { 
+            width: 55%; 
+            position: relative; /* FIX: Added relative positioning */
+            z-index: 20;        /* FIX: Locks text and buttons strictly ABOVE the 3D canvas */
+            pointer-events: auto;
+        }
+        
         .firmware-badge {
-            font-family: 'JetBrains Mono';
-            font-size: 0.75rem;
-            color: var(--accent-glow);
-            border: 1px solid rgba(124, 42, 232, 0.3);
-            padding: 6px 12px;
-            display: inline-block;
-            margin-bottom: 25px;
-            background: rgba(124, 42, 232, 0.05);
-            letter-spacing: 1px;
+            font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--accent-glow);
+            border: 1px solid rgba(124, 42, 232, 0.3); padding: 6px 12px; display: inline-block;
+            margin-bottom: 25px; background: rgba(124, 42, 232, 0.05); letter-spacing: 1px;
         }
 
         h1 {
-            font-size: 5rem;
-            line-height: 0.9;
-            margin-bottom: 30px;
-            /* Градиент от белого к фиолетовому */
+            font-size: 5rem; line-height: 0.9; margin-bottom: 30px;
             background: linear-gradient(180deg, #fff 20%, #666 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        article-detail {
-            margin: 60px;
-            padding-left: 5%;
-            padding-right: 5%;
-            color: #a2a2a2c6;
-            text-align: center;
-
-        }
-         .clause-box {
-            background: var(--bg-panel);
-            border: 1px solid #22222259;
-            padding: 1% 2%;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            color: #8888883b;
-            margin: 40px 60px;
-             transition: 0.3s;
-        }
-
-        
 
         .hero-desc {
-            font-size: 1.1rem;
-            color: var(--text-dim);
-            max-width: 500px;
-            line-height: 1.6;
-            margin-bottom: 40px;
-            border-left: 3px solid var(--accent-primary);
-            padding-left: 25px;
+            font-size: 1.1rem; color: var(--text-dim); max-width: 500px; line-height: 1.6;
+            margin-bottom: 40px; border-left: 3px solid var(--accent-primary); padding-left: 25px;
         }
 
-        .cta-group { display: flex; gap: 20px; z-index: 40; position: relative;}
+        .stealth-text {
+            color: #0e0e0e; font-family: 'JetBrains Mono'; font-size: 0.75rem; margin-bottom: 40px;
+            transition: all 0.5s var(--ease-tech); cursor: help; padding: 10px; border-left: 2px solid transparent;
+        }
+        .stealth-text:hover {
+            color: var(--accent-glow); border-left: 2px solid var(--accent-primary);
+            background: linear-gradient(90deg, rgba(124, 42, 232, 0.1), transparent);
+            text-shadow: 0 0 5px var(--accent-primary);
+        }
+
+        .cta-group { display: flex; gap: 20px; z-index: 30; position: relative;}
         
         .btn {
-            padding: 18px 45px;
-            font-family: 'Orbitron';
-            font-size: 0.85rem;
-            text-decoration: none;
-            transition: 0.3s;
-            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
-            font-weight: 700;
+            padding: 18px 45px; font-family: 'Orbitron'; font-size: 0.85rem; text-decoration: none;
+            font-weight: 700; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+            transition: all 0.4s var(--ease-tech); will-change: transform, box-shadow, background-color;
         }
-
-        .btn-primary {
-            background: var(--accent-primary);
-            color: #fff;
-            border: none;
-        }
+        .btn-primary { background: var(--accent-primary); color: #fff; border: none; }
         .btn-primary:hover { 
-            background: var(--accent-glow); 
-            box-shadow: 0 0 40px rgba(124, 42, 232, 0.3); 
-            transform: translateY(-2px);
+            background: #8e44ad; box-shadow: 0 10px 30px rgba(124, 42, 232, 0.4); 
+            transform: translateY(-2px) scale(1.02);
         }
 
-        .btn-secondary {
-            background: transparent;
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
+        .btn-secondary { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.15); }
         .btn-secondary:hover { 
-            border-color: var(--accent-primary); 
-            background: rgba(124, 42, 232, 0.05); 
+            border-color: var(--accent-primary); background: rgba(124, 42, 232, 0.05); 
+            transform: translateY(-2px) scale(1.02);
         }
 
         /* --- 3D CONTAINER --- */
         .visual-container {
-            position: absolute;
-            right: 0; top: 0;
-            width: 100%; height: 100%;
-            /* Градиент стал фиолетовым, но очень прозрачным */
+            position: absolute; right: 0; top: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 60% 50%, rgba(124, 42, 232, 0.15), transparent 80%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
+            display: flex; align-items: center; justify-content: center; 
+            pointer-events: none; /* FIX: Allows clicks to pass through empty space */
+            z-index: 5; /* FIX: Pushed strictly behind hero-text */
         }
-        .visual-container canvas { pointer-events: auto; z-index: 10; }
-
-        /* --- BENTO GRID --- */
-        .tech-section { padding: 50px 5% 100px; position: relative; z-index: 2; }
-        
-        .section-header {
-            margin-bottom: 60px; 
-            border-bottom: 1px solid rgba(255,255,255,0.1); 
-            padding-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .bento-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(2, 300px);
-            gap: 25px;
-        }
-
-        .card {
-            background: var(--bg-panel);
-            border: 1px solid rgba(255,255,255,0.03);
-            padding: 35px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: all 0.4s ease;
+        .visual-container canvas { 
+            pointer-events: auto; /* FIX: Only the actual 3D model intercepts mouse movements */
             position: relative;
         }
 
+        
+        /* --- BENTO GRID --- */
+        .tech-section { padding: 50px 5% 100px; position: relative; z-index: 10; }
+        
+        .section-header {
+            margin-bottom: 60px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: flex-end;
+        }
+
+        .bento-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 300px); gap: 25px; }
+
+        .card {
+            background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.03); padding: 35px;
+            display: flex; flex-direction: column; justify-content: space-between; position: relative;
+            transition: border-color 0.4s var(--ease-tech), box-shadow 0.4s var(--ease-tech), transform 0.4s var(--ease-tech);
+            will-change: transform, opacity;
+        }
         .card:hover {
-            border-color: var(--accent-primary);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            transform: translateY(-5px);
+            border-color: var(--accent-primary); transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(124, 42, 232, 0.03);
         }
         
-        /* Убираем цветные бордеры, делаем все строгим */
         .card-lg { grid-column: span 2; }
         .card-vert { grid-row: span 2; background: linear-gradient(170deg, #0e0e0e 0%, #150520 100%); }
 
@@ -329,66 +191,79 @@ nav.scrolled .btn-register:hover {
         .tech-label { font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--accent-primary); margin-bottom: 15px; display: block; letter-spacing: 1px; }
 
         .code-block {
-            background: #000;
-            padding: 20px;
-            font-family: 'JetBrains Mono';
-            font-size: 0.75rem;
-            color: #888;
-            border-left: 3px solid var(--accent-primary);
-            margin-top: auto;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            background: #000; padding: 20px; font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #888;
+            border-left: 3px solid var(--accent-primary); margin-top: auto; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
 
-        .data-stream {
-            font-family: 'JetBrains Mono';
-            font-size: 0.75rem;
-            color: #aaa; /* Серый текст вместо циана */
-            margin-top: auto;
-        }
+        .data-stream { font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #aaa; margin-top: auto; }
         .data-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;}
         .data-val { color: var(--accent-glow); }
 
-        /* --- NEW SECTION: WORKFLOW --- */
-        .workflow-section {
-            padding: 100px 5%;
-            background: #080808;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        .flow-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 40px;
-            margin-top: 50px;
-        }
-        .flow-step {
-            border-top: 2px solid #333;
-            padding-top: 20px;
-            transition: 0.3s;
-        }
-        .flow-step:hover { border-color: var(--accent-primary); }
-        .step-num { font-family: 'Orbitron'; font-size: 2rem; color: #333; margin-bottom: 10px; display: block; }
-        .flow-step:hover .step-num { color: var(--accent-primary); }
+        /* --- PREMIUM SECOND HALF STYLES --- */
+        .premium-container { max-width: 1400px; margin: 0 auto; position: relative; z-index: 10; }
 
-        /* --- FOOTER --- */
-        footer {
-            background: var(--bg-panel);
-            padding: 80px 5% 40px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            font-family: 'Inter';
+        /* DIGITAL TWIN SECTION */
+        .digital-twin-section {
+            padding: 150px 5%; background: #050505; position: relative; border-top: 1px solid rgba(255,255,255,0.03);
         }
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 40px;
-            margin-bottom: 60px;
+        .digital-twin-section::before {
+            content: ''; position: absolute; top: 50%; left: 70%;
+            width: 600px; height: 600px; background: radial-gradient(circle, rgba(124, 42, 232, 0.15) 0%, transparent 70%);
+            transform: translate(-50%, -50%); pointer-events: none; z-index: 0;
         }
+        .dt-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: center; }
+        .dt-image-wrapper {
+            position: relative; padding: 20px; background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(124, 42, 232, 0.2); backdrop-filter: blur(15px);
+            clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); 
+        }
+        .dt-image-wrapper img { width: 100%; display: block; box-shadow: 0 20px 50px rgba(0,0,0,0.8); filter: contrast(1.1); }
+
+        /* ARTICLE TERMINAL SECTION */
+        .article-section { padding: 50px 5% 150px; background: #050505; }
+        .terminal-bento {
+            background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; position: relative; overflow: hidden;
+        }
+        .terminal-header {
+            background: #0a0a0a; border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .terminal-header .dots { display: flex; gap: 8px; }
+        .terminal-header .dot { width: 10px; height: 10px; border-radius: 50%; background: #333; }
+        .terminal-body { padding: 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
+
+        /* OPERATIONAL TIMELINE */
+        .workflow-section { padding: 120px 5%; background: #080808; border-top: 1px solid rgba(255,255,255,0.02); position: relative; }
+        .timeline-container { display: flex; justify-content: space-between; margin-top: 80px; position: relative; }
+        .timeline-track { position: absolute; top: 30px; left: 5%; right: 5%; height: 2px; background: #222; z-index: 1; }
+        .timeline-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--accent-primary); box-shadow: 0 0 10px var(--accent-primary); }
+        .timeline-step { position: relative; z-index: 2; width: 28%; opacity: 0; transform: translateY(30px); }
+        .step-node {
+            width: 60px; height: 60px; background: #080808; border: 2px solid #333; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-family: 'Orbitron'; font-size: 1.2rem; color: #666; margin-bottom: 30px; transition: all 0.4s var(--ease-tech);
+        }
+        .timeline-step.active .step-node {
+            border-color: var(--accent-primary); color: #fff; box-shadow: 0 0 20px rgba(124, 42, 232, 0.4); background: rgba(124, 42, 232, 0.1);
+        }
+
+        /* FOOTER */
+        footer { background: var(--bg-panel); padding: 80px 5% 40px; border-top: 1px solid rgba(255,255,255,0.05); font-family: 'Inter'; position: relative; z-index: 10; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 60px; }
         .footer-col h4 { color: #fff; margin-bottom: 25px; font-size: 0.9rem; letter-spacing: 1px; }
         .footer-col ul { list-style: none; }
         .footer-col li { margin-bottom: 15px; }
         .footer-col a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
         .footer-col a:hover { color: var(--accent-primary); }
 
-        /* --- RESPONSIVE --- */
+        .user-nav-link {
+            display: flex; align-items: center; gap: 12px; text-decoration: none; background: rgba(124, 42, 232, 0.1);
+            border: 1px solid var(--accent-primary); padding: 6px 15px; border-radius: 4px; transition: 0.3s;
+        }
+        .user-nav-link:hover { background: var(--accent-primary); box-shadow: 0 0 15px var(--accent-primary); }
+        .nav-avatar-small { width: 24px; height: 24px; border-radius: 50%; background-color: #333; background-size: cover; background-position: center; border: 1px solid #fff; }
+        .nav-username { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #fff; font-weight: bold; }
+
         @media (max-width: 1024px) {
             h1 { font-size: 3rem; }
             .hero { flex-direction: column; padding-top: 120px; text-align: center; }
@@ -398,83 +273,56 @@ nav.scrolled .btn-register:hover {
             .visual-container { position: relative; width: 100%; height: 400px; }
             .bento-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
             .card-lg, .card-vert { grid-column: span 1; grid-row: span 1; }
-            .flow-grid { grid-template-columns: 1fr; }
+            
+            .dt-grid { grid-template-columns: 1fr; }
+            .terminal-body { grid-template-columns: 1fr; gap: 30px; padding: 30px; }
+            .timeline-container { flex-direction: column; gap: 50px; margin-top: 50px; }
+            .timeline-track { left: 30px; top: 0; bottom: 0; height: auto; width: 2px; }
+            .timeline-fill { width: 100%; height: 0%; }
+            .timeline-step { width: 100%; padding-left: 80px; }
+            .step-node { position: absolute; left: 0; top: 0; margin-bottom: 0; }
             .footer-grid { grid-template-columns: 1fr; gap: 40px; }
         }
-        /* --- USER NAV PROFILE (LOGGED IN) --- */
-.user-nav-link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    background: rgba(124, 42, 232, 0.1);
-    border: 1px solid var(--accent-primary);
-    padding: 6px 15px;
-    border-radius: 4px;
-    transition: 0.3s;
-}
-.user-nav-link:hover {
-    background: var(--accent-primary);
-    box-shadow: 0 0 15px var(--accent-primary);
-}
-
-.nav-avatar-small {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-color: #333;
-    background-size: cover;
-    background-position: center;
-    border: 1px solid #fff;
-}
-
-.nav-username {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    color: #fff;
-    font-weight: bold;
-}
     </style>
 </head>
 <body>
 
-    <nav>
-    <div class="logo">ART<span class="accent">TOUS</span></div>
-    
-    <div class="auth-group" id="authSection">
-    <div class="mono" style="font-size: 0.7rem; color: #444; margin-right: 20px;">
-        <span class="status-dot"></span>NET_ACTIVE
-    </div>
-    <a href="login.html" class="btn-login">LOG IN</a>
-    <a href="login.html" class="btn-register">JOIN MESH</a>
-    </div>
+    <nav class="nav-container">
+        <a href="index.html" class="logo page-link">ART<span class="accent">TOUS</span></a>
+        
+        <div class="auth-group" id="authSection">
+            <div class="mono" style="font-size: 0.7rem; color: #444; margin-right: 20px;">
+                <span class="status-dot"></span>NET_ACTIVE
+            </div>
+            <a href="login.html" class="btn-login page-link">LOG IN</a>
+            <a href="login.html" class="btn-register page-link">JOIN MESH</a>
+        </div>
     </nav>
 
     <section class="hero">
-        <div class="hero-text">
-            <span class="firmware-badge">FIRMWARE v53.0 :: RHODIUM</span>
+        <div class="hero-text gs-reveal">
+            <span class="firmware-badge">FIRMWARE v75.4 :: RTOS</span>
             <h1>AUTONOMOUS<br><span class="glow-text">MESH REALITY</span></h1>
             <p class="hero-desc">
                 Where GPS fails, Arttous creates its own reality. 
-                A <strong>16-DOF</strong> quadrupedal platform powered by <strong>ESP32-C6</strong> and localized via <strong>T3S3 LoRa Mesh</strong> Time-of-Flight ranging.
+                A <strong>16-DOF</strong> quadrupedal platform powered by <strong>ESP32-S3 Dual-Core</strong> and localized via <strong>T3S3 LoRa Mesh</strong> Time-of-Flight ranging.
             </p>
             <p class="stealth-text">
              /// SYSTEM NOTICE: We are actively seeking kinematic specialists. 
              Registration grants access to the verify_protocol. 
              Complete the calibration tasks to unlock community entry.
-        </p>
+            </p>
             <div class="cta-group">
-                <a href="docs.html" class="btn btn-primary">SYSTEM ARCHITECTURE</a>
-                <a href="tracking.html" class="btn btn-secondary">LIVE TELEMETRY</a>
+                <a href="docs.html" class="btn btn-primary page-link">SYSTEM ARCHITECTURE</a>
+                <a href="tracking.html" class="btn btn-secondary page-link">LIVE TELEMETRY</a>
             </div>
         </div>
 
-        <div class="visual-container">
-            </div>
+        <div class="visual-container"></div>
     </section>
 
     <section id="specs" class="tech-section">
-        <div class="section-header">
+        <div class="section-header gs-reveal">
             <div>
                 <h2 style="font-size: 2.5rem;">COMPONENT MATRIX</h2>
                 <span class="mono text-dim">HARDWARE_REV_04 // CONFIG: QUAD_16DOF</span>
@@ -485,29 +333,25 @@ nav.scrolled .btn-register:hover {
         </div>
 
         <div class="bento-grid">
-            
-            <div class="card card-lg">
+            <div class="card card-lg gs-grid-item">
                 <span class="tech-label">MOTION ENGINE</span>
                 <div style="display: flex; align-items: baseline; gap: 15px;">
                     <h3 class="glow-text">SYMMETRIC TWIST KINEMATICS</h3>
                 </div>
-                <p>Custom Inverse Kinematics solver (v53) handling <strong>16 degrees of freedom</strong> (4 per leg). Corrects asymmetric roll behavior using twist-banking logic.</p>
-                <div class="code-block">
-                    // RHODIUM v53.0 Matrix<br>
-                    <span style="color: #fff">FL_LEG:</span> { +1, +1, +1, +1 }<br>
-                    <span style="color: #fff">FR_LEG:</span> { +1, -1, -1, -1 }<br>
-                    return <span class="accent">solve_IK_16DOF</span>(target_pos);
+                <p>Custom Inverse Kinematics solver (v75.4) handling <strong>16 degrees of freedom</strong> (4 per leg). Corrects asymmetric roll behavior using active twist-banking logic via FreeRTOS.</p>
+                <div class="code-block" id="typing-code">
+                    // DECRYPTING MATRICES...
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card gs-grid-item">
                 <span class="tech-label">ACTUATION</span>
-                <div class="tech-value">16x</div>
+                <div class="tech-value" id="servo-counter">0x</div>
                 <h3>MG90S SERVOS</h3>
                 <p>High-torque metal gear actuators. 4 motors per leg provide active ankle control and complex gait capabilities.</p>
             </div>
 
-            <div class="card card-vert">
+            <div class="card card-vert gs-grid-item">
                 <span class="tech-label">LOCALIZATION SYSTEM</span>
                 <h3 style="font-size: 1.8rem; margin-bottom: 20px;">T3S3 MESH</h3>
                 <p style="margin-bottom: 30px;">
@@ -515,141 +359,160 @@ nav.scrolled .btn-register:hover {
                 </p>
                 
                 <div class="data-stream">
-                    <div class="data-row">
-                        <span>ANCHOR_A</span>
-                        <span class="data-val">-42dBm [3.2m]</span>
-                    </div>
-                    <div class="data-row">
-                        <span>ANCHOR_B</span>
-                        <span class="data-val">-38dBm [1.8m]</span>
-                    </div>
-                    <div class="data-row">
-                        <span>ANCHOR_C</span>
-                        <span class="data-val">-45dBm [4.1m]</span>
-                    </div>
+                    <div class="data-row"><span>ANCHOR_A</span><span class="data-val">-42dBm [3.2m]</span></div>
+                    <div class="data-row"><span>ANCHOR_B</span><span class="data-val">-38dBm [1.8m]</span></div>
+                    <div class="data-row"><span>ANCHOR_C</span><span class="data-val">-45dBm [4.1m]</span></div>
                     <div class="data-row" style="color: var(--accent-primary); margin-top: 15px; border: none; font-weight: bold;">
-                        <span>> TRIANGULATION:</span>
-                        <span>LOCKED</span>
+                        <span>> TRIANGULATION:</span><span>LOCKED</span>
                     </div>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card gs-grid-item">
                 <span class="tech-label">CORE PROCESSOR</span>
-                <h3>ESP32-C6</h3>
-                <p>RISC-V 32-bit Single Core. Runs FreeRTOS with dedicated tasks for Physics (50Hz) and Async Web Telemetry.</p>
+                <h3>ESP32-S3 (N8R8)</h3>
+                <p>Dual-Core architecture. Runs FreeRTOS with dedicated tasks (Core 1) for Physics (50Hz) and Async Web Telemetry (Core 0).</p>
             </div>
 
-            <div class="card card-lg">
+            <div class="card card-lg gs-grid-item">
                 <span class="tech-label">STABILIZATION</span>
                 <div style="display: flex; justify-content: space-between;">
                     <h3>ACTIVE GYRO (MPU-6050)</h3>
                     <div class="mono accent">PITCH: 0.02°</div>
                 </div>
-                <p>Real-time horizon correction. The IMU feeds directly into the gait scheduler to adjust foot height on uneven terrain dynamically.</p>
+                <p>Real-time horizon correction via a dedicated I2C bus. The IMU feeds directly into the gait scheduler to adjust foot height on uneven terrain dynamically.</p>
             </div>
-
         </div>
     </section>
-                   <section style="padding: 100px 4%; background: #050505; border-top: 1px dashed #222; position: relative;">
-        <div style="max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
+
+    <section class="digital-twin-section">
+        <div class="premium-container dt-grid">
             
-            <div>
-                <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #7c2ae8; margin-bottom: 10px;">/// FIRMWARE v75.0 FEATURE</div>
-                <h2 style="color: #fff; font-family: 'Orbitron', sans-serif; font-size: 2.5rem; margin-bottom: 20px; line-height: 1.1;">
-                    ZERO-INSTALL<br><span style="color: #7c2ae8;">DIGITAL TWIN</span>
+            <div class="dt-text gs-dt-text">
+                <div class="mono" style="font-size: 0.75rem; color: var(--accent-primary); margin-bottom: 15px; letter-spacing: 2px;">
+                    /// FIRMWARE v75.4 FEATURE
+                </div>
+                <h2 style="font-size: 3rem; margin-bottom: 25px; line-height: 1.1; color: #fff;">
+                    ZERO-INSTALL<br><span class="glow-text">DIGITAL TWIN</span>
                 </h2>
-                <p style="color: #888; font-family: 'Inter', sans-serif; font-size: 1rem; line-height: 1.7; margin-bottom: 30px;">
+                <p style="color: #888; font-size: 1.05rem; line-height: 1.7; margin-bottom: 40px;">
                     Command your fleet from any browser. The Arttous ESP32-S3 serves a highly optimized WebGL interface directly from silicon. Experience 50ms latency WebSockets, real-time IMU stabilization visualization, and direct access to the Inverse Kinematics engine.
                 </p>
-                <a href="account.html" style="display: inline-block; padding: 15px 30px; border: 1px solid #7c2ae8; color: #fff; text-decoration: none; font-family: 'Orbitron', sans-serif; background: rgba(124, 42, 232, 0.1); transition: 0.3s;" onmouseover="this.style.background='#7c2ae8'; this.style.color='#000';" onmouseout="this.style.background='rgba(124, 42, 232, 0.1)'; this.style.color='#fff';">
+                <a href="account.html" class="btn btn-secondary page-link" style="display:inline-block;">
                     INITIATE UPLINK
                 </a>
             </div>
 
-            <div style="position: relative;">
-                <div style="position: absolute; top: -15px; left: -15px; right: 15px; bottom: 15px; border: 1px solid #333; z-index: 0;"></div>
-                
-                <img src="assets/images/Screenshot 2026-02-22 124034.png" style="width: 100%; position: relative; z-index: 1; border: 1px solid #7c2ae8; box-shadow: 0 10px 40px rgba(124, 42, 232, 0.2);" alt="Digital Twin Interface">
+            <div class="dt-image-wrapper gs-dt-image">
+                <img src="assets/images/Screenshot 2026-02-22 124034.png" alt="Digital Twin Interface">
             </div>
 
         </div>
     </section>
-      <article-detail>
-            <h2>ARTICLE: NATURE OF THEORETICAL DATA</h2>
-            <div class="clause-box" style="border-color: var(--accent-primary);">
-                <h3>0.1. The Human-AI Hybrid Origin</h3>
-                <p>The User acknowledges that the content on Arttous is not the result of certified engineering standards (ISO/ASTM). It is the product of experimental collaboration between human enthusiasts and Generative AI. Consequently, the data may contain "hallucinations," logical errors, or physics calculations that function in simulation but fail in physical reality.</p>
-                <h3>0.2. No Guarantee of Feasibility</h3>
-            <p>We do not warrant that the 3D models provided are printable, structurally sound, or mechanically viable. We do not warrant that the firmware code (C++/Python) is free of bugs, memory leaks, or infinite loops that could overheat or destroy physical motors.</p>
-    
+
+    <section class="article-section">
+        <div class="premium-container">
+            <div class="terminal-bento gs-terminal">
+                
+                <div class="terminal-header">
+                    <span class="mono" style="color: #666; font-size: 0.75rem;">DOC_ID: THEORY_01</span>
+                    <div class="dots">
+                        <div class="dot" style="background: #ff5f56;"></div>
+                        <div class="dot" style="background: #ffbd2e;"></div>
+                        <div class="dot" style="background: #27c93f;"></div>
+                    </div>
+                </div>
+
+                <div class="terminal-body">
+                    <div>
+                        <h3 style="color: var(--accent-primary); font-size: 1.2rem; margin-bottom: 15px;">0.1 HUMAN-AI HYBRID ORIGIN</h3>
+                        <p style="color: #aaa; font-size: 0.95rem; line-height: 1.7;">
+                            The User acknowledges that the content on Arttous is not the result of certified engineering standards (ISO/ASTM). It is the product of experimental collaboration between human enthusiasts and Generative AI. Consequently, the data may contain "hallucinations," logical errors, or physics calculations that function in simulation but fail in physical reality.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 style="color: #e74c3c; font-size: 1.2rem; margin-bottom: 15px;">0.2 NO GUARANTEE OF FEASIBILITY</h3>
+                        <p style="color: #aaa; font-size: 0.95rem; line-height: 1.7;">
+                            We do not warrant that the 3D models provided are printable, structurally sound, or mechanically viable under real-world torque. We do not warrant that the firmware code (C++/Python) is free of bugs, memory leaks, or infinite loops that could overheat or physically destroy hardware.
+                        </p>
+                    </div>
+                </div>
+
             </div>
-      </article-detail>
+        </div>
+    </section>
 
     <section class="workflow-section">
-        <h2 style="text-align: center;">OPERATIONAL LOGIC</h2>
-        <div class="flow-grid">
-            <div class="flow-step">
-                <span class="step-num">01</span>
-                <h3>Deploy Anchors</h3>
-                <p style="color: #666; margin-top: 10px;">Operator places 3+ T3S3 nodes in the environment. System auto-calibrates the mesh geometry.</p>
+        <div class="premium-container">
+            
+            <h2 class="gs-timeline-title" style="text-align: center; font-size: 2.5rem; color: #fff;">OPERATIONAL LOGIC</h2>
+            
+            <div class="timeline-container">
+                <div class="timeline-track">
+                    <div class="timeline-fill" id="timeline-progress"></div>
+                </div>
+
+                <div class="timeline-step gs-step" data-step="1">
+                    <div class="step-node">01</div>
+                    <h3 style="color:#fff; margin-bottom: 10px; font-size: 1.2rem;">DEPLOY ANCHORS</h3>
+                    <p style="color: #666; line-height: 1.6; font-size: 0.9rem;">Operator places 3+ T3S3 nodes in the environment. System auto-calibrates the mesh geometry via FreeRTOS TaskNetwork.</p>
+                </div>
+
+                <div class="timeline-step gs-step" data-step="2">
+                    <div class="step-node">02</div>
+                    <h3 style="color:#fff; margin-bottom: 10px; font-size: 1.2rem;">TOF RANGING</h3>
+                    <p style="color: #666; line-height: 1.6; font-size: 0.9rem;">Arttous calculates distance to anchors using 2.4GHz Time-of-Flight pulses with sub-meter accuracy without satellite GPS.</p>
+                </div>
+
+                <div class="timeline-step gs-step" data-step="3">
+                    <div class="step-node">03</div>
+                    <h3 style="color:#fff; margin-bottom: 10px; font-size: 1.2rem;">PATH EXECUTION</h3>
+                    <p style="color: #666; line-height: 1.6; font-size: 0.9rem;">Kinematics engine translates coordinates into 16-motor servo commands for terrain traversal exclusively on Core 1.</p>
+                </div>
             </div>
-            <div class="flow-step">
-                <span class="step-num">02</span>
-                <h3>ToF Ranging</h3>
-                <p style="color: #666; margin-top: 10px;">Arttous calculates distance to anchors using 2.4GHz Time-of-Flight pulses with < 1m accuracy.</p>
-            </div>
-            <div class="flow-step">
-                <span class="step-num">03</span>
-                <h3>Path Execution</h3>
-                <p style="color: #666; margin-top: 10px;">Kinematics engine translates coordinates into 16-motor servo commands for terrain traversal.</p>
-            </div>
+
         </div>
     </section>
 
     <footer>
-        <div class="footer-grid">
+        <div class="premium-container footer-grid gs-footer">
             <div class="footer-col">
                 <div class="logo" style="margin-bottom: 20px;">ART<span class="accent">TOUS</span></div>
-                <p style="color: #666; font-size: 0.85rem; line-height: 1.6;">
+                <p style="color: #666; font-size: 0.85rem; line-height: 1.6; max-width: 300px;">
                     Developing the next generation of affordable, mesh-networked autonomous robotics for search and rescue operations.
                 </p>
             </div>
             <div class="footer-col">
-                <h4>PLATFORM</h4>
+                <h4 class="mono" style="color: #888;">PLATFORM</h4>
                 <ul>
-                    <li><a href="firmware.html">Rhodium Firmware</a></li>
-                    <li><a href="hardware.html">Hardware Docs</a></li>
-                    <li><a href="investors.html">Investors</a></li>
+                    <li><a href="firmware.html" class="page-link">RTOS Firmware</a></li>
+                    <li><a href="docs.html" class="page-link">Hardware Docs</a></li>
+                    <li><a href="investor.html" class="page-link">Investors</a></li>
                 </ul>
             </div>
             <div class="footer-col">
-                <h4>RESOURCES</h4>
+                <h4 class="mono" style="color: #888;">RESOURCES</h4>
                 <ul>
-                    <li><a href="repo.html">GitHub Repo</a></li>
-                    <li><a href="3D-model.html">3D Models (STL)</a></li>
-                    <li><a href="community.html">Community</a></li>
+                    <li><a href="repo.html" class="page-link">GitHub Repo</a></li>
+                    <li><a href="3d-models.html" class="page-link">3D Models (STL)</a></li>
+                    <li><a href="community.html" class="page-link">Community</a></li>
                 </ul>
             </div>
             <div class="footer-col">
-                <h4>LEGAL</h4>
+                <h4 class="mono" style="color: #888;">LEGAL</h4>
                 <ul>
-                    <li><a href="legal.html">Privacy Policy</a></li>
-                    <li><a href="terms.html">Terms of Use</a></li>
-                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="legal.html" class="page-link">Privacy Policy</a></li>
+                    <li><a href="terms.html" class="page-link">Terms of Use</a></li>
+                    <li><a href="login.html" class="page-link">Contact</a></li>
                 </ul>
             </div>
         </div>
-        <div style="border-top: 1px solid #222; padding-top: 20px; display: flex; justify-content: space-between; font-size: 0.75rem; color: #444;">
+        
+        <div class="premium-container" style="border-top: 1px solid #222; padding-top: 30px; display: flex; justify-content: space-between; font-size: 0.75rem; color: #444;">
             <p>&copy; 2026 Arttous Robotics Inc.</p>
-            <p class="mono">SYSTEM STATUS: ONLINE</p>
+            <p class="mono">HASH: 0x99a...f42</p>
         </div>
     </footer>
-
-    <script>
-        console.log("ARTTOUS SYSTEM ONLINE: v53.0");
-        console.log("Initializing 16-DOF Kinematics...");
-    </script>
 
     <script type="importmap">
     {
@@ -659,159 +522,220 @@ nav.scrolled .btn-register:hover {
         }
     }
     </script>
-   <script type="module">
-    import * as THREE from 'three';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-    const container = document.querySelector('.visual-container');
-    const modelPath = './web-robo-3D.glb'; 
-    const robotScale = 6.5; 
-
-    // Variable to store the robot so we can spin it later
-    let robotMesh = null; 
-
-    // SCENE
-    const scene = new THREE.Scene();
-    scene.background = null; 
-
-    // CAMERA
-    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
-    camera.position.set(1.8, 1.2, 2.5); 
-
-    // RENDERER
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.5;
     
-    container.innerHTML = ''; 
-    container.appendChild(renderer.domElement);
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    // LIGHTING
-    const keyLight = new THREE.DirectionalLight(0xffffff, 4.0);
-    keyLight.position.set(2, 2, 2);
-    scene.add(keyLight);
+        // --- 1. THREE.JS SETUP ---
+        const container = document.querySelector('.visual-container');
+        const modelPath = './web-robo-3D.glb'; 
+        let robotMesh = null; 
 
-    const rimLight = new THREE.SpotLight(0x8e44ad, 20.0); 
-    rimLight.position.set(-2, 1, -2);
-    rimLight.lookAt(0, 0, 0);
-    scene.add(rimLight);
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
+        camera.position.set(1.8, 1.2, 2.5); 
 
-    const fillLight = new THREE.PointLight(0x00f3ff, 2.0);
-    fillLight.position.set(0, -2, 1); 
-    scene.add(fillLight);
-
-    const topLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    topLight.position.set(0, 5, 0);
-    scene.add(topLight);
-
-    // --- CONTROLS ---
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.enableZoom = false;
-    
-    // DISABLE CAMERA ROTATION (So the robot stays fixed on the right)
-    controls.autoRotate = false; 
-
-    // MOVE POSITION:
-    // Change this number to move the robot Left/Right.
-    // -2.0 = Right side
-    // -4.0 = Far Right
-    // 0.0 = Center
-    controls.target.set(-2.5, 0, 0); 
-    controls.update();
-
-    // LOADER
-    const loader = new GLTFLoader();
-    
-    loader.load(modelPath, function (gltf) {
-        const model = gltf.scene;
-        
-        // Center the geometry
-        const box = new THREE.Box3().setFromObject(model);
-        const center = box.getCenter(new THREE.Vector3());
-        model.position.sub(center); 
-
-        model.scale.set(robotScale, robotScale, robotScale);
-
-        // Initial Tilt (Towards camera)
-        model.rotation.x = 0.2; 
-
-        // Materials
-        model.traverse((child) => {
-            if (child.isMesh) {
-                child.material.roughness = 0.4; 
-                child.material.metalness = 0.6; 
-            }
-        });
-        
-        // Save to global variable
-        robotMesh = model;
-        scene.add(model);
-
-    }, undefined, function (error) {
-        console.error("ERROR:", error);
-    });
-
-    // --- ANIMATION LOOP ---
-    function animate() {
-        requestAnimationFrame(animate);
-        
-        // SPIN LOGIC:
-        // This rotates the object around its OWN Y-axis
-        if (robotMesh) {
-            robotMesh.rotation.y -= 0.002; // Change 0.002 to speed up/slow down
-        }
-
-        controls.update();
-        renderer.render(scene, camera);
-    }
-    animate();
-
-    window.addEventListener('resize', () => {
-        camera.aspect = container.clientWidth / container.clientHeight;
-        camera.updateProjectionMatrix();
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
-    });
-    // --- SCROLL MONITOR ---
-    window.addEventListener('scroll', () => {
-        const nav = document.querySelector('nav');
-        
-        // If we scroll down more than 50 pixels...
-        if (window.scrollY > 50) {
-            nav.classList.add('scrolled'); // Activate Stealth Mode
-        } else {
-            nav.classList.remove('scrolled'); // Back to full Neon Mode
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.5;
+        container.appendChild(renderer.domElement);
+
+        const keyLight = new THREE.DirectionalLight(0xffffff, 4.0); keyLight.position.set(2, 2, 2); scene.add(keyLight);
+        const rimLight = new THREE.SpotLight(0x8e44ad, 20.0); rimLight.position.set(-2, 1, -2); scene.add(rimLight);
+        const fillLight = new THREE.PointLight(0x00f3ff, 2.0); fillLight.position.set(0, -2, 1); scene.add(fillLight);
+        const topLight = new THREE.DirectionalLight(0xffffff, 1.0); topLight.position.set(0, 5, 0); scene.add(topLight);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; controls.dampingFactor = 0.05; controls.enableZoom = false; controls.autoRotate = false; 
+        controls.target.set(-2.5, 0, 0); controls.update();
+
+        const loader = new GLTFLoader();
+        loader.load(modelPath, (gltf) => {
+            const model = gltf.scene;
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            model.position.sub(center); 
+            model.scale.set(6.5, 6.5, 6.5);
+            model.rotation.x = 0.2; 
+            
+            model.traverse((child) => {
+                if (child.isMesh) { child.material.roughness = 0.4; child.material.metalness = 0.6; }
+            });
+            robotMesh = model;
+            scene.add(model);
+            
+            gsap.fromTo(renderer.domElement, {opacity: 0}, {opacity: 1, duration: 2, ease: "power2.inOut"});
+
+        }, undefined, (error) => console.error("3D Load Error:", error));
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (robotMesh) robotMesh.rotation.y -= 0.002; 
+            controls.update();
+            renderer.render(scene, camera);
         }
-    });
-         // --- CHECK LOGIN STATUS ---
-window.addEventListener('load', () => {
-    // 1. Проверяем память
-    const userNick = localStorage.getItem('userNick');
-    const userAvatar = localStorage.getItem('userAvatar');
-    
-    // 2. Если пользователь найден
-    if (userNick) {
-        const authSection = document.getElementById('authSection');
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        // --- 2. GSAP PREMIUM ANIMATIONS ---
+        gsap.registerPlugin(ScrollTrigger);
         
-        // Картинка аватара (или заглушка, если нет фото)
-        const avatarStyle = userAvatar ? `background-image: url('${userAvatar}');` : 'background-color: #7c2ae8;';
+        gsap.set("body", { visibility: "visible" });
+
+        const tlLoad = gsap.timeline();
+        tlLoad.to("body", { opacity: 1, duration: 0.5, ease: "none" })
+              .from("nav", { y: -50, opacity: 0, duration: 1, ease: "power3.out" }, "-=0.2")
+              .from(".hero-text > *", { 
+                  y: 40, opacity: 0, duration: 1.2, stagger: 0.15, ease: "power4.out" 
+              }, "-=0.8");
+
+        gsap.utils.toArray('.gs-reveal').forEach(elem => {
+            gsap.from(elem, {
+                scrollTrigger: { trigger: elem, start: "top 85%" },
+                y: 40, opacity: 0, duration: 1, ease: "power3.out"
+            });
+        });
+
+        gsap.from(".gs-grid-item", {
+            scrollTrigger: { trigger: ".bento-grid", start: "top 80%" },
+            y: 50, opacity: 0, stagger: 0.1, duration: 1, ease: "power3.out"
+        });
+
+        ScrollTrigger.create({
+            trigger: "#servo-counter",
+            start: "top 90%",
+            onEnter: () => {
+                gsap.to({val: 0}, {
+                    val: 16, duration: 2, ease: "power2.out",
+                    onUpdate: function() {
+                        document.getElementById("servo-counter").innerText = Math.floor(this.targets()[0].val) + "x";
+                    }
+                });
+            },
+            once: true
+        });
+
+        ScrollTrigger.create({
+            trigger: "#typing-code",
+            start: "top 85%",
+            onEnter: () => {
+                const codeStr = `// RTOS v75.4 Matrix\n<span style="color:#fff">FL_LEG:</span> { +1, +1, +1, +1 }\n<span style="color:#fff">FR_LEG:</span> { +1, -1, -1, -1 }\nreturn <span class="accent">TaskControl.solve_IK();</span>`;
+                const target = document.getElementById("typing-code");
+                target.innerHTML = "";
+                let i = 0;
+                let iv = setInterval(() => {
+                    target.innerHTML = codeStr.substring(0, i) + "_";
+                    i+=3; 
+                    if(i >= codeStr.length) {
+                        clearInterval(iv);
+                        target.innerHTML = codeStr;
+                    }
+                }, 15);
+            },
+            once: true
+        });
+
+        // --- SECOND HALF GSAP ANIMATIONS ---
         
-        // 3. Заменяем кнопки на Профиль
-        authSection.innerHTML = `
-            <div class="mono" style="font-size: 0.7rem; color: #444; margin-right: 20px;">
-                <span class="status-dot" style="background: #2ecc71; box-shadow: 0 0 5px #2ecc71;"></span>ONLINE
-            </div>
-            <a href="account.html" class="user-nav-link">
-                <div class="nav-avatar-small" style="${avatarStyle}"></div>
-                <span class="nav-username">${userNick}</span>
-            </a>
-        `;
-    }
-});
-</script>
+        gsap.from(".gs-dt-text > *", {
+            scrollTrigger: { trigger: ".digital-twin-section", start: "top 70%" },
+            y: 30, opacity: 0, stagger: 0.15, duration: 1, ease: "power3.out"
+        });
+
+        gsap.to(".gs-dt-image", {
+            scrollTrigger: { trigger: ".digital-twin-section", start: "top 60%" },
+            clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+            duration: 1.5, ease: "power4.inOut"
+        });
+
+        gsap.from(".gs-terminal", {
+            scrollTrigger: { trigger: ".article-section", start: "top 80%" },
+            y: 50, opacity: 0, duration: 1.2, ease: "power3.out"
+        });
+
+        const timelineSteps = gsap.utils.toArray('.gs-step');
+        
+        gsap.from(".gs-timeline-title", {
+            scrollTrigger: { trigger: ".workflow-section", start: "top 80%" },
+            y: 30, opacity: 0, duration: 1
+        });
+
+        gsap.to("#timeline-progress", {
+            scrollTrigger: {
+                trigger: ".timeline-container",
+                start: "top 75%",
+                end: "bottom 60%",
+                scrub: 1, 
+            },
+            width: "100%", 
+            ease: "none"
+        });
+
+        timelineSteps.forEach((step, i) => {
+            gsap.to(step, {
+                scrollTrigger: {
+                    trigger: step,
+                    start: "top 80%",
+                    onEnter: () => step.classList.add("active"),
+                    onLeaveBack: () => step.classList.remove("active") 
+                },
+                y: 0, opacity: 1, duration: 0.8, ease: "back.out(1.7)"
+            });
+        });
+
+        gsap.from(".gs-footer > div", {
+            scrollTrigger: { trigger: "footer", start: "top 90%" },
+            y: 30, opacity: 0, stagger: 0.1, duration: 1, ease: "power3.out"
+        });
+
+        // --- 3. UI INTERACTIONS ---
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) nav.classList.add('scrolled');
+            else nav.classList.remove('scrolled');
+        });
+
+        const userNick = localStorage.getItem('userNick');
+        const userAvatar = localStorage.getItem('userAvatar');
+        if (userNick) {
+            const authSection = document.getElementById('authSection');
+            const avatarStyle = userAvatar ? `background-image: url('${userAvatar}');` : 'background-color: #7c2ae8;';
+            authSection.innerHTML = `
+                <div class="mono" style="font-size: 0.7rem; color: #444; margin-right: 20px;">
+                    <span class="status-dot" style="background: #2ecc71; box-shadow: 0 0 5px #2ecc71;"></span>ONLINE
+                </div>
+                <a href="account.html" class="user-nav-link page-link">
+                    <div class="nav-avatar-small" style="${avatarStyle}"></div>
+                    <span class="nav-username">${userNick}</span>
+                </a>
+            `;
+        }
+
+        // --- 4. SEAMLESS PAGE TRANSITIONS ---
+        document.querySelectorAll('a.page-link, .footer-col a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetUrl = e.currentTarget.href;
+                
+                gsap.to("body", {
+                    opacity: 0,
+                    y: -20, 
+                    duration: 0.5,
+                    ease: "power2.inOut",
+                    onComplete: () => { window.location.href = targetUrl; }
+                });
+            });
+        });
+
+    </script>
 </body>
 </html>
