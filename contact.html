@@ -2,280 +2,350 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARTTOUS | Secure Uplink</title>
-    <link rel="icon" href="assets/images/logo-ttr.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ARTTOUS | SYSTEM RECOVERY v75.4</title>
+    <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@900&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-core: #050505;
-            --bg-card: #0e0e0e;
-            --accent: #7c2ae8;
-            --text-main: #e0e0e0;
-            --font-tech: 'Orbitron', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --font-body: 'Inter', sans-serif;
-            --success: #2ecc71;
+            --bg-color: #050505;
+            --accent-color: #7c2ae8; 
+            --accent-dim: rgba(124, 42, 232, 0.3);
+            --text-color: #e0e0e0;
+            --error-color: #e74c3c;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: var(--bg-core);
-            color: var(--text-main);
-            font-family: var(--font-body);
-            overflow-x: hidden;
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(var(--accent-dim) 1px, transparent 1px),
+                linear-gradient(90deg, var(--accent-dim) 1px, transparent 1px);
+            background-size: 30px 30px;
+            background-position: center;
+            color: var(--text-color);
+            font-family: 'JetBrains Mono', monospace;
+            height: 100vh;
+            overflow: hidden; 
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
 
-        /* HEADER */
-        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
-        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; letter-spacing: 3px; color: #fff; text-decoration: none; }
-        .accent { color: var(--accent); }
-
-        /* CONTAINER */
-        .contact-container {
-            max-width: 1000px;
-            margin: 60px auto;
-            padding: 0 5%;
-            flex: 1;
+        /* --- CRT SCANLINE & VIGNETTE EFFECT --- */
+        body::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 50; background-size: 100% 2px, 3px 100%; pointer-events: none;
+        }
+        body::after {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9); z-index: 49; pointer-events: none;
         }
 
-        .header-block { text-align: center; margin-bottom: 40px; }
-        h1 { font-family: var(--font-tech); font-size: 3rem; margin-bottom: 10px; }
-        .intro-text { color: #666; font-family: var(--font-mono); font-size: 0.9rem; }
+        /* --- BOOT SEQUENCE --- */
+        .boot-wrapper {
+            position: absolute; z-index: 40; text-align: center;
+            animation: fadeOutBoot 0.5s 2s forwards;
+        }
+        .boot-wrapper h2 { font-family: 'Orbitron'; color: var(--accent-color); font-size: 2rem; letter-spacing: 5px; animation: glitch 0.2s infinite;}
 
-        /* --- FORM SECTION (CENTERED) --- */
-        .form-wrapper {
-            background: #0a0a0a;
-            padding: 40px;
-            border: 1px solid #222;
-            margin-bottom: 80px; /* Space before info cards */
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        /* --- UI ELEMENTS (Hidden during boot) --- */
+        .game-ui {
+            opacity: 0; display: flex; flex-direction: column; align-items: center; z-index: 20;
+            animation: fadeInUI 1s 2.5s forwards;
         }
 
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .error-container { text-align: center; margin-bottom: 30px; }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif; font-size: 3rem; color: var(--text-color);
+            text-transform: uppercase; position: relative; letter-spacing: 2px;
+            animation: glitch 3s infinite; text-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+        }
         
-        label { font-size: 0.7rem; color: #666; display: block; margin-bottom: 8px; font-family: var(--font-tech); letter-spacing: 1px; }
-
-        .dark-input, select, textarea {
-            width: 100%;
-            background: #050505;
-            border: 1px solid #333;
-            padding: 12px 15px;
-            color: #fff;
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-            outline: none;
-            transition: 0.3s;
-            border-radius: 0;
-        }
-        .dark-input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-
-        button {
-            width: 100%;
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 15px;
-            font-family: var(--font-tech);
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 10px;
-        }
-        button:hover { background: #9d50ff; box-shadow: 0 0 15px rgba(124, 42, 232, 0.3); }
-
-        /* --- INFO GRID (BOTTOM) --- */
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            border-top: 1px solid #222;
-            padding-top: 40px;
+        .status-msg {
+            color: var(--error-color); font-size: 0.85rem; margin-top: 10px; letter-spacing: 2px;
+            background: rgba(231, 76, 60, 0.1); border: 1px solid var(--error-color); padding: 5px 15px;
+            animation: pulseWarning 1.5s infinite;
         }
 
-        .comm-channel {
-            background: rgba(255, 255, 255, 0.02);
-            border-top: 2px solid #333; /* Top border style */
-            padding: 20px;
-            transition: 0.3s;
-        }
-        .comm-channel:hover {
-            background: rgba(124, 42, 232, 0.05);
-            border-top-color: var(--accent);
+        /* --- GAME CANVAS --- */
+        .canvas-wrapper { position: relative; }
+        canvas {
+            border: 2px solid #333; background: rgba(0,0,0,0.8);
+            box-shadow: 0 0 30px rgba(124, 42, 232, 0.15); cursor: crosshair;
+            backdrop-filter: blur(5px);
         }
 
-        .channel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .channel-name { font-family: var(--font-tech); font-size: 0.9rem; color: #fff; }
-        
-        .status-indicator { font-family: var(--font-mono); font-size: 0.65rem; color: #666; display: flex; align-items: center; gap: 6px; }
-        .dot { width: 6px; height: 6px; background: #444; border-radius: 50%; }
-        .dot.online { background: var(--success); box-shadow: 0 0 5px var(--success); }
-        .dot.busy { background: #e67e22; }
+        /* --- INSTRUCTIONS & BUTTONS --- */
+        .controls { margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center; line-height: 1.6;}
+        .controls span { color: var(--accent-color); font-weight: bold; animation: textGlow 1.5s infinite alternate;}
 
-        .channel-desc { font-size: 0.8rem; color: #888; line-height: 1.5; margin-bottom: 15px; min-height: 40px; }
-        .channel-link { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); text-decoration: none; }
-        .channel-link:hover { color: #fff; }
-
-        /* BUG REPORT MODE */
-        body.bug-mode { background: #1a0505; }
-        body.bug-mode h1 { color: #e74c3c; }
-        body.bug-mode .comm-channel { border-top-color: #e74c3c; }
-        body.bug-mode button { background: #e74c3c; }
-        body.bug-mode .dark-input { border-color: #e74c3c; color: #ffcccc; background: #2b0000; }
-
-        @media (max-width: 900px) {
-            .info-grid { grid-template-columns: 1fr; }
-            .form-row { grid-template-columns: 1fr; }
+        #restartBtn {
+            display: none; margin-top: 20px; padding: 12px 40px; background: transparent;
+            border: 1px solid var(--accent-color); color: var(--accent-color);
+            font-family: 'Orbitron'; font-weight: bold; cursor: pointer; transition: 0.3s;
+            position: relative; overflow: hidden; letter-spacing: 1px;
         }
+        #restartBtn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(124,42,232,0.4), transparent); transform: skewX(-20deg); transition: 0.5s;
+        }
+        #restartBtn:hover { background: var(--accent-color); color: #fff; box-shadow: 0 0 20px var(--accent-color); }
+        #restartBtn:hover::before { left: 200%; }
+
+        .digital-sig {
+            position: absolute; bottom: 20px; width: 90%; display: flex; justify-content: space-between;
+            font-size: 0.7rem; color: #444; z-index: 20;
+        }
+
+        /* --- KEYFRAMES --- */
+        @keyframes glitch {
+            0%, 100% { transform: translate(0) }
+            20% { transform: translate(-2px, 1px) }
+            40% { transform: translate(-1px, -2px) }
+            60% { transform: translate(2px, 1px) }
+            80% { transform: translate(1px, -1px) }
+        }
+        @keyframes fadeOutBoot { to { opacity: 0; visibility: hidden; } }
+        @keyframes fadeInUI { to { opacity: 1; } }
+        @keyframes pulseWarning { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes textGlow { from { text-shadow: 0 0 5px var(--accent-color); } to { text-shadow: 0 0 15px var(--accent-color); } }
+
+        @media (min-width: 768px) { canvas { transform: scale(1.2); margin: 40px 0; } }
     </style>
 </head>
 <body>
 
-    <nav>
-        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">ENCRYPTED_SSL</div>
-    </nav>
+    <div class="boot-wrapper">
+        <h2>ERR_KERNEL_PANIC</h2>
+        <div style="color: #666; font-size: 0.8rem; margin-top: 10px;">DUMPING MEMORY... FATAL AT 0x00A4</div>
+    </div>
 
-    <div class="contact-container">
+    <div class="game-ui">
+        <div class="error-container">
+            <h1>CORE_DESYNC</h1>
+            <div class="status-msg">/// RTOS TASK_CONTROL FAILURE /// MANUAL MEMORY STACKING REQUIRED</div>
+        </div>
+
+        <div class="canvas-wrapper">
+            <canvas id="gameCanvas" width="300" height="400"></canvas>
+        </div>
         
-        <div class="header-block">
-            <h1 id="pageTitle">ESTABLISH UPLINK</h1>
-            <p class="intro-text" id="pageSub">/// TRANSMIT DATA TO CENTRAL COMMAND</p>
+        <div class="controls" id="controlsText">
+            ALIGN THE KERNEL BLOCKS.<br>
+            <span>TAP SCREEN</span> or PRESS <span>[SPACE]</span> TO LOCK MEMORY.
         </div>
 
-        <div class="form-wrapper">
-            <form id="mainForm">
-                <div class="form-row">
-                    <div>
-                        <label id="lbl-name">OPERATOR ID</label>
-                        <input type="text" id="inpName" placeholder="Unknown Operator" class="dark-input">
-                    </div>
-                    <div>
-                        <label id="lbl-email">COMMS LINK (EMAIL)</label>
-                        <input type="email" id="inpEmail" placeholder="auth@mesh.net" class="dark-input">
-                    </div>
-                </div>
+        <button id="restartBtn" onclick="resetGame()">REBOOT KERNEL</button>
+    </div>
 
-                <div style="margin-bottom: 20px;">
-                    <label id="lbl-dept">ROUTING PROTOCOL</label>
-                    <select class="dark-input">
-                        <option>Sales / Enterprise</option>
-                        <option>Technical Support</option>
-                        <option>Investor Relations</option>
-                        <option>Press / Media</option>
-                    </select>
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label id="lbl-msg">PAYLOAD DATA</label>
-                    <textarea rows="6" placeholder="Enter transmission..." class="dark-input"></textarea>
-                </div>
-
-                <button type="button" id="submitBtn" onclick="sendTransmission()">TRANSMIT DATA</button>
-            </form>
-        </div>
-
-        <div class="info-grid">
-            
-            <div class="comm-channel">
-                <div class="channel-header">
-                    <span class="channel-name">ENTERPRISE</span>
-                    <div class="status-indicator"><div class="dot online"></div> ONLINE</div>
-                </div>
-                <p class="channel-desc">RaaS leasing and fleet integration.</p>
-                <a href="mailto:deploy@arttous.com" class="channel-link">DEPLOY@ARTTOUS.COM</a>
-            </div>
-
-            <div class="comm-channel">
-                <div class="channel-header">
-                    <span class="channel-name">ENGINEERING</span>
-                    <div class="status-indicator"><div class="dot busy"></div> BUSY</div>
-                </div>
-                <p class="channel-desc">Support for Firmware v53 & API.</p>
-                <a href="mailto:support@arttous.com" class="channel-link">SUPPORT@ARTTOUS.COM</a>
-            </div>
-
-            <div class="comm-channel">
-                <div class="channel-header">
-                    <span class="channel-name">PHYSICAL HQ</span>
-                    <div class="status-indicator">SECURE</div>
-                </div>
-                <p class="channel-desc">123 Innovation Drive, Ontario, CA.<br>(Clearance Lvl 3)</p>
-                <div style="width: 10px; height: 10px; cursor: pointer;" onclick="activateBugMode()"></div>
-            </div>
-
-        </div>
-
+    <div class="digital-sig">
+        <div>SYS_VER: v75.4_RTOS<br>HASH: 0x99a...f42</div>
+        <div style="text-align: right;">&copy; 2026 Arttous Robotics<br>RECOVERY TERMINAL</div>
     </div>
 
     <script>
-        // 1. AUTO-FILL (Memory)
-        window.addEventListener('load', () => {
-            const savedName = localStorage.getItem('userNick') || localStorage.getItem('userName');
-            const savedEmail = localStorage.getItem('userEmail');
+        // --- ADVANCED GAME ENGINE ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const restartBtn = document.getElementById('restartBtn');
+        const controlsText = document.getElementById('controlsText');
 
-            if (savedName) document.getElementById('inpName').value = savedName;
-            if (savedEmail) document.getElementById('inpEmail').value = savedEmail;
-        });
+        // Colors
+        const COLOR_BG = 'rgba(0, 0, 0, 0)'; 
+        const COLOR_BLOCK = '#7c2ae8'; 
+        const COLOR_HIGHLIGHT = '#9d50ff'; 
 
-        // 2. SEND & REDIRECT LOGIC
-        function sendTransmission() {
-            const btn = document.getElementById('submitBtn');
-            const originalText = btn.innerText;
-            
-            // Step 1: Loading
-            btn.innerText = "ENCRYPTING & SENDING...";
-            btn.style.opacity = "0.7";
-            btn.disabled = true;
-            
-            setTimeout(() => {
-                // Step 2: Success
-                btn.innerText = "TRANSMISSION SUCCESSFUL";
-                btn.style.background = "#2ecc71"; // Green
-                btn.style.color = "#000";
-                btn.style.opacity = "1";
+        // Game State
+        let score = 0;
+        let gameOver = false;
+        let speed = 2.5; 
+        let blockHeight = 22;
+        let currentLevel = 0;
+        let shakeTime = 0; // Screen shake duration
+
+        // Arrays
+        let stack = [];
+        let debris = []; // Physics objects for cut pieces
+        let activeBlock = {};
+
+        // --- PHYSICS & RENDER LOOP ---
+        function draw() {
+            // Apply Screen Shake
+            ctx.save();
+            if (shakeTime > 0) {
+                const magnitude = (shakeTime / 15) * 5;
+                const dx = (Math.random() - 0.5) * magnitude;
+                const dy = (Math.random() - 0.5) * magnitude;
+                ctx.translate(dx, dy);
+                shakeTime--;
+            }
+
+            // Clear Screen
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Score Background
+            ctx.fillStyle = 'rgba(124, 42, 232, 0.1)';
+            ctx.font = '120px Orbitron';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(score, canvas.width/2, canvas.height/2);
+
+            // Draw Static Stack
+            stack.forEach((block, index) => {
+                // Main Block
+                ctx.fillStyle = (index === stack.length - 1 && !gameOver) ? COLOR_HIGHLIGHT : COLOR_BLOCK;
+                ctx.fillRect(block.x, block.y, block.w, block.h);
                 
-                // Step 3: DECIDE WHERE TO GO
-                setTimeout(() => {
-                    const isLoggedIn = localStorage.getItem('userNick'); // Check if we know this user
-                    
-                    if (isLoggedIn) {
-                        btn.innerText = "REDIRECTING TO ACCOUNT...";
-                        setTimeout(() => { window.location.href = 'account.html'; }, 1000);
-                    } else {
-                        btn.innerText = "REDIRECTING TO HQ...";
-                        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
-                    }
-                    
-                }, 0.500); // Wait 1.5s showing "Success" before redirecting
-            }, 0.500); // Wait 1.5s "Sending"
+                // Tech border detailing
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(block.x + 2, block.y + 2, block.w - 4, block.h - 4);
+            });
+
+            // Draw Active Block
+            if (!gameOver) {
+                ctx.fillStyle = '#fff'; 
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = COLOR_HIGHLIGHT;
+                ctx.fillRect(activeBlock.x, activeBlock.y, activeBlock.w, activeBlock.h);
+                ctx.shadowBlur = 0; // Reset
+            }
+
+            // Draw Debris (Falling pieces)
+            ctx.fillStyle = 'rgba(124, 42, 232, 0.5)';
+            for (let i = 0; i < debris.length; i++) {
+                let d = debris[i];
+                ctx.fillRect(d.x, d.y, d.w, d.h);
+            }
+
+            ctx.restore(); // Restore shake translation
         }
 
-        // 3. BUG MODE
-        function activateBugMode() {
-            document.body.classList.toggle('bug-mode');
-            const title = document.getElementById('pageTitle');
-            const sub = document.getElementById('pageSub');
-            const btn = document.getElementById('submitBtn');
-            const lblName = document.getElementById('lbl-name');
+        function update() {
+            if (!gameOver) {
+                // Move Active Block
+                activeBlock.x += speed * activeBlock.dir;
+                if (activeBlock.x + activeBlock.w > canvas.width || activeBlock.x < 0) {
+                    activeBlock.dir *= -1; // Bounce
+                }
+            }
 
-            if (document.body.classList.contains('bug-mode')) {
-                title.innerText = "CRITICAL ERROR";
-                sub.innerText = "/// SYSTEM INSTABILITY DETECTED.";
-                btn.innerText = "UPLOAD DUMP";
-                lblName.innerText = "AFFECTED COMPONENT";
+            // Update Debris Physics
+            for (let i = debris.length - 1; i >= 0; i--) {
+                let d = debris[i];
+                d.vy += 0.5; // Gravity
+                d.y += d.vy;
+                d.x += d.vx;
+                if (d.y > canvas.height) {
+                    debris.splice(i, 1); // Remove off-screen debris
+                }
+            }
+
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        // --- CORE MECHANIC ---
+        function placeBlock() {
+            if (gameOver) return;
+
+            const prevBlock = stack[stack.length - 1];
+            let overlap = activeBlock.w - Math.abs(activeBlock.x - prevBlock.x);
+
+            if (overlap > 0) {
+                // Hit
+                score++;
+                shakeTime = 8; // Screen shake on hit
+                if (score % 3 === 0) speed += 0.5; // Speed ramps up
+
+                let newWidth = overlap;
+                let newX = activeBlock.x < prevBlock.x ? prevBlock.x : activeBlock.x; 
+
+                // Calculate Debris (Cut portion)
+                let cutWidth = activeBlock.w - newWidth;
+                if (cutWidth > 0) {
+                    debris.push({
+                        x: activeBlock.x < prevBlock.x ? activeBlock.x : prevBlock.x + newWidth,
+                        y: activeBlock.y,
+                        w: cutWidth,
+                        h: blockHeight,
+                        vx: activeBlock.x < prevBlock.x ? -2 : 2, // Fly left or right
+                        vy: -3 // Slight upward bounce
+                    });
+                }
+
+                // Add to stack
+                stack.push({ x: newX, y: activeBlock.y, w: newWidth, h: blockHeight });
+
+                // Move Camera (Fake scroll)
+                if (stack.length > 10) {
+                    stack.forEach(b => b.y += blockHeight);
+                    stack.shift(); 
+                } else {
+                    activeBlock.y -= blockHeight;
+                }
+
+                // Setup next block
+                activeBlock.x = 0;
+                activeBlock.w = newWidth; 
+                activeBlock.dir = speed > 0 ? 1 : -1;
+
             } else {
-                title.innerText = "ESTABLISH UPLINK";
-                sub.innerText = "/// TRANSMIT DATA TO CENTRAL COMMAND";
-                btn.innerText = "TRANSMIT DATA";
-                lblName.innerText = "OPERATOR ID";
+                // Complete Miss
+                shakeTime = 20; // Big shake
+                
+                // Turn entire active block into debris
+                debris.push({
+                    x: activeBlock.x, y: activeBlock.y, w: activeBlock.w, h: activeBlock.h,
+                    vx: 0, vy: 2
+                });
+                
+                endGame();
             }
         }
+
+        function endGame() {
+            gameOver = true;
+            restartBtn.style.display = 'block';
+            controlsText.style.display = 'none';
+            document.querySelector('.status-msg').innerText = "/// SYNC FAILED /// KERNEL CORRUPTED";
+        }
+
+        // --- CONTROLS ---
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') { e.preventDefault(); placeBlock(); }
+        });
+        canvas.addEventListener('mousedown', placeBlock);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); placeBlock(); });
+
+        // --- INITIALIZATION ---
+        function resetGame() {
+            score = 0;
+            gameOver = false;
+            speed = 3;
+            debris = [];
+            stack = [{ x: 50, y: 380, w: 200, h: blockHeight }];
+            activeBlock = { x: 0, y: 380 - blockHeight, w: 200, h: blockHeight, dir: 1 };
+            
+            restartBtn.style.display = 'none';
+            controlsText.style.display = 'block';
+            document.querySelector('.status-msg').innerText = "/// RTOS TASK_CONTROL FAILURE /// MANUAL MEMORY STACKING REQUIRED";
+        }
+
+        // Start the engine after CSS boot animation (2.5s)
+        setTimeout(() => {
+            resetGame();
+            update();
+        }, 2500);
+
     </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARTTOUS | Gateway</title>
+    <title>ARTTOUS | Secure Gateway v75.4</title>
     <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     
@@ -12,7 +12,7 @@
     <style>
         :root {
             --bg-core: #050505;
-            --bg-card: #0e0e0e;
+            --bg-card: rgba(10, 10, 10, 0.85);
             --accent: #7c2ae8;
             --text-main: #e0e0e0;
             --text-dim: #666;
@@ -31,32 +31,47 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
+        }
+
+        /* --- HOLOGRAPHIC SCANLINE & PARTICLES --- */
+        body::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none;
+        }
+
+        .bg-particles {
+            position: absolute; width: 100%; height: 100%; z-index: 1;
+            background-image: radial-gradient(var(--accent) 1px, transparent 1px);
+            background-size: 40px 40px; opacity: 0.15;
+            animation: moveGrid 20s linear infinite;
+        }
+
+        @keyframes moveGrid {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(40px); }
         }
 
         /* HEADER */
         nav { padding: 25px 40px; display: flex; justify-content: space-between; align-items: center; position: absolute; width: 100%; top: 0; z-index: 10; }
-        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; }
+        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; animation: textGlow 2s infinite alternate;}
         .accent { color: var(--accent); }
+        .gateway-id { font-family: var(--font-mono); font-size: 0.75rem; color: #666; border: 1px solid #333; padding: 5px 10px;}
 
         /* SPLIT LAYOUT */
         .gateway-container {
-            display: flex;
-            height: 100%;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 5;
+            display: flex; height: 100%; align-items: center; justify-content: center;
+            position: relative; z-index: 5;
         }
 
         /* THE CARD */
         .auth-card {
-            width: 450px;
-            background: rgba(14, 14, 14, 0.9);
-            border: 1px solid #333;
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            width: 450px; background: var(--bg-card); border: 1px solid #333;
+            backdrop-filter: blur(15px); padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             position: relative;
+            animation: cardEntrance 0.8s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+            opacity: 0; transform: translateY(30px);
         }
         .auth-card::before {
             content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
@@ -64,125 +79,81 @@
         }
 
         /* TABS */
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #333;
-        }
+        .auth-tabs { display: flex; margin-bottom: 30px; border-bottom: 1px solid #333; }
         .tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            font-family: var(--font-tech);
-            font-size: 0.9rem;
-            color: #666;
-            cursor: pointer;
-            transition: 0.3s;
+            flex: 1; padding: 15px; text-align: center; font-family: var(--font-tech);
+            font-size: 0.9rem; color: #666; cursor: pointer; transition: 0.3s;
         }
-        .tab.active {
-            color: #fff;
-            border-bottom: 2px solid var(--accent);
-        }
+        .tab:hover { color: #aaa; }
+        .tab.active { color: #fff; border-bottom: 2px solid var(--accent); text-shadow: 0 0 10px rgba(124, 42, 232, 0.5);}
 
         /* FORMS */
         .form-group { margin-bottom: 20px; }
-        label { display: block; font-family: var(--font-mono); font-size: 0.75rem; color: #888; margin-bottom: 8px; }
+        label { display: block; font-family: var(--font-mono); font-size: 0.75rem; color: #888; margin-bottom: 8px; letter-spacing: 1px;}
         input {
-            width: 100%;
-            background: #080808;
-            border: 1px solid #333;
-            padding: 12px;
-            color: #fff;
-            font-family: var(--font-mono);
-            outline: none;
-            transition: 0.3s;
+            width: 100%; background: rgba(5,5,5,0.8); border: 1px solid #333; padding: 12px;
+            color: #fff; font-family: var(--font-mono); outline: none; transition: 0.3s;
         }
-        input:focus { border-color: var(--accent); }
+        input:focus { border-color: var(--accent); box-shadow: inset 0 0 10px rgba(124, 42, 232, 0.1);}
 
         .btn-submit {
-            width: 100%;
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 15px;
-            font-family: var(--font-tech);
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: 0.3s;
+            width: 100%; background: var(--accent); color: #fff; border: none; padding: 15px;
+            font-family: var(--font-tech); font-size: 1rem; cursor: pointer; margin-top: 10px;
+            transition: 0.3s; position: relative; overflow: hidden; letter-spacing: 2px;
         }
-        .btn-submit:hover { background: #9d50ff; box-shadow: 0 0 20px rgba(124, 42, 232, 0.4); }
+        .btn-submit::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: skewX(-20deg); transition: 0.5s;
+        }
+        .btn-submit:hover { background: #9d50ff; box-shadow: 0 0 20px rgba(124, 42, 232, 0.6); }
+        .btn-submit:hover::before { left: 200%; }
 
         /* THE OATH (CHECKBOX) */
         .oath-box {
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: rgba(124, 42, 232, 0.05);
-            border: 1px solid #333;
+            display: flex; gap: 10px; align-items: flex-start; margin-bottom: 20px;
+            padding: 15px; background: rgba(124, 42, 232, 0.05); border: 1px dashed #333;
+            transition: 0.3s;
         }
-        .oath-text { font-size: 0.8rem; color: #aaa; line-height: 1.4; }
-        input[type="checkbox"] { width: auto; margin-top: 3px; accent-color: var(--accent); }
+        .oath-box:hover { border-color: var(--accent); }
+        .oath-text { font-size: 0.8rem; color: #aaa; line-height: 1.5; }
+        input[type="checkbox"] { width: auto; margin-top: 3px; accent-color: var(--accent); cursor: pointer;}
 
         /* LOADING OVERLAY (MOTIVATION) */
         .neural-loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 100;
-            display: none; /* Hidden by default */
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000;
+            z-index: 100; display: none; align-items: center; justify-content: center; flex-direction: column;
         }
         
-        .quote-container {
-            max-width: 600px;
-            text-align: center;
-            padding: 20px;
-        }
-        
+        .quote-container { max-width: 600px; text-align: center; padding: 20px; }
         .quote-text {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.5rem;
-            color: #fff;
-            font-weight: 300;
-            margin-bottom: 20px;
-            opacity: 0;
-            transition: opacity 1s ease;
+            font-family: 'Inter', sans-serif; font-size: 1.5rem; color: #fff; font-weight: 300;
+            margin-bottom: 20px; opacity: 0; transition: opacity 1s ease; line-height: 1.4;
         }
-        
         .quote-author {
-            font-family: var(--font-mono);
-            color: var(--accent);
-            font-size: 0.9rem;
-            opacity: 0;
-            transition: opacity 1s ease 0.5s; /* Delay author */
+            font-family: var(--font-mono); color: var(--accent); font-size: 0.9rem;
+            opacity: 0; transition: opacity 1s ease 0.5s;
         }
 
-        .loader-bar {
-            width: 300px; height: 2px; background: #222; margin-top: 40px; position: relative; overflow: hidden;
-        }
-        .loader-fill {
-            position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: var(--accent);
-            transition: width 0.1s linear;
-        }
+        .loader-bar { width: 300px; height: 2px; background: #222; margin-top: 40px; position: relative; overflow: hidden; }
+        .loader-fill { position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: var(--accent); transition: width 0.1s linear; box-shadow: 0 0 10px var(--accent);}
+        .loading-status { font-family: var(--font-mono); font-size: 0.7rem; color: #555; margin-top: 15px; letter-spacing: 1px;}
         
-        .loading-status {
-            font-family: var(--font-mono); font-size: 0.7rem; color: #444; margin-top: 10px;
-        }
         /* FOOTER SIGNATURE */
         .digital-sig {
-            margin-top: 80px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #555;
+            margin-top: 30px; padding-top: 15px; border-top: 1px solid #222;
+            display: flex; justify-content: space-between; font-family: var(--font-mono);
+            font-size: 0.7rem; color: #444;
         }
+
+        /* ANIMATIONS */
+        @keyframes cardEntrance { to { opacity: 1; transform: translateY(0); } }
+        @keyframes textGlow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
+        
+        .fade-out { animation: fadeOut 0.3s forwards; }
+        .fade-in { animation: fadeIn 0.3s forwards; }
+        @keyframes fadeOut { to { opacity: 0; display: none; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; display: block; } }
 
     </style>
 </head>
@@ -190,12 +161,12 @@
 
     <nav>
         <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">GATEWAY_ID: 0x92</div>
+        <div class="gateway-id">SYS: GATEWAY_v75.4</div>
     </nav>
 
     <div class="gateway-container">
         
-        <div style="position: absolute; width: 100%; height: 100%; background-image: linear-gradient(rgba(124, 42, 232, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(124, 42, 232, 0.03) 1px, transparent 1px); background-size: 40px 40px; z-index: -1;"></div>
+        <div class="bg-particles"></div>
 
         <div class="auth-card">
             <div class="auth-tabs">
@@ -203,9 +174,9 @@
                 <div class="tab" onclick="switchTab('register')">INITIATE</div>
             </div>
 
-            <form id="loginForm" onsubmit="startSequence(event, 'login')">
+            <form id="loginForm" class="fade-in" onsubmit="startSequence(event, 'login')">
                 <div style="text-align: right; margin-bottom: 15px;">
-                        <a href="#" onclick="openRequestModal()" style="font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--accent); text-decoration: none;">REQUEST ACCESS KEY >></a>
+                        <a href="#" onclick="openRequestModal()" style="font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--accent); text-decoration: none; transition: 0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--accent)'">REQUEST ACCESS KEY >></a>
                     </div>
                 
                 <div class="form-group">
@@ -217,12 +188,12 @@
                     <input type="password" placeholder="••••••••" required>
                 </div>
                 
-                <div style="margin-bottom: 20px; font-family: 'JetBrains Mono'; font-size: 0.7rem; color: #444; display: flex; align-items: center; gap: 10px;">
+                <div style="margin-bottom: 20px; font-family: 'JetBrains Mono'; font-size: 0.7rem; color: #555; display: flex; align-items: center; gap: 10px;">
                     <div style="width: 8px; height: 8px; background: #333; border-radius: 50%;"></div>
                     2FA: DISABLED (Will activate on next cycle)
                 </div>
 
-                <button type="submit" class="btn-submit">CONNECT</button>
+                <button type="submit" class="btn-submit">CONNECT UPLINK</button>
             </form>
 
             <form id="registerForm" style="display: none;" onsubmit="startSequence(event, 'register')">
@@ -232,13 +203,13 @@
                 </div>
                 <div class="form-group">
                     <label>COMMS CHANNEL (EMAIL)</label>
-                    <input type="email" id="regEmail" placeholder="you@example.com" required>
+                    <input type="email" id="regEmail" placeholder="pilot@mesh.net" required>
                 </div>
 
                 <div class="oath-box">
                     <input type="checkbox" required id="oathCheck">
                     <div class="oath-text">
-                        I acknowledge that the path of the Mesh is experimental. I am ready to contribute theoretical data and accept the risks of autonomous calibration.
+                        I acknowledge that the path of the Mesh is experimental. I am ready to contribute theoretical data and accept the risks of autonomous RTOS calibration.
                     </div>
                 </div>
 
@@ -246,23 +217,17 @@
             </form>
 
             <div class="digital-sig">
-            <div>
-                SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
-                HASH: 0x99a...f42
+                <div>SIGNED: <span style="color: var(--accent);">SYS_ADMIN</span></div>
+                <div>HASH: 0x99a...f42</div>
             </div>
-            <div style="text-align: right;">
-                &copy; 2026 Arttous Robotics Inc.<br>
-                ALL RIGHTS RESERVED.
-            </div>
-        </div>
 
         </div>
     </div>
 
     <div class="neural-loader" id="loader">
         <div class="quote-container">
-            <div class="quote-text" id="qText">"Simplicity is the ultimate sophistication."</div>
-            <div class="quote-author" id="qAuth">- Leonardo da Vinci</div>
+            <div class="quote-text" id="qText">"Where wheels fail, we shall walk."</div>
+            <div class="quote-author" id="qAuth">- Arttous Protocol</div>
         </div>
 
         <div class="loader-bar">
@@ -271,34 +236,34 @@
         <div class="loading-status" id="loadStatus">ESTABLISHING NEURAL LINK...</div>
     </div>
 
-    <div id="keyModal" class="neural-loader" style="background: rgba(0,0,0,0.9); display: none;">
-    <div class="auth-card" style="position: relative;">
-        <span onclick="closeRequestModal()" style="position: absolute; top: 15px; right: 20px; color: #666; cursor: pointer; font-family: monospace;">[X]</span>
-        
-        <h2 style="font-family: var(--font-tech); color: #fff; margin-bottom: 10px;">REQUEST CLEARANCE</h2>
-        <p style="color: #666; font-size: 0.8rem; font-family: var(--font-mono); margin-bottom: 20px;">
-            A one-time access key will be sent to your secure channel.
-        </p>
+    <div id="keyModal" class="neural-loader" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none;">
+        <div class="auth-card" style="animation: none; opacity: 1; transform: translateY(0);">
+            <span onclick="closeRequestModal()" style="position: absolute; top: 15px; right: 20px; color: #666; cursor: pointer; font-family: var(--font-mono); transition: 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#666'">[X]</span>
+            
+            <h2 style="font-family: var(--font-tech); color: #fff; margin-bottom: 10px; font-size: 1.5rem;">REQUEST CLEARANCE</h2>
+            <p style="color: #666; font-size: 0.8rem; font-family: var(--font-mono); margin-bottom: 25px; line-height: 1.5;">
+                A one-time cryptographic access key will be sent to your secure channel.
+            </p>
 
-        <form onsubmit="sendAccessEmail(event)">
-            <div class="form-group">
-                <label>COMMS CHANNEL (EMAIL)</label>
-                <input type="email" id="reqEmail" placeholder="pilot@mesh.net" required>
-            </div>
+            <form onsubmit="sendAccessEmail(event)">
+                <div class="form-group">
+                    <label>COMMS CHANNEL (EMAIL)</label>
+                    <input type="email" id="reqEmail" placeholder="pilot@mesh.net" required>
+                </div>
 
-            <div class="form-group">
-                <label>PING FREQUENCY</label>
-                <select id="reqFreq" style="width: 100%; background: #080808; border: 1px solid #333; padding: 12px; color: #fff; font-family: var(--font-mono); outline: none;">
-                    <option value="Daily Briefing">Daily Briefing</option>
-                    <option value="Weekly Summary">Weekly Summary</option>
-                    <option value="Critical Alerts Only">Critical Alerts Only</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label>PING FREQUENCY</label>
+                    <select id="reqFreq" style="width: 100%; background: rgba(5,5,5,0.8); border: 1px solid #333; padding: 12px; color: #fff; font-family: var(--font-mono); outline: none; cursor: pointer;">
+                        <option value="Daily Briefing">Daily Briefing</option>
+                        <option value="Weekly Summary">Weekly Summary</option>
+                        <option value="Critical Alerts Only">Critical Alerts Only</option>
+                    </select>
+                </div>
 
-            <button type="submit" class="btn-submit" id="reqBtn">TRANSMIT KEY</button>
-        </form>
+                <button type="submit" class="btn-submit" id="reqBtn" style="margin-top: 20px;">TRANSMIT KEY</button>
+            </form>
+        </div>
     </div>
-</div>
 
    <script>
     // --- CONFIGURATION ---
@@ -316,7 +281,6 @@
             console.log("Neural Link (EmailJS): READY");
         } else {
             console.error("Neural Link (EmailJS): MODULE MISSING");
-            alert("CRITICAL ERROR: Commuplink modules failed to load.");
         }
     })();
 
@@ -327,13 +291,23 @@
         const tabs = document.querySelectorAll('.tab');
 
         if (mode === 'login') {
-            login.style.display = 'block';
-            reg.style.display = 'none';
+            reg.classList.replace('fade-in', 'fade-out');
+            setTimeout(() => {
+                reg.style.display = 'none';
+                login.style.display = 'block';
+                login.classList.remove('fade-out');
+                login.classList.add('fade-in');
+            }, 300);
             tabs[0].classList.add('active');
             tabs[1].classList.remove('active');
         } else {
-            login.style.display = 'none';
-            reg.style.display = 'block';
+            login.classList.replace('fade-in', 'fade-out');
+            setTimeout(() => {
+                login.style.display = 'none';
+                reg.style.display = 'block';
+                reg.classList.remove('fade-out');
+                reg.classList.add('fade-in');
+            }, 300);
             tabs[0].classList.remove('active');
             tabs[1].classList.add('active');
         }
@@ -343,14 +317,14 @@
     const quotes = [
         { t: "The science of today is the technology of tomorrow.", a: "Edward Teller" },
         { t: "Any sufficiently advanced technology is indistinguishable from magic.", a: "Arthur C. Clarke" },
-        { t: "I do not think there is any thrill that can go through the human heart like that felt by the inventor.", a: "Nikola Tesla" }
+        { t: "I do not think there is any thrill that can go through the human heart like that felt by the inventor.", a: "Nikola Tesla" },
+        { t: "Hardware eventually fails. Software eventually works.", a: "Michael Sinz" }
     ];
 
-    // --- MAIN SEQUENCE LOGIC (LOGIN OR REGISTER) ---
+    // --- MAIN SEQUENCE LOGIC ---
     function startSequence(e, type) {
         e.preventDefault(); 
         
-        // 1. Setup UI for Loading
         const loader = document.getElementById('loader');
         const qText = document.getElementById('qText');
         const qAuth = document.getElementById('qAuth');
@@ -359,44 +333,43 @@
 
         loader.style.display = 'flex';
 
-        // 2. IF REGISTERING -> SEND WELCOME EMAIL
         if (type === 'register') {
             const name = document.getElementById('regName').value;
             const email = document.getElementById('regEmail').value;
             const key = "OP-" + Math.random().toString(36).substr(2, 6).toUpperCase();
 
-            // Save to memory
             localStorage.setItem('userNick', name);
             localStorage.setItem('userEmail', email);
 
-            // Send Email
             const emailParams = {
                 user_name: name,
-                user_email: email, // Make sure template uses {{user_email}} or {{to_email}}
+                user_email: email, 
                 access_key: key
             };
             
-            emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_WELCOME, emailParams)
-                .then(() => console.log("WELCOME EMAIL SENT"));
+            if(typeof emailjs !== 'undefined') {
+                emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_WELCOME, emailParams)
+                    .then(() => console.log("WELCOME EMAIL SENT"));
+            }
         }
 
-        // 3. Play Animation & Redirect
+        // Play Animation & Redirect
         let progress = 0;
         const interval = setInterval(() => {
             progress += 1;
             fill.style.width = progress + '%';
             
-            if(progress === 20) status.innerText = "ENCRYPTING DATA PACKETS...";
-            if(progress === 50) status.innerText = "SYNCING WITH MESH NETWORK...";
-            if(progress === 80) status.innerText = "AUTHENTICATING BIOMETRICS...";
+            if(progress === 20) status.innerText = "ALLOCATING CORE 0 TASKS...";
+            if(progress === 50) status.innerText = "SYNCING I2C BUS PROTOCOLS...";
+            if(progress === 80) status.innerText = "AUTHENTICATING RTOS BIOMETRICS...";
             
             if (progress >= 100) {
                 clearInterval(interval);
                 window.location.href = 'account.html'; // Redirect
             }
-        }, 40); // 4 seconds total - karina 
+        }, 40);
 
-        // 4. Show Quote
+        // Show Quote
         const randomQ = quotes[Math.floor(Math.random() * quotes.length)];
         qText.innerText = `"${randomQ.t}"`;
         qAuth.innerText = `- ${randomQ.a}`;
@@ -408,12 +381,8 @@
     }
 
     // --- MODAL CONTROLS ---
-    function openRequestModal() {
-        document.getElementById('keyModal').style.display = 'flex';
-    }
-    function closeRequestModal() {
-        document.getElementById('keyModal').style.display = 'none';
-    }
+    function openRequestModal() { document.getElementById('keyModal').style.display = 'flex'; }
+    function closeRequestModal() { document.getElementById('keyModal').style.display = 'none'; }
 
     // --- LOST KEY EMAIL LOGIC ---
     function sendAccessEmail(e) {
@@ -430,37 +399,41 @@
         const randomKey = "OP-" + Math.random().toString(36).substr(2, 6).toUpperCase();
         
         const templateParams = {
-            to_email: emailInput,   // For Lost Key Template
+            to_email: emailInput,  
             passcode: randomKey,    
             time: "24 HOURS",       
             frequency: freq         
         };
 
-        emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_LOST_KEY, templateParams)
-            .then(function(response) {
-                console.log('SUCCESS!', response.status, response.text);
-                btn.innerText = "KEY TRANSMITTED";
-                btn.style.background = "#2ecc71";
-                btn.style.color = "#000";
-                
-                alert(`UPLINK SUCCESSFUL.\nAccess Key sent to: ${emailInput}`);
-                closeRequestModal();
-                
-                setTimeout(() => {
-                    btn.innerText = "TRANSMIT KEY";
-                    btn.style.background = "";
-                    btn.style.color = "";
-                    btn.style.opacity = "1";
+        if(typeof emailjs !== 'undefined') {
+            emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_LOST_KEY, templateParams)
+                .then(function(response) {
+                    btn.innerText = "KEY TRANSMITTED";
+                    btn.style.background = "#2ecc71";
+                    btn.style.color = "#000";
+                    
+                    setTimeout(() => {
+                        alert(`UPLINK SUCCESSFUL.\nAccess Key sent to: ${emailInput}`);
+                        closeRequestModal();
+                        btn.innerText = "TRANSMIT KEY";
+                        btn.style.background = "";
+                        btn.style.color = "";
+                        btn.style.opacity = "1";
+                        btn.disabled = false;
+                    }, 500);
+                    
+                }, function(error) {
+                    btn.innerText = "TRANSMISSION FAILED";
+                    btn.style.background = "#e74c3c";
                     btn.disabled = false;
-                }, 3000);
-                
-            }, function(error) {
-                console.error('FAILED...', error);
-                btn.innerText = "TRANSMISSION FAILED";
-                btn.style.background = "#e74c3c";
-                btn.disabled = false;
-                alert("ERROR: Neural Link Offline.");
-            });
+                    alert("ERROR: Neural Link Offline.");
+                });
+        } else {
+            alert("SYSTEM OFFLINE: Email service not loaded.");
+            btn.innerText = "TRANSMIT KEY";
+            btn.style.opacity = "1";
+            btn.disabled = false;
+        }
     }
 </script>
 </body>

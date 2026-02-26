@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARTTOUS | Technical Documentation</title>
+    <title>ARTTOUS | Technical Documentation v75.4</title>
     <link rel="icon" href="assets/images/logo-ttr.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     
@@ -11,8 +11,9 @@
         :root {
             --bg-core: #050505;
             --bg-side: #0a0a0a;
-            --bg-card: rgba(14, 14, 14, 0.8);
+            --bg-card: rgba(14, 14, 14, 0.85);
             --accent: #7c2ae8;
+            --success: #2ecc71;
             --text-main: #e0e0e0;
             --font-tech: 'Orbitron', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
@@ -31,12 +32,20 @@
             display: flex; 
             height: 100vh; 
             overflow: hidden; 
+            position: relative;
+        }
+
+        /* HOLOGRAPHIC SCANLINE OVERLAY */
+        body::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999; background-size: 100% 2px, 3px 100%; pointer-events: none;
         }
 
         /* --- SIDEBAR NAV --- */
         .sidebar {
             width: 280px;
-            background: var(--bg-side);
+            background: rgba(10, 10, 10, 0.95);
             border-right: 1px solid #222;
             padding: 30px;
             display: flex;
@@ -44,16 +53,19 @@
             overflow-y: auto;
             flex-shrink: 0;
             z-index: 10;
+            backdrop-filter: blur(10px);
         }
-        .logo { font-family: var(--font-tech); font-weight: 900; color: #fff; text-decoration: none; font-size: 1.2rem; margin-bottom: 40px; }
+        .logo { font-family: var(--font-tech); font-weight: 900; color: #fff; text-decoration: none; font-size: 1.2rem; margin-bottom: 40px; animation: textGlow 2s infinite alternate;}
         .accent { color: var(--accent); }
 
         .nav-group { margin-bottom: 30px; }
-        .nav-header { font-family: var(--font-mono); font-size: 0.75rem; color: #666; margin-bottom: 15px; text-transform: uppercase; }
+        .nav-header { font-family: var(--font-mono); font-size: 0.75rem; color: #666; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
         .nav-link {
-            display: block; color: #aaa; text-decoration: none; padding: 8px 0; font-size: 0.9rem; transition: 0.2s;
+            display: block; color: #aaa; text-decoration: none; padding: 8px 0; font-size: 0.9rem; transition: 0.3s; position: relative;
         }
-        .nav-link:hover { color: #fff; transform: translateX(5px); }
+        .nav-link::before { content: "►"; position: absolute; left: -15px; color: var(--accent); opacity: 0; transition: 0.3s; font-size: 0.7rem; top: 11px;}
+        .nav-link:hover { color: #fff; transform: translateX(15px); }
+        .nav-link:hover::before { opacity: 1; }
         .nav-link.active { color: var(--accent); font-weight: bold; }
 
         /* --- MAIN CONTENT AREA --- */
@@ -65,195 +77,127 @@
             background: linear-gradient(rgba(5,5,5,0.95), rgba(5,5,5,0.9)), url('assets/images/topo_bg.jpg');
             background-size: cover;
             background-attachment: fixed;
+            position: relative;
+            z-index: 5;
         }
         
-        h1 { font-family: var(--font-tech); font-size: 2.5rem; margin-bottom: 20px; color: #fff; margin-top: 60px; text-shadow: 0 0 20px rgba(124, 42, 232, 0.3); }
+        h1 { font-family: var(--font-tech); font-size: 2.8rem; margin-bottom: 20px; color: #fff; margin-top: 60px; text-shadow: 0 0 20px rgba(124, 42, 232, 0.4); letter-spacing: 1px;}
         h1:first-child { margin-top: 0; }
-        h2 { font-family: var(--font-tech); font-size: 1.5rem; margin: 60px 0 30px; color: #fff; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        p { line-height: 1.7; color: #bbb; margin-bottom: 20px; max-width: 800px; }
+        h2 { font-family: var(--font-tech); font-size: 1.5rem; margin: 80px 0 30px; color: #fff; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        p { line-height: 1.7; color: #bbb; margin-bottom: 20px; max-width: 850px; font-size: 0.95rem;}
 
         /* --- MATRIX SHOWCASE (VIDEO + CODE) --- */
         .matrix-showcase {
-            display: flex;
-            width: 100%;
-            height: 450px;
-            margin: 40px 0 60px 0;
-            background: #000;
-            border: 1px solid #333;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            border-radius: 8px; /* Скругленные углы для всего блока */
-            overflow: hidden;
+            display: flex; width: 100%; height: 450px; margin: 40px 0 60px 0;
+            background: #000; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            border-radius: 8px; overflow: hidden; position: relative;
         }
-
-        .matrix-video {
-            flex: 1;
-            background: #050505;
-            border-right: 2px solid #1a1a1a;
-            position: relative;
-        }
-        
-        .matrix-video iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+        .matrix-video { flex: 1; background: #050505; border-right: 2px solid #1a1a1a; position: relative; z-index: 2;}
+        .matrix-video iframe { width: 100%; height: 100%; border: none; }
 
         .matrix-code-wrapper {
-            flex: 1;
-            position: relative;
-            background: linear-gradient(90deg, #000 0%, #0a0a0a 100%);
-            overflow: hidden;
-            perspective: 1000px;
+            flex: 1; position: relative; background: linear-gradient(90deg, #000 0%, #0a0a0a 100%);
+            overflow: hidden; perspective: 1000px;
         }
-
-        .code-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            will-change: transform;
-        }
-
-        .code-scroll-wrapper {
-            display: flex;
-            flex-direction: column;
-        }
-
+        .code-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; will-change: transform; }
+        .code-scroll-wrapper { display: flex; flex-direction: column; }
         .code-content {
-            padding: 20px 30px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-size: 12px; /* Чуть меньше шрифт, чтобы больше влезло */
-            line-height: 1.6;
-            color: #bcbcbc;
-            text-shadow: 0 0 5px rgba(124, 42, 232, 0.4); /* В тон акценту */
-            letter-spacing: 0.5px;
+            padding: 20px 30px; white-space: pre-wrap; word-wrap: break-word;
+            font-size: 11px; line-height: 1.6; color: #bcbcbc;
+            text-shadow: 0 0 5px rgba(124, 42, 232, 0.4); letter-spacing: 0.5px;
             font-family: var(--font-mono);
         }
 
-        @keyframes scrollUp {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-50%); }
-        }
-
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-        .code-layer:nth-child(2) {
-            animation: flicker 0.15s infinite;
-            animation-delay: 0.05s;
-        }
-        
-        @media (max-width: 1100px) {
-            .matrix-showcase {
-                flex-direction: column;
-                height: 800px;
-            }
-            .matrix-video {
-                border-right: none;
-                border-bottom: 2px solid #1a1a1a;
-            }
-        }
-
         /* --- LAYOUTS --- */
-        .split-view {
-            display: grid; grid-template-columns: 1fr 300px; gap: 40px; align-items: center;
-        }
-        .tech-img-box {
-            background: rgba(255,255,255,0.02); border: 1px solid #333; padding: 20px; text-align: center;
-        }
-        .tech-img {
-            max-width: 100%; height: auto; filter: drop-shadow(0 0 10px rgba(124,42,232,0.2)); transition: 0.3s;
-        }
-        .tech-img:hover { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(124,42,232,0.5)); }
+        .split-view { display: grid; grid-template-columns: 1fr 320px; gap: 50px; align-items: start; }
+        .tech-img-box { background: rgba(255,255,255,0.02); border: 1px solid #333; padding: 25px; text-align: center; border-radius: 4px; backdrop-filter: blur(5px);}
+        .tech-img { max-width: 100%; height: auto; filter: drop-shadow(0 0 15px rgba(124,42,232,0.3)); transition: 0.4s cubic-bezier(0.1, 1, 0.1, 1); }
+        .tech-img-box:hover .tech-img { transform: scale(1.08) translateY(-5px); filter: drop-shadow(0 10px 25px rgba(124,42,232,0.6)); }
 
         /* --- HARDWARE TABLES --- */
         .pinout-table {
             width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.85rem; margin: 20px 0;
-            background: rgba(0,0,0,0.5); border: 1px solid #222;
+            background: rgba(0,0,0,0.5); border: 1px solid #222; border-radius: 4px; overflow: hidden;
         }
-        .pinout-table th { text-align: left; border-bottom: 1px solid #444; color: #fff; padding: 12px; background: rgba(124, 42, 232, 0.1); }
-        .pinout-table td { border-bottom: 1px solid #222; color: #888; padding: 12px; }
+        .pinout-table th { text-align: left; border-bottom: 1px solid #444; color: #fff; padding: 15px; background: rgba(124, 42, 232, 0.15); }
+        .pinout-table td { border-bottom: 1px solid #222; color: #888; padding: 15px; transition: 0.3s;}
+        .pinout-table tr:hover td { background: rgba(255,255,255,0.02); color: #ccc;}
         .pin-col { color: var(--accent) !important; font-weight: bold; }
 
         /* --- BOM GRID --- */
-        .bom-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 40px;
-        }
+        .bom-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 40px; }
         .part-card {
-            background: var(--bg-card); border: 1px solid #333; padding: 25px; transition: 0.3s; position: relative;
-            backdrop-filter: blur(5px); display: flex; flex-direction: column; align-items: center; text-align: center;
+            background: var(--bg-card); border: 1px solid #333; padding: 30px 25px; transition: 0.4s cubic-bezier(0.1, 1, 0.1, 1);
+            position: relative; backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; text-align: center;
+            border-radius: 4px;
         }
-        .part-card:hover { border-color: var(--accent); transform: translateY(-5px); background: rgba(20,20,20,0.9); }
-        .part-img { height: 100px; width: auto; object-fit: contain; margin-bottom: 20px; }
+        .part-card:hover { border-color: var(--accent); transform: translateY(-10px); box-shadow: 0 15px 30px rgba(124, 42, 232, 0.15); background: #111; }
+        .part-img { height: 110px; width: auto; object-fit: contain; margin-bottom: 25px; transition: 0.3s;}
+        .part-card:hover .part-img { transform: scale(1.1); }
         .part-name { font-family: var(--font-tech); font-size: 1.1rem; color: #fff; margin-bottom: 5px; width: 100%; text-align: left; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .part-spec { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); display: block; margin: 10px 0; width: 100%; text-align: left;}
-        .part-desc { font-size: 0.85rem; color: #888; line-height: 1.4; text-align: left; }
+        .part-desc { font-size: 0.85rem; color: #888; line-height: 1.5; text-align: left; }
 
         /* --- BLUEPRINTS --- */
-        .blueprint-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .blueprint-card { background: #000; border: 1px solid #333; padding: 10px; }
-        .blueprint-img { width: 100%; opacity: 0.8; }
+        .blueprint-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .blueprint-card { background: #000; border: 1px solid #333; padding: 15px; border-radius: 4px; transition: 0.3s;}
+        .blueprint-card:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(124, 42, 232, 0.2);}
+        .blueprint-img { width: 100%; opacity: 0.7; transition: 0.3s;}
+        .blueprint-card:hover .blueprint-img { opacity: 1; }
 
         /* --- API CODE --- */
         .code-block {
-            background: #080808; border: 1px solid #333; border-left: 3px solid var(--accent); border-radius: 0;
-            padding: 20px; font-family: var(--font-mono); font-size: 0.85rem; color: #ccc; overflow-x: auto; margin: 20px 0;
+            background: #080808; border: 1px solid #333; border-left: 3px solid var(--accent);
+            padding: 25px; font-family: var(--font-mono); font-size: 0.85rem; color: #ccc; overflow-x: auto; margin: 20px 0;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8); border-radius: 0 4px 4px 0;
         }
         .keyword { color: #cc7832; } .func { color: #ffc66d; } .string { color: #6a8759; } .comment { color: #808080; }
 
         /* --- WIRING DIAGRAM --- */
-        .wiring-box {
-            background: #080808; border: 1px solid #333; padding: 30px; font-family: var(--font-mono); font-size: 0.8rem; max-width: 800px;
-        }
-        .wire-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #222; }
-        .wire-row:last-child { border-bottom: none; }
-        .pin-l { color: #fff; width: 120px; }
+        .wiring-box { background: #080808; border: 1px solid #333; padding: 30px; font-family: var(--font-mono); font-size: 0.8rem; max-width: 850px; border-radius: 4px;}
+        .wire-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed #222; }
+        .wire-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        .pin-l { color: #fff; width: 130px; }
         .pin-r { color: var(--accent); text-align: right; width: 150px; }
-        .wire-line { flex: 1; height: 2px; background: #333; margin: 0 20px; position: relative; }
-        .wire-line::after { content: ""; position: absolute; top: -3px; left: 50%; width: 6px; height: 6px; background: #555; border-radius: 50%; }
+        .wire-line { flex: 1; height: 2px; background: #333; margin: 0 20px; position: relative; overflow: hidden;}
+        /* Data pulse effect on wires */
+        .wire-line::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            animation: dataPulse 2s linear infinite;
+        }
+        @keyframes dataPulse { 0% { left: -50%; } 100% { left: 150%; } }
 
         /* --- FOOTER STYLES (SPLIT VIEW) --- */
-        .main-footer {
-            position: relative; margin-top: 100px; margin-left: -80px; margin-right: -80px; z-index: 5;
-        }
-        .footer-top-visual {
-            height: var(--footer-split); background-color:rgb(124 42 232 / 20%); position: relative;
-        }
-        .footer-content-dark {
-            background-color: #0a0a0a; color: rgba(150, 150, 150, 0.7); padding: 60px 0px 0px 40px; position: relative; z-index: 1;
-        }
-        .footer-grid {
-            display: grid; grid-template-columns: 1fr 1.9fr 1.45fr; gap: 110px; max-width: 1200px;
-        }
-        .footer-col h4 {
-            font-family: var(--font-tech); color: rgba(255, 255, 255, 0.7) !important; margin-bottom: 25px; font-size: 1.1rem; letter-spacing: 1px;
-        }
-        .footer-link {
-            display: block; color: rgba(150, 150, 150, 0.7); text-decoration: none; margin-bottom: 12px; font-family: var(--font-mono); font-size: 0.85rem; transition: 0.3s;
-        }
+        .main-footer { position: relative; margin-top: 100px; margin-left: -80px; margin-right: -80px; z-index: 5; }
+        .footer-top-visual { height: var(--footer-split); background-color:rgb(124 42 232 / 15%); position: relative; }
+        .footer-content-dark { background-color: #0a0a0a; color: rgba(150, 150, 150, 0.7); padding: 60px 0px 0px 40px; position: relative; z-index: 1; }
+        .footer-grid { display: grid; grid-template-columns: 1fr 1.9fr 1.45fr; gap: 110px; max-width: 1200px; }
+        .footer-col h4 { font-family: var(--font-tech); color: rgba(255, 255, 255, 0.8) !important; margin-bottom: 25px; font-size: 1.1rem; letter-spacing: 1px; }
+        .footer-link { display: block; color: rgba(150, 150, 150, 0.7); text-decoration: none; margin-bottom: 12px; font-family: var(--font-mono); font-size: 0.85rem; transition: 0.3s; }
         .footer-link:hover { color: var(--accent); opacity: 1; transform: translateX(5px); }
         .social-links { display: flex; gap: 15px; }
-        .social-icon {
-            width: 40px; height: 40px; background: #111; border: 1px solid #333; display: flex; align-items: center; justify-content: center;
-            border-radius: 4px; transition: 0.3s; color: rgba(150, 150, 150, 0.7); font-family: var(--font-mono); text-decoration: none;
-        }
+        .social-icon { width: 40px; height: 40px; background: #111; border: 1px solid #333; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: 0.3s; color: rgba(150, 150, 150, 0.7); font-family: var(--font-mono); text-decoration: none; }
         .social-icon:hover { border-color: var(--accent); background: var(--accent); color: #fff; opacity: 1; }
-        .copy-bar {
-            margin-top: 40px; padding-top: 25px; border-top: 1px solid #222; text-align: center; font-family: var(--font-mono); font-size: 0.7rem; color: rgba(150, 150, 150, 0.5); display: flex; justify-content: space-between;
-        }
+        .copy-bar { margin-top: 40px; padding-top: 25px; border-top: 1px solid #222; text-align: center; font-family: var(--font-mono); font-size: 0.7rem; color: rgba(150, 150, 150, 0.5); display: flex; justify-content: space-between; }
 
         /* --- X-RAY MODEL LOGIC --- */
-        .xray-leg-wrapper {
-            position: absolute; right: 0%; top: -132px; width: 1000px; height: 800px; z-index: 20; pointer-events: none;
-        }
+        .xray-leg-wrapper { position: absolute; right: 0%; top: -132px; width: 1000px; height: 800px; z-index: 20; pointer-events: none; }
         .leg-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
         .leg-color { z-index: 2; clip-path: inset(0 0 50% 0); }
         .leg-xray { z-index: 1; clip-path: inset(50% 0 0 0); filter: grayscale(100%) contrast(1.2) brightness(1.2); mix-blend-mode: screen; opacity: 0.8; }
 
+        /* --- SCROLL ANIMATIONS --- */
+        .animate-on-scroll { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.1, 1, 0.1, 1); }
+        .animate-on-scroll.show { opacity: 1; transform: translateY(0); }
+        
+        .stagger-item { opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.1, 1, 0.1, 1); }
+        .stagger-item.show { opacity: 1; transform: translateY(0); }
+
+        @keyframes scrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+        @keyframes textGlow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
+
+        @media (max-width: 1100px) { .split-view { grid-template-columns: 1fr; } .tech-img-box { margin-bottom: 20px; } }
         @media (max-width: 900px) {
             body { flex-direction: column; overflow: auto; }
             .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #222; }
@@ -265,6 +209,8 @@
             .leg-xray { clip-path: inset(60% 0 0 0); }
             .footer-grid { grid-template-columns: 1fr; gap: 170px; }
             .footer-content-dark { padding: 0px 0px; }
+            .matrix-showcase { flex-direction: column; height: 800px; }
+            .matrix-video { border-right: none; border-bottom: 2px solid #1a1a1a; }
         }
     </style>
 </head>
@@ -279,7 +225,9 @@
             <a href="#bom" class="nav-link">Bill of Materials</a>
             <a href="#assembly" class="nav-link">Mechanical Assembly</a>
             <a href="#wiring" class="nav-link">I2C Bus Wiring</a>
-        
+        </div>
+
+        <div class="nav-group">
             <div class="nav-header">Control Systems</div>
             <a href="#ik-solver" class="nav-link">Kinematics API</a>
             <a href="#rtos-arch" class="nav-link">Dual-Core Processing</a>
@@ -287,28 +235,24 @@
         </div>
         
         <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #222;">
-            <a href="index.html" class="nav-link" style="color: #666;">&lt; Return to Hub</a>
+            <a href="index.html" class="nav-link" style="color: #666; font-family: var(--font-mono); font-size: 0.75rem;">&lt; RETURN TO HUB</a>
+            <div style="font-family: var(--font-mono); font-size: 0.65rem; color: #444; margin-top: 10px;">SYS: DOCS_v75.4</div>
         </div>
     </div>
 
     <div class="content-area">
         
-        <h1 id="core">System Architecture</h1>
-        <p>The Arttous platform is powered by the <strong>ESP32-S3 (N8R8) Dual-Core SoC</strong> running FreeRTOS (Firmware IK4=75). To prevent I2C starvation, peripherals are split across two independent hardware buses.</p>
+        <h1 id="core" class="animate-on-scroll">System Architecture</h1>
+        <p class="animate-on-scroll">The Arttous platform is powered by the <strong>ESP32-S3 (N8R8) Dual-Core SoC</strong> running FreeRTOS (Firmware IK4=75.4). To prevent I2C starvation during high-speed calculations, peripherals are hardware-split across two independent I2C buses.</p>
 
-        <div class="matrix-showcase">
+        <div class="matrix-showcase animate-on-scroll">
             <div class="matrix-video">
-                <iframe 
-                    src="https://youtu.be/RgV6BoCdTcc?si=4t3Mv1dV10eP_i4D" 
-                    title="YouTube video player" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
+                <iframe src="https://youtu.be/RgV6BoCdTcc?si=4t3Mv1dV10eP_i4D" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
             <div class="matrix-code-wrapper" id="inline-code-container"></div>
         </div>
-        <div class="split-view">
+
+        <div class="split-view animate-on-scroll">
             <div>
                 <h3>Hardware Interfaces</h3>
                 <table class="pinout-table">
@@ -331,106 +275,108 @@
             
             <div class="tech-img-box">
                 <img src="assets/images/brain.png" class="tech-img" alt="ESP32 S3">
-                <div style="font-family: var(--font-mono); font-size: 0.7rem; color: #666; margin-top: 10px;">FIG 1.0: ESP32-S3 COMPUTE UNIT</div>
+                <div style="font-family: var(--font-mono); font-size: 0.7rem; color: #666; margin-top: 15px;">FIG 1.0: ESP32-S3 COMPUTE UNIT</div>
             </div>
         </div>
 
-        <h2 id="rtos-arch">FreeRTOS Task Management</h2>
-        <p>The standard single-threaded loop has been deprecated. Processing is strictly locked to dedicated silicon cores to ensure the Kinematic Engine never misses a 50Hz deadline.</p>
+        <h2 id="rtos-arch" class="animate-on-scroll">FreeRTOS Task Management</h2>
+        <p class="animate-on-scroll">The standard single-threaded loop has been entirely deprecated. Processing is strictly locked to dedicated silicon cores to ensure the Kinematic Engine never misses a 50Hz deadline, preventing physical leg jitter.</p>
         
-        <div class="bom-grid" style="grid-template-columns: 1fr 1fr;">
-            <div class="part-card" style="align-items: flex-start; text-align: left;">
-                <div class="part-name" style="color: #3498db;">CORE 0: TaskNetwork</div>
+        <div class="bom-grid" id="rtos-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="part-card stagger-item" style="align-items: flex-start; text-align: left;">
+                <div class="part-name" style="color: #3498db; border-color: #3498db;">CORE 0: TaskNetwork</div>
                 <span class="part-spec">Priority: 1 | Unpinned Timing</span>
-                <p class="part-desc" style="margin-top: 10px;">Handles asynchronous events: WiFi connection, HTTP Server rendering, and WebSockets JSON telemetry broadcast every 100ms.</p>
+                <p class="part-desc" style="margin-top: 10px;">Handles asynchronous events: WiFi connection, HTTP Server rendering, and WebSockets JSON telemetry broadcast every 100ms. Non-blocking.</p>
             </div>
-            <div class="part-card" style="align-items: flex-start; text-align: left;">
+            <div class="part-card stagger-item" style="align-items: flex-start; text-align: left;">
                 <div class="part-name" style="color: var(--accent);">CORE 1: TaskControl</div>
                 <span class="part-spec">Priority: 2 | Strict 50Hz (20ms) Loop</span>
-                <p class="part-desc" style="margin-top: 10px;">Executes IMU sensor fusion, Inverse Kinematics (Law of Cosines), Gait Scheduling, and generates hardware PWM signals.</p>
+                <p class="part-desc" style="margin-top: 10px;">Executes IMU sensor fusion, Inverse Kinematics (Law of Cosines), Smooth Amplitude Decay, and generates hardware PWM signals.</p>
             </div>
         </div>
-        <p style="font-family: var(--font-mono); font-size: 0.8rem; color: #888;">
-            * Memory space between cores is secured via <code>SemaphoreHandle_t stateMutex</code> to prevent race conditions during payload transfer.
+        <p class="animate-on-scroll" style="font-family: var(--font-mono); font-size: 0.8rem; color: #888; margin-top: -10px;">
+            * Memory space between cores is secured via <code>SemaphoreHandle_t stateMutex</code> to prevent race conditions during payload parsing.
         </p>
 
-        <h2 id="bom">Bill of Materials</h2>
-        <div class="bom-grid">
-            <div class="part-card">
+        <h2 id="bom" class="animate-on-scroll">Bill of Materials</h2>
+        <div class="bom-grid" id="bom-container">
+            <div class="part-card stagger-item">
                 <img src="assets/images/brain.png" class="part-img">
                 <div class="part-name">ESP32-S3 (N8R8)</div>
                 <span class="part-spec">Dual-Core | FreeRTOS</span>
                 <p class="part-desc">Primary logic board. Handles matrix math and dual I2C routing.</p>
             </div>
-            <div class="part-card">
+            <div class="part-card stagger-item">
                 <img src="assets/images/PCA9685.png" class="part-img">
                 <div class="part-name">PCA9685</div>
                 <span class="part-spec">16-Channel PWM | Bus 0</span>
                 <p class="part-desc">Dedicated servo driver. Offloads PWM generation to ensure jitter-free legs.</p>
             </div>
-            <div class="part-card">
+            <div class="part-card stagger-item">
                 <img src="assets/images/m65.png" class="part-img" style="border-radius: 4px;">
                 <div class="part-name">MPU6050 IMU</div>
                 <span class="part-spec">6-DOF Sensor | Bus 1</span>
                 <p class="part-desc">Provides Pitch/Roll data for active Z-axis gravity compensation.</p>
             </div>
-            <div class="part-card">
+            <div class="part-card stagger-item">
                 <img src="assets/images/mg90s.png" class="part-img">
                 <div class="part-name">MG90S SERVOS</div>
                 <span class="part-spec">Metal Gear | High Torque</span>
                 <p class="part-desc">Actuators for the 3DOF legs. Driven dynamically by IK engine.</p>
             </div>
-            <div class="part-card">
+            <div class="part-card stagger-item">
                 <img src="assets/images/3d-printing-filament.png" class="part-img">
-                <div class="part-name">3D PRINTING FILAMENT</div>
-                <span class="part-spec">PLA | 1.75mm</span>
-                <p class="part-desc">Used for printing the robot's chassis and structural components.</p>
+                <div class="part-name">PRINT FILAMENT</div>
+                <span class="part-spec">PETG-CF / TPU 95A</span>
+                <p class="part-desc">Carbon-fiber reinforced PETG for chassis rigidity, TPU for high-friction foot pads.</p>
             </div>
         </div>
 
-        <h2 id="assembly">Mechanical Assembly</h2>
-        <p>Reference schematics for chassis assembly and frame orientation.</p>
-        <div class="blueprint-grid">
+        <h2 id="assembly" class="animate-on-scroll">Mechanical Assembly</h2>
+        <p class="animate-on-scroll">Reference schematics for chassis assembly and frame orientation.</p>
+        <div class="blueprint-grid animate-on-scroll">
             <div class="blueprint-card">
                 <img src="assets/images/fr-po.png" class="blueprint-img">
-                <div style="text-align: center; color: var(--accent); font-family: var(--font-mono); font-size: 0.7rem; margin-top: 5px;">FRAME ORIENTATION A</div>
+                <div style="text-align: center; color: var(--accent); font-family: var(--font-mono); font-size: 0.7rem; margin-top: 10px; letter-spacing: 1px;">FRAME ORIENTATION A</div>
             </div>
             <div class="blueprint-card">
                 <img src="assets/images/top-po.png" class="blueprint-img">
-                <div style="text-align: center; color: var(--accent); font-family: var(--font-mono); font-size: 0.7rem; margin-top: 5px;">TOP PLATE ALIGNMENT</div>
+                <div style="text-align: center; color: var(--accent); font-family: var(--font-mono); font-size: 0.7rem; margin-top: 10px; letter-spacing: 1px;">TOP PLATE ALIGNMENT</div>
             </div>
         </div>
 
-        <h2 id="wiring">Dual I2C Wiring Schematic</h2>
-        <div class="wiring-box">
-            <div class="wire-row"><span class="pin-l">ESP32 (GPIO 4)</span><div class="wire-line" style="background: #2ecc71;"></div><span class="pin-r">PCA9685 (SDA)</span></div>
-            <div class="wire-row"><span class="pin-l">ESP32 (GPIO 5)</span><div class="wire-line" style="background: #e74c3c;"></div><span class="pin-r">PCA9685 (SCL)</span></div>
-            <div class="wire-row"><span class="pin-l">ESP32 (GPIO 6)</span><div class="wire-line" style="background: #3498db;"></div><span class="pin-r">MPU6050 (SDA)</span></div>
-            <div class="wire-row"><span class="pin-l">ESP32 (GPIO 7)</span><div class="wire-line" style="background: #f1c40f;"></div><span class="pin-r">MPU6050 (SCL)</span></div>
-            <div class="wire-row"><span class="pin-l">BATTERY (7.4V)</span><div class="wire-line" style="height: 4px; background: #95a5a6;"></div><span class="pin-r">PCA9685 (V+)</span></div>
+        <h2 id="wiring" class="animate-on-scroll">Dual I2C Wiring Schematic</h2>
+        <div class="wiring-box animate-on-scroll" id="wiring-container">
+            <div class="wire-row stagger-item"><span class="pin-l">ESP32 (GPIO 4)</span><div class="wire-line" style="background: rgba(46, 204, 113, 0.3);"></div><span class="pin-r">PCA9685 (SDA)</span></div>
+            <div class="wire-row stagger-item"><span class="pin-l">ESP32 (GPIO 5)</span><div class="wire-line" style="background: rgba(231, 76, 60, 0.3);"></div><span class="pin-r">PCA9685 (SCL)</span></div>
+            <div class="wire-row stagger-item"><span class="pin-l">ESP32 (GPIO 6)</span><div class="wire-line" style="background: rgba(52, 152, 219, 0.3);"></div><span class="pin-r">MPU6050 (SDA)</span></div>
+            <div class="wire-row stagger-item"><span class="pin-l">ESP32 (GPIO 7)</span><div class="wire-line" style="background: rgba(241, 196, 15, 0.3);"></div><span class="pin-r">MPU6050 (SCL)</span></div>
+            <div class="wire-row stagger-item"><span class="pin-l">BATTERY (7.4V)</span><div class="wire-line" style="height: 4px; background: rgba(149, 165, 166, 0.3);"></div><span class="pin-r">PCA9685 (V+)</span></div>
         </div>
 
-        <h2 id="ik-solver">Kinematics API & Stabilization</h2>
-        <p>Implementation of the 3DOF solver with active IMU balancing and NaN-protection clamps.</p>
+        <h2 id="ik-solver" class="animate-on-scroll">Kinematics API & Stabilization</h2>
+        <p class="animate-on-scroll">Implementation of the 3DOF solver with active IMU balancing and NaN-protection clamps. Runs exclusively on Core 1.</p>
 
-        <div class="code-block">
-<span class="comment">// 1. Active Z-Axis Balancing (IMU Compensation)</span>
+        <div class="code-block animate-on-scroll">
+<span class="comment">// 1. Active Z-Axis Balancing (IMU Sensor Fusion)</span>
 <span class="keyword">float</span> p = <span class="func">constrain</span>(pitch, -20.0f, 20.0f) * (PI_F/180.0f);
 <span class="keyword">float</span> r = <span class="func">constrain</span>(roll, -20.0f, 20.0f) * (PI_F/180.0f);
 balZ[i] = (lx * <span class="func">sin</span>(p)) + (ly * <span class="func">sin</span>(r));
 
-<span class="comment">// 2. Target Z calculation</span>
+<span class="comment">// 2. Smooth Amplitude Decay (Soft leg parking)</span>
+smoothVx += (targetVx - smoothVx) * (4.0f * dt);
 <span class="keyword">float</span> lz = (currentHeight + gait.legZ[i]) - balZ[i];
 
-<span class="comment">// 3. Law of Cosines (NaN Protection Clamp)</span>
+<span class="comment">// 3. Law of Cosines (NaN Protection Clamp prevents CPU crash)</span>
 <span class="keyword">float</span> D = <span class="func">sqrt</span>(u*u + lz*lz);
 <span class="keyword">float</span> cA = <span class="func">constrain</span>((FEMUR_SQ + D*D - TIBIA_SQ) / (2.0f * FEMUR * D), -1.0f, 1.0f);
 <span class="keyword">float</span> alpha = <span class="func">acos</span>(cA);
         </div>
-        <h2 id="web-ui">Web UI & Digital Twin</h2>
-        <p>The system features a zero-install, browser-based Mission Control interface served directly from the ESP32-S3's PROGMEM.</p>
 
-        <div class="split-view" style="align-items: start; margin-bottom: 60px;">
+        <h2 id="web-ui" class="animate-on-scroll">Web UI & Digital Twin</h2>
+        <p class="animate-on-scroll">The system features a zero-install, browser-based Mission Control interface served directly from the ESP32-S3's PROGMEM.</p>
+
+        <div class="split-view animate-on-scroll" style="align-items: start; margin-bottom: 60px;">
             <div>
                 <h3>Telemetry & Control Architecture</h3>
                 <ul style="color: #888; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; padding-left: 20px;">
@@ -442,15 +388,18 @@ balZ[i] = (lx * <span class="func">sin</span>(p)) + (ly * <span class="func">sin
             </div>
             
             <div class="tech-img-box">
-                <img src="assets/images/Screenshot 2026-02-22 124034.png" class="tech-img" alt="Web UI Flight Deck">
-                <div style="font-family: var(--font-mono); font-size: 0.7rem; color: #666; margin-top: 10px;">FIG 2.0: DIGITAL TWIN INTERFACE</div>
+                <img src="assets/images/Screenshot 2026-02-22 124034.jpg" class="tech-img" alt="Web UI Flight Deck">
+                <div style="font-family: var(--font-mono); font-size: 0.7rem; color: #666; margin-top: 15px; letter-spacing: 1px;">FIG 2.0: DIGITAL TWIN INTERFACE</div>
             </div>
         </div>
 
         <footer class="main-footer">
+            
             <div class="footer-top-visual"></div>
+
             <div class="footer-content-dark">
                 <div class="footer-grid">
+                    
                     <div class="footer-col">
                         <h4>GET IN TOUCH</h4>
                         <p style="max-width: 300px; line-height: 1.6; margin-bottom: 25px;">
@@ -466,8 +415,8 @@ balZ[i] = (lx * <span class="func">sin</span>(p)) + (ly * <span class="func">sin
                         <a href="index.html" class="footer-link">Home Hub</a>
                         <a href="#core" class="footer-link">Documentation</a>
                         <a href="account.html" class="footer-link">Operator Portal</a>
-                        <a href="#" class="footer-link">Investor Relations</a>
-                        <a href="Press Kit.html" class="footer-link">Press Kit</a>
+                        <a href="investor.html" class="footer-link">Investor Relations</a>
+                        <a href="#" class="footer-link">Press Kit</a>
                     </div>
 
                     <div class="footer-col">
@@ -479,6 +428,7 @@ balZ[i] = (lx * <span class="func">sin</span>(p)) + (ly * <span class="func">sin
                             <a href="#" class="social-icon">YT</a>
                         </div>
                     </div>
+
                 </div>
 
                 <div class="copy-bar">
@@ -491,44 +441,45 @@ balZ[i] = (lx * <span class="func">sin</span>(p)) + (ly * <span class="func">sin
                 <img src="assets/images/leg-color.png" class="leg-img leg-color" alt="Leg Color">
                 <img src="assets/images/leg-xray.png" class="leg-img leg-xray" alt="Leg X-Ray">
             </div>
+
         </footer>
 
     </div>
 
     <script>
         const myCode = `
-// ===== FIRMWARE KINEMATICS CORE =====
-void updateLegPositions(float targetX, float targetY, float targetZ) {
-  for(int i = 0; i < 4; i++) {
-    if(legs[i].isActive) {
-      // Calculate inverse kinematics
-      float coxaAngle = atan2(targetY, targetX);
-      float femurAngle = acos((sq(L1) + sq(targetZ) - sq(L2)) / (2 * L1 * targetZ));
-      float tibiaAngle = acos((sq(L1) + sq(L2) - sq(targetZ)) / (2 * L1 * L2));
-      
-      // Apply smoothing filter
-      legs[i].coxa.writeMicroseconds(map(coxaAngle, -PI/2, PI/2, 500, 2500));
-      legs[i].femur.writeMicroseconds(map(femurAngle, 0, PI, 500, 2500));
-      legs[i].tibia.writeMicroseconds(map(tibiaAngle, 0, PI, 500, 2500));
+// ===== v75.4 RTOS CORE 1: KINEMATICS =====
+void TaskControl(void *pvParameters) {
+  TickType_t xLastWakeTime = xTaskGetTickCount();
+  for(;;) {
+    // 1. SAFE MEMORY COPY (Mutex Protection)
+    if (xSemaphoreTake(stateMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
+      localState = sharedState;
+      xSemaphoreGive(stateMutex);
     }
+    
+    // 2. KINEMATIC SMOOTHING
+    smoothVx += (localState.targetX - smoothVx) * (4.0f * dt);
+    smoothVy += (localState.targetY - smoothVy) * (4.0f * dt);
+    
+    // 3. IMU STABILIZATION Z-AXIS
+    float balZ = (lx * sin(pitch)) + (ly * sin(roll));
+    
+    // 4. INVERSE KINEMATICS
+    float cA = constrain((FEMUR_SQ + D*D - TIBIA_SQ) / (2.0f * FEMUR * D), -1.0f, 1.0f);
+    float alpha = acos(cA);
+    
+    // Strict 50Hz Timing
+    vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(20));
   }
 }
-
-// System tick 330Hz
-void rtosTick() {
-  if (xSemaphoreTake(kinematicsMutex, portMAX_DELAY)) {
-    calculateGait();
-    sendPWM();
-    xSemaphoreGive(kinematicsMutex);
-  }
-}
-`.repeat(10);
+`.repeat(8);
 
         const CONFIG = {
-            numLayers: 7,
+            numLayers: 6,
             minSpeed: 400, 
-            maxSpeed: 900,
-            layerOffset: 70,
+            maxSpeed: 800,
+            layerOffset: 80,
             opacityStep: 0.9 / 5
         };
 
@@ -566,9 +517,49 @@ void rtosTick() {
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            requestAnimationFrame(() => {
-                initializeCodeLayers();
-            });
+            
+            // 1. Init Matrix
+            requestAnimationFrame(() => { initializeCodeLayers(); });
+
+            // 2. Scroll Reveal Animations (Intersection Observer)
+            const observerOptions = { root: null, rootMargin: '0px', threshold: 0.15 };
+
+            // Standard fade up
+            const scrollObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('show');
+                        observer.unobserve(entry.target); 
+                    }
+                });
+            }, observerOptions);
+
+            const scrollElements = document.querySelectorAll('.animate-on-scroll');
+            scrollElements.forEach(el => scrollObserver.observe(el));
+
+            // Staggered reveals for grids and wiring
+            function createStaggerObserver(containerId) {
+                const container = document.getElementById(containerId);
+                if(!container) return;
+                
+                const staggerObserver = new IntersectionObserver((entries) => {
+                    if (entries[0].isIntersecting) {
+                        const items = container.querySelectorAll('.stagger-item');
+                        items.forEach((item, index) => {
+                            setTimeout(() => {
+                                item.classList.add('show');
+                            }, index * 150); // 150ms delay between items
+                        });
+                        staggerObserver.disconnect();
+                    }
+                }, { threshold: 0.1 });
+                
+                staggerObserver.observe(container);
+            }
+
+            createStaggerObserver('rtos-grid');
+            createStaggerObserver('bom-container');
+            createStaggerObserver('wiring-container');
         });
     </script>
 </body>

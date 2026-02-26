@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARTTOUS | Live Telemetry</title>
+    <title>ARTTOUS | Live Telemetry v75.4</title>
     <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-core: #050505;
-            --bg-panel: #0e0e0e;
+            --bg-panel: rgba(14, 14, 14, 0.75);
             --accent: #7c2ae8;
             --alert: #e74c3c;
             --success: #2ecc71;
@@ -23,137 +23,171 @@
 
         body {
             background: var(--bg-core);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(124, 42, 232, 0.05) 0%, transparent 60%),
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Dashboard feel */
+            overflow: hidden; 
             height: 100vh;
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+
+        /* HOLOGRAPHIC SCANLINE OVERLAY */
+        body::after {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999; background-size: 100% 2px, 3px 100%; pointer-events: none;
         }
 
         /* HEADER */
         nav { 
-            padding: 15px 30px; 
-            border-bottom: 1px solid #333; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            background: #080808;
+            padding: 15px 30px; border-bottom: 1px solid #333; display: flex; 
+            justify-content: space-between; align-items: center; background: rgba(5,5,5,0.9);
+            position: relative; z-index: 10; backdrop-filter: blur(5px);
         }
-        .logo { font-family: var(--font-tech); font-weight: 900; color: #fff; text-decoration: none; font-size: 1.2rem; }
+        .logo { font-family: var(--font-tech); font-weight: 900; color: #fff; text-decoration: none; font-size: 1.2rem; animation: textGlow 2s infinite alternate;}
         .accent { color: var(--accent); }
+        
         .live-indicator { 
             font-family: var(--font-mono); font-size: 0.75rem; color: var(--success); 
             display: flex; align-items: center; gap: 8px; border: 1px solid var(--success); 
-            padding: 5px 10px; border-radius: 4px; 
+            padding: 5px 10px; border-radius: 4px; background: rgba(46, 204, 113, 0.1);
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.2);
         }
-        .blink { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: blink 1s infinite; }
-        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
+        .blink { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: blink 1s infinite; box-shadow: 0 0 8px var(--success);}
 
         /* DASHBOARD GRID */
         .dash-container {
-            display: grid;
-            grid-template-columns: 300px 1fr 300px;
-            grid-template-rows: 2fr 1fr;
-            height: 100%;
-            gap: 2px;
-            background: #222; /* Gap color */
+            display: grid; grid-template-columns: 320px 1fr 320px; grid-template-rows: 2fr 1fr;
+            flex: 1; gap: 15px; padding: 15px; position: relative; z-index: 5;
         }
 
         .panel {
-            background: var(--bg-core);
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
+            background: var(--bg-panel); border: 1px solid #222; padding: 25px;
+            position: relative; overflow: hidden; backdrop-filter: blur(10px);
+            border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            /* Boot animation */
+            opacity: 0; transform: scale(0.95) translateY(20px);
+            animation: bootUp 0.6s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+        }
+        
+        /* Staggered Boot */
+        .p-vitals { animation-delay: 0.1s; }
+        .p-radar { animation-delay: 0.3s; }
+        .p-graphs { animation-delay: 0.5s; }
+        .p-logs { animation-delay: 0.7s; }
+        .p-controls { animation-delay: 0.9s; }
+
+        .panel::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.5;
         }
 
         .panel-title {
-            font-family: var(--font-mono); font-size: 0.75rem; color: #666; margin-bottom: 15px; display: block;
+            font-family: var(--font-tech); font-size: 0.85rem; color: #fff; margin-bottom: 20px; display: block;
+            letter-spacing: 2px; border-bottom: 1px dashed #333; padding-bottom: 10px;
         }
 
         /* LEFT: ROBOT STATUS */
-        .stat-row {
-            display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #1a1a1a; padding-bottom: 5px;
-        }
-        .stat-label { font-family: var(--font-mono); font-size: 0.8rem; color: #aaa; }
-        .stat-val { font-family: var(--font-mono); font-size: 0.9rem; color: #fff; }
-        .val-good { color: var(--success); }
-        .val-warn { color: var(--alert); }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .stat-label { font-family: var(--font-mono); font-size: 0.75rem; color: #888; }
+        .stat-val { font-family: var(--font-mono); font-size: 0.9rem; color: #fff; font-weight: bold; text-shadow: 0 0 5px rgba(255,255,255,0.3);}
+        .val-good { color: var(--success); text-shadow: 0 0 5px rgba(46, 204, 113, 0.4);}
+        .val-warn { color: var(--alert); text-shadow: 0 0 5px rgba(231, 76, 60, 0.4);}
 
-        /* CENTER: MAP / RADAR */
+        /* CENTER: RADAR */
         .radar-view {
-            grid-column: 2;
-            grid-row: 1 / span 2;
-            background: radial-gradient(circle at 50% 50%, #111 0%, #000 100%);
-            display: flex; align-items: center; justify-content: center;
-            position: relative;
+            grid-column: 2; grid-row: 1 / span 2;
+            background: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #000 100%);
+            display: flex; align-items: center; justify-content: center; position: relative;
         }
-        /* Grid Lines */
-        .radar-view::before {
+        
+        /* Crosshairs */
+        .radar-view::after {
             content: ""; position: absolute; width: 100%; height: 100%;
-            background-image: linear-gradient(#222 1px, transparent 1px), linear-gradient(90deg, #222 1px, transparent 1px);
-            background-size: 50px 50px; opacity: 0.3;
+            background: 
+                linear-gradient(rgba(124, 42, 232, 0.2) 1px, transparent 1px) 50% 50% / 100% 20px,
+                linear-gradient(90deg, rgba(124, 42, 232, 0.2) 1px, transparent 1px) 50% 50% / 20px 100%;
+            pointer-events: none; z-index: 1; opacity: 0.5;
         }
-        /* Scanner */
+
         .scanner {
-            width: 600px; height: 600px; border: 1px solid rgba(124, 42, 232, 0.3); border-radius: 50%; position: absolute;
+            width: 80%; max-width: 600px; aspect-ratio: 1/1; 
+            border: 2px solid rgba(124, 42, 232, 0.5); border-radius: 50%; 
+            position: relative; z-index: 2; box-shadow: 0 0 50px rgba(124, 42, 232, 0.1) inset;
         }
+        
+        /* True Radar Sweep */
         .scan-line {
-            width: 50%; height: 2px; background: linear-gradient(90deg, transparent, var(--accent));
-            position: absolute; top: 50%; left: 50%; transform-origin: 0 0;
-            animation: scan 4s linear infinite;
+            width: 100%; height: 100%; border-radius: 50%; position: absolute; top: 0; left: 0;
+            background: conic-gradient(from 0deg, rgba(124, 42, 232, 0.8) 0deg, transparent 60deg, transparent 360deg);
+            animation: radarSpin 4s linear infinite;
         }
-        @keyframes scan { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
 
         /* DOTS (Robot & Anchors) */
-        .dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; transform: translate(-50%, -50%); }
-        .robot-dot { background: #fff; box-shadow: 0 0 15px #fff; top: 50%; left: 50%; z-index: 10; }
-        .anchor-dot { background: var(--accent); width: 6px; height: 6px; }
+        .dot { position: absolute; border-radius: 50%; transform: translate(-50%, -50%); z-index: 5; }
+        .robot-dot { background: #fff; width: 12px; height: 12px; box-shadow: 0 0 15px #fff; top: 50%; left: 50%; }
+        .anchor-dot { background: var(--accent); width: 8px; height: 8px; box-shadow: 0 0 10px var(--accent);}
+        
+        /* Ping effect when sweep passes */
+        .ping-anim { animation: pingGlow 4s infinite; }
         
         .label-float { 
             position: absolute; color: var(--accent); font-family: var(--font-mono); 
-            font-size: 0.6rem; transform: translate(10px, -10px); 
+            font-size: 0.65rem; transform: translate(12px, -12px); background: rgba(0,0,0,0.8); padding: 2px 4px; border: 1px solid #333;
         }
 
         /* RIGHT: GRAPHS */
-        .graph-box {
-            height: 60px; display: flex; align-items: flex-end; gap: 2px; margin-bottom: 20px;
-        }
-        .bar { width: 100%; background: #333; transition: height 0.2s; }
-        .bar.active { background: var(--accent); }
+        .graph-box { height: 80px; display: flex; align-items: flex-end; gap: 3px; margin-bottom: 30px; }
+        .bar { flex: 1; background: #222; transition: height 0.3s ease, background 0.3s; border-top: 2px solid #444;}
+        .bar.active { background: rgba(124, 42, 232, 0.6); border-top: 2px solid var(--accent); box-shadow: 0 0 10px rgba(124, 42, 232, 0.5);}
 
         /* BOTTOM LEFT: LOGS */
-        .logs-panel {
-            grid-column: 1; grid-row: 2;
-            font-family: var(--font-mono); font-size: 0.7rem; color: #888;
-            overflow-y: hidden;
-        }
-        .log-line { margin-bottom: 5px; border-left: 2px solid transparent; padding-left: 5px; }
-        .log-line.new { border-left-color: var(--accent); color: #fff; }
+        .logs-panel { font-family: var(--font-mono); font-size: 0.75rem; color: #888; overflow-y: hidden; }
+        .log-feed { display: flex; flex-direction: column; gap: 8px; }
+        .log-line { border-left: 2px solid #333; padding-left: 10px; animation: slideInLeft 0.3s ease-out; }
+        .log-line.new { border-left-color: var(--accent); color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.3);}
 
         /* BOTTOM RIGHT: CONTROLS */
-        .controls-panel {
-            grid-column: 3; grid-row: 2;
-            display: flex; flex-direction: column; gap: 10px;
-        }
+        .controls-panel { display: flex; flex-direction: column; gap: 12px; }
         .ctrl-btn {
-            background: #111; border: 1px solid #333; color: #666; padding: 10px;
+            background: #111; border: 1px solid #333; color: #666; padding: 12px;
             font-family: var(--font-tech); cursor: not-allowed; text-align: center; font-size: 0.8rem;
+            position: relative; overflow: hidden; transition: 0.3s;
         }
         .ctrl-btn.active { border-color: var(--alert); color: var(--alert); cursor: pointer; }
-        .ctrl-btn.active:hover { background: var(--alert); color: #fff; }
-         /* FOOTER SIGNATURE */
+        .ctrl-btn.active::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(231, 76, 60, 0.3), transparent);
+            transform: skewX(-20deg); transition: 0.5s;
+        }
+        .ctrl-btn.active:hover { background: rgba(231, 76, 60, 0.1); box-shadow: 0 0 15px rgba(231, 76, 60, 0.4); color: #fff;}
+        .ctrl-btn.active:hover::before { left: 200%; }
+
+        /* FOOTER SIG */
         .digital-sig {
-            margin-top: 80px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #555;
+            position: absolute; bottom: 15px; right: 25px;
+            font-family: var(--font-mono); font-size: 0.65rem; color: #555; text-align: right; z-index: 10;
         }
 
+        /* ANIMATIONS */
+        @keyframes bootUp { to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes blink { 0%, 100% {opacity: 1;} 50% {opacity: 0.3;} }
+        @keyframes radarSpin { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
+        @keyframes pingGlow { 0%, 90% { box-shadow: 0 0 5px var(--accent); background: var(--accent); } 95% { box-shadow: 0 0 20px #fff; background: #fff; } 100% { box-shadow: 0 0 5px var(--accent); background: var(--accent); } }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes textGlow { from { text-shadow: 0 0 5px rgba(124,42,232,0.2); } to { text-shadow: 0 0 15px rgba(124,42,232,0.8); } }
+
+        @media (max-width: 1024px) {
+            .dash-container { display: flex; flex-direction: column; overflow-y: auto; }
+            .radar-view { height: 400px; }
+            body { overflow: auto; }
+        }
     </style>
 </head>
 <body>
@@ -168,30 +202,30 @@
 
     <div class="dash-container">
         
-        <div class="panel">
-            <span class="panel-title">SYSTEM VITALS</span>
+        <div class="panel p-vitals">
+            <span class="panel-title">SYSTEM VITALS // CORE 1</span>
             
             <div class="stat-row">
                 <span class="stat-label">BATTERY (2S)</span>
-                <span class="stat-val val-good">7.84 V</span>
+                <span class="stat-val val-good" id="v-bat">7.84 V</span>
             </div>
             <div class="stat-row">
                 <span class="stat-label">CURRENT DRAW</span>
-                <span class="stat-val">1.2 A</span>
+                <span class="stat-val" id="v-amp">1.24 A</span>
             </div>
             <div class="stat-row">
                 <span class="stat-label">CPU LOAD</span>
-                <span class="stat-val">12%</span>
+                <span class="stat-val" id="v-cpu">12.4 %</span>
             </div>
             <div class="stat-row">
                 <span class="stat-label">CORE TEMP</span>
-                <span class="stat-val">42°C</span>
+                <span class="stat-val" id="v-tmp">42.1 °C</span>
             </div>
             
-            <span class="panel-title" style="margin-top: 30px;">MESH NETWORK</span>
+            <span class="panel-title" style="margin-top: 40px;">MESH NETWORK // CORE 0</span>
             <div class="stat-row">
                 <span class="stat-label">LORA RSSI</span>
-                <span class="stat-val val-warn">-89 dBm</span>
+                <span class="stat-val val-warn" id="v-rssi">-89 dBm</span>
             </div>
             <div class="stat-row">
                 <span class="stat-label">ANCHORS</span>
@@ -199,59 +233,51 @@
             </div>
         </div>
 
-        <div class="panel radar-view">
+        <div class="panel radar-view p-radar">
             <div class="scanner">
                 <div class="scan-line"></div>
-            </div>
-            
-            <div class="dot robot-dot"></div>
-            <span style="position: absolute; top: 52%; left: 51%; color: #fff; font-family: monospace; font-size: 0.7rem;">UNIT_01</span>
+                
+                <div class="dot robot-dot"></div>
+                <span style="position: absolute; top: 52%; left: 52%; color: #fff; font-family: var(--font-mono); font-size: 0.7rem; text-shadow: 0 0 5px #000;">UNIT_01</span>
 
-            <div class="dot anchor-dot" style="top: 30%; left: 40%;">
-                <div class="label-float">ANCHOR_A</div>
-            </div>
-            <div class="dot anchor-dot" style="top: 70%; left: 80%;">
-                <div class="label-float">ANCHOR_B</div>
-            </div>
-            <div class="dot anchor-dot" style="top: 20%; left: 70%;">
-                <div class="label-float">ANCHOR_C</div>
+                <div class="dot anchor-dot ping-anim" style="top: 30%; left: 40%; animation-delay: 0.5s;">
+                    <div class="label-float">ANCHOR_A</div>
+                </div>
+                <div class="dot anchor-dot ping-anim" style="top: 70%; left: 80%; animation-delay: 1.5s;">
+                    <div class="label-float">ANCHOR_B</div>
+                </div>
+                <div class="dot anchor-dot ping-anim" style="top: 20%; left: 70%; animation-delay: 3s;">
+                    <div class="label-float">ANCHOR_C</div>
+                </div>
             </div>
         </div>
 
-        <div class="panel">
+        <div class="panel p-graphs">
             <span class="panel-title">JOINT TORQUE (Nm)</span>
-            <div class="graph-box" id="torqueGraph">
-                </div>
+            <div class="graph-box" id="torqueGraph"></div>
 
-            <span class="panel-title">IMU STABILITY (Z-AXIS)</span>
-            <div class="graph-box" id="imuGraph">
+            <span class="panel-title">IMU Z-AXIS COMP</span>
+            <div class="graph-box" id="imuGraph"></div>
+        </div>
+
+        <div class="panel logs-panel p-logs">
+            <span class="panel-title">RTOS KERNEL LOGS</span>
+            <div class="log-feed" id="logFeed">
                 </div>
         </div>
 
-        <div class="panel logs-panel" id="logFeed">
-            <div class="log-line">[14:20:01] SYS: Uplink established on port 8080</div>
-            <div class="log-line">[14:20:02] MESH: Handshake with ANCHOR_A successful</div>
-            <div class="log-line">[14:20:03] IK: Gait engine initialized (Trot)</div>
-            <div class="log-line new">[14:20:05] DATA: Stream active...</div>
-        </div>
-
-        <div class="panel controls-panel">
+        <div class="panel controls-panel p-controls">
             <span class="panel-title">OVERRIDE COMMANDS</span>
-            <button class="ctrl-btn active" onclick="alert('EMERGENCY STOP TRIGGERED')">EMERGENCY STOP</button>
-            <button class="ctrl-btn">REBOOT CORE</button>
-            <button class="ctrl-btn">DUMP LOGS</button>
-        </div>
-         <div class="digital-sig">
-            <div>
-                SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
-                HASH: 0x99a...f42
-            </div>
-            <div style="text-align: right;">
-                &copy; 2026 Arttous Robotics Inc.<br>
-                ALL RIGHTS RESERVED.
-            </div>
+            <button class="ctrl-btn active" onclick="triggerEStop()">EMERGENCY STOP</button>
+            <button class="ctrl-btn" style="border-color: #444; color: #888; cursor: pointer;">REBOOT CORE 1</button>
+            <button class="ctrl-btn" style="border-color: #444; color: #888; cursor: pointer;">DUMP JSON LOGS</button>
         </div>
 
+    </div>
+
+    <div class="digital-sig">
+        SIGNED: SYSTEM_ADMIN | HASH: 0x99a...f42<br>
+        &copy; 2026 Arttous Robotics
     </div>
 
     <script>
@@ -265,39 +291,75 @@
                 container.appendChild(bar);
             }
         }
-        initGraph('torqueGraph', 20);
-        initGraph('imuGraph', 20);
+        initGraph('torqueGraph', 30);
+        initGraph('imuGraph', 30);
 
         setInterval(() => {
-            // Update graphs randomly
             document.querySelectorAll('.bar').forEach(bar => {
-                if(Math.random() > 0.5) {
+                if(Math.random() > 0.6) { // Only update some bars to look like a rolling wave
                     bar.style.height = Math.random() * 100 + '%';
-                    bar.classList.toggle('active', Math.random() > 0.7);
+                    bar.classList.toggle('active', Math.random() > 0.8);
                 }
             });
-        }, 200);
+        }, 150);
 
-        // 2. FAKE LOGS
-        const logFeed = document.getElementById('logFeed');
-        const messages = [
-            "MESH: Packet loss detected on Node B",
-            "IK: Correcting Z-height drift",
-            "PWR: Voltage stable at 7.8V",
-            "NAV: Recalculating path...",
-            "LORA: Ping 42ms"
-        ];
+        // 2. LIVE VITALS JITTER
+        const vCpu = document.getElementById('v-cpu');
+        const vAmp = document.getElementById('v-amp');
+        const vTmp = document.getElementById('v-tmp');
+        const vRssi = document.getElementById('v-rssi');
 
         setInterval(() => {
-            const msg = messages[Math.floor(Math.random() * messages.length)];
+            // CPU: 10% - 25%
+            vCpu.innerText = (10 + Math.random() * 15).toFixed(1) + ' %';
+            // AMP: 1.1A - 1.9A
+            vAmp.innerText = (1.1 + Math.random() * 0.8).toFixed(2) + ' A';
+            // TEMP: 41C - 44C
+            vTmp.innerText = (41 + Math.random() * 3).toFixed(1) + ' °C';
+            // RSSI: -85 to -92
+            if(Math.random() > 0.7) vRssi.innerText = '-' + Math.floor(85 + Math.random() * 7) + ' dBm';
+        }, 800);
+
+        // 3. RTOS LOG FEED
+        const logFeed = document.getElementById('logFeed');
+        const messages = [
+            "TaskNetwork: WebSocket payload broadcast OK",
+            "TaskControl: stateMutex acquired",
+            "IK: Target unreachable. Applying NaN clamp.",
+            "IMU: Pitch +2.4°, applying Z-axis comp",
+            "Gait: Phase reset via smoothVx dampening",
+            "MESH: Packet ACK from ANCHOR_B (12ms)",
+            "SYS: Core 1 running at stable 50Hz",
+            "PCA9685: I2C transaction 0x40 OK"
+        ];
+
+        // Initial logs
+        for(let i=0; i<4; i++) addLog("SYS: Initializing RTOS kernel modules...");
+
+        function addLog(text) {
             const div = document.createElement('div');
             const time = new Date().toLocaleTimeString('en-US', {hour12: false});
             div.className = 'log-line new';
-            div.innerText = `[${time}] ${msg}`;
+            div.innerText = `[${time}] ${text}`;
+            
+            // Demote old logs
+            Array.from(logFeed.children).forEach(child => child.classList.remove('new'));
             
             logFeed.prepend(div);
-            if(logFeed.children.length > 8) logFeed.lastChild.remove();
-        }, 3000);
+            if(logFeed.children.length > 5) logFeed.lastChild.remove();
+        }
+
+        setInterval(() => {
+            const msg = messages[Math.floor(Math.random() * messages.length)];
+            addLog(msg);
+        }, 2500);
+
+        // 4. E-STOP Function
+        function triggerEStop() {
+            alert('CRITICAL: KINEMATIC ENGINE HALTED. MOTORS DE-ENERGIZED.');
+            document.querySelectorAll('.bar').forEach(b => { b.style.height = '5%'; b.classList.remove('active'); });
+            addLog("ERR: EMERGENCY STOP ACTIVATED");
+        }
     </script>
 </body>
 </html>

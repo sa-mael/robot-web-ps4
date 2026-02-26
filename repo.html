@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARTTOUS | Source Code</title>
+    <title>ARTTOUS | Source Code v75.4</title>
     <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-core: #050505;
-            --bg-card: #0e0e0e;
+            --bg-card: rgba(14, 14, 14, 0.85);
             --accent: #7c2ae8;
             --accent-dim: rgba(124, 42, 232, 0.1);
+            --success: #2ecc71;
             --text-main: #e0e0e0;
             --text-muted: #666;
             --font-tech: 'Orbitron', sans-serif;
@@ -27,151 +28,131 @@
             color: var(--text-main);
             font-family: var(--font-body);
             overflow-x: hidden;
+            position: relative;
+        }
+
+        /* HOLOGRAPHIC SCANLINE OVERLAY */
+        body::before {
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999; background-size: 100% 2px, 3px 100%; pointer-events: none;
         }
 
         /* HEADER */
-        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
-        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; }
+        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: relative; z-index: 10; background: rgba(5,5,5,0.9); }
+        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; animation: textGlow 2s infinite alternate;}
         .accent { color: var(--accent); }
 
         /* HERO CLI SECTION */
         .repo-hero {
-            padding: 80px 5%;
-            max-width: 1000px;
-            margin: 0 auto;
-            text-align: center;
+            padding: 100px 5% 60px; max-width: 1000px; margin: 0 auto; text-align: center;
+            position: relative; z-index: 5;
+            animation: slideDown 1s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+            opacity: 0; transform: translateY(-30px);
         }
-        h1 { font-family: var(--font-tech); font-size: 3rem; margin-bottom: 10px; }
-        .subtitle { color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 40px; display: block; }
+        h1 { font-family: var(--font-tech); font-size: 3rem; margin-bottom: 10px; letter-spacing: 2px;}
+        .subtitle { color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 40px; display: block; letter-spacing: 1px;}
 
         /* TERMINAL BOX */
         .terminal-box {
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 6px;
-            padding: 20px;
-            text-align: left;
-            font-family: var(--font-mono);
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 6px;
+            padding: 20px; text-align: left; font-family: var(--font-mono);
+            position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); backdrop-filter: blur(10px);
         }
-        .terminal-header {
-            display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px;
-        }
+        .terminal-box::before { content: ''; position: absolute; top: -1px; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+        
+        .terminal-header { display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; }
         .dot { width: 10px; height: 10px; border-radius: 50%; background: #333; }
-        .dot.red { background: #ff5f56; }
-        .dot.yellow { background: #ffbd2e; }
-        .dot.green { background: #27c93f; }
+        .dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
 
-        .cmd-line { color: #aaa; margin-bottom: 10px; }
+        .cmd-line { color: #aaa; margin-bottom: 10px; min-height: 20px; }
         .cmd-prompt { color: var(--accent); margin-right: 10px; }
-        .cmd-input { color: #fff; background: transparent; border: none; font-family: inherit; font-size: 1rem; width: 80%; outline: none; }
+        .typewriter-text { color: #fff; }
+        .cursor { display: inline-block; width: 8px; height: 15px; background: var(--accent); animation: blink 1s step-end infinite; vertical-align: middle; }
+        
+        .sys-output { color: #444; opacity: 0; transition: opacity 0.5s; }
         
         .copy-btn {
-            position: absolute; top: 20px; right: 20px;
-            background: #222; border: 1px solid #444; color: #fff;
-            padding: 5px 15px; font-size: 0.75rem; cursor: pointer;
-            font-family: var(--font-mono); transition: 0.2s;
+            position: absolute; top: 20px; right: 20px; background: #111; border: 1px solid #444; color: #fff;
+            padding: 8px 15px; font-size: 0.75rem; cursor: pointer; font-family: var(--font-mono); transition: 0.3s;
+            opacity: 0; pointer-events: none; overflow: hidden;
         }
-        .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .copy-btn.show { opacity: 1; pointer-events: auto; }
+        .copy-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transform: skewX(-20deg); transition: 0.5s;
+        }
+        .copy-btn:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 15px rgba(124, 42, 232, 0.3); }
+        .copy-btn:hover::before { left: 200%; }
 
         /* REPO GRID */
         .repo-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            padding: 60px 5%;
-            max-width: 1200px;
-            margin: 0 auto;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;
+            padding: 60px 5%; max-width: 1200px; margin: 0 auto; position: relative; z-index: 5;
         }
 
         .repo-card {
-            background: var(--bg-card);
-            border: 1px solid #222;
-            padding: 25px;
-            transition: 0.3s;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 220px;
-            text-decoration: none;
+            background: var(--bg-card); border: 1px solid #222; padding: 30px; transition: 0.4s cubic-bezier(0.1, 1, 0.1, 1);
+            display: flex; flex-direction: column; justify-content: space-between; height: 240px; text-decoration: none;
+            backdrop-filter: blur(5px); opacity: 0; transform: translateY(40px);
         }
-        .repo-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        .repo-card:hover { border-color: var(--accent); transform: translateY(-10px) !important; box-shadow: 0 15px 30px rgba(124, 42, 232, 0.15); background: #111; }
         
-        .repo-icon { font-size: 1.5rem; margin-bottom: 15px; color: var(--text-muted); }
-        .repo-card:hover .repo-icon { color: var(--accent); }
+        .repo-icon { font-size: 1.5rem; margin-bottom: 15px; color: var(--text-muted); transition: 0.3s; }
+        .repo-card:hover .repo-icon { color: var(--accent); transform: scale(1.1); text-shadow: 0 0 10px var(--accent);}
         
         .repo-title { font-family: var(--font-mono); font-weight: bold; color: #fff; margin-bottom: 10px; font-size: 1.1rem; }
-        .repo-desc { color: #666; font-size: 0.85rem; line-height: 1.5; }
+        .repo-desc { color: #888; font-size: 0.85rem; line-height: 1.6; }
         
-        .repo-stats {
-            margin-top: auto;
-            border-top: 1px solid #222;
-            padding-top: 15px;
-            display: flex;
-            gap: 15px;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #555;
-        }
+        .repo-stats { margin-top: auto; border-top: 1px solid #222; padding-top: 15px; display: flex; gap: 15px; font-family: var(--font-mono); font-size: 0.75rem; color: #555; }
         .stat { display: flex; align-items: center; gap: 5px; }
 
-        /* ACTIVITY GRAPH (FAKE GITHUB GRID) */
-        .activity-section {
-            padding: 60px 5%;
-            border-top: 1px solid #222;
-            text-align: center;
-        }
+        /* ACTIVITY GRAPH */
+        .activity-section { padding: 60px 5%; border-top: 1px solid #222; text-align: center; position: relative; z-index: 5; background: #080808; }
         .graph-container {
-            display: flex;
-            gap: 4px;
-            justify-content: center;
-            margin-top: 30px;
-            flex-wrap: wrap;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
+            display: flex; gap: 4px; justify-content: center; margin-top: 30px; flex-wrap: wrap;
+            max-width: 800px; margin-left: auto; margin-right: auto;
         }
         .graph-col { display: flex; flex-direction: column; gap: 4px; }
         .pixel {
             width: 12px; height: 12px; background: #111; border-radius: 2px;
+            opacity: 0; transform: scale(0.5); /* For JS animation */
         }
-        /* Randomly assign classes via JS or hardcode some */
+        
         .l1 { background: #2a0e4f; }
         .l2 { background: #4a148c; }
         .l3 { background: #7c2ae8; }
-        .l4 { background: #9d50ff; box-shadow: 0 0 5px var(--accent); }
+        .l4 { background: #9d50ff; box-shadow: 0 0 8px var(--accent); }
 
         /* CHANGELOG */
-        .changelog {
-            max-width: 800px;
-            margin: 0 auto 80px;
-            font-family: var(--font-mono);
-            border-left: 2px solid #222;
-            padding-left: 30px;
-        }
-        .log-entry { margin-bottom: 30px; position: relative; }
+        .changelog { max-width: 800px; margin: 80px auto; font-family: var(--font-mono); border-left: 2px solid #222; padding-left: 30px; position: relative; z-index: 5; }
+        .log-entry { margin-bottom: 40px; position: relative; opacity: 0; transform: translateX(-30px); transition: all 0.6s cubic-bezier(0.1, 1, 0.1, 1); }
+        .log-entry.show { opacity: 1; transform: translateX(0); }
+        
         .log-entry::before {
-            content: ""; position: absolute; left: -36px; top: 5px;
-            width: 10px; height: 10px; background: #000; border: 2px solid var(--accent); border-radius: 50%;
+            content: ""; position: absolute; left: -36px; top: 5px; width: 10px; height: 10px;
+            background: #000; border: 2px solid var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent);
         }
-        .log-date { color: var(--accent); font-size: 0.8rem; margin-bottom: 5px; }
-        .log-msg { color: #fff; margin-bottom: 5px; }
-        .log-hash { color: #444; font-size: 0.75rem; }
+        .log-date { color: var(--accent); font-size: 0.8rem; margin-bottom: 8px; letter-spacing: 1px;}
+        .log-msg { color: #fff; margin-bottom: 8px; font-size: 0.95rem; line-height: 1.5; }
+        .log-hash { color: #555; font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 3px; display: inline-block;}
+
+        /* FOOTER */
+        .digital-sig {
+            margin-top: 80px; padding: 40px 5%; border-top: 1px solid #333; display: flex; justify-content: space-between;
+            font-family: var(--font-mono); font-size: 0.75rem; color: #555; max-width: 1200px; margin-left: auto; margin-right: auto;
+            position: relative; z-index: 5;
+        }
+
+        /* ANIMATIONS */
+        @keyframes slideDown { to { opacity: 1; transform: translateY(0); } }
+        @keyframes textGlow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes pixelPop { to { opacity: 1; transform: scale(1); } }
 
         @media (max-width: 900px) {
             .repo-grid { grid-template-columns: 1fr; }
-        }
-        /* FOOTER SIGNATURE */
-        .digital-sig {
-            margin-top: 80px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #555;
+            h1 { font-size: 2.2rem; }
         }
     </style>
 </head>
@@ -179,7 +160,7 @@
 
     <nav>
         <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">REPO_ACCESS: PUBLIC</div>
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666; border: 1px solid #333; padding: 5px 10px;">REPO_ACCESS: RTOS_v75.4</div>
     </nav>
 
     <section class="repo-hero">
@@ -194,52 +175,53 @@
             </div>
             <div class="cmd-line">
                 <span class="cmd-prompt">user@arttous:~$</span>
-                <input type="text" value="git clone https://github.com/sa-mael/robo-web-ps4.git" class="cmd-input" readonly id="cloneUrl">
+                <span class="typewriter-text" id="typeText"></span><span class="cursor" id="cursor"></span>
             </div>
-            <div class="cmd-line" style="color: #444;">
-                <span class="cmd-prompt">system:</span> Cloning into 'rhodium-v53'...
+            <div class="cmd-line sys-output" id="sysOut">
+                <span class="cmd-prompt">system:</span> Cloning into 'arttous-rtos-v75'...<br>
+                <span style="color:#2ecc71; margin-left: 75px;">Receiving objects: 100% (420/420), 5.10 MiB | 8.20 MiB/s, done.</span>
             </div>
-            <button class="copy-btn" onclick="copyClone()">COPY COMMAND</button>
+            <button class="copy-btn" id="copyBtn" onclick="copyClone()">COPY COMMAND</button>
         </div>
     </section>
 
-    <div class="repo-grid">
+    <div class="repo-grid" id="grid-container">
         
-        <a href="https://github.com/sa-mael/robo-web-ps4" target="_blank" class="repo-card">
+        <a href="https://github.com/sa-mael/robo-web-ps4" target="_blank" class="repo-card stagger-card">
             <div class="repo-icon">⚡</div>
             <div>
-                <div class="repo-title">arttous-rhodium-fw</div>
-                <div class="repo-desc">Core firmware for ESP32-C6. Handles Inverse Kinematics, IMU stabilization, and servo orchestration.</div>
+                <div class="repo-title">arttous-rtos-fw</div>
+                <div class="repo-desc">Core FreeRTOS firmware for ESP32-S3. Handles Dual-Core IK, stateMutex memory protection, and IMU stabilization.</div>
             </div>
             <div class="repo-stats">
-                <span class="stat">★ 1.2k</span>
-                <span class="stat">⑂ 240</span>
+                <span class="stat" style="color: var(--accent);">★ 1.8k</span>
+                <span class="stat">⑂ 310</span>
                 <span class="stat">● C++</span>
             </div>
         </a>
 
-        <a href="#" class="repo-card">
+        <a href="#" class="repo-card stagger-card">
             <div class="repo-icon">🌐</div>
             <div>
                 <div class="repo-title">arttous-telemetry</div>
-                <div class="repo-desc">Websocket dashboard for real-time robot monitoring. React/Node.js stack with Three.js visualization.</div>
+                <div class="repo-desc">Zero-install HTML5 Mission Control. WebGL Digital Twin visualization with 50ms WebSocket telemetry streaming.</div>
             </div>
             <div class="repo-stats">
-                <span class="stat">★ 890</span>
-                <span class="stat">⑂ 112</span>
-                <span class="stat">● JS</span>
+                <span class="stat" style="color: var(--success);">★ 1.1k</span>
+                <span class="stat">⑂ 145</span>
+                <span class="stat">● JS / Three.js</span>
             </div>
         </a>
 
-        <a href="#" class="repo-card">
+        <a href="#" class="repo-card stagger-card">
             <div class="repo-icon">🔌</div>
             <div>
                 <div class="repo-title">arttous-pcb-kicad</div>
-                <div class="repo-desc">KiCad schematics and Gerber files for the custom power distribution board (PDB) and ESP32 shield.</div>
+                <div class="repo-desc">KiCad schematics and Gerber files for the custom Dual-I2C Power Distribution Board (PDB).</div>
             </div>
             <div class="repo-stats">
-                <span class="stat">★ 450</span>
-                <span class="stat">⑂ 85</span>
+                <span class="stat">★ 620</span>
+                <span class="stat">⑂ 98</span>
                 <span class="stat">● PCB</span>
             </div>
         </a>
@@ -247,82 +229,152 @@
     </div>
 
     <section class="activity-section">
-        <h3 style="font-family: 'Orbitron'; color: #fff; margin-bottom: 10px;">COMMIT FREQUENCY</h3>
-        <p style="font-family: 'JetBrains Mono'; color: #666; font-size: 0.8rem;">LAST 30 DAYS ACTIVITY</p>
+        <h3 style="font-family: 'Orbitron'; color: #fff; margin-bottom: 10px;">CORE 1 THREAD ACTIVITY</h3>
+        <p style="font-family: 'JetBrains Mono'; color: #666; font-size: 0.8rem;">LAST 30 DAYS KINEMATIC COMMITS</p>
         
         <div class="graph-container" id="activityGraph">
             </div>
     </section>
 
     <div class="changelog">
-        <h3 style="font-family: 'Orbitron'; color: #fff; margin-bottom: 40px; border-bottom: 1px solid #222; padding-bottom: 10px;">LATEST PUSHES</h3>
+        <h3 style="font-family: 'Orbitron'; color: #fff; margin-bottom: 40px; border-bottom: 1px solid #222; padding-bottom: 10px;">LATEST MERGES</h3>
 
-        <div class="log-entry">
+        <div class="log-entry animate-on-scroll">
             <div class="log-date">TODAY 14:02</div>
-            <div class="log-msg">Fix: IMU drift correction on inclines > 15°</div>
+            <div class="log-msg">Merge pull request #142 from NullPointer/rtos-core-1<br><span style="color:#aaa; font-size:0.85rem;">Feat: Implemented stateMutex for IMU payload safety to prevent race conditions.</span></div>
             <div class="log-hash">commit 8f2a9c</div>
         </div>
 
-        <div class="log-entry">
+        <div class="log-entry animate-on-scroll">
             <div class="log-date">YESTERDAY 09:45</div>
-            <div class="log-msg">Feat: Added Symmetric Twist banking logic (v53.0)</div>
+            <div class="log-msg">Fix: TaskNetwork watchdog timeout<br><span style="color:#aaa; font-size:0.85rem;">Resolved ESP32-S3 panic when WebSockets client disconnects unexpectedly.</span></div>
             <div class="log-hash">commit 2b3d4e</div>
         </div>
 
-        <div class="log-entry">
-            <div class="log-date">FEB 08 2026</div>
-            <div class="log-msg">Refactor: LoRa Mesh anchor protocol optimization</div>
+        <div class="log-entry animate-on-scroll">
+            <div class="log-date">FEB 18 2026</div>
+            <div class="log-msg">Feat: Smooth Amplitude Decay (v75.2)<br><span style="color:#aaa; font-size:0.85rem;">Added dynamic dampening (smoothVx, smoothVy) for soft leg parking when gait stops.</span></div>
             <div class="log-hash">commit 7a1b2c</div>
         </div>
-
-         <div class="digital-sig">
-            <div>
-                SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
-                HASH: 0x99a...f42
-            </div>
-            <div style="text-align: right;">
-                &copy; 2026 Arttous Robotics Inc.<br>
-                ALL RIGHTS RESERVED.
-            </div>
-        </div> 
+        
+        <div class="log-entry animate-on-scroll">
+            <div class="log-date">FEB 12 2026</div>
+            <div class="log-msg">Refactor: Dual I2C Bus Split<br><span style="color:#aaa; font-size:0.85rem;">Separated PCA9685 and MPU6050 to distinct physical pins to prevent hardware starvation.</span></div>
+            <div class="log-hash">commit 4c9f11</div>
+        </div>
     </div>
 
+    <div class="digital-sig">
+        <div>
+            SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
+            HASH: 0x99a...f42
+        </div>
+        <div style="text-align: right;">
+            &copy; 2026 Arttous Robotics Inc.<br>
+            <a href="index.html" style="color: #666; text-decoration: none; transition: 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#666'">Return to Mission Control</a>
+        </div>
+    </div> 
+
     <script>
-        // GENERATE FAKE GITHUB GRAPH
-        const graph = document.getElementById('activityGraph');
-        const levels = ['pixel', 'pixel l1', 'pixel l2', 'pixel l3', 'pixel l4'];
-        
-        // Create 20 columns
-        for(let i=0; i<30; i++) {
-            const col = document.createElement('div');
-            col.className = 'graph-col';
-            // 7 rows per column (days of week)
-            for(let j=0; j<7; j++) {
-                const dot = document.createElement('div');
-                // Randomly assign activity level
-                const rand = Math.random();
-                let lvl = 0;
-                if(rand > 0.8) lvl = 4;
-                else if(rand > 0.6) lvl = 3;
-                else if(rand > 0.4) lvl = 2;
-                else if(rand > 0.2) lvl = 1;
-                
-                dot.className = levels[lvl];
-                col.appendChild(dot);
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. TERMINAL TYPING ANIMATION
+            const commandToType = "git clone https://github.com/sa-mael/robo-web-ps4.git";
+            const typeTarget = document.getElementById('typeText');
+            const sysOut = document.getElementById('sysOut');
+            const copyBtn = document.getElementById('copyBtn');
+            let typeIndex = 0;
+
+            function typeWriter() {
+                if (typeIndex < commandToType.length) {
+                    typeTarget.innerHTML += commandToType.charAt(typeIndex);
+                    typeIndex++;
+                    setTimeout(typeWriter, 40); // typing speed
+                } else {
+                    // Done typing, show output and button
+                    setTimeout(() => {
+                        sysOut.style.opacity = 1;
+                        copyBtn.classList.add('show');
+                        document.getElementById('cursor').style.display = 'none'; // hide cursor
+                    }, 400);
+                }
             }
-            graph.appendChild(col);
-        }
+            setTimeout(typeWriter, 800); // initial delay
+
+            // 2. STAGGERED GRID CARDS (Intersection Observer)
+            const gridObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const cards = document.querySelectorAll('.stagger-card');
+                        cards.forEach((card, index) => {
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, index * 200); 
+                        });
+                        gridObserver.disconnect();
+                    }
+                });
+            }, { threshold: 0.2 });
+            gridObserver.observe(document.getElementById('grid-container'));
+
+            // 3. GENERATE NEURAL GRAPH ANIMATION
+            const graph = document.getElementById('activityGraph');
+            const levels = ['pixel', 'pixel l1', 'pixel l2', 'pixel l3', 'pixel l4'];
+            
+            // Intersection observer for graph to trigger animation
+            const graphObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    for(let i=0; i<30; i++) {
+                        const col = document.createElement('div');
+                        col.className = 'graph-col';
+                        for(let j=0; j<7; j++) {
+                            const dot = document.createElement('div');
+                            const rand = Math.random();
+                            let lvl = 0;
+                            if(rand > 0.85) lvl = 4;
+                            else if(rand > 0.6) lvl = 3;
+                            else if(rand > 0.4) lvl = 2;
+                            else if(rand > 0.2) lvl = 1;
+                            
+                            dot.className = levels[lvl];
+                            
+                            // Randomize animation delay for neural boot-up effect
+                            const delay = Math.random() * 1.5; 
+                            dot.style.animation = `pixelPop 0.5s ease ${delay}s forwards`;
+                            
+                            col.appendChild(dot);
+                        }
+                        graph.appendChild(col);
+                    }
+                    graphObserver.disconnect();
+                }
+            }, { threshold: 0.5 });
+            graphObserver.observe(graph);
+
+            // 4. SCROLL REVEAL FOR CHANGELOG
+            const scrollObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('show');
+                        observer.unobserve(entry.target); 
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            const scrollElements = document.querySelectorAll('.animate-on-scroll');
+            scrollElements.forEach(el => scrollObserver.observe(el));
+
+        });
 
         // COPY FUNCTION
         function copyClone() {
-            const copyText = document.getElementById("cloneUrl");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(copyText.value);
+            const copyText = "git clone https://github.com/sa-mael/robo-web-ps4.git";
+            navigator.clipboard.writeText(copyText);
             
-            const btn = document.querySelector('.copy-btn');
+            const btn = document.getElementById('copyBtn');
             const original = btn.innerText;
-            btn.innerText = "COPIED!";
+            btn.innerText = "COPIED TO CLIPBOARD";
             btn.style.color = "#7c2ae8";
             btn.style.borderColor = "#7c2ae8";
             

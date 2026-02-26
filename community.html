@@ -10,8 +10,9 @@
     <style>
         :root {
             --bg-core: #050505;
-            --bg-card: #0e0e0e;
+            --bg-card: rgba(14, 14, 14, 0.8);
             --accent: #7c2ae8;
+            --success: #2ecc71;
             --text-main: #e0e0e0;
             --text-dim: #666;
             --font-tech: 'Orbitron', sans-serif;
@@ -26,154 +27,123 @@
             color: var(--text-main);
             font-family: var(--font-body);
             overflow-x: hidden;
+            position: relative;
+        }
+
+        /* HOLOGRAPHIC SCANLINE OVERLAY */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
         }
 
         /* HEADER */
-        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
-        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; }
+        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: relative; z-index: 10; background: rgba(5,5,5,0.9); }
+        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; animation: textGlow 2s infinite alternate;}
         .accent { color: var(--accent); }
 
         /* HERO SECTION */
         .comm-hero {
             text-align: center;
-            padding: 80px 5%;
-            background: radial-gradient(circle at 50% 0%, rgba(124, 42, 232, 0.05), transparent 70%);
+            padding: 100px 5% 60px;
+            background: radial-gradient(circle at 50% 0%, rgba(124, 42, 232, 0.08), transparent 70%);
+            position: relative;
+            z-index: 5;
+            animation: slideDown 1s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+            opacity: 0;
+            transform: translateY(-30px);
         }
-        h1 { font-family: var(--font-tech); font-size: 3.5rem; margin-bottom: 20px; }
-        .subtitle { color: var(--text-dim); font-size: 1.1rem; max-width: 600px; margin: 0 auto 40px; line-height: 1.6; }
+        h1 { font-family: var(--font-tech); font-size: 3.5rem; margin-bottom: 20px; letter-spacing: 2px;}
+        .subtitle { color: #888; font-size: 1.1rem; max-width: 650px; margin: 0 auto 40px; line-height: 1.6; }
 
         /* STATS BAR */
         .stats-bar {
-            display: flex;
-            justify-content: center;
-            gap: 50px;
-            margin-bottom: 60px;
-            font-family: var(--font-mono);
-            border-top: 1px solid #222;
-            border-bottom: 1px solid #222;
-            padding: 20px 0;
-            background: #080808;
+            display: flex; justify-content: center; gap: 70px; margin-bottom: 60px;
+            font-family: var(--font-mono); border-top: 1px solid #222; border-bottom: 1px solid #222;
+            padding: 30px 0; background: #080808; position: relative; z-index: 5;
         }
         .stat-item { text-align: center; }
-        .stat-val { display: block; font-size: 1.2rem; color: #fff; font-weight: bold; }
-        .stat-label { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; }
+        .stat-val { display: block; font-size: 1.5rem; color: #fff; font-weight: bold; margin-bottom: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.2);}
+        .stat-label { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;}
+        
+        .status-pulse { animation: radarPulse 2s infinite; border-radius: 50%; display: inline-block; }
 
         /* CHANNELS GRID */
         .channels-grid {
-            max-width: 1200px;
-            margin: 0 auto 80px;
-            padding: 0 5%;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
+            max-width: 1200px; margin: 0 auto 80px; padding: 0 5%;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;
+            position: relative; z-index: 5;
         }
 
         .channel-card {
-            background: var(--bg-card);
-            border: 1px solid #222;
-            padding: 30px;
-            transition: 0.3s;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 250px;
-            text-decoration: none;
+            background: var(--bg-card); border: 1px solid #222; padding: 30px;
+            transition: 0.4s cubic-bezier(0.1, 1, 0.1, 1); position: relative; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: space-between; height: 250px; text-decoration: none;
+            backdrop-filter: blur(10px);
+            opacity: 0; transform: translateY(30px); /* For JS animation */
         }
         .channel-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-5px);
-            background: linear-gradient(180deg, #0e0e0e 0%, #150520 100%);
+            border-color: var(--accent); transform: translateY(-10px);
+            background: linear-gradient(180deg, #0e0e0e 0%, rgba(124, 42, 232, 0.1) 100%);
+            box-shadow: 0 15px 30px rgba(124, 42, 232, 0.15);
         }
         
-        .card-icon { font-size: 2.5rem; margin-bottom: 20px; color: #fff; }
+        .card-icon { font-size: 2.5rem; margin-bottom: 20px; color: #fff; transition: 0.3s; }
+        .channel-card:hover .card-icon { transform: scale(1.1); color: var(--accent); }
         .card-title { font-family: var(--font-tech); font-size: 1.5rem; color: #fff; margin-bottom: 10px; }
         .card-desc { color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; }
         .card-meta { margin-top: auto; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); }
 
         /* SHOWCASE SECTION */
-        .showcase-section {
-            padding: 60px 5%;
-            border-top: 1px solid #222;
-        }
-        .section-header { 
-            display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; max-width: 1200px; margin-left: auto; margin-right: auto;
-        }
-        h2 { font-family: var(--font-tech); font-size: 2rem; }
+        .showcase-section { padding: 80px 5%; border-top: 1px solid #222; position: relative; z-index: 5; background: #050505;}
+        .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; max-width: 1200px; margin-left: auto; margin-right: auto; }
+        h2 { font-family: var(--font-tech); font-size: 2rem; color: #fff; text-shadow: 0 0 10px rgba(124, 42, 232, 0.4);}
+        .view-all { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); text-decoration: none; transition: 0.3s;}
+        .view-all:hover { color: #fff; text-shadow: 0 0 8px var(--accent); }
 
-        .builds-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .builds-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1200px; margin: 0 auto; }
         .build-item {
-            aspect-ratio: 1/1;
-            background: #222;
-            border: 1px solid #333;
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
+            aspect-ratio: 1/1; background: #111; border: 1px solid #333; position: relative; overflow: hidden; cursor: pointer;
+            opacity: 0; transform: scale(0.9); transition: all 0.6s cubic-bezier(0.1, 1, 0.1, 1);
         }
-        .build-item img {
-            width: 100%; height: 100%; object-fit: cover; opacity: 0.7; transition: 0.3s;
-        }
-        .build-item:hover img { opacity: 1; scale: 1.05; }
-        .build-overlay {
-            position: absolute; bottom: 0; left: 0; width: 100%;
-            background: linear-gradient(0deg, #000 0%, transparent 100%);
-            padding: 20px;
-        }
-        .build-author { font-family: var(--font-mono); font-size: 0.8rem; color: #fff; }
+        .build-item.show { opacity: 1; transform: scale(1); }
+        .build-item img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; transition: 0.5s; }
+        .build-item:hover img { opacity: 1; transform: scale(1.1); }
+        .build-item:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(124, 42, 232, 0.3); z-index: 2;}
+        .build-overlay { position: absolute; bottom: -50px; left: 0; width: 100%; background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, transparent 100%); padding: 30px 20px 15px; transition: 0.3s; }
+        .build-item:hover .build-overlay { bottom: 0; }
+        .build-author { font-family: var(--font-mono); font-size: 0.8rem; color: #fff; border-left: 2px solid var(--accent); padding-left: 10px;}
 
         /* CONTRIBUTORS TABLE */
-        .contrib-section {
-            max-width: 800px;
-            margin: 80px auto;
-            padding: 0 5%;
-        }
-        .contrib-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-        }
+        .contrib-section { max-width: 800px; margin: 80px auto; padding: 0 5%; position: relative; z-index: 5; opacity: 0; transform: translateY(30px); transition: 0.8s ease-out;}
+        .contrib-section.show { opacity: 1; transform: translateY(0); }
+        .contrib-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.9rem; }
         .contrib-table th { text-align: left; color: #666; padding-bottom: 20px; font-size: 0.8rem; border-bottom: 1px solid #333; }
-        .contrib-table td { padding: 15px 0; border-bottom: 1px solid #222; color: #aaa; }
+        .contrib-table td { padding: 15px 0; border-bottom: 1px solid #222; color: #aaa; transition: 0.3s;}
+        .contrib-table tr:hover td { color: #fff; background: rgba(255,255,255,0.02); }
         .rank { color: var(--accent); font-weight: bold; }
-        .xp-bar {
-            width: 100px; height: 4px; background: #222; display: inline-block; vertical-align: middle; margin-left: 10px;
-        }
-        .xp-fill { height: 100%; background: var(--accent); }
+        
+        .xp-bar { width: 120px; height: 6px; background: #222; display: inline-block; vertical-align: middle; margin-left: 10px; border-radius: 3px; overflow: hidden;}
+        .xp-fill { height: 100%; background: var(--accent); width: 0%; transition: width 1.5s cubic-bezier(0.1, 1, 0.1, 1); box-shadow: 0 0 10px var(--accent);}
 
         /* FOOTER */
-        footer {
-            border-top: 1px solid #222;
-            padding: 40px 0;
-            text-align: center;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #444;
-            margin-top: 50px;
-        }
+        footer { border-top: 1px solid #222; padding: 40px 0; text-align: center; font-family: var(--font-mono); font-size: 0.75rem; color: #444; position: relative; z-index: 5; background: #050505;}
+
+        /* ANIMATIONS */
+        @keyframes slideDown { to { opacity: 1; transform: translateY(0); } }
+        @keyframes textGlow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
+        @keyframes radarPulse { 0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); } }
 
         @media (max-width: 900px) {
             .channels-grid { grid-template-columns: 1fr; }
             .builds-grid { grid-template-columns: 1fr 1fr; }
-            .stats-bar { gap: 20px; flex-wrap: wrap; }
-        }
-         /* FOOTER SIGNATURE */
-        .digital-sig {
-            margin-top: 80px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #555;
+            .stats-bar { gap: 30px; flex-wrap: wrap; }
+            h1 { font-size: 2.5rem; }
         }
     </style>
 </head>
@@ -181,7 +151,7 @@
 
     <nav>
         <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">NODE_ID: GUEST</div>
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666; border: 1px solid #333; padding: 5px 10px;">NODE_ID: GUEST</div>
     </nav>
 
     <div class="comm-hero">
@@ -194,26 +164,26 @@
 
     <div class="stats-bar">
         <div class="stat-item">
-            <span class="stat-val">5,240</span>
+            <span class="stat-val counter" data-target="5240">0</span>
             <span class="stat-label">ACTIVE NODES</span>
         </div>
         <div class="stat-item">
-            <span class="stat-val">12,890</span>
+            <span class="stat-val counter" data-target="12890">0</span>
             <span class="stat-label">COMMITS PUSHED</span>
         </div>
         <div class="stat-item">
-            <span class="stat-val">892</span>
+            <span class="stat-val counter" data-target="892">0</span>
             <span class="stat-label">FORKS</span>
         </div>
         <div class="stat-item">
-            <span class="stat-val" style="color: #2ecc71;">ONLINE</span>
+            <span class="stat-val status-pulse" style="color: var(--success);">ONLINE</span>
             <span class="stat-label">SERVER STATUS</span>
         </div>
     </div>
 
     <div class="channels-grid">
         
-        <a href="#" class="channel-card">
+        <a href="#" class="channel-card stagger-in">
             <div class="card-icon">#</div>
             <div>
                 <div class="card-title">DISCORD OPS</div>
@@ -222,16 +192,16 @@
             <div class="card-meta">/// 1,400 MEMBERS ONLINE</div>
         </a>
 
-        <a href="#" class="channel-card">
+        <a href="#" class="channel-card stagger-in">
             <div class="card-icon">⌘</div>
             <div>
                 <div class="card-title">GITHUB REPO</div>
-                <div class="card-desc">Access the Rhodium v53 Firmware source code, STL files, and PCB schematics.</div>
+                <div class="card-desc">Access the RTOS v75.4 Firmware source code, STL files, and PCB schematics.</div>
             </div>
             <div class="card-meta">/// LATEST COMMIT: 2HRS AGO</div>
         </a>
 
-        <a href="#" class="channel-card">
+        <a href="#" class="channel-card stagger-in">
             <div class="card-icon">r/</div>
             <div>
                 <div class="card-title">SUBREDDIT</div>
@@ -245,29 +215,29 @@
     <section class="showcase-section">
         <div class="section-header">
             <h2>FIELD DEPLOYMENTS</h2>
-            <div style="font-family: 'JetBrains Mono'; font-size: 0.8rem; color: var(--accent);">VIEW ALL UPLOADS >></div>
+            <a href="#" class="view-all">VIEW ALL UPLOADS >></a>
         </div>
         
         <div class="builds-grid">
-            <div class="build-item">
+            <div class="build-item animate-on-scroll">
                 <img src="assets/images/build1.jpg" alt="User Build" style="background: #222;">
                 <div class="build-overlay">
                     <div class="build-author">UNIT: MK_IV_BY_ALEX</div>
                 </div>
             </div>
-            <div class="build-item">
+            <div class="build-item animate-on-scroll">
                 <img src="assets/images/build2.jpg" alt="User Build" style="background: #333;">
                 <div class="build-overlay">
                     <div class="build-author">UNIT: SAND_CRAWLER</div>
                 </div>
             </div>
-            <div class="build-item">
+            <div class="build-item animate-on-scroll">
                 <img src="assets/images/build3.jpg" alt="User Build" style="background: #111;">
                 <div class="build-overlay">
                     <div class="build-author">UNIT: NIGHT_OPS</div>
                 </div>
             </div>
-            <div class="build-item">
+            <div class="build-item animate-on-scroll">
                 <img src="assets/images/build4.jpg" alt="User Build" style="background: #222;">
                 <div class="build-overlay">
                     <div class="build-author">UNIT: HEAVY_LIFTER</div>
@@ -276,8 +246,8 @@
         </div>
     </section>
 
-    <section class="contrib-section">
-        <h3 style="font-family: 'Orbitron'; margin-bottom: 20px;">TOP CONTRIBUTORS</h3>
+    <section class="contrib-section animate-on-scroll" id="contributors">
+        <h3 style="font-family: 'Orbitron'; margin-bottom: 20px; color: #fff;">TOP CONTRIBUTORS</h3>
         <table class="contrib-table">
             <thead>
                 <tr>
@@ -290,26 +260,26 @@
             <tbody>
                 <tr>
                     <td class="rank">01</td>
-                    <td>sa-mael</td>
-                    <td>Core Firmware</td>
+                    <td style="color: #fff;">sa-mael</td>
+                    <td>Core Firmware / RTOS</td>
                     <td>
-                        <div class="xp-bar"><div class="xp-fill" style="width: 95%;"></div></div>
+                        <div class="xp-bar"><div class="xp-fill" data-width="95%"></div></div>
                     </td>
                 </tr>
                 <tr>
                     <td class="rank">02</td>
                     <td>NullPointer</td>
-                    <td>Kinematics</td>
+                    <td>Kinematics Engine</td>
                     <td>
-                        <div class="xp-bar"><div class="xp-fill" style="width: 80%;"></div></div>
+                        <div class="xp-bar"><div class="xp-fill" data-width="80%"></div></div>
                     </td>
                 </tr>
                 <tr>
                     <td class="rank">03</td>
                     <td>CyberWolf</td>
-                    <td>3D Modeling</td>
+                    <td>3D Modeling / STL</td>
                     <td>
-                        <div class="xp-bar"><div class="xp-fill" style="width: 75%;"></div></div>
+                        <div class="xp-bar"><div class="xp-fill" data-width="75%"></div></div>
                     </td>
                 </tr>
                 <tr>
@@ -317,7 +287,7 @@
                     <td>LoRa_Master</td>
                     <td>Mesh Networking</td>
                     <td>
-                        <div class="xp-bar"><div class="xp-fill" style="width: 60%;"></div></div>
+                        <div class="xp-bar"><div class="xp-fill" data-width="60%"></div></div>
                     </td>
                 </tr>
             </tbody>
@@ -325,9 +295,80 @@
     </section>
 
     <footer>
-        <p>&copy; 2026 Arttous Robotics Inc. | <a href="index.html" style="color:#666; text-decoration:none;">Return to Mission Control</a></p>
-        <p class="mono" style="margin-top: 10px;">END OF LINE.</p>
+        <p>&copy; 2026 Arttous Robotics Inc. | <a href="index.html" style="color:#666; text-decoration:none; transition: 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#666'">Return to Mission Control</a></p>
+        <p style="margin-top: 10px; font-family: var(--font-tech); font-size: 0.6rem; letter-spacing: 2px;">END OF LINE.</p>
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. NUMBER COUNTER ANIMATION (with commas)
+            const counters = document.querySelectorAll('.counter');
+            const speed = 80; 
+
+            const animateCounters = () => {
+                counters.forEach(counter => {
+                    const updateCount = () => {
+                        const target = +counter.getAttribute('data-target');
+                        const currentText = counter.innerText.replace(/,/g, ''); 
+                        const count = +currentText;
+                        const inc = target / speed;
+
+                        if (count < target) {
+                            counter.innerText = Math.ceil(count + inc).toLocaleString();
+                            setTimeout(updateCount, 15);
+                        } else {
+                            counter.innerText = target.toLocaleString();
+                        }
+                    };
+                    updateCount();
+                });
+            };
+
+            // 2. STAGGERED REVEAL FOR TOP CARDS
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.stagger-in');
+                cards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 150); 
+                });
+                animateCounters();
+            }, 600);
+
+            // 3. SCROLL REVEAL (Intersection Observer)
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Reveal element
+                        entry.target.classList.add('show');
+                        
+                        // If it's the contributors section, animate the XP bars
+                        if(entry.target.id === 'contributors') {
+                            const xpBars = entry.target.querySelectorAll('.xp-fill');
+                            xpBars.forEach((bar, index) => {
+                                setTimeout(() => {
+                                    bar.style.width = bar.getAttribute('data-width');
+                                }, index * 200); // Stagger the bar fills
+                            });
+                        }
+                        
+                        observer.unobserve(entry.target); 
+                    }
+                });
+            }, observerOptions);
+
+            const animatedElements = document.querySelectorAll('.animate-on-scroll');
+            animatedElements.forEach(el => observer.observe(el));
+
+        });
+    </script>
 </body>
 </html>

@@ -10,9 +10,9 @@
     <style>
         :root {
             --bg-core: #050505;
-            --bg-card: #0e0e0e;
+            --bg-card: rgba(14, 14, 14, 0.8);
             --accent: #7c2ae8;
-            --profit: #2ecc71; /* Зеленый для денег */
+            --profit: #2ecc71; 
             --text-main: #e0e0e0;
             --text-dim: #666;
             --font-tech: 'Orbitron', sans-serif;
@@ -27,24 +27,43 @@
             color: var(--text-main);
             font-family: var(--font-body);
             overflow-x: hidden;
+            position: relative;
+        }
+
+        /* HOLOGRAPHIC SCANLINE OVERLAY */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
         }
 
         /* HEADER */
-        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
-        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; }
+        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: relative; z-index: 10; background: rgba(5,5,5,0.9); }
+        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; animation: glow 2s infinite alternate; }
         .accent { color: var(--accent); }
         .secure-badge { 
-            border: 1px solid #333; padding: 5px 12px; font-family: var(--font-mono); font-size: 0.7rem; color: #888; letter-spacing: 1px;
+            border: 1px solid var(--accent); padding: 5px 12px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px;
+            animation: pulseBadge 2s infinite; background: rgba(124, 42, 232, 0.1);
         }
 
         /* HERO SECTION */
         .invest-hero {
-            padding: 80px 5%;
+            padding: 100px 5% 60px;
             text-align: center;
-            background: radial-gradient(circle at 50% 100%, rgba(46, 204, 113, 0.05), transparent 60%);
+            background: radial-gradient(circle at 50% 100%, rgba(46, 204, 113, 0.08), transparent 60%);
+            position: relative;
+            z-index: 5;
+            animation: slideDown 1s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+            opacity: 0;
+            transform: translateY(-30px);
         }
-        h1 { font-family: var(--font-tech); font-size: 3.5rem; margin-bottom: 20px; }
-        .subtitle { color: var(--text-dim); max-width: 700px; margin: 0 auto; line-height: 1.6; font-size: 1.1rem; }
+        h1 { font-family: var(--font-tech); font-size: 3.5rem; margin-bottom: 20px; letter-spacing: 2px; }
+        .subtitle { color: #888; max-width: 700px; margin: 0 auto; line-height: 1.6; font-size: 1.1rem; }
 
         /* METRICS GRID (UNIT ECONOMICS) */
         .metrics-grid {
@@ -52,86 +71,98 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 30px;
             max-width: 1200px;
-            margin: 60px auto;
+            margin: 40px auto 80px;
             padding: 0 5%;
+            position: relative;
+            z-index: 5;
         }
         .metric-card {
-            background: var(--bg-card);
-            border: 1px solid #222;
-            padding: 30px;
-            text-align: center;
-            transition: 0.3s;
+            background: var(--bg-card); border: 1px solid #222; padding: 40px 20px; text-align: center;
+            transition: 0.4s cubic-bezier(0.1, 1, 0.1, 1);
+            backdrop-filter: blur(10px);
+            opacity: 0; transform: translateY(30px); /* For JS animation */
         }
-        .metric-card:hover { border-color: var(--profit); transform: translateY(-5px); }
-        .metric-val { font-family: var(--font-tech); font-size: 2.5rem; color: #fff; margin-bottom: 5px; }
-        .metric-label { font-family: var(--font-mono); font-size: 0.8rem; color: #666; text-transform: uppercase; }
-        .growth-tag { color: var(--profit); font-size: 0.8rem; margin-top: 10px; display: block; }
+        .metric-card:hover { border-color: var(--profit); transform: translateY(-10px) scale(1.02); box-shadow: 0 15px 30px rgba(46, 204, 113, 0.1); }
+        .metric-val { font-family: var(--font-tech); font-size: 3rem; color: #fff; margin-bottom: 5px; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
+        .metric-label { font-family: var(--font-mono); font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 1px;}
+        .growth-tag { color: var(--profit); font-size: 0.8rem; margin-top: 15px; display: block; font-family: var(--font-mono); background: rgba(46, 204, 113, 0.1); padding: 5px; border-radius: 4px;}
+
+        /* DIGITAL TWIN SHOWCASE */
+        .software-asset {
+            max-width: 1200px; margin: 0 auto 80px; padding: 0 5%;
+            position: relative; z-index: 5;
+            opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out;
+        }
+        .software-asset.show { opacity: 1; transform: translateY(0); }
 
         /* ROADMAP (TIMELINE) */
         .roadmap-section {
-            padding: 80px 5%;
-            max-width: 900px;
-            margin: 0 auto;
+            padding: 80px 5%; max-width: 900px; margin: 0 auto; position: relative; z-index: 5;
         }
-        .section-title { font-family: var(--font-tech); font-size: 2rem; margin-bottom: 50px; text-align: center; }
+        .section-title { font-family: var(--font-tech); font-size: 2rem; margin-bottom: 50px; text-align: center; color: #fff; text-shadow: 0 0 10px rgba(124, 42, 232, 0.5);}
         
         .timeline { position: relative; border-left: 2px solid #222; padding-left: 40px; margin-left: 20px; }
-        .timeline-item { margin-bottom: 60px; position: relative; }
+        .timeline-item { margin-bottom: 60px; position: relative; opacity: 0; transform: translateX(-30px); transition: all 0.6s ease-out; }
+        .timeline-item.show { opacity: 1; transform: translateX(0); }
         
         .timeline-dot {
             width: 16px; height: 16px; background: #000; border: 2px solid var(--accent); border-radius: 50%;
             position: absolute; left: -49px; top: 5px;
+            box-shadow: 0 0 15px var(--accent);
         }
-        .timeline-dot.future { border-color: #444; }
+        .timeline-dot.active { animation: radarPulse 2s infinite; }
+        .timeline-dot.future { border-color: #444; box-shadow: none; }
         
-        .phase-title { font-family: var(--font-mono); color: var(--accent); font-size: 0.9rem; margin-bottom: 10px; }
+        .phase-title { font-family: var(--font-mono); color: var(--accent); font-size: 0.9rem; margin-bottom: 10px; letter-spacing: 1px; }
         .milestone { font-family: var(--font-tech); font-size: 1.5rem; color: #fff; margin-bottom: 10px; }
         .milestone-desc { color: #888; line-height: 1.6; }
 
         /* INVESTMENT TIERS */
         .tiers-section {
-            background: #0a0a0a;
-            padding: 80px 5%;
-            border-top: 1px solid #222;
+            background: #080808; padding: 100px 5%; border-top: 1px solid #222; position: relative; z-index: 5;
         }
         .tiers-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 40px;
-            max-width: 1000px;
-            margin: 0 auto;
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; max-width: 1000px; margin: 0 auto;
         }
         .tier-card {
-            border: 1px solid #333;
-            padding: 40px;
-            background: var(--bg-core);
-            position: relative;
+            border: 1px solid #333; padding: 40px; background: var(--bg-core); position: relative;
+            opacity: 0; transform: translateY(40px); transition: all 0.8s ease-out;
         }
-        .tier-name { font-family: var(--font-mono); color: #fff; font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
-        .tier-list { list-style: none; margin-bottom: 30px; }
-        .tier-list li { color: #888; margin-bottom: 10px; font-size: 0.9rem; }
-        .tier-list li::before { content: "+ "; color: var(--accent); }
+        .tier-card.show { opacity: 1; transform: translateY(0); }
+        .tier-card:hover { border-color: #555; }
+        .tier-card.open-tier { border-color: var(--profit); box-shadow: inset 0 0 20px rgba(46, 204, 113, 0.05); }
+        
+        .tier-name { font-family: var(--font-mono); color: #fff; font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; letter-spacing: 1px;}
+        .tier-list { list-style: none; margin-bottom: 40px; }
+        .tier-list li { color: #888; margin-bottom: 15px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;}
+        .tier-list li::before { content: "►"; color: var(--accent); font-size: 0.7rem; }
         
         .invest-btn {
             width: 100%; padding: 15px; background: transparent; border: 1px solid var(--profit); color: var(--profit);
             font-family: var(--font-tech); cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-block; text-align: center;
+            position: relative; overflow: hidden;
         }
-        .invest-btn:hover { background: var(--profit); color: #000; }
+        .invest-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(46, 204, 113, 0.4), transparent);
+            transform: skewX(-20deg); transition: 0.5s;
+        }
+        .invest-btn:hover::before { left: 200%; }
+        .invest-btn:hover { background: var(--profit); color: #000; box-shadow: 0 0 20px rgba(46, 204, 113, 0.4); }
 
         /* FOOTER */
-        footer {
-            border-top: 1px solid #222;
-            padding: 40px 0;
-            text-align: center;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #444;
-            margin-top: 0;
-        }
+        footer { border-top: 1px solid #222; padding: 40px 0; text-align: center; font-family: var(--font-mono); font-size: 0.75rem; color: #444; position: relative; z-index: 5; background: #050505;}
+
+        /* ANIMATIONS */
+        @keyframes slideDown { to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulseBadge { 0%, 100% { opacity: 1; box-shadow: 0 0 5px var(--accent); } 50% { opacity: 0.5; box-shadow: none; } }
+        @keyframes glow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
+        @keyframes radarPulse { 0% { box-shadow: 0 0 0 0 rgba(124, 42, 232, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(124, 42, 232, 0); } 100% { box-shadow: 0 0 0 0 rgba(124, 42, 232, 0); } }
 
         @media (max-width: 900px) {
-            .metrics-grid { grid-template-columns: 1fr; }
+            .metrics-grid { grid-template-columns: 1fr; gap: 15px; }
             .tiers-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2.5rem; }
         }
     </style>
 </head>
@@ -150,21 +181,32 @@
         </p>
     </div>
 
-    <div class="metrics-grid">
+    <div class="metrics-grid" id="metrics">
         <div class="metric-card">
-            <div class="metric-val">$850</div>
+            <div class="metric-val" data-target="850" data-prefix="$">0</div>
             <div class="metric-label">Bill of Materials (BOM)</div>
             <span class="growth-tag">Target: $600 by Q4 2026</span>
         </div>
         <div class="metric-card">
-            <div class="metric-val">$1,200</div>
+            <div class="metric-val" data-target="1200" data-prefix="$" data-suffix="K">0</div>
             <div class="metric-label">Monthly RaaS Fee</div>
-            <span class="growth-tag" style="color: #fff;">Recurring Revenue</span>
+            <span class="growth-tag" style="color: #fff; background: #222;">Recurring Revenue</span>
         </div>
         <div class="metric-card">
-            <div class="metric-val">84%</div>
+            <div class="metric-val" data-target="84" data-suffix="%">0</div>
             <div class="metric-label">Gross Margin</div>
             <span class="growth-tag">+12% YoY Efficiency</span>
+        </div>
+    </div>
+
+    <div class="software-asset animate-on-scroll">
+        <h3 style="color: var(--accent); margin-bottom: 20px; font-family: var(--font-tech); text-align: center;">SOFTWARE ASSET: DIGITAL TWIN UI</h3>
+        <div style="background: #0a0a0a; border: 1px solid #222; padding: 20px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+            <img src="assets/images/Screenshot 2026-02-22 124034.jpg" style="width: 100%; max-width: 900px; border: 1px solid #333; border-radius: 4px; margin-bottom: 20px;" alt="Flight Deck UI">
+            <h4 style="color: #fff; font-family: var(--font-tech); margin-bottom: 10px;">PROPRIETARY MISSION CONTROL INTERFACE</h4>
+            <p style="color: #888; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; max-width: 800px; margin: 0 auto;">
+                Served entirely from the ESP32-S3's onboard memory, this Zero-Install Web UI provides operators with a real-time WebGL Digital Twin. Features 50Hz WebSocket telemetry and direct kinematic control. A major differentiator for our enterprise RaaS clients.
+            </p>
         </div>
     </div>
 
@@ -172,48 +214,46 @@
         <h2 class="section-title">STRATEGIC TIMELINE</h2>
         
         <div class="timeline">
-            
-            <div class="timeline-item">
+            <div class="timeline-item animate-on-scroll">
                 <div class="timeline-dot"></div>
                 <div class="phase-title">PHASE 1: GENESIS (COMPLETED)</div>
-                <div class="milestone">Rhodium Firmware v53</div>
+                <div class="milestone">RTOS Firmware v75.4.1</div>
                 <p class="milestone-desc">
-                    Achieved stable 16-DOF locomotion and basic T3S3 Mesh networking. 
-                    Deployed open-source repo to build developer community.
+                    Achieved highly stable 16-DOF locomotion leveraging a Dual-Core FreeRTOS architecture. 
+                    Integrated T3S3 Mesh networking and deployed the open-source platform.
                 </p>
             </div>
 
-            <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <div class="phase-title">PHASE 2: DEPLOYMENT (CURRENT)</div>
+            <div class="timeline-item animate-on-scroll">
+                <div class="timeline-dot active"></div>
+                <div class="phase-title" style="color: var(--profit);">PHASE 2: DEPLOYMENT (CURRENT)</div>
                 <div class="milestone">Pilot Fleet Alpha</div>
                 <p class="milestone-desc">
                     Deployment of 50 units to Ontario mining partners. 
-                    Stress-testing "Symmetric Twist" kinematics in real-world subterranean environments.
+                    Stress-testing "Symmetric Twist" kinematics and active IMU balancing in real-world subterranean environments.
                 </p>
             </div>
 
-            <div class="timeline-item">
+            <div class="timeline-item animate-on-scroll">
                 <div class="timeline-dot future"></div>
-                <div class="phase-title">PHASE 3: SWARM (2027)</div>
-                <div class="milestone">Hive Mind Protocol</div>
+                <div class="phase-title" style="color: #666;">PHASE 3: SWARM (2027)</div>
+                <div class="milestone" style="color: #666;">Hive Mind Protocol</div>
                 <p class="milestone-desc">
                     Transition from single-unit mesh to distributed swarm intelligence. 
                     Robots will share mapping data to create real-time 3D scans of hazardous areas.
                 </p>
             </div>
-
         </div>
     </section>
 
     <section class="tiers-section">
-        <h2 class="section-title" style="margin-bottom: 40px;">CAPITAL ALLOCATION</h2>
+        <h2 class="section-title" style="margin-bottom: 60px;">CAPITAL ALLOCATION</h2>
         
         <div class="tiers-grid">
             
-            <div class="tier-card">
-                <div class="tier-name">SEED ROUND (OPEN)</div>
-                <p style="color: #aaa; margin-bottom: 20px;">
+            <div class="tier-card open-tier animate-on-scroll">
+                <div class="tier-name" style="color: var(--profit);">SEED ROUND (OPEN)</div>
+                <p style="color: #aaa; margin-bottom: 25px; line-height: 1.6;">
                     Fueling the transition from prototype to mass production injection molding.
                 </p>
                 <ul class="tier-list">
@@ -225,17 +265,17 @@
                 <a href="contact.html" class="invest-btn">REQUEST PITCH DECK</a>
             </div>
 
-            <div class="tier-card" style="border-color: #222; opacity: 0.6;">
-                <div class="tier-name">SERIES A (LOCKED)</div>
-                <p style="color: #666; margin-bottom: 20px;">
+            <div class="tier-card animate-on-scroll" style="border-color: #222; opacity: 0.6;">
+                <div class="tier-name" style="color: #666;">SERIES A (LOCKED)</div>
+                <p style="color: #555; margin-bottom: 25px; line-height: 1.6;">
                     Planned for Q3 2027. Expansion into military and federal search & rescue contracts.
                 </p>
                 <ul class="tier-list">
-                    <li>Target Raise: $12M</li>
-                    <li>Focus: Global Distribution</li>
-                    <li>Swarm AI Acquisition</li>
+                    <li style="color: #555;">Target Raise: $12M</li>
+                    <li style="color: #555;">Focus: Global Distribution</li>
+                    <li style="color: #555;">Swarm AI Acquisition</li>
                 </ul>
-                <div style="font-family: 'JetBrains Mono'; color: #444; text-align: center; margin-top: 30px; border: 1px solid #333; padding: 10px;">
+                <div style="font-family: 'JetBrains Mono'; color: #444; text-align: center; margin-top: 50px; border: 1px solid #333; padding: 12px;">
                     STATUS: PENDING METRICS
                 </div>
             </div>
@@ -244,8 +284,72 @@
     </section>
 
     <footer>
-        <p>&copy; 2026 Arttous Robotics Inc. | <a href="index.html" style="color: #666; text-decoration: none;">Return to HQ</a></p>
+        <p>&copy; 2026 Arttous Robotics Inc. | <a href="index.html" style="color: #666; text-decoration: none; transition: 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#666'">Return to HQ</a></p>
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. NUMBER COUNTER ANIMATION
+            const counters = document.querySelectorAll('.metric-val');
+            const speed = 100; // The lower the slower
+
+            const animateCounters = () => {
+                counters.forEach(counter => {
+                    const updateCount = () => {
+                        const target = +counter.getAttribute('data-target');
+                        const prefix = counter.getAttribute('data-prefix') || '';
+                        const suffix = counter.getAttribute('data-suffix') || '';
+                        // Remove prefix/suffix for math
+                        const currentText = counter.innerText.replace(/[^0-9]/g, ''); 
+                        const count = +currentText;
+
+                        const inc = target / speed;
+
+                        if (count < target) {
+                            counter.innerText = prefix + Math.ceil(count + inc) + suffix;
+                            setTimeout(updateCount, 15);
+                        } else {
+                            // Ensure final value is exact
+                            counter.innerText = prefix + target + suffix;
+                        }
+                    };
+                    updateCount();
+                });
+            };
+
+            // Trigger counters with a slight delay after load
+            setTimeout(() => {
+                const metricCards = document.querySelectorAll('.metric-card');
+                metricCards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 200); // Staggered entrance
+                });
+                animateCounters();
+            }, 800);
+
+            // 2. SCROLL REVEAL ANIMATIONS (Intersection Observer)
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.2 // Trigger when 20% visible
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('show');
+                        observer.unobserve(entry.target); // Only animate once
+                    }
+                });
+            }, observerOptions);
+
+            const animatedElements = document.querySelectorAll('.animate-on-scroll');
+            animatedElements.forEach(el => observer.observe(el));
+
+        });
+    </script>
 </body>
 </html>

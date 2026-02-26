@@ -10,9 +10,10 @@
     <style>
         :root {
             --bg-core: #050505;
-            --bg-card: #0e0e0e;
+            --bg-card: rgba(14, 14, 14, 0.85);
             --accent: #7c2ae8;
             --text-main: #e0e0e0;
+            --danger: #e74c3c;
             --font-tech: 'Orbitron', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
             --font-body: 'Inter', sans-serif;
@@ -25,11 +26,20 @@
             color: var(--text-main);
             font-family: var(--font-body);
             line-height: 1.7;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* HOLOGRAPHIC SCANLINE OVERLAY */
+        body::before {
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999; background-size: 100% 2px, 3px 100%; pointer-events: none;
         }
 
         /* HEADER */
-        nav { padding: 25px 5%; display: flex; justify-content: space-between; border-bottom: 1px solid #222; }
-        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; }
+        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: relative; z-index: 10; background: rgba(5,5,5,0.9); backdrop-filter: blur(5px); }
+        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; animation: textGlow 2s infinite alternate;}
         .accent { color: var(--accent); }
 
         /* LEGAL CONTAINER */
@@ -37,19 +47,26 @@
             max-width: 900px;
             margin: 60px auto;
             padding: 0 5%;
+            position: relative;
+            z-index: 5;
         }
 
         .doc-header {
             margin-bottom: 60px;
             border-bottom: 1px solid #333;
             padding-bottom: 30px;
+            animation: slideDown 0.8s cubic-bezier(0.1, 1, 0.1, 1);
         }
         
-        h1 { font-family: var(--font-tech); font-size: 2.5rem; margin-bottom: 10px; color: #fff; }
-        .doc-meta { font-family: var(--font-mono); color: #666; font-size: 0.8rem; }
+        h1 { font-family: var(--font-tech); font-size: 2.8rem; margin-bottom: 15px; color: #fff; text-shadow: 0 0 15px rgba(124, 42, 232, 0.3); letter-spacing: 1px;}
+        .doc-meta { font-family: var(--font-mono); color: var(--accent); font-size: 0.85rem; letter-spacing: 1px; }
 
         /* CONTENT STYLES */
-        .term-section { margin-bottom: 50px; }
+        .term-section { 
+            margin-bottom: 50px; 
+            opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.1, 1, 0.1, 1);
+        }
+        .term-section.show { opacity: 1; transform: translateY(0); }
         
         h2 { 
             font-family: var(--font-tech); 
@@ -58,112 +75,120 @@
             margin-bottom: 15px; 
             border-left: 3px solid var(--accent);
             padding-left: 15px;
+            background: linear-gradient(90deg, rgba(124, 42, 232, 0.1) 0%, transparent 100%);
         }
 
         p { color: #aaa; margin-bottom: 15px; text-align: justify; font-size: 0.95rem; }
-        
-        strong { color: #fff; font-weight: 600; }
+        strong { color: #fff; font-weight: 600; font-family: var(--font-mono); font-size: 0.9rem;}
 
         ul { list-style: none; margin-bottom: 20px; }
         li { 
-            color: #aaa; 
-            margin-bottom: 10px; 
-            padding-left: 20px; 
-            position: relative; 
-            font-size: 0.95rem;
+            color: #aaa; margin-bottom: 10px; padding-left: 20px; position: relative; font-size: 0.95rem;
         }
         li::before { content: ">>"; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); font-size: 0.8rem; }
 
         /* CRITICAL WARNING BOX */
         .hazard-box {
             background: rgba(231, 76, 60, 0.05);
-            border: 1px solid #c0392b;
-            padding: 20px;
-            margin-bottom: 40px;
+            border: 1px solid var(--danger);
+            padding: 25px;
+            margin-bottom: 50px;
+            animation: dangerPulse 2s infinite;
+            position: relative;
+            opacity: 0; transform: scale(0.95); transition: all 0.5s ease;
         }
-        .hazard-title { color: #e74c3c; font-family: var(--font-tech); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        .hazard-text { color: #e74c3c; font-size: 0.85rem; font-family: var(--font-mono); }
+        .hazard-box.show { opacity: 1; transform: scale(1); }
+        
+        .hazard-title { color: var(--danger); font-family: var(--font-tech); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; font-size: 1.1rem; letter-spacing: 1px;}
+        .hazard-text { color: var(--danger); font-size: 0.85rem; font-family: var(--font-mono); line-height: 1.6;}
+        .blink-warn { animation: blink 1s step-end infinite; }
 
         /* FOOTER SIGNATURE */
         .digital-sig {
-            margin-top: 80px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #555;
+            margin-top: 80px; padding-top: 30px; border-top: 1px solid #333;
+            display: flex; justify-content: space-between; font-family: var(--font-mono);
+            font-size: 0.75rem; color: #555; padding-bottom: 40px;
         }
-        
+        .digital-sig a { color: #555; text-decoration: none; transition: 0.3s; }
+        .digital-sig a:hover { color: var(--accent); }
 
+        /* ANIMATIONS */
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes textGlow { from { text-shadow: 0 0 5px rgba(124,42,232,0.2); } to { text-shadow: 0 0 15px rgba(124,42,232,0.8); } }
+        @keyframes dangerPulse { 0%, 100% { box-shadow: 0 0 5px rgba(231, 76, 60, 0.1); } 50% { box-shadow: 0 0 25px rgba(231, 76, 60, 0.25); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .digital-sig { flex-direction: column; gap: 15px; text-align: center; }
+            .digital-sig div { text-align: center !important; }
+        }
     </style>
 </head>
 <body>
 
     <nav>
         <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">DOC_ID: TOU_V2</div>
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666; border: 1px solid #333; padding: 5px 10px;">DOC_ID: TOU_v75.4</div>
     </nav>
 
     <div class="doc-wrapper">
         
         <div class="doc-header">
-            <h1>TERMS OF USE</h1>
-            <div class="doc-meta">
-                EFFECTIVE DATE: FEB 01, 2026<br>
-                STATUS: BINDING PROTOCOL
+            <h1>TERMS OF ENGAGEMENT</h1>
+            <div class="doc-meta" id="decrypt-meta" data-value="EFFECTIVE DATE: Q1 2026 // STATUS: BINDING PROTOCOL">
+                [DECRYPTING METADATA...]
             </div>
         </div>
 
-        <div class="hazard-box">
+        <div class="hazard-box animate-on-scroll">
             <div class="hazard-title">
-                <span>⚠️</span> CRITICAL SAFETY NOTICE
+                <span class="blink-warn">⚠️</span> CRITICAL SAFETY NOTICE
             </div>
             <div class="hazard-text">
-                THE HARDWARE DESIGNS PROVIDED HEREIN INVOLVE HIGH-TORQUE ACTUATORS AND LITHIUM-POLYMER BATTERIES. IMPROPER ASSEMBLY MAY RESULT IN FIRE, PHYSICAL INJURY, OR PROPERTY DAMAGE. PROCEED AT YOUR OWN RISK.
+                THE HARDWARE DESIGNS PROVIDED HEREIN INVOLVE HIGH-TORQUE ACTUATORS AND LITHIUM-POLYMER BATTERIES. IMPROPER ASSEMBLY OR KINEMATIC CONFIGURATION MAY RESULT IN FIRE, PHYSICAL INJURY, OR CATASTROPHIC HARDWARE FAILURE. PROCEED AT YOUR OWN RISK.
             </div>
         </div>
 
-        <div class="term-section">
+        <div class="term-section animate-on-scroll">
             <h2>1. ACCEPTANCE OF PROTOCOLS</h2>
             <p>
-                By accessing the Arttous platform, downloading our firmware (Rhodium v53+), or utilizing our 3D assets, you verify that you are a sentient entity capable of entering into a binding contract under the laws of Ontario, Canada. If you do not agree to these terms, terminate your connection immediately.
+                By accessing the Arttous platform, downloading our dual-core firmware (RTOS v75.4+), or utilizing our 3D mesh assets, you verify that you are a sentient entity capable of entering into a binding contract under the laws of Ontario, Canada. If you do not agree to these terms, terminate your secure connection immediately.
             </p>
         </div>
 
-        <div class="term-section">
+        <div class="term-section animate-on-scroll">
             <h2>2. INTELLECTUAL PROPERTY & LICENSE</h2>
             <p>
-                <strong>2.1. Open Source Components.</strong> The core firmware logic is released under the MIT License. You are free to fork, modify, and deploy this code for personal projects.
+                <strong>2.1. Open Source Core.</strong> The primary firmware logic, including the <code>TaskControl</code> and <code>TaskNetwork</code> FreeRTOS tasks, is released under the MIT License. You are free to fork, modify, and deploy this code for personal projects.
             </p>
             <p>
-                <strong>2.2. Proprietary Assets.</strong> The "Arttous" branding, the specific 3D chassis designs labeled as "Proprietary," and the visual identity of this platform remain the exclusive property of Arttous Robotics Inc. You may not sell physical kits branding them as "Official Arttous" without a written enterprise agreement.
+                <strong>2.2. Proprietary Assets.</strong> The "Arttous" branding, the specific 3D chassis designs labeled as "Proprietary," and the digital twin WebGL interfaces remain the exclusive property of Arttous Robotics Inc. You may not sell physical kits branding them as "Official Arttous" without a written Enterprise RaaS agreement.
             </p>
         </div>
 
-        <div class="term-section">
+        <div class="term-section animate-on-scroll">
             <h2>3. PROHIBITED CONDUCT (ZERO TOLERANCE)</h2>
-            <p>You agree NOT to use the Arttous platform or hardware for:</p>
+            <p>You agree NOT to use the Arttous platform or associated hardware for:</p>
             <ul>
-                <li>Weaponization or attachment of kinetic/chemical payloads.</li>
-                <li>Surveillance of private property without consent.</li>
-                <li>Interference with public radio frequencies (LoRa compliance is the user's responsibility).</li>
-                <li>Commercial mass-production without a RaaS license.</li>
+                <li>Weaponization, ballistic modification, or attachment of kinetic/chemical payloads.</li>
+                <li>Surveillance of private property without explicit, documented consent.</li>
+                <li>Interference with public radio frequencies (LoRa TX/RX compliance is the sole responsibility of the operator).</li>
+                <li>Commercial mass-production without a sanctioned integration license.</li>
             </ul>
         </div>
 
-        <div class="term-section">
+        <div class="term-section animate-on-scroll">
             <h2>4. DISCLAIMER OF WARRANTIES</h2>
-            <p>
-                THE SYNTHETIC DATA AND KINEMATIC MODELS ARE PROVIDED "AS IS." ARTTOUS MAKES NO GUARANTEES THAT THE ROBOT WILL BALANCE, WALK, OR FUNCTION IN YOUR SPECIFIC GRAVITATIONAL ENVIRONMENT. WE DISCLAIM ALL LIABILITY FOR FRIED SERVOS, BATTERY VENTING, OR LOSS OF FINGERS DURING CALIBRATION.
+            <p style="text-transform: uppercase; font-family: var(--font-mono); font-size: 0.8rem; color: #888;">
+                THE SYNTHETIC DATA AND KINEMATIC MODELS ARE PROVIDED "AS IS." ARTTOUS MAKES NO GUARANTEES THAT THE ROBOT WILL BALANCE, WALK, OR FUNCTION IN YOUR SPECIFIC GRAVITATIONAL ENVIRONMENT. WE DISCLAIM ALL LIABILITY FOR FRIED SERVOS, I2C BUS STARVATION, RTOS KERNEL PANICS, BATTERY VENTING, OR LOSS OF FINGERS DURING CALIBRATION.
             </p>
         </div>
 
-        <div class="term-section">
-            <h2>5. GOVERNING LAW</h2>
+        <div class="term-section animate-on-scroll">
+            <h2>5. GOVERNING LAW & JURISDICTION</h2>
             <p>
-                Any disputes arising from these terms shall be resolved in the digital or physical courts of <strong>Ontario, Canada</strong>. You waive any objection to jurisdiction in this venue.
+                Any disputes arising from these terms shall be resolved in the digital or physical courts of <strong>Ontario, Canada</strong>. By initiating an uplink to our servers, you implicitly waive any objection to jurisdiction in this venue.
             </p>
         </div>
 
@@ -174,11 +199,55 @@
             </div>
             <div style="text-align: right;">
                 &copy; 2026 Arttous Robotics Inc.<br>
-                ALL RIGHTS RESERVED.
+                <a href="index.html">Return to HQ</a>
             </div>
         </div>
 
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. Decrypt Text Effect for Metadata
+            const decryptElement = document.getElementById('decrypt-meta');
+            const targetText = decryptElement.getAttribute('data-value');
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=';
+            let iterations = 0;
+            
+            const decryptInterval = setInterval(() => {
+                decryptElement.innerText = targetText.split('').map((letter, index) => {
+                    if (index < iterations) {
+                        return targetText[index];
+                    }
+                    return chars[Math.floor(Math.random() * chars.length)];
+                }).join('');
+
+                if (iterations >= targetText.length) {
+                    clearInterval(decryptInterval);
+                }
+                iterations += 1;
+            }, 40); // Speed of decryption
+
+            // 2. Intersection Observer for Scroll Animations
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15 // Trigger when 15% visible
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('show');
+                        observer.unobserve(entry.target); // Only animate once
+                    }
+                });
+            }, observerOptions);
+
+            const scrollElements = document.querySelectorAll('.animate-on-scroll');
+            scrollElements.forEach(el => observer.observe(el));
+
+        });
+    </script>
 </body>
 </html>

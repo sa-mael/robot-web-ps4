@@ -9,7 +9,7 @@
     <style>
         :root {
             --bg-core: #050505;
-            --bg-card: #0e0e0e;
+            --bg-card: rgba(14, 14, 14, 0.85);
             --accent: #7c2ae8;
             --text-main: #e0e0e0;
             --font-tech: 'Orbitron', sans-serif;
@@ -22,19 +22,37 @@
             background: var(--bg-core);
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        nav { padding: 25px 5%; display: flex; justify-content: space-between; border-bottom: 1px solid #222; }
-        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; }
+        /* HOLOGRAPHIC SCANLINE OVERLAY */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: relative; z-index: 10; background: rgba(5,5,5,0.9); }
+        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; animation: textGlow 2s infinite alternate;}
         .accent { color: var(--accent); }
 
-        /* TWIN ENGINE */
+        /* TWIN ENGINE (Hero) */
         .twin-engine {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            height: 50vh; /* Чуть меньше, чтобы текст был виден */
+            height: 50vh;
             border-bottom: 1px solid #222;
+            position: relative;
+            z-index: 5;
+            overflow: hidden;
         }
+        
         .twin-panel {
             position: relative;
             background-size: cover;
@@ -42,133 +60,130 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            opacity: 0; /* JS will animate */
+            transform: scale(1.05);
+            transition: transform 0.5s ease-out;
         }
+        
+        /* Initial sliding curtain effect */
+        .twin-panel::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 3; transition: height 1s cubic-bezier(0.1, 1, 0.1, 1);
+        }
+        .twin-panel.revealed::after { height: 0; }
+        .twin-panel.revealed { opacity: 1; transform: scale(1); }
+
         .twin-panel::before {
             content: ""; position: absolute; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.5);
-            transition: 0.3s;
+            background: rgba(0,0,0,0.6); transition: 0.4s; z-index: 1;
         }
-        
-        .twin-panel:hover::before { background: rgba(0,0,0,0.2); } /* Осветление при наведении */
+        .twin-panel:hover::before { background: rgba(0,0,0,0.2); }
         
         .panel-label {
-            position: relative;
-            z-index: 2;
-            font-family: var(--font-tech);
-            font-size: 1.5rem;
-            border: 2px solid #fff;
-            padding: 10px 30px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            position: relative; z-index: 2; font-family: var(--font-tech); font-size: 1.5rem;
+            border: 2px solid #fff; padding: 10px 30px; text-transform: uppercase; letter-spacing: 2px;
+            text-shadow: 0 0 10px #000; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
         }
 
-        /* --- NEW SECTION: LORE & TEXT --- */
+        /* --- LORE & TEXT --- */
         .protocol-brief {
-            max-width: 900px;
-            margin: 80px auto;
-            padding: 0 5%;
-            text-align: center;
+            max-width: 900px; margin: 80px auto; padding: 0 5%; text-align: center;
+            position: relative; z-index: 5;
         }
-        .protocol-brief h2 { font-family: var(--font-tech); font-size: 2.5rem; margin-bottom: 30px; }
-        .protocol-desc {
-            color: #aaa;
-            line-height: 1.8;
-            font-size: 1rem;
-            margin-bottom: 20px;
-            text-align: justify;
-        }
-        .spec-highlight {
-            color: var(--accent);
-            font-family: var(--font-mono);
-            font-weight: bold;
-        }
+        .protocol-brief h2 { font-family: var(--font-tech); font-size: 2.5rem; margin-bottom: 30px; color: #fff; text-shadow: 0 0 15px rgba(124, 42, 232, 0.3); }
+        .protocol-desc { color: #aaa; line-height: 1.8; font-size: 1rem; margin-bottom: 20px; text-align: justify; }
+        .spec-highlight { color: var(--accent); font-family: var(--font-mono); font-weight: bold; }
 
         /* GRID SECTION */
         .assets-grid {
-            padding: 40px 5% 100px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            border-top: 1px solid #222;
+            padding: 40px 5% 100px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+            border-top: 1px solid #222; position: relative; z-index: 5; max-width: 1400px; margin: 0 auto;
         }
         .grid-header { grid-column: span 4; margin-bottom: 20px; margin-top: 40px; }
 
         .file-card {
-            background: var(--bg-card);
-            border: 1px solid #222;
-            padding: 25px;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 280px;
+            background: var(--bg-card); border: 1px solid #222; padding: 25px; cursor: pointer;
+            display: flex; flex-direction: column; justify-content: space-between; height: 280px;
+            backdrop-filter: blur(5px);
+            opacity: 0; transform: translateY(40px); /* For staggered JS animation */
         }
-        .file-card:hover { border-color: var(--accent); transform: translateY(-5px); }
-        .file-icon { font-size: 2rem; color: #444; margin-bottom: 15px; }
+        
+        .file-card:hover { border-color: var(--accent); transform: translateY(-8px) !important; box-shadow: 0 15px 30px rgba(124, 42, 232, 0.15); background: #111; }
+        .file-icon { font-size: 2rem; color: #444; margin-bottom: 15px; transition: transform 0.5s cubic-bezier(0.1, 1, 0.1, 1); display: inline-block;}
+        .file-card:hover .file-icon { color: var(--accent); transform: rotate(90deg); text-shadow: 0 0 10px var(--accent); }
+        
         .file-name { font-family: var(--font-mono); font-weight: bold; color: #fff; margin-bottom: 5px; }
-        .file-meta { font-size: 0.8rem; color: #666; }
+        .file-meta { font-size: 0.8rem; color: #666; font-family: var(--font-mono); }
+        
         .download-fake-btn {
-            margin-top: auto;
-            border: 1px solid #333;
-            text-align: center;
-            padding: 10px;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #888;
-            text-transform: uppercase;
-            transition: 0.2s;
+            margin-top: auto; border: 1px solid #333; text-align: center; padding: 12px;
+            font-family: var(--font-mono); font-size: 0.75rem; color: #888; text-transform: uppercase;
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .download-fake-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-20deg); transition: 0.5s;
         }
         .file-card:hover .download-fake-btn { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .file-card:hover .download-fake-btn::before { left: 200%; }
 
         /* MODAL */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 100;
-            display: none;
-            align-items: center;
-            justify-content: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9);
+            z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px);
+            opacity: 0; transition: opacity 0.3s ease;
         }
+        .modal-overlay.active { opacity: 1; }
+        
         .modal-content {
-            background: #111;
-            border: 1px solid var(--accent);
-            width: 600px;
-            padding: 50px;
-            position: relative;
-            box-shadow: 0 0 50px rgba(124, 42, 232, 0.2);
+            background: #0a0a0a; border: 1px solid var(--accent); width: 600px; padding: 50px; position: relative;
+            box-shadow: 0 0 50px rgba(124, 42, 232, 0.3);
+            transform: scale(0.9); opacity: 0; transition: all 0.4s cubic-bezier(0.1, 1, 0.1, 1);
         }
-        .close-modal { position: absolute; top: 20px; right: 30px; font-size: 2rem; cursor: pointer; color: #666; }
+        .modal-overlay.active .modal-content { transform: scale(1); opacity: 1; }
+        
+        .close-modal { position: absolute; top: 20px; right: 30px; font-size: 2rem; cursor: pointer; color: #666; transition: 0.2s; }
+        .close-modal:hover { color: var(--accent); transform: rotate(90deg); }
+        
         .modal-title { font-family: var(--font-tech); font-size: 2rem; margin-bottom: 30px; color: #fff; }
         .spec-row {
-            display: flex; justify-content: space-between;
-            border-bottom: 1px solid #333;
-            padding: 12px 0;
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-            color: #aaa;
+            display: flex; justify-content: space-between; border-bottom: 1px dashed #333; padding: 12px 0;
+            font-family: var(--font-mono); font-size: 0.9rem; color: #aaa;
         }
         .spec-val { color: var(--accent); }
         .dl-btn {
-            display: block; width: 100%; background: var(--accent); color: #fff; text-align: center; padding: 18px; margin-top: 40px; text-decoration: none; font-family: var(--font-tech); font-weight: bold; letter-spacing: 2px;
+            display: block; width: 100%; background: transparent; border: 1px solid var(--accent); color: var(--accent);
+            text-align: center; padding: 18px; margin-top: 40px; text-decoration: none; font-family: var(--font-tech); font-weight: bold; letter-spacing: 2px;
+            transition: 0.3s;
         }
-        .dl-btn:hover { background: #9d50ff; }
+        .dl-btn:hover { background: var(--accent); color: #fff; box-shadow: 0 0 20px rgba(124,42,232,0.5); }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid #222; padding: 40px 5%; margin-top: 40px; position: relative; z-index: 5;
+            background: #050505;
+        }
+        .digital-sig {
+            display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.75rem; color: #555; max-width: 1400px; margin: 0 auto;
+        }
+
+        /* ANIMATIONS */
+        .animate-on-scroll { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+        .animate-on-scroll.show { opacity: 1; transform: translateY(0); }
+        @keyframes textGlow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
 
         @media (max-width: 1024px) {
             .assets-grid { grid-template-columns: 1fr 1fr; }
             .twin-engine { grid-template-columns: 1fr; height: auto; }
             .twin-panel { height: 300px; }
+            .modal-content { width: 90%; padding: 30px; }
         }
-         /* FOOTER SIGNATURE */
-        .digital-sig {
-            margin-top: 80px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #555;
+        @media (max-width: 600px) {
+            .assets-grid { grid-template-columns: 1fr; }
+            .digital-sig { flex-direction: column; gap: 20px; text-align: center; }
+            .digital-sig div { text-align: center !important; }
         }
     </style>
 </head>
@@ -176,79 +191,78 @@
 
     <nav>
         <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">LIB_VER: 4.2</div>
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666; border: 1px solid #333; padding: 5px 10px;">SYS: FAB_v75.4</div>
     </nav>
 
     <div class="twin-engine">
-        <div class="twin-panel" style="background-image: url('../assets/images/main-robo.jpg'); background-color: #1a0525;">
+        <div class="twin-panel" id="panel-1" style="background-image: url('assets/images/main-robo.jpg'); background-color: #1a0525;">
             <div class="panel-label">DIGITAL TWIN</div>
         </div>
-        <div class="twin-panel" style="background-image: url('../assets/images/applications.png'); background-color: #051a1a;">
+        <div class="twin-panel" id="panel-2" style="background-image: url('assets/images/applications.png'); background-color: #051a1a;">
             <div class="panel-label">PHYSICAL UNIT</div>
         </div>
     </div>
 
-    <section class="protocol-brief">
+    <section class="protocol-brief animate-on-scroll">
         <h2>FABRICATION PROTOCOLS</h2>
         <p class="protocol-desc">
-            The Arttous platform relies on a distributed manufacturing model. We do not sell hardware; we provide the 
+            The Arttous v75.4 platform relies on a distributed manufacturing model. We do not sell hardware; we provide the 
             <span class="spec-highlight">Digital DNA</span> for you to synthesize it locally. The STL files provided below are 
-            optimized for FDM printing with a recommended layer height of 0.16mm.
+            optimized for FDM printing with a recommended layer height of 0.16mm to accommodate the new high-torque kinematics engine.
         </p>
         <p class="protocol-desc">
             <strong>Material Compliance:</strong> While standard PLA is sufficient for kinetic testing, field deployment requires 
             materials with higher glass transition temperatures. We strongly recommend <span class="spec-highlight">Carbon Fiber PETG</span> 
-            for the chassis to reduce flex during high-torque maneuvers, and <span class="spec-highlight">TPU 95A</span> 
+            for the chassis to reduce flex during RTOS dual-core high-speed maneuvers, and <span class="spec-highlight">TPU 95A</span> 
             for the footpads to maximize the friction coefficient on concrete surfaces.
         </p>
     </section>
 
-    <section class="assets-grid">
-        <div class="grid-header">
+    <section class="assets-grid" id="grid-container">
+        <div class="grid-header animate-on-scroll">
             <h3 style="font-family: 'Orbitron'; color: #fff; font-size: 1.5rem;">PRINT REPOSITORY</h3>
             <p style="color: #666; font-family: 'JetBrains Mono'; margin-top: 5px;">/// SECURE ARCHIVE // ACCESS GRANTED</p>
         </div>
 
-        <div class="file-card" onclick="openModal('COXA_JOINT_L', 'Carbon PETG', '45g', '100% Infill')">
+        <div class="file-card file-anim" onclick="openModal('COXA_JOINT_L', 'Carbon PETG', '45g', '100% Infill')">
             <div>
                 <div class="file-icon">⬢</div>
                 <div class="file-name">COXA_JOINT_L.stl</div>
                 <div class="file-meta">REV_04 | 12MB</div>
-                <p style="font-size: 0.8rem; color: #555; margin-top: 10px;">Primary hip connection. Requires high shear strength.</p>
+                <p style="font-size: 0.8rem; color: #555; margin-top: 15px;">Primary hip connection. Requires high shear strength.</p>
             </div>
             <div class="download-fake-btn">ACCESS FILE</div>
         </div>
 
-        <div class="file-card" onclick="openModal('FEMUR_STRUCTURE', 'ASA / ABS', '120g', '4 Walls')">
+        <div class="file-card file-anim" onclick="openModal('FEMUR_STRUCTURE', 'ASA / ABS', '120g', '4 Walls')">
             <div>
                 <div class="file-icon">⬢</div>
                 <div class="file-name">FEMUR_STRUC.stl</div>
                 <div class="file-meta">REV_05 | 24MB</div>
-                <p style="font-size: 0.8rem; color: #555; margin-top: 10px;">Main leg segment. Hollow channel for servo wiring.</p>
+                <p style="font-size: 0.8rem; color: #555; margin-top: 15px;">Main leg segment. Hollow channel for servo wiring.</p>
             </div>
             <div class="download-fake-btn">ACCESS FILE</div>
         </div>
 
-        <div class="file-card" onclick="openModal('TIBIA_LOWER', 'TPU 95A', '30g', 'No Support')">
+        <div class="file-card file-anim" onclick="openModal('TIBIA_LOWER', 'TPU 95A', '30g', 'No Support')">
             <div>
                 <div class="file-icon">⬢</div>
                 <div class="file-name">TIBIA_LOWER.stl</div>
                 <div class="file-meta">REV_02 | 8MB</div>
-                <p style="font-size: 0.8rem; color: #555; margin-top: 10px;">Shock absorption unit. Print slowly (20mm/s).</p>
+                <p style="font-size: 0.8rem; color: #555; margin-top: 15px;">Shock absorption unit. Print slowly (20mm/s).</p>
             </div>
             <div class="download-fake-btn">ACCESS FILE</div>
         </div>
 
-        <div class="file-card" onclick="openModal('CHASSIS_CORE', 'PETG-CF', '210g', '20% Gyroid')">
+        <div class="file-card file-anim" onclick="openModal('CHASSIS_CORE', 'PETG-CF', '210g', '20% Gyroid')">
             <div>
                 <div class="file-icon">⬢</div>
                 <div class="file-name">CHASSIS_TOP.stl</div>
                 <div class="file-meta">REV_09 | 45MB</div>
-                <p style="font-size: 0.8rem; color: #555; margin-top: 10px;">Central housing for ESP32 and T3S3 modules.</p>
+                <p style="font-size: 0.8rem; color: #555; margin-top: 15px;">Central housing for ESP32-S3 and T3S3 modules.</p>
             </div>
             <div class="download-fake-btn">ACCESS FILE</div>
         </div>
-        
     </section>
 
     <div class="modal-overlay" id="dlModal">
@@ -268,34 +282,21 @@
                 <span>Infill Density:</span>
                 <span class="spec-val" id="m-settings">Standard</span>
             </div>
+            <div class="spec-row">
+                <span>Firmware Compatibility:</span>
+                <span class="spec-val" style="color: #666;">v75.4 (RTOS)</span>
+            </div>
 
-            <p style="color: #888; font-size: 0.9rem; margin-top: 30px; font-family: 'JetBrains Mono'; border-left: 2px solid var(--accent); padding-left: 15px;">
-                NOTE: This component requires a brim for bed adhesion. Dimensional tolerance is ±0.1mm.
+            <p style="color: #888; font-size: 0.85rem; margin-top: 30px; font-family: 'JetBrains Mono'; border-left: 2px solid var(--accent); padding-left: 15px; line-height: 1.5;">
+                NOTE: This component requires a brim for bed adhesion. Dimensional tolerance is ±0.1mm. Verify I2C wire routing pathways post-print.
             </p>
 
-            <a href="#" class="dl-btn">INITIATE DOWNLOAD</a>
+            <a href="#" class="dl-btn" onclick="closeModal(); alert('DOWNLOADING MESH DATA...');">INITIATE DOWNLOAD</a>
         </div>
     </div>
 
-    <script>
-        const modal = document.getElementById('dlModal');
-        
-        function openModal(name, mat, weight, sett) {
-            document.getElementById('m-title').innerText = name;
-            document.getElementById('m-mat').innerText = mat;
-            document.getElementById('m-weight').innerText = weight;
-            document.getElementById('m-settings').innerText = sett;
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() {
-            modal.style.display = 'none';
-        }
-        window.onclick = function(event) {
-            if (event.target == modal) closeModal();
-        }
-    </script>
-    <div class="digital-sig">
+    <footer>
+        <div class="digital-sig">
             <div>
                 SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
                 HASH: 0x99a...f42
@@ -305,5 +306,87 @@
                 ALL RIGHTS RESERVED.
             </div>
         </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. Reveal Hero Panels
+            setTimeout(() => {
+                document.getElementById('panel-1').classList.add('revealed');
+            }, 300);
+            setTimeout(() => {
+                document.getElementById('panel-2').classList.add('revealed');
+            }, 700);
+
+            // 2. Intersection Observer for Scroll Animations
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('show');
+                        observer.unobserve(entry.target); 
+                    }
+                });
+            }, observerOptions);
+
+            const scrollElements = document.querySelectorAll('.animate-on-scroll');
+            scrollElements.forEach(el => observer.observe(el));
+
+            // 3. Staggered Entrance for File Cards when Grid is in view
+            const gridObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const cards = document.querySelectorAll('.file-anim');
+                        cards.forEach((card, index) => {
+                            setTimeout(() => {
+                                card.style.transition = 'all 0.6s cubic-bezier(0.1, 1, 0.1, 1)';
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, index * 150); // Stagger by 150ms
+                        });
+                        gridObserver.disconnect();
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            gridObserver.observe(document.getElementById('grid-container'));
+
+        });
+
+        // 4. Modal Logic
+        const modalOverlay = document.getElementById('dlModal');
+        
+        function openModal(name, mat, weight, sett) {
+            document.getElementById('m-title').innerText = name;
+            document.getElementById('m-mat').innerText = mat;
+            document.getElementById('m-weight').innerText = weight;
+            document.getElementById('m-settings').innerText = sett;
+            
+            modalOverlay.style.display = 'flex';
+            // Slight delay to allow display:flex to apply before adding opacity class
+            setTimeout(() => {
+                modalOverlay.classList.add('active');
+            }, 10);
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            // Wait for transition to finish before hiding
+            setTimeout(() => {
+                modalOverlay.style.display = 'none';
+            }, 300);
+        }
+        
+        // Close modal when clicking outside content
+        window.onclick = function(event) {
+            if (event.target == modalOverlay) closeModal();
+        }
+    </script>
 </body>
 </html>

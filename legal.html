@@ -12,11 +12,12 @@
     <style>
         :root {
             --bg-core: #050505;
-            --bg-panel: #0e0e0e;
+            --bg-panel: rgba(14, 14, 14, 0.85);
             --accent-primary: #7c2ae8; 
             --accent-dim: rgba(124, 42, 232, 0.1);
             --text-main: #e0e0e0;
             --text-muted: #666666;
+            --danger: #e74c3c;
             --font-tech: 'Orbitron', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
             --font-body: 'Inter', sans-serif;
@@ -29,18 +30,34 @@
             color: var(--text-main);
             font-family: var(--font-body);
             line-height: 1.7;
+            position: relative;
         }
 
-        /* --- HEADER (Simplified) --- */
+        /* HOLOGRAPHIC SCANLINE OVERLAY */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed; /* Fixed so it covers the whole screen while scrolling */
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        /* --- HEADER --- */
         nav {
             padding: 25px 5%;
-            background: var(--bg-core);
+            background: rgba(5,5,5,0.9);
             border-bottom: 1px solid #222;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(5px);
         }
-        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; letter-spacing: 3px; color: #fff; text-decoration: none; }
+        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; letter-spacing: 3px; color: #fff; text-decoration: none; animation: textGlow 2s infinite alternate; }
         .accent { color: var(--accent-primary); }
 
         /* --- CONTENT CONTAINER --- */
@@ -48,6 +65,8 @@
             max-width: 900px;
             margin: 60px auto;
             padding: 0 5%;
+            position: relative;
+            z-index: 5;
         }
 
         h1 {
@@ -58,21 +77,30 @@
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            animation: slideDown 0.8s cubic-bezier(0.1, 1, 0.1, 1);
         }
 
         .meta-line {
             font-family: var(--font-mono);
-            color: var(--text-muted);
+            color: var(--accent-primary);
             font-size: 0.8rem;
             margin-bottom: 50px;
             display: block;
             border-bottom: 1px solid #222;
             padding-bottom: 20px;
+            letter-spacing: 1px;
         }
 
-        /* --- ARTICLES --- */
+        /* --- ARTICLES & SCROLL ANIMATION --- */
         article {
             margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.1, 1, 0.1, 1);
+        }
+        article.show {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         h2 {
@@ -82,6 +110,7 @@
             margin-bottom: 20px;
             border-left: 3px solid var(--accent-primary);
             padding-left: 15px;
+            background: linear-gradient(90deg, rgba(124, 42, 232, 0.1) 0%, transparent 100%);
         }
 
         h3 {
@@ -91,105 +120,84 @@
             margin: 30px 0 15px;
         }
 
-        p {
-            color: #bbb;
-            margin-bottom: 15px;
-            font-size: 0.95rem;
-            text-align: justify;
-        }
-
-        ul {
-            list-style: none;
-            margin-bottom: 20px;
-        }
-
-        li {
-            color: #bbb;
-            margin-bottom: 10px;
-            padding-left: 20px;
-            position: relative;
-        }
-
+        p { color: #bbb; margin-bottom: 15px; font-size: 0.95rem; text-align: justify; }
+        ul { list-style: none; margin-bottom: 20px; }
+        li { color: #bbb; margin-bottom: 10px; padding-left: 20px; position: relative; }
         li::before {
-            content: ">>";
-            font-family: var(--font-mono);
-            color: var(--accent-primary);
-            position: absolute;
-            left: 0;
-            font-size: 0.8rem;
+            content: ">>"; font-family: var(--font-mono); color: var(--accent-primary);
+            position: absolute; left: 0; font-size: 0.8rem;
         }
 
         .clause-box {
             background: var(--bg-panel);
-            border: 1px solid #222;
+            border: 1px solid var(--danger);
             padding: 20px;
             font-family: var(--font-mono);
             font-size: 0.8rem;
-            color: #888;
+            color: #aaa;
             margin: 20px 0;
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.1);
+            animation: dangerPulse 3s infinite;
         }
 
-        .warning-text {
-            color: #d63031; /* Red for warnings */
-        }
+        .clause-box h3 { color: var(--danger); margin-top: 0; }
 
         /* --- FOOTER --- */
         footer {
-            border-top: 1px solid #222;
-            padding: 40px 0;
-            text-align: center;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 100px;
+            border-top: 1px solid #222; padding: 40px 5%; margin-top: 60px;
+            position: relative; z-index: 5; background: #050505;
         }
-        
+        .digital-sig {
+            display: flex; justify-content: space-between; font-family: var(--font-mono);
+            font-size: 0.75rem; color: #555; max-width: 900px; margin: 0 auto;
+        }
         a { color: var(--text-muted); text-decoration: none; transition: 0.3s; }
         a:hover { color: var(--accent-primary); }
-         /* FOOTER SIGNATURE */
-        .digital-sig {
-            margin-top: 80px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: #555;
-        }
 
+        /* --- ANIMATIONS --- */
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes textGlow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
+        @keyframes dangerPulse { 0%, 100% { box-shadow: 0 0 5px rgba(231, 76, 60, 0.1); } 50% { box-shadow: 0 0 20px rgba(231, 76, 60, 0.3); } }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .digital-sig { flex-direction: column; gap: 20px; text-align: center; }
+            .digital-sig div { text-align: center !important; }
+        }
     </style>
 </head>
 <body>
 
     <nav>
         <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666;">DOC_REF: LEG_04</div>
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666; border: 1px solid #333; padding: 5px 10px;">DOC_REF: LEG_v75.4_RTOS</div>
     </nav>
 
     <div class="legal-container">
         <h1>ACCESS PROTOCOLS &<br>DATA GOVERNANCE</h1>
-        <span class="meta-line">LAST UPDATED: FEB 2026 // JURISDICTION: ONTARIO, CA // DOC_ID: 0x992</span>
+        <span class="meta-line" id="decrypt-text" data-value="LAST UPDATED: Q1 2026 // JURISDICTION: ONTARIO, CA // DOC_ID: 0x992F">
+            [ENCRYPTED DATA...]
+        </span>
 
-        <p class="clause-box">
-            WARNING: BY ACCESSING, DOWNLOADING, OR UTILIZING ANY ASSETS FROM THE ARTTOUS NETWORK, YOU ACKNOWLEDGE THAT ALL DATA IS THEORETICAL IN NATURE. THE FOLLOWING AGREEMENT CONSTITUTES A BINDING LEGAL CONTRACT.
+        <p class="clause-box" style="margin-bottom: 60px;">
+            <strong style="color: var(--danger); font-size: 1rem;">WARNING:</strong> BY ACCESSING, DOWNLOADING, OR UTILIZING ANY ASSETS FROM THE ARTTOUS NETWORK, YOU ACKNOWLEDGE THAT ALL DATA IS THEORETICAL IN NATURE. THE FOLLOWING AGREEMENT CONSTITUTES A BINDING LEGAL CONTRACT.
         </p>
 
-        <article>
+        <article class="animate-on-scroll">
             <h2>ARTICLE I: DEFINITIONS & APPLICABILITY</h2>
             <p><strong>1.1. The Platform.</strong> "Arttous," "The Platform," "We," and "Us" refer to the Arttous Robotics experimental initiative, its creators, maintainers, and the associated digital infrastructure hosted on this domain and associated repositories (e.g., GitHub).</p>
-            <p><strong>1.2. The User.</strong> "You," "User," or "Entity" refers to any individual, machine logic, or corporate body accessing this site, downloading firmware, viewing 3D assets, or utilizing our documentation.</p>
-            <p><strong>1.3. Synthetic Data.</strong> Refers to all content, including but not limited to: code repositories, 3D models (.glb, .stl), kinematic equations, firmware logic, and textual explanations, which have been generated through a collaborative process involving human engineering and Generative Artificial Intelligence (AI) models.</p>
+            <p><strong>1.2. The User.</strong> "You," "User," or "Entity" refers to any individual, machine logic, or corporate body accessing this site, downloading RTOS firmware, viewing 3D assets, or utilizing our documentation.</p>
+            <p><strong>1.3. Synthetic Data.</strong> Refers to all content, including but not limited to: dual-core code repositories, 3D models (.glb, .stl), kinematic equations, firmware logic, and textual explanations, which have been generated through a collaborative process involving human engineering and Generative Artificial Intelligence (AI) models.</p>
         </article>
 
-        <article>
+        <article class="animate-on-scroll">
             <h2>ARTICLE II: LICENSE GRANT & RESTRICTIONS</h2>
             <p>Arttous grants the User a limited, revocable, non-exclusive, non-transferable license to access and use the Synthetic Data subject strictly to the following terms:</p>
             
             <h3>2.1. Permitted Use (Educational & Research)</h3>
             <p>You are authorized to view, download, and execute the provided files solely for the purposes of:</p>
             <ul>
-                <li>Personal education and study of inverse kinematics.</li>
+                <li>Personal education and study of inverse kinematics and FreeRTOS architecture.</li>
                 <li>Non-commercial algorithmic training (e.g., training Neural Networks on our gait datasets).</li>
                 <li>Academic research, provided proper attribution is given to Arttous.</li>
                 <li>Simulation within virtual environments (e.g., Gazebo, Unity, Unreal Engine) where no physical harm can occur.</li>
@@ -205,18 +213,18 @@
             </ul>
         </article>
 
-        <article>
+        <article class="animate-on-scroll">
             <h2>ARTICLE III: NATURE OF THEORETICAL DATA</h2>
-            <div class="clause-box" style="border-color: var(--accent-primary);">
-                <h3>3.1. The Human-AI Hybrid Origin</h3>
-                <p>The User acknowledges that the content on Arttous is not the result of certified engineering standards (ISO/ASTM). It is the product of experimental collaboration between human enthusiasts and Generative AI. Consequently, the data may contain "hallucinations," logical errors, or physics calculations that function in simulation but fail in physical reality.</p>
+            <div class="clause-box" style="border-color: var(--accent-primary); animation: none; box-shadow: none;">
+                <h3 style="color: var(--accent-primary); margin-top: 0;">3.1. The Human-AI Hybrid Origin</h3>
+                <p style="color: #aaa; margin-bottom: 0;">The User acknowledges that the content on Arttous is not the result of certified engineering standards (ISO/ASTM). It is the product of experimental collaboration between human enthusiasts and Generative AI. Consequently, the data may contain "hallucinations," logical errors, or physics calculations that function in simulation but fail in physical reality.</p>
             </div>
 
             <h3>3.2. No Guarantee of Feasibility</h3>
-            <p>We do not warrant that the 3D models provided are printable, structurally sound, or mechanically viable. We do not warrant that the firmware code (C++/Python) is free of bugs, memory leaks, or infinite loops that could overheat or destroy physical motors.</p>
+            <p>We do not warrant that the 3D models provided are printable, structurally sound, or mechanically viable under high-torque loads. We do not warrant that the firmware code (C++/Python) is free of bugs, memory leaks, or race conditions that could overheat or destroy physical motors.</p>
         </article>
 
-        <article>
+        <article class="animate-on-scroll">
             <h2>ARTICLE IV: DISCLAIMER OF LIABILITY</h2>
             <p style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px;">
                 TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE ARTTOUS PLATFORM AND ITS CREATORS DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -227,7 +235,7 @@
             <p><strong>Plain English Translation:</strong> If you build a robot using our code and it walks off a table, catches fire, or injures you, we are not responsible. You use this information entirely at your own risk.</p>
         </article>
 
-        <article>
+        <article class="animate-on-scroll">
             <h2>ARTICLE V: PRIVACY POLICY</h2>
             
             <h3>5.1. Data Collection</h3>
@@ -248,7 +256,7 @@
             <p>We do not sell, trade, or transfer your data to third-party commercial entities.</p>
         </article>
 
-        <article>
+        <article class="animate-on-scroll">
             <h2>ARTICLE VI: GOVERNING LAW</h2>
             <p>These terms shall be governed by and construed in accordance with the laws of the <strong>Province of Ontario, Canada</strong>, and the federal laws of Canada applicable therein, without regard to its conflict of law provisions.</p>
             <p>Any dispute arising from these terms shall be resolved exclusively in the courts located within Middlesex County, Ontario.</p>
@@ -257,9 +265,62 @@
     </div>
 
     <footer>
-        <p>&copy; 2026 Arttous Robotics Inc. | <a href="index.html">Return to Mission Control</a></p>
-        <p class="mono" style="margin-top: 10px; color: #444;">END OF LINE.</p>
+        <div class="digital-sig">
+            <div>
+                SIGNED: <span style="color: var(--accent-primary);">SYSTEM_ADMIN</span><br>
+                HASH: 0x99a...f42
+            </div>
+            <div style="text-align: right;">
+                &copy; 2026 Arttous Robotics Inc.<br>
+                <a href="index.html" style="text-decoration: underline;">Return to Mission Control</a>
+            </div>
+        </div>
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. Decrypt Text Effect
+            const decryptElement = document.getElementById('decrypt-text');
+            const targetText = decryptElement.getAttribute('data-value');
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
+            let iterations = 0;
+            const maxIterations = 30;
+
+            const decryptInterval = setInterval(() => {
+                decryptElement.innerText = targetText.split('').map((letter, index) => {
+                    if (index < iterations) {
+                        return targetText[index];
+                    }
+                    return chars[Math.floor(Math.random() * chars.length)];
+                }).join('');
+
+                if (iterations >= targetText.length) {
+                    clearInterval(decryptInterval);
+                }
+                iterations += 1;
+            }, 30);
+
+            // 2. Intersection Observer for Scroll Animations
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('show');
+                        observer.unobserve(entry.target); 
+                    }
+                });
+            }, observerOptions);
+
+            const scrollElements = document.querySelectorAll('.animate-on-scroll');
+            scrollElements.forEach(el => observer.observe(el));
+
+        });
+    </script>
 </body>
 </html>
