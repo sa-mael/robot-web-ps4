@@ -4,24 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARTTOUS | Autonomous 16-DOF Mesh Platform</title>
+    
     <link rel="icon" href="assets/images/logo-ttr.png" type="image/png">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
     <script src="assets/js/mobile-blocker.js"></script>
+    <script src="assets/js/hidden-cli.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="assets/js/hidden-cli.js"></script>
 
     <style>
         :root {
+            /* PALETTE: 3 BASE COLORS */
             --bg-core: #050505;       
             --bg-panel: #0e0e0e;      
             --accent-primary: #7c2ae8; 
+            
             --accent-glow: #9d50ff;   
             --text-main: #e0e0e0;     
             --text-dim: #666666;      
             --grid-color: rgba(124, 42, 232, 0.03);
+            
+            /* PREMIUM EASING */
             --ease-tech: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -36,6 +44,7 @@
                 linear-gradient(var(--grid-color) 1px, transparent 1px),
                 linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
             background-size: 60px 60px;
+            /* Pre-hide body for smooth page entrance */
             opacity: 0; 
             visibility: hidden;
         }
@@ -46,23 +55,25 @@
         .accent { color: var(--accent-primary); }
         .glow-text { color: var(--accent-glow); text-shadow: 0 0 15px rgba(157, 80, 255, 0.4); }
 
-        /* --- HEADER & NAVIGATION --- */
+        /* --- HEADER --- */
         nav {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 25px 5%; position: fixed; width: 100%; 
-            z-index: 1000; /* FIX: Bumped to top interactive layer */
+            padding: 25px 5%; position: fixed; width: 100%; z-index: 1000;
             background: linear-gradient(180deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0) 100%);
             backdrop-filter: blur(5px); border-bottom: 1px solid rgba(255,255,255,0.05);
             transition: background 0.4s var(--ease-tech), border-color 0.4s var(--ease-tech);
+            pointer-events: none; /* Let clicks pass through empty space */
         }
+        nav > * { pointer-events: auto; } /* Re-enable clicks on children */
+        
         nav.scrolled { background: #0a0a0a; border-bottom: 1px solid #222; }
         nav.scrolled .logo, nav.scrolled .logo span.accent { color: #444; transition: 0.3s; }
-        nav.scrolled .logo:hover { color: #888; }
+        nav.scrolled .logo:hover { color: #666; }
         nav.scrolled .status-dot { background-color: #333; box-shadow: none; animation: none; transition: 0.3s; }
         nav.scrolled .mono { color: #333 !important; }
         
-        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: #fff; transition: all 0.3s ease; text-decoration: none; }
-        .logo:hover { color: var(--accent-glow); text-shadow: 0 0 10px rgba(157, 80, 255, 0.5); text-decoration: none; } /* FIX: Added visual hover feedback */
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: #fff; transition: color 0.3s ease; text-decoration: none; }
+        .logo:hover { color: var(--accent-glow); text-shadow: 0 0 10px rgba(157, 80, 255, 0.5); text-decoration: none;}
         
         .status-dot {
             height: 6px; width: 6px; background-color: var(--accent-primary); border-radius: 50%; 
@@ -86,23 +97,26 @@
             box-shadow: 0 0 20px rgba(124, 42, 232, 0.4); transform: translateY(-1px);
         }
 
-        nav.scrolled .btn-login { color: #444; }
-        nav.scrolled .btn-login:hover { color: #888; }
-        nav.scrolled .btn-register { border-color: #333; color: #444; background: transparent; box-shadow: none; }
-        nav.scrolled .btn-register:hover { border-color: #666; color: #fff; background: #222; transform: none;}
+        /* --- USER NAV PROFILE (LOGGED IN) --- */
+        .user-nav-link {
+            display: flex; align-items: center; gap: 12px; text-decoration: none; background: rgba(124, 42, 232, 0.1);
+            border: 1px solid var(--accent-primary); padding: 6px 15px; border-radius: 4px; transition: 0.3s;
+        }
+        .user-nav-link:hover { background: var(--accent-primary); box-shadow: 0 0 15px var(--accent-primary); }
+        .nav-avatar-small { width: 24px; height: 24px; border-radius: 50%; background-color: #333; background-size: cover; background-position: center; border: 1px solid #fff; }
+        .nav-username { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #fff; font-weight: bold; }
 
         /* --- HERO --- */
-        .hero { min-height: 100vh; display: flex; align-items: center; padding: 0 5%; position: relative; text-decoration: none;}
+        .hero { min-height: 100vh; display: flex; align-items: center; padding: 0 5%; position: relative; }
         
         .hero-text { 
             width: 55%; 
-            position: relative;   /* NEW: Required to make z-index work */
-            z-index: 50;          /* NEW: Elevate strictly above the 3D Canvas */
-            pointer-events: none;text-decoration: none; /* NEW: Let mouse events pass through empty gaps */
+            position: relative; 
+            z-index: 50; 
+            pointer-events: none; 
         }
-        .hero-text > * {
-            pointer-events: auto;text-decoration: none; /* NEW: Re-enable clicks for H1, P, and CTA group */
-        }
+        .hero-text > * { pointer-events: auto; }
+        
         .firmware-badge {
             font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--accent-glow);
             border: 1px solid rgba(124, 42, 232, 0.3); padding: 6px 12px; display: inline-block;
@@ -154,18 +168,12 @@
             position: absolute; right: 0; top: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 60% 50%, rgba(124, 42, 232, 0.15), transparent 80%);
             display: flex; align-items: center; justify-content: center; 
-            pointer-events: none; /* FIX: Allows clicks to pass through empty space */
-            z-index: 5; /* FIX: Pushed strictly behind hero-text */
+            pointer-events: none; z-index: 10; 
         }
-        .visual-container canvas { 
-            pointer-events: auto; /* FIX: Only the actual 3D model intercepts mouse movements */
-            position: relative;
-        }
+        .visual-container canvas { pointer-events: auto; }
 
-        
-        /* --- BENTO GRID --- */
+        /* --- BENTO GRID & COMPONENTS --- */
         .tech-section { padding: 50px 5% 100px; position: relative; z-index: 10; }
-        
         .section-header {
             margin-bottom: 60px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;
             display: flex; justify-content: space-between; align-items: flex-end;
@@ -186,7 +194,6 @@
         
         .card-lg { grid-column: span 2; }
         .card-vert { grid-row: span 2; background: linear-gradient(170deg, #0e0e0e 0%, #150520 100%); }
-
         .card h3 { font-size: 1.2rem; color: #fff; margin-bottom: 15px; }
         .card p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
         
@@ -216,7 +223,7 @@
         }
         .dt-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: center; }
         .dt-image-wrapper {
-            position: relative;  background: rgba(20, 20, 20, 0.6);
+            position: relative; background: rgba(20, 20, 20, 0.6);
             border: 1px solid rgba(124, 42, 232, 0.2); backdrop-filter: blur(15px);
             clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); 
         }
@@ -235,6 +242,49 @@
         .terminal-header .dots { display: flex; gap: 8px; }
         .terminal-header .dot { width: 10px; height: 10px; border-radius: 50%; background: #333; }
         .terminal-body { padding: 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
+
+        /* --- HUMAN ARCHIVE TRIGGER & MODAL --- */
+        .human-archive-trigger {
+            border-top: 1px dashed rgba(124, 42, 232, 0.3); padding: 20px 30px;
+            background: rgba(0,0,0,0.4); cursor: pointer; display: flex; justify-content: space-between;
+            align-items: center; transition: all 0.4s var(--ease-tech);
+        }
+        .human-archive-trigger:hover {
+            background: rgba(124, 42, 232, 0.15); padding-left: 45px; 
+            box-shadow: inset 0 0 20px rgba(124, 42, 232, 0.1);
+        }
+        .trigger-text {
+            font-family: var(--font-mono); color: var(--accent-primary); font-size: 0.85rem;
+            letter-spacing: 1px; transition: 0.3s;
+        }
+        .human-archive-trigger:hover .trigger-text { color: #fff; text-shadow: 0 0 10px var(--accent-primary); }
+
+        /* Modal Overlay */
+        .human-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+            z-index: 100000; display: none; align-items: center; justify-content: center; opacity: 0;
+        }
+        .human-modal-content {
+            background: var(--bg-panel); border: 1px solid var(--accent-primary);
+            max-width: 850px; width: 90%; box-shadow: 0 20px 60px rgba(124, 42, 232, 0.2);
+            display: flex; flex-direction: column; overflow: hidden; position: relative;
+        }
+        .h-modal-header {
+            background: #000; border-bottom: 1px solid #333; padding: 15px 25px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .h-modal-title { font-family: var(--font-mono); color: #fff; font-size: 0.8rem; letter-spacing: 1px;}
+        .h-modal-close { color: #666; cursor: pointer; font-family: var(--font-mono); transition: 0.3s; font-size: 1.2rem;}
+        .h-modal-close:hover { color: #e74c3c; transform: rotate(90deg); }
+        .h-modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+        .h-modal-img {
+            width: 100%; height: 100%; object-fit: cover; border-right: 1px solid #333;
+            min-height: 350px; background: #111;
+        }
+        .h-modal-info { padding: 40px 30px; display: flex; flex-direction: column; justify-content: center; }
+        .h-modal-info h3 { color: #fff; font-family: var(--font-tech); margin-bottom: 15px; font-size: 1.8rem;}
+        .h-modal-info p { color: #aaa; font-size: 0.95rem; line-height: 1.6; margin-bottom: 30px; font-family: var(--font-body); }
 
         /* OPERATIONAL TIMELINE */
         .workflow-section { padding: 120px 5%; background: #080808; border-top: 1px solid rgba(255,255,255,0.02); position: relative; }
@@ -259,14 +309,10 @@
         .footer-col a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
         .footer-col a:hover { color: var(--accent-primary); }
 
-        .user-nav-link {
-            display: flex; align-items: center; gap: 12px; text-decoration: none; background: rgba(124, 42, 232, 0.1);
-            border: 1px solid var(--accent-primary); padding: 6px 15px; border-radius: 4px; transition: 0.3s;
-        }
-        .user-nav-link:hover { background: var(--accent-primary); box-shadow: 0 0 15px var(--accent-primary); }
-        .nav-avatar-small { width: 24px; height: 24px; border-radius: 50%; background-color: #333; background-size: cover; background-position: center; border: 1px solid #fff; }
-        .nav-username { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #fff; font-weight: bold; }
+        /* ANIMATIONS */
+        @keyframes textGlow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
 
+        /* RESPONSIVE */
         @media (max-width: 1024px) {
             h1 { font-size: 3rem; }
             .hero { flex-direction: column; padding-top: 120px; text-align: center; }
@@ -285,11 +331,15 @@
             .timeline-step { width: 100%; padding-left: 80px; }
             .step-node { position: absolute; left: 0; top: 0; margin-bottom: 0; }
             .footer-grid { grid-template-columns: 1fr; gap: 40px; }
+            
+            .h-modal-body { grid-template-columns: 1fr; }
+            .h-modal-img { height: 250px; border-right: none; border-bottom: 1px solid #333; min-height: auto;}
+            .human-archive-trigger { padding: 15px 20px; }
         }
-        
     </style>
 </head>
 <body>
+
     <nav class="nav-container">
         <a href="index.html" class="logo page-link">ART<span class="accent">TOUS</span></a>
         
@@ -310,7 +360,7 @@
                 Where GPS fails, Arttous creates its own reality. 
                 A <strong>16-DOF</strong> quadrupedal platform powered by <strong>ESP32-S3 Dual-Core</strong> and localized via <strong>T3S3 LoRa Mesh</strong> Time-of-Flight ranging.
             </p>
-            <p class="stealth-text">
+            <p class="stealth-text" title="Easter Egg">
              /// SYSTEM NOTICE: We are actively seeking kinematic specialists. 
              Registration grants access to the verify_protocol. 
              Complete the calibration tasks to unlock community entry.
@@ -407,7 +457,7 @@
             </div>
 
             <div class="dt-image-wrapper gs-dt-image">
-                <img src="assets/images/Screenshot 2026-02-22 124034.png" alt="Digital Twin Interface">
+                <img src="assets/images/Screenshot 2026-02-22 124034.jpg" alt="Digital Twin Interface">
             </div>
 
         </div>
@@ -439,6 +489,11 @@
                             We do not warrant that the 3D models provided are printable, structurally sound, or mechanically viable under real-world torque. We do not warrant that the firmware code (C++/Python) is free of bugs, memory leaks, or infinite loops that could overheat or physically destroy hardware.
                         </p>
                     </div>
+                </div>
+
+                <div class="human-archive-trigger" onclick="openHumanModal()">
+                    <span class="trigger-text">>_ EXECUTE: VIEW_HUMAN_ENGINEERING_ARCHIVE.sh</span>
+                    <span style="color: #666; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">[ENTER]</span>
                 </div>
 
             </div>
@@ -489,8 +544,8 @@
                 <h4 class="mono" style="color: #888;">PLATFORM</h4>
                 <ul>
                     <li><a href="firmware.html" class="page-link">RTOS Firmware</a></li>
-                    <li><a href="hardware.html" class="page-link">Hardware Docs</a></li>
-                    <li><a href="index.html" class="page-link"><p style="color: var(--accent-primary);"> Investors--Coming Soon</p></a></li>
+                    <li><a href="docs.html" class="page-link">Hardware Docs</a></li>
+                    <li><a href="index.html" class="page-link"> <p style="color: var(--accent-primary);"> Investors - coming soon  </p></a></li>
                 </ul>
             </div>
             <div class="footer-col">
@@ -507,7 +562,6 @@
                     <li><a href="legal.html" class="page-link">Privacy Policy</a></li>
                     <li><a href="terms.html" class="page-link">Terms of Use</a></li>
                     <li><a href="contact.html" class="page-link">Contact</a></li>
-                    <li><a href="404.html" class="page-link">404 Error Page</a></li>
                 </ul>
             </div>
         </div>
@@ -518,11 +572,31 @@
         </div>
     </footer>
 
+    <div id="humanProjectModal" class="human-modal-overlay">
+        <div class="human-modal-content" id="humanModalInner">
+            <div class="h-modal-header">
+                <span class="h-modal-title">SYS_ARCHIVE // 100% HUMAN_ENGINEERING</span>
+                <span class="h-modal-close" onclick="closeHumanModal()">[X]</span>
+            </div>
+            <div class="h-modal-body">
+                <img src="assets/images/photo_2025-12-15_19-08-27.jpg" alt="The Cyber-Oni" class="h-modal-img">
+                <div class="h-modal-info">
+                    <h3>THE CYBER-ONI</h3>
+                    <p>
+                        "A style you can put together yourself - part of the interior is part of your vision."<br><br>
+                        Concept design, 3D modeling, and physical fabrication built entirely by human hands, without the intervention of generative AI or synthetic logic.
+                    </p>
+                    <a href="https://www.artstation.com/artwork/oJvwaJ" target="_blank" class="btn btn-secondary" style="text-align: center; clip-path: none; padding: 12px 20px;">VIEW ON ARTSTATION</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="importmap">
     {
         "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
         }
     }
     </script>
@@ -532,7 +606,7 @@
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // --- 1. THREE.JS SETUP ---
+        // --- 1. THREE.JS 3D ROBOT SETUP ---
         const container = document.querySelector('.visual-container');
         const modelPath = './web-robo-3D.glb'; 
         let robotMesh = null; 
@@ -590,11 +664,13 @@
             renderer.setSize(container.clientWidth, container.clientHeight);
         });
 
-        // --- 2. GSAP PREMIUM ANIMATIONS ---
+        // --- 2. GSAP SCROLL & LOAD ANIMATIONS ---
         gsap.registerPlugin(ScrollTrigger);
         
+        // Unhide body to prevent FOUC (Flash of Unstyled Content)
         gsap.set("body", { visibility: "visible" });
 
+        // Initial Load Sequence
         const tlLoad = gsap.timeline();
         tlLoad.to("body", { opacity: 1, duration: 0.5, ease: "none" })
               .from("nav", { y: -50, opacity: 0, duration: 1, ease: "power3.out" }, "-=0.2")
@@ -602,6 +678,7 @@
                   y: 40, opacity: 0, duration: 1.2, stagger: 0.15, ease: "power4.out" 
               }, "-=0.8");
 
+        // Standard Element Reveals
         gsap.utils.toArray('.gs-reveal').forEach(elem => {
             gsap.from(elem, {
                 scrollTrigger: { trigger: elem, start: "top 85%" },
@@ -609,11 +686,13 @@
             });
         });
 
+        // Bento Grid Stagger
         gsap.from(".gs-grid-item", {
             scrollTrigger: { trigger: ".bento-grid", start: "top 80%" },
             y: 50, opacity: 0, stagger: 0.1, duration: 1, ease: "power3.out"
         });
 
+        // Servo Counter (0 to 16x)
         ScrollTrigger.create({
             trigger: "#servo-counter",
             start: "top 90%",
@@ -628,6 +707,7 @@
             once: true
         });
 
+        // Cyberpunk Code Typewriter
         ScrollTrigger.create({
             trigger: "#typing-code",
             start: "top 85%",
@@ -648,8 +728,7 @@
             once: true
         });
 
-        // --- SECOND HALF GSAP ANIMATIONS ---
-        
+        // Digital Twin Section
         gsap.from(".gs-dt-text > *", {
             scrollTrigger: { trigger: ".digital-twin-section", start: "top 70%" },
             y: 30, opacity: 0, stagger: 0.15, duration: 1, ease: "power3.out"
@@ -661,11 +740,13 @@
             duration: 1.5, ease: "power4.inOut"
         });
 
+        // Article Terminal
         gsap.from(".gs-terminal", {
             scrollTrigger: { trigger: ".article-section", start: "top 80%" },
             y: 50, opacity: 0, duration: 1.2, ease: "power3.out"
         });
 
+        // Operational Timeline (Line fill + Step nodes)
         const timelineSteps = gsap.utils.toArray('.gs-step');
         
         gsap.from(".gs-timeline-title", {
@@ -684,7 +765,7 @@
             ease: "none"
         });
 
-        timelineSteps.forEach((step, i) => {
+        timelineSteps.forEach((step) => {
             gsap.to(step, {
                 scrollTrigger: {
                     trigger: step,
@@ -696,18 +777,22 @@
             });
         });
 
+        // Footer Stagger
         gsap.from(".gs-footer > div", {
             scrollTrigger: { trigger: "footer", start: "top 90%" },
             y: 30, opacity: 0, stagger: 0.1, duration: 1, ease: "power3.out"
         });
 
         // --- 3. UI INTERACTIONS ---
+        
+        // Stealth Nav on Scroll
         window.addEventListener('scroll', () => {
             const nav = document.querySelector('nav');
             if (window.scrollY > 50) nav.classList.add('scrolled');
             else nav.classList.remove('scrolled');
         });
 
+        // LocalStorage Login State Check
         const userNick = localStorage.getItem('userNick');
         const userAvatar = localStorage.getItem('userAvatar');
         if (userNick) {
@@ -724,22 +809,59 @@
             `;
         }
 
-        // --- 4. SEAMLESS PAGE TRANSITIONS ---
+        // Seamless Page Transitions (Page Exit)
         document.querySelectorAll('a.page-link, .footer-col a').forEach(link => {
             link.addEventListener('click', (e) => {
-                e.preventDefault();
                 const targetUrl = e.currentTarget.href;
+                // If it's an anchor link on the same page, ignore transition
+                if (targetUrl.includes('#') && targetUrl.split('#')[0] === window.location.href.split('#')[0]) return;
                 
+                e.preventDefault();
                 gsap.to("body", {
-                    opacity: 0,
-                    y: -20, 
-                    duration: 0.5,
-                    ease: "power2.inOut",
+                    opacity: 0, y: -20, duration: 0.5, ease: "power2.inOut",
                     onComplete: () => { window.location.href = targetUrl; }
                 });
             });
         });
 
+        // --- 4. HUMAN PROJECT MODAL LOGIC ---
+        window.openHumanModal = function() {
+            const modal = document.getElementById('humanProjectModal');
+            const inner = document.getElementById('humanModalInner');
+            
+            modal.style.display = 'flex';
+            gsap.to(modal, { opacity: 1, duration: 0.3, ease: "power2.out" });
+            gsap.fromTo(inner, 
+                { y: 50, scale: 0.95 }, 
+                { y: 0, scale: 1, duration: 0.6, ease: "back.out(1.5)" }
+            );
+        };
+
+        window.closeHumanModal = function() {
+            const modal = document.getElementById('humanProjectModal');
+            const inner = document.getElementById('humanModalInner');
+            
+            gsap.to(inner, { y: 30, scale: 0.95, duration: 0.3, ease: "power2.in" });
+            gsap.to(modal, { 
+                opacity: 0, duration: 0.3, ease: "power2.in", 
+                onComplete: () => { modal.style.display = 'none'; }
+            });
+        };
+
+        // Close modal on background click
+        document.getElementById('humanProjectModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeHumanModal();
+            }
+        });
+        
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('humanProjectModal');
+                if (modal.style.display === 'flex') closeHumanModal();
+            }
+        });
     </script>
 </body>
 </html>
