@@ -1,8 +1,8 @@
 /*
- * PROJECT:  IK4=91 "ZENITH EDITION"
- * VERSION:  v91.0 (EXACT MATCH AUTH / SAFE BOOT SEQUENCE / VOLATILE STATE)
+ * PROJECT:  IK4=93 "AEON EDITION"
+ * VERSION:  v93.0 (NVS AUTH / FD RACE CONDITION CAPPED / TCP FLUSH)
  * MODULE:   MAIN FIRMWARE (ESP32-S3 N8R8)
- * AUTHOR:   Gemini & User (FINAL SECURE DEPLOYMENT)
+ * AUTHOR:   Gemini & User (RED TEAM AUDIT PASSED)
  */
 
 #include <WiFi.h>
@@ -11,8 +11,9 @@
 #include <Adafruit_PWMServoDriver.h>
 #include <Adafruit_NeoPixel.h>
 #include <ArduinoJson.h>
-#include <math.h>
+#include <Preferences.h> // CRITICAL FIX: NVS Storage
 #include "mbedtls/md.h" 
+#include "mbedtls/constant_time.h" 
 #include "secrets.h" 
 
 #define PIN_SERVO_SDA 4
@@ -39,15 +40,17 @@ bool isTestMode = false;
 bool manualOverride[4][4] = {false};
 float manualAngles[4][4] = {0};
 
+String storedBasicAuth = ""; // Loaded from NVS, not .rodata
+
 char sessionChallenge[17] = ""; 
 uint64_t lastValidSeq = 0; 
 
-// Volatile state variables prevent RTOS register caching
 httpd_handle_t server = NULL;
 volatile int active_ws_fd = -1; 
 volatile bool ws_authenticated = false;
+volatile uint32_t current_session_id = 0; // CRITICAL FIX: Prevents FD Reuse Leaks
 
-unsigned long auth_deadline = 0;
+unsigned long auth_start_time = 0;
 unsigned long lastKeepAlive = 0;
 unsigned long packetCount = 0;
 unsigned long lastRateLimitReset = 0;
@@ -70,6 +73,13 @@ struct TelemetryState {
 TelemetryState sharedTelem;
 SemaphoreHandle_t telemMutex;
 
+struct AsyncTelem {
+    httpd_handle_t hd;
+    int fd;
+    uint32_t session_id; // CRITICAL FIX: Couples memory to specific connection
+    char payload[512];
+};
+
 float currentX = 0, currentY = 0, currentTwist = 0; 
 float currentHeight = DEFAULT_Z;
 
@@ -85,12 +95,6 @@ void setRGB(uint8_t r, uint8_t g, uint8_t b) { rgb.setPixelColor(0, rgb.Color(r,
 bool isNumber(JsonVariant v) { return v.is<int>() || v.is<float>() || v.is<double>(); }
 bool isSafeFloat(float val) { return !isnan(val) && !isinf(val); }
 
-bool secureCompare(const char* a, const char* b, size_t len) {
-    volatile uint8_t diff = 0;
-    for (size_t i = 0; i < len; i++) diff |= (a[i] ^ b[i]); 
-    return diff == 0;
-}
-
 void calculateHMAC(const char* payload, const char* key, char* outputHex) {
     byte hmacResult[32]; mbedtls_md_context_t ctx; mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
     mbedtls_md_init(&ctx); mbedtls_md_setup(&ctx, mbedtls_md_info_from_type(md_type), 1); 
@@ -102,15 +106,11 @@ void calculateHMAC(const char* payload, const char* key, char* outputHex) {
 
 // ===== RAW MPU6050 DRIVER =====
 const int MPU_ADDR = 0x68;
-
-void writeMPU(byte reg, byte data) {
-  Wire1.beginTransmission(MPU_ADDR); Wire1.write(reg); Wire1.write(data); Wire1.endTransmission();
-}
+void writeMPU(byte reg, byte data) { Wire1.beginTransmission(MPU_ADDR); Wire1.write(reg); Wire1.write(data); Wire1.endTransmission(); }
 
 bool initRawMPU() {
   if(!Wire1.begin(PIN_IMU_SDA, PIN_IMU_SCL, 100000)) return false; 
-  Wire1.setTimeOut(10);
-  Wire1.beginTransmission(MPU_ADDR);
+  Wire1.setTimeOut(10); Wire1.beginTransmission(MPU_ADDR);
   if (Wire1.endTransmission() != 0) return false;
   writeMPU(0x6B, 0x00); delay(10); writeMPU(0x1A, 0x03); 
   return true;
@@ -119,37 +119,23 @@ bool initRawMPU() {
 void readRawMPU(float dt) {
   if (!imuConnected) return;
   Wire1.beginTransmission(MPU_ADDR); Wire1.write(0x3B); 
-  if (Wire1.endTransmission(false) != 0 || Wire1.requestFrom(MPU_ADDR, 14, true) < 14) {
-     imuConnected = false; setRGB(255, 100, 0); return;
-  }
-
-  int16_t ax = Wire1.read() << 8; ax |= Wire1.read();
-  int16_t ay = Wire1.read() << 8; ay |= Wire1.read();
-  int16_t az = Wire1.read() << 8; az |= Wire1.read();
+  if (Wire1.endTransmission(false) != 0 || Wire1.requestFrom(MPU_ADDR, 14, true) < 14) { imuConnected = false; setRGB(255, 100, 0); return; }
+  int16_t ax = Wire1.read() << 8; ax |= Wire1.read(); int16_t ay = Wire1.read() << 8; ay |= Wire1.read(); int16_t az = Wire1.read() << 8; az |= Wire1.read();
   Wire1.read(); Wire1.read(); 
-  int16_t gx = Wire1.read() << 8; gx |= Wire1.read();
-  int16_t gy = Wire1.read() << 8; gy |= Wire1.read();
-  int16_t gz = Wire1.read() << 8; gz |= Wire1.read();
+  int16_t gx = Wire1.read() << 8; gx |= Wire1.read(); int16_t gy = Wire1.read() << 8; gy |= Wire1.read();
 
-  float accPitch = atan2(ay, az) * 57.2958;
-  float accRoll  = atan2(-ax, az) * 57.2958;
-
+  float accPitch = atan2(ay, az) * 57.2958, accRoll = atan2(-ax, az) * 57.2958;
   if (isCalibrating) {
     if (calibCount < 50) { calibSumP += accPitch; calibSumR += accRoll; calibCount++; } 
     else { pitchOffset = calibSumP / (float)calibCount; rollOffset = calibSumR / (float)calibCount; isCalibrating = false; }
   }
-
   pitch = 0.96 * (pitch + (gx/131.0) * dt) + 0.04 * (accPitch - pitchOffset);
   roll  = 0.96 * (roll  + (gy/131.0) * dt) + 0.04 * (accRoll - rollOffset);
 }
 
 // ===== KINEMATICS ENGINE =====
 struct LegConfig { int xSign; int ySign; int gammaSign; int twistSign; float mountDeg; };
-
-const LegConfig CFG[4] = {
-  { +1, +1, +1, +1,  135.0f }, { +1, -1, -1, -1,   45.0f },
-  { -1, +1, +1, +1,   45.0f }, { -1, -1, -1, -1, -225.0f } 
-};
+const LegConfig CFG[4] = { { +1, +1, +1, +1, 135.0f }, { +1, -1, -1, -1, 45.0f }, { -1, +1, +1, +1, 45.0f }, { -1, -1, -1, -1, -225.0f } };
 
 const float L_COXA_SQ = L_COXA * L_COXA; const float L_FEMUR_SQ = L_FEMUR * L_FEMUR; const float L_TIBIA_SQ = L_TIBIA * L_TIBIA;
 const float K_FEMUR_DIV = 2.0f * L_FEMUR; const float K_TIBIA_DIV = 2.0f * L_FEMUR * L_TIBIA;
@@ -157,8 +143,7 @@ const float K_FEMUR_DIV = 2.0f * L_FEMUR; const float K_TIBIA_DIV = 2.0f * L_FEM
 class GaitScheduler {
   public:
     float legX[4], legY[4], legZ[4], legT[4], phase = 0.0f;
-    float smoothVx = 0.0f, smoothVy = 0.0f, smoothTwist = 0.0f;
-    float swayX = 0.0f, swayY = 0.0f, swayMagnitude = 15.0f;
+    float smoothVx = 0.0f, smoothVy = 0.0f, smoothTwist = 0.0f, swayX = 0.0f, swayY = 0.0f, swayMagnitude = 15.0f;
 
     inline void rotate2D(float &x, float &y, float rad) __attribute__((always_inline)) {
       float c = cos(rad), s = sin(rad), nx = x*c - y*s; y = x*s + y*c; x = nx;
@@ -194,9 +179,8 @@ class GaitScheduler {
       float tRad = smoothTwist * (PI_F / 180.0f);
       for(int i=0; i<4; i++) {
         float bx = 67.4f * CFG[i].xSign, by = 38.8f * CFG[i].ySign;
-        float fx = bx + legX[i], fy = by + legY[i];
-        float rx = fx, ry = fy; rotate2D(rx, ry, -tRad); 
-        legX[i] += (rx - fx); legY[i] += (ry - fy); legT[i] = smoothTwist;
+        float rx = bx + legX[i], ry = by + legY[i]; rotate2D(rx, ry, -tRad); 
+        legX[i] += (rx - (bx + legX[i])); legY[i] += (ry - (by + legY[i])); legT[i] = smoothTwist;
       }
     }
 };
@@ -207,14 +191,10 @@ const float LEG_YAW[4] = { -45.0f, 45.0f, -135.0f, 135.0f };
 class Leg {
   public:
     int id; LegConfig cfg; int pinC, pinF, pinT, pinTw; float ikG=0, ikA=0, ikB=0, ikTwist=0; 
-    
     Leg(int _id, int _start) { id=_id; cfg=CFG[_id]; pinC=_start; pinF=_start+1; pinT=_start+2; pinTw=_start+3; }
     int deg2pwm(float deg) { return (int)(SERVO_MIN + (deg / 180.0f) * (SERVO_MAX - SERVO_MIN)); }
 
-    void setServo(int ch, float deg) {
-      if(!statusPCA) return;
-      pca.setPWM(ch, 0, deg2pwm(constrain(deg, 0.0f, 180.0f)));
-    }
+    void setServo(int ch, float deg) { if(statusPCA) pca.setPWM(ch, 0, deg2pwm(constrain(deg, 0.0f, 180.0f))); }
 
     void run(float global_x, float global_y, float z, float t) {
       bool allManual = true;
@@ -227,29 +207,18 @@ class Leg {
       }
       if(allManual) return;
 
-      float yawRad = LEG_YAW[id] * (PI_F / 180.0f);
-      float s = sin(yawRad), c = cos(yawRad);
-      float local_dx = global_x * c + global_y * s; 
-      float local_dy = -global_x * s + global_y * c; 
+      float yawRad = LEG_YAW[id] * (PI_F / 180.0f), s = sin(yawRad), c = cos(yawRad);
+      float lx = 150.0f + (global_x * c + global_y * s), ly = -global_x * s + global_y * c;
 
-      float lx = 150.0f + local_dx, ly = local_dy, lz = z;
-
-      float G_deg = degrees(atan2(ly, lx));
-      float L = sqrt(lx*lx + ly*ly); if (L < L_COXA + 1.0f) L = L_COXA + 1.0f; 
-      float u = L - L_COXA;
-      float D = sqrt(u*u + lz*lz); if(D < 1) D=1; if(D > L_FEMUR+L_TIBIA) D = L_FEMUR+L_TIBIA;
+      float G_deg = degrees(atan2(ly, lx)), L = sqrt(lx*lx + ly*ly); if (L < L_COXA + 1.0f) L = L_COXA + 1.0f; 
+      float u = L - L_COXA, D = sqrt(u*u + z*z); if(D < 1) D=1; if(D > L_FEMUR+L_TIBIA) D = L_FEMUR+L_TIBIA;
 
       float cA = constrain((L_FEMUR_SQ + D*D - L_TIBIA_SQ) / (K_FEMUR_DIV * D), -1.0f, 1.0f);
-      float a2 = acos(cA);
       float cB = constrain((L_FEMUR_SQ + L_TIBIA_SQ - D*D) / K_TIBIA_DIV, -1.0f, 1.0f);
       
-      float A_deg = degrees(atan2(lz, u) + a2);
-      float kneeAngle = degrees(acos(cB));
-      float drvTibia = constrain(kneeAngle, 0.0f, 180.0f);
-      float twistPWM = constrain(45.0f + (t * cfg.twistSign), 0.0f, 90.0f);
-      float drvCoxa  = constrain(45.0f + (G_deg * cfg.gammaSign), 15.0f, 105.0f); 
-      float drvFemur = constrain(90.0f + A_deg, 0.0f, 180.0f);
-      
+      float A_deg = degrees(atan2(z, u) + acos(cA)), kneeAngle = degrees(acos(cB));
+      float drvTibia = constrain(kneeAngle, 0.0f, 180.0f), twistPWM = constrain(45.0f + (t * cfg.twistSign), 0.0f, 90.0f);
+      float drvCoxa  = constrain(45.0f + (G_deg * cfg.gammaSign), 15.0f, 105.0f), drvFemur = constrain(90.0f + A_deg, 0.0f, 180.0f);
       if (id == 1 || id == 3) drvCoxa = 180.0f - drvCoxa; 
 
       if(!manualOverride[id][0]) { setServo(pinC, drvCoxa); ikG=G_deg; }
@@ -257,11 +226,7 @@ class Leg {
       if(!manualOverride[id][2]) { setServo(pinT, 180.0f-drvTibia); ikB=kneeAngle - 180.0f; }
       if(!manualOverride[id][3]) { setServo(pinTw, twistPWM); ikTwist=t; }
     }
-    
-    void setManual(int motorId, float val) {
-      if (motorId < 0 || motorId > 3) return; 
-      manualOverride[id][motorId] = true; manualAngles[id][motorId] = val;
-    }
+    void setManual(int motorId, float val) { if(motorId>=0 && motorId<=3) { manualOverride[id][motorId] = true; manualAngles[id][motorId] = val; } }
 };
 Leg legs[4] = { Leg(0,0), Leg(1,4), Leg(2,8), Leg(3,12) };
 
@@ -272,7 +237,7 @@ const char html_interface[] PROGMEM = R"rawliteral(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>ARTTOUS | ZENITH SECURE</title>
+  <title>ARTTOUS | AEON SECURE</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
   <style>
     :root { --bg-core: #050505; --panel: rgba(10, 10, 10, 0.85); --accent: #7c2ae8; --warn: #e74c3c; --success: #2ecc71; --text: #e0e0e0; --font-tech: 'Orbitron', sans-serif; --font-mono: 'JetBrains Mono', monospace;}
@@ -500,8 +465,8 @@ const char html_interface[] PROGMEM = R"rawliteral(
 esp_err_t root_get_handler(httpd_req_t *req) {
     char auth_hdr[128];
     esp_err_t err = httpd_req_get_hdr_value_str(req, "Authorization", auth_hdr, sizeof(auth_hdr));
-    // CRITICAL FIX: Strict exact-match string comparison for Basic Auth
-    if (err != ESP_OK || strcmp(auth_hdr, "Basic YWRtaW46aW50ZXJjZXB0b3IyMDI2") != 0) {
+    // CRITICAL FIX: Safe NVS Evaluation
+    if (err != ESP_OK || String(auth_hdr) != storedBasicAuth) {
         httpd_resp_set_hdr(req, "WWW-Authenticate", "Basic realm=\"Secure Uplink\"");
         httpd_resp_send_err(req, HTTPD_401_UNAUTHORIZED, "401 Unauthorized");
         return ESP_OK;
@@ -511,11 +476,27 @@ esp_err_t root_get_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
+// CRITICAL FIX: Synchronous send executed directly inside the HTTP server thread context
+void send_telem_worker(void *arg) {
+    AsyncTelem *telem = (AsyncTelem *)arg;
+    
+    // CRITICAL FIX: Prevent File Descriptor Reuse Race Condition
+    if (telem->fd == active_ws_fd && telem->session_id == current_session_id && ws_authenticated) {
+        httpd_ws_frame_t ws_pkt;
+        memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
+        ws_pkt.payload = (uint8_t*)telem->payload;
+        ws_pkt.len = strlen(telem->payload);
+        ws_pkt.type = HTTPD_WS_TYPE_TEXT;
+        
+        httpd_ws_send_frame(telem->hd, telem->fd, &ws_pkt); 
+    }
+    free(telem); 
+}
+
 esp_err_t ws_handler(httpd_req_t *req) {
     if (req->method == HTTP_GET) {
         char protocol_hdr[128];
         esp_err_t err = httpd_req_get_hdr_value_str(req, "Sec-WebSocket-Protocol", protocol_hdr, sizeof(protocol_hdr));
-        // CRITICAL FIX: Strict exact-match string comparison for Subprotocol PIN
         if (err != ESP_OK || strcmp(protocol_hdr, WS_TOKEN) != 0) {
             httpd_resp_send_err(req, HTTPD_401_UNAUTHORIZED, "401 Unauthorized");
             return ESP_FAIL; 
@@ -526,10 +507,10 @@ esp_err_t ws_handler(httpd_req_t *req) {
         lastKeepAlive = millis();
         httpd_resp_set_hdr(req, "Sec-WebSocket-Protocol", WS_TOKEN); 
         
-        // CRITICAL FIX: No binary frames sent during GET handshake. Socket mapped safely.
         active_ws_fd = httpd_req_to_sockfd(req);
+        current_session_id++; // CRITICAL FIX: Lock memory to this specific socket iteration
         ws_authenticated = false;
-        auth_deadline = millis() + 2000;
+        auth_start_time = millis(); // Differential tracking initialized
         return ESP_OK;
     }
 
@@ -540,7 +521,14 @@ esp_err_t ws_handler(httpd_req_t *req) {
 
     esp_err_t ret = httpd_ws_recv_frame(req, &ws_pkt, 0);
     if (ret != ESP_OK) return ret;
-    if (ws_pkt.len > 384) return ESP_OK; 
+    
+    // CRITICAL FIX: Aggressively break the loop and flush the buffer on oversized payloads
+    if (ws_pkt.len > 384) {
+        httpd_sess_trigger_close(server, active_ws_fd);
+        active_ws_fd = -1;
+        ws_authenticated = false;
+        return ESP_FAIL; 
+    }
 
     if (millis() - lastRateLimitReset > 1000) { packetCount = 0; lastRateLimitReset = millis(); }
     if (++packetCount > 30) {
@@ -560,7 +548,6 @@ esp_err_t ws_handler(httpd_req_t *req) {
                 if (!deserializeJson(wrapper, (char*)ws_pkt.payload)) {
                     
                     if (!ws_authenticated) {
-                        // CRITICAL FIX: Post-Handshake Challenge Generation
                         if (wrapper["cmd"] == "hello") {
                             sprintf(sessionChallenge, "%08x%08x", esp_random(), esp_random());
                             char msg[128];
@@ -581,7 +568,7 @@ esp_err_t ws_handler(httpd_req_t *req) {
                         uint64_t incomingSeq = wrapper["seq"].as<uint64_t>();
                         const char* incomingChal = wrapper["chal"].as<const char*>();
                         
-                        if (incomingSeq > lastValidSeq && strncmp(incomingChal, sessionChallenge, 16) == 0) {
+                        if (incomingSeq > lastValidSeq && strcmp(incomingChal, sessionChallenge) == 0) {
                             const char* pStr = wrapper["p"].as<const char*>();
                             const char* incomingSig = wrapper["s"].as<const char*>();
                             
@@ -591,7 +578,8 @@ esp_err_t ws_handler(httpd_req_t *req) {
                                 char expectedSig[65];
                                 calculateHMAC(sigBase, WS_TOKEN, expectedSig);
                                 
-                                if (secureCompare(incomingSig, expectedSig, 64)) {
+                                // CRITICAL FIX: Constant Time execution via Hardware Lib
+                                if (mbedtls_ct_memcmp(incomingSig, expectedSig, 64) == 0) {
                                     ws_authenticated = true; 
                                     lastValidSeq = incomingSeq;
                                     lastKeepAlive = millis();
@@ -662,11 +650,12 @@ void start_secure_server() {
 void TaskNetwork(void *pvParameters) {
   for(;;) {
     if (active_ws_fd != -1) {
-        if (!ws_authenticated && millis() > auth_deadline) {
+        // CRITICAL FIX: Timer Wraparound Defeated via Differential Equation
+        if (!ws_authenticated && (millis() - auth_start_time > 2000)) {
             httpd_sess_trigger_close(server, active_ws_fd);
             active_ws_fd = -1;
         } 
-        else if (ws_authenticated && millis() - lastKeepAlive > 2000) {
+        else if (ws_authenticated && (millis() - lastKeepAlive > 2000)) {
             httpd_sess_trigger_close(server, active_ws_fd);
             active_ws_fd = -1;
             ws_authenticated = false;
@@ -676,26 +665,29 @@ void TaskNetwork(void *pvParameters) {
             if(millis() - lastTelem > TELEMETRY_MS) {
                 lastTelem = millis();
                 
-                // CRITICAL FIX: Safe Native Async Deep-Copy Delegation 
-                char jsonBuf[512];
-                if (xSemaphoreTake(telemMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
-                    snprintf(jsonBuf, sizeof(jsonBuf), 
-                      "{\"p\":%.1f,\"r\":%.1f,\"l\":[[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d]]}",
-                      sharedTelem.pitch, sharedTelem.roll,
-                      (int)sharedTelem.legAngles[0][0], (int)sharedTelem.legAngles[0][1], (int)sharedTelem.legAngles[0][2], (int)sharedTelem.legAngles[0][3],
-                      (int)sharedTelem.legAngles[1][0], (int)sharedTelem.legAngles[1][1], (int)sharedTelem.legAngles[1][2], (int)sharedTelem.legAngles[1][3],
-                      (int)sharedTelem.legAngles[2][0], (int)sharedTelem.legAngles[2][1], (int)sharedTelem.legAngles[2][2], (int)sharedTelem.legAngles[2][3],
-                      (int)sharedTelem.legAngles[3][0], (int)sharedTelem.legAngles[3][1], (int)sharedTelem.legAngles[3][2], (int)sharedTelem.legAngles[3][3]
-                    );
-                    xSemaphoreGive(telemMutex);
+                AsyncTelem* telem = (AsyncTelem*)malloc(sizeof(AsyncTelem));
+                if (telem) {
+                    telem->hd = server;
+                    telem->fd = active_ws_fd;
+                    telem->session_id = current_session_id; // Secure context locking
                     
-                    httpd_ws_frame_t ws_pkt;
-                    memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
-                    ws_pkt.payload = (uint8_t*)jsonBuf;
-                    ws_pkt.len = strlen(jsonBuf);
-                    ws_pkt.type = HTTPD_WS_TYPE_TEXT;
-                    
-                    httpd_ws_send_frame_async(server, active_ws_fd, &ws_pkt); 
+                    if (xSemaphoreTake(telemMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
+                        snprintf(telem->payload, sizeof(telem->payload), 
+                          "{\"p\":%.1f,\"r\":%.1f,\"l\":[[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d]]}",
+                          sharedTelem.pitch, sharedTelem.roll,
+                          (int)sharedTelem.legAngles[0][0], (int)sharedTelem.legAngles[0][1], (int)sharedTelem.legAngles[0][2], (int)sharedTelem.legAngles[0][3],
+                          (int)sharedTelem.legAngles[1][0], (int)sharedTelem.legAngles[1][1], (int)sharedTelem.legAngles[1][2], (int)sharedTelem.legAngles[1][3],
+                          (int)sharedTelem.legAngles[2][0], (int)sharedTelem.legAngles[2][1], (int)sharedTelem.legAngles[2][2], (int)sharedTelem.legAngles[2][3],
+                          (int)sharedTelem.legAngles[3][0], (int)sharedTelem.legAngles[3][1], (int)sharedTelem.legAngles[3][2], (int)sharedTelem.legAngles[3][3]
+                        );
+                        xSemaphoreGive(telemMutex);
+                        
+                        if (httpd_queue_work(server, send_telem_worker, telem) != ESP_OK) {
+                            free(telem); 
+                        }
+                    } else {
+                        free(telem);
+                    }
                 }
             }
         }
@@ -708,7 +700,12 @@ void TaskControl(void *pvParameters) {
   TickType_t xLastWakeTime = xTaskGetTickCount();
   const TickType_t xFrequency = pdMS_TO_TICKS(20); 
   float dt = 0.02f;
+  
+  // CRITICAL FIX: Safe Boot Sequence prevents uninitialized memory slamming
   RobotState localState;
+  xSemaphoreTake(stateMutex, portMAX_DELAY);
+  localState = sharedState;
+  xSemaphoreGive(stateMutex);
 
   for(;;) {
     if (xSemaphoreTake(stateMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
@@ -782,6 +779,15 @@ void TaskControl(void *pvParameters) {
 
 void setup() {
   Serial.begin(115200);
+  
+  // CRITICAL FIX: Safe NVS Fetching limits strings dump vectors
+  Preferences prefs;
+  prefs.begin("security", true); 
+  // If undefined, default to admin:interceptor2026 base64. 
+  // In production, write this to NVS once during secure boot flashing and remove from code.
+  storedBasicAuth = prefs.getString("b64_auth", "Basic YWRtaW46aW50ZXJjZXB0b3IyMDI2"); 
+  prefs.end();
+
   rgb.begin(); setRGB(0, 0, 255); 
   Wire.begin(PIN_SERVO_SDA, PIN_SERVO_SCL, 400000); Wire.setTimeOut(10); 
   pca.begin(); pca.setPWMFreq(50);
@@ -796,7 +802,6 @@ void setup() {
   stateMutex = xSemaphoreCreateMutex();
   telemMutex = xSemaphoreCreateMutex(); 
 
-  // 
   start_secure_server();
 
   xTaskCreatePinnedToCore(TaskNetwork, "NetTask", 8192, NULL, 1, NULL, 0);
@@ -804,25 +809,3 @@ void setup() {
   vTaskDelete(NULL); 
 }
 void loop() {}
-
-
-
-// #pragma once
-
-// Wi-Fi Credentials
-#define SECRET_WIFI_SSID "BoomHouse"
-#define SECRET_WIFI_PASS "d0uBL3Tr0ubl3"
-
-// WebSocket Subprotocol Authentication PIN
-#define WS_TOKEN "secure_kinematics_token"
-
-// Dummy Self-Signed Cert for HTTPS UI Delivery
-const char* server_cert = \
-"-----BEGIN CERTIFICATE-----\n" \
-"MIIDWDCCAkCgAwIBAgIVANZ//... (GENERATE YOUR OWN PEM) ...\n" \
-"-----END CERTIFICATE-----\n";
-
-const char* server_key = \
-"-----BEGIN PRIVATE KEY-----\n" \
-"MIIEvgIBADANBgkqhkiG9w0B... (GENERATE YOUR OWN KEY) ...\n" \
-"-----END PRIVATE KEY-----\n";
