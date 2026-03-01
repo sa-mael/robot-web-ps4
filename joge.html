@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6-DOF Systemic Architecture</title>
+    <style>
+        /* High-End Technical Minimalist Theme */
+        :root {
+            --bg-pure: #ffffff;
+            --bg-off: #f7f7f7;
+            --grid-line: #ebebeb;
+            --text-main: #111111;
+            --text-meta: #777777;
+            --accent-blue: #0047bb;
+            --accent-gold: #bda365;
+            --border-fine: 1px solid #e0e0e0;
+            --font-display: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-display);
+            background-color: var(--bg-pure);
+            color: var(--text-main);
+            line-height: 1.5;
+            overflow-x: hidden;
+            /* Technical Blueprint Grid */
+            background-image: 
+                linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center top;
+        }
+
+        /* Typography & Layout Utils */
+        .meta-text {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-meta);
+        }
+
+        .data-value {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            margin-top: 0.2rem;
+        }
+
+        /* Navigation - Editorial Style */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 40px;
+            border-bottom: var(--border-fine);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            color: var(--text-main);
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Blue indicator dot */
+        .logo::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-blue);
+            border-radius: 50%;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-main);
+            margin-left: 3rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-gold);
+        }
+
+        /* Hero Panel Layout (Inspired by Planestate image) */
+        #hero {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 80px; /* Offset for nav */
+        }
+
+        .hero-visual {
+            flex: 1.2;
+            border-right: var(--border-fine);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background: radial-gradient(circle at center, #ffffff 0%, #f9f9f9 100%);
+        }
+
+        /* Crosshairs for technical feel */
+        .crosshair {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+        }
+        .crosshair::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--text-main); }
+        .crosshair::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--text-main); }
+        .ch-top-left { top: 40px; left: 40px; }
+        .ch-bottom-right { bottom: 40px; right: 40px; }
+
+        .hero-data {
+            flex: 0.8;
+            padding: 6rem 4rem;
+            background-color: var(--bg-pure);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: -0.04em;
+            margin-bottom: 3rem;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .data-item {
+            border-top: 2px solid var(--text-main);
+            padding-top: 0.8rem;
+        }
+
+        .data-item.gold-accent {
+            border-top-color: var(--accent-gold);
+        }
+
+        /* Premium Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-decoration: none;
+            border-radius: 40px; /* Pill shape from Planestate reference */
+            transition: all 0.3s ease;
+            cursor: pointer;
+            width: fit-content;
+        }
+
+        .btn-primary {
+            background-color: var(--text-main);
+            color: var(--bg-pure);
+            border: 1px solid var(--text-main);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--bg-pure);
+            color: var(--text-main);
+        }
+
+        /* Section Layouts */
+        .blueprint-section {
+            border-top: var(--border-fine);
+            display: flex;
+        }
+
+        .section-text {
+            flex: 1;
+            padding: 6rem 40px;
+            background-color: var(--bg-pure);
+        }
+
+        .section-visual {
+            flex: 1;
+            border-left: var(--border-fine);
+            background-color: var(--bg-off);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            position: relative;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            color: var(--text-meta);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            max-width: 90%;
+        }
+
+        /* Technical List */
+        ul.tech-list {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        ul.tech-list li {
+            padding: 1rem 0;
+            border-bottom: var(--border-fine);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        ul.tech-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Placeholder styles for where your renders will go */
+        .render-placeholder {
+            width: 100%;
+            height: 100%;
+            border: 1px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-meta);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Footer / CTA */
+        footer {
+            padding: 6rem 40px;
+            text-align: center;
+            border-top: var(--border-fine);
+            background-color: var(--bg-pure);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            #hero, .blueprint-section {
+                flex-direction: column;
+            }
+            .hero-visual {
+                min-height: 50vh;
+                border-right: none;
+                border-bottom: var(--border-fine);
+            }
+            .section-visual {
+                border-left: none;
+                border-top: var(--border-fine);
+                min-height: 400px;
+            }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#" class="logo">6-DOF SYSTEM</a>
+        <div class="nav-links">
+            <a href="#kinematics">Kinematics</a>
+            <a href="#mechanics">Cycloidal Core</a>
+            <a href="#ai">AI Architecture</a>
+        </div>
+    </nav>
+
+    <section id="hero">
+        <div class="hero-visual">
+            <div class="crosshair ch-top-left"></div>
+            <div class="crosshair ch-bottom-right"></div>
+            <div class="render-placeholder">
+                
+            </div>
+        </div>
+        
+        <div class="hero-data">
+            <div class="meta-text" style="margin-bottom: 2rem; color: var(--accent-blue);">System Status: Online</div>
+            <h1>Precision<br>at Scale</h1>
+            
+            <div class="data-grid">
+                <div class="data-item">
+                    <div class="meta-text">Max Reach</div>
+                    <div class="data-value">1.0 Meters</div>
+                </div>
+                <div class="data-item">
+                    <div class="meta-text">Dynamic Payload</div>
+                    <div class="data-value">2.0 kg</div>
+                </div>
+                <div class="data-item gold-accent">
+                    <div class="meta-text">Backlash</div>
+                    <div class="data-value">Zero-Tolerance</div>
+                </div>
+                <div class="data-item">
+                    <div class="meta-text">Primary Function</div>
+                    <div class="data-value">Hard Metal Milling</div>
+                </div>
+            </div>
+
+            <a href="#kinematics" class="btn btn-primary">Initialize Sequence</a>
+        </div>
+    </section>
+
+    <section id="kinematics" class="blueprint-section">
+        <div class="section-text">
+            <div class="meta-text" style="margin-bottom: 1rem;">01 // Applied Physics</div>
+            <h2>Reach & Rigidity</h2>
+            <p>Milling hard metals requires immense rigidity. Achieving this at the end of a 1-meter lever introduces extreme mechanical complexities.</p>
+            <p>Supporting a dynamic 2kg payload at full extension generates torque that overwhelms standard planetary gearing. Our architecture ensures absolute rigidity against aggressive machining chatter, refusing to introduce slop or positional decay.</p>
+            
+            <ul class="tech-list">
+                <li>
+                    <span class="meta-text">Base Torque Load</span>
+                    <span style="font-weight: 500;">High Yield</span>
+                </li>
+                <li>
+                    <span class="meta-text">Positional Truth</span>
+                    <span style="font-weight: 500;">Micrometer</span>
+                </li>
+            </ul>
+        </div>
+        <div class="section-visual">
+             <div class="render-placeholder">
+                
+            </div>
+        </div>
+    </section>
+
+    <section id="mechanics" class="blueprint-section" style="flex-direction: row-reverse;">
+        <div class="section-text" style="border-left: var(--border-fine);">
+            <div class="meta-text" style="margin-bottom: 1rem;">02 // Core Mechanics</div>
+            <h2>The Dual-Stage Cycloidal Drive</h2>
+            <p>To tame massive base torque, we engineered a custom two-stage cycloidal gearbox. Unlike traditional gear trains, cycloidal drives distribute load across multiple rolling elements simultaneously, absorbing shock loads without shearing.</p>
+            
+            <ul class="tech-list">
+                <li>
+                    <span class="meta-text">Drive System</span>
+                    <span style="font-weight: 500;">NEMA 23 + NEMA 17</span>
+                </li>
+                <li>
+                    <span class="meta-text">Reduction</span>
+                    <span style="font-weight: 500;">Dual-Disk Architecture</span>
+                </li>
+            </ul>
+        </div>
+        <div class="section-visual" style="border-left: none;">
+             <div class="render-placeholder">
+                
+            </div>
+        </div>
+    </section>
+
+    <section id="ai" class="blueprint-section">
+        <div class="section-text">
+            <div class="meta-text" style="margin-bottom: 1rem; color: var(--accent-blue);">03 // Cognitive Architecture</div>
+            <h2>Intelligent Integration</h2>
+            <p>Physical strength guided by an ultra-low-latency nervous system. Precision C++ kinematics run natively on ESP32-C6 microcontrollers.</p>
+            <p>Integrated with FlowiseAI and BabyAGI, the system transcends static G-code. It is capable of dynamic path planning, autonomous task loops, and real-time environment adaptation via generated code interpretation.</p>
+        </div>
+        <div class="section-visual">
+            <div class="render-placeholder">
+                
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <h2 style="margin-bottom: 1rem;">Engineered for Manufacturing.</h2>
+        <p style="margin: 0 auto 2rem; max-width: 600px;">
+            Designed and built by a technical problem-solver focused on end-to-end development. We are bridging the gap between inaccessible industrial robotics and desktop capability. Locally engineered in the Strathroy-London area. Seeking manufacturing partners and sponsors.
+        </p>
+        <a href="mailto:your.email@example.com" class="btn btn-primary" style="background-color: var(--accent-gold); border-color: var(--accent-gold); color: white;">Discuss Sponsorship</a>
+    </footer>
+
+</body>
+</html>

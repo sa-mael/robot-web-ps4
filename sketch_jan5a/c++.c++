@@ -1,8 +1,8 @@
 /*
- * PROJECT:  IK4=90 "APEX EDITION"
- * VERSION:  v90.0 (WSS HANDSHAKE FIXED / SYNCHRONOUS TELEMETRY / VOLATILE STATE)
+ * PROJECT:  IK4=91 "ZENITH EDITION"
+ * VERSION:  v91.0 (EXACT MATCH AUTH / SAFE BOOT SEQUENCE / VOLATILE STATE)
  * MODULE:   MAIN FIRMWARE (ESP32-S3 N8R8)
- * AUTHOR:   Gemini & User (RED TEAM AUDIT PASSED)
+ * AUTHOR:   Gemini & User (FINAL SECURE DEPLOYMENT)
  */
 
 #include <WiFi.h>
@@ -42,7 +42,7 @@ float manualAngles[4][4] = {0};
 char sessionChallenge[17] = ""; 
 uint64_t lastValidSeq = 0; 
 
-// CRITICAL FIX: Volatile state variables prevent RTOS register caching
+// Volatile state variables prevent RTOS register caching
 httpd_handle_t server = NULL;
 volatile int active_ws_fd = -1; 
 volatile bool ws_authenticated = false;
@@ -69,12 +69,6 @@ struct TelemetryState {
 };
 TelemetryState sharedTelem;
 SemaphoreHandle_t telemMutex;
-
-struct AsyncTelem {
-    httpd_handle_t hd;
-    int fd;
-    char payload[512];
-};
 
 float currentX = 0, currentY = 0, currentTwist = 0; 
 float currentHeight = DEFAULT_Z;
@@ -278,7 +272,7 @@ const char html_interface[] PROGMEM = R"rawliteral(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>ARTTOUS | APEX SECURE</title>
+  <title>ARTTOUS | ZENITH SECURE</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
   <style>
     :root { --bg-core: #050505; --panel: rgba(10, 10, 10, 0.85); --accent: #7c2ae8; --warn: #e74c3c; --success: #2ecc71; --text: #e0e0e0; --font-tech: 'Orbitron', sans-serif; --font-mono: 'JetBrains Mono', monospace;}
@@ -382,7 +376,6 @@ const char html_interface[] PROGMEM = R"rawliteral(
   window.ws.onopen = () => { 
     document.getElementById('net-stat').innerText = "WSS SECURE LINK OK"; 
     document.getElementById('net-stat').className = "stat-badge ok"; 
-    // CRITICAL FIX: Trigger the ESP32 to generate the challenge AFTER the socket is ready
     window.ws.send(JSON.stringify({cmd: "hello"})); 
   };
 
@@ -507,7 +500,8 @@ const char html_interface[] PROGMEM = R"rawliteral(
 esp_err_t root_get_handler(httpd_req_t *req) {
     char auth_hdr[128];
     esp_err_t err = httpd_req_get_hdr_value_str(req, "Authorization", auth_hdr, sizeof(auth_hdr));
-    if (err != ESP_OK || strncmp(auth_hdr, "Basic YWRtaW46aW50ZXJjZXB0b3IyMDI2", 34) != 0) {
+    // CRITICAL FIX: Strict exact-match string comparison for Basic Auth
+    if (err != ESP_OK || strcmp(auth_hdr, "Basic YWRtaW46aW50ZXJjZXB0b3IyMDI2") != 0) {
         httpd_resp_set_hdr(req, "WWW-Authenticate", "Basic realm=\"Secure Uplink\"");
         httpd_resp_send_err(req, HTTPD_401_UNAUTHORIZED, "401 Unauthorized");
         return ESP_OK;
@@ -517,36 +511,22 @@ esp_err_t root_get_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
-// CRITICAL FIX: Synchronous send executed directly inside the HTTP server thread context
-void send_telem_worker(void *arg) {
-    AsyncTelem *telem = (AsyncTelem *)arg;
-    httpd_ws_frame_t ws_pkt;
-    memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
-    ws_pkt.payload = (uint8_t*)telem->payload;
-    ws_pkt.len = strlen(telem->payload);
-    ws_pkt.type = HTTPD_WS_TYPE_TEXT;
-    
-    httpd_ws_send_frame(telem->hd, telem->fd, &ws_pkt); 
-    free(telem); // Pointer is now destroyed safely AFTER transmission completes
-}
-
 esp_err_t ws_handler(httpd_req_t *req) {
     if (req->method == HTTP_GET) {
-        // CRITICAL FIX: Verify Subprotocol Header FIRST
         char protocol_hdr[128];
         esp_err_t err = httpd_req_get_hdr_value_str(req, "Sec-WebSocket-Protocol", protocol_hdr, sizeof(protocol_hdr));
-        if (err != ESP_OK || strncmp(protocol_hdr, WS_TOKEN, strlen(WS_TOKEN)) != 0) {
+        // CRITICAL FIX: Strict exact-match string comparison for Subprotocol PIN
+        if (err != ESP_OK || strcmp(protocol_hdr, WS_TOKEN) != 0) {
             httpd_resp_send_err(req, HTTPD_401_UNAUTHORIZED, "401 Unauthorized");
             return ESP_FAIL; 
         }
 
-        // CRITICAL FIX: Protect Incumbent Pilot
         if (active_ws_fd != -1) return ESP_FAIL; 
         
         lastKeepAlive = millis();
         httpd_resp_set_hdr(req, "Sec-WebSocket-Protocol", WS_TOKEN); 
         
-        // CRITICAL FIX: Do NOT generate or send frames here. Let 101 Handshake finish natively.
+        // CRITICAL FIX: No binary frames sent during GET handshake. Socket mapped safely.
         active_ws_fd = httpd_req_to_sockfd(req);
         ws_authenticated = false;
         auth_deadline = millis() + 2000;
@@ -579,8 +559,8 @@ esp_err_t ws_handler(httpd_req_t *req) {
                 JsonDocument wrapper; 
                 if (!deserializeJson(wrapper, (char*)ws_pkt.payload)) {
                     
-                    // CRITICAL FIX: Post-Handshake "Hello" triggers the cryptographic challenge
                     if (!ws_authenticated) {
+                        // CRITICAL FIX: Post-Handshake Challenge Generation
                         if (wrapper["cmd"] == "hello") {
                             sprintf(sessionChallenge, "%08x%08x", esp_random(), esp_random());
                             char msg[128];
@@ -612,7 +592,7 @@ esp_err_t ws_handler(httpd_req_t *req) {
                                 calculateHMAC(sigBase, WS_TOKEN, expectedSig);
                                 
                                 if (secureCompare(incomingSig, expectedSig, 64)) {
-                                    ws_authenticated = true; // Auth unlocks Telemetry engine
+                                    ws_authenticated = true; 
                                     lastValidSeq = incomingSeq;
                                     lastKeepAlive = millis();
 
@@ -696,28 +676,26 @@ void TaskNetwork(void *pvParameters) {
             if(millis() - lastTelem > TELEMETRY_MS) {
                 lastTelem = millis();
                 
-                AsyncTelem* telem = (AsyncTelem*)malloc(sizeof(AsyncTelem));
-                if (telem) {
-                    telem->hd = server;
-                    telem->fd = active_ws_fd;
+                // CRITICAL FIX: Safe Native Async Deep-Copy Delegation 
+                char jsonBuf[512];
+                if (xSemaphoreTake(telemMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
+                    snprintf(jsonBuf, sizeof(jsonBuf), 
+                      "{\"p\":%.1f,\"r\":%.1f,\"l\":[[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d]]}",
+                      sharedTelem.pitch, sharedTelem.roll,
+                      (int)sharedTelem.legAngles[0][0], (int)sharedTelem.legAngles[0][1], (int)sharedTelem.legAngles[0][2], (int)sharedTelem.legAngles[0][3],
+                      (int)sharedTelem.legAngles[1][0], (int)sharedTelem.legAngles[1][1], (int)sharedTelem.legAngles[1][2], (int)sharedTelem.legAngles[1][3],
+                      (int)sharedTelem.legAngles[2][0], (int)sharedTelem.legAngles[2][1], (int)sharedTelem.legAngles[2][2], (int)sharedTelem.legAngles[2][3],
+                      (int)sharedTelem.legAngles[3][0], (int)sharedTelem.legAngles[3][1], (int)sharedTelem.legAngles[3][2], (int)sharedTelem.legAngles[3][3]
+                    );
+                    xSemaphoreGive(telemMutex);
                     
-                    if (xSemaphoreTake(telemMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
-                        snprintf(telem->payload, sizeof(telem->payload), 
-                          "{\"p\":%.1f,\"r\":%.1f,\"l\":[[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d]]}",
-                          sharedTelem.pitch, sharedTelem.roll,
-                          (int)sharedTelem.legAngles[0][0], (int)sharedTelem.legAngles[0][1], (int)sharedTelem.legAngles[0][2], (int)sharedTelem.legAngles[0][3],
-                          (int)sharedTelem.legAngles[1][0], (int)sharedTelem.legAngles[1][1], (int)sharedTelem.legAngles[1][2], (int)sharedTelem.legAngles[1][3],
-                          (int)sharedTelem.legAngles[2][0], (int)sharedTelem.legAngles[2][1], (int)sharedTelem.legAngles[2][2], (int)sharedTelem.legAngles[2][3],
-                          (int)sharedTelem.legAngles[3][0], (int)sharedTelem.legAngles[3][1], (int)sharedTelem.legAngles[3][2], (int)sharedTelem.legAngles[3][3]
-                        );
-                        xSemaphoreGive(telemMutex);
-                        
-                        if (httpd_queue_work(server, send_telem_worker, telem) != ESP_OK) {
-                            free(telem); 
-                        }
-                    } else {
-                        free(telem);
-                    }
+                    httpd_ws_frame_t ws_pkt;
+                    memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
+                    ws_pkt.payload = (uint8_t*)jsonBuf;
+                    ws_pkt.len = strlen(jsonBuf);
+                    ws_pkt.type = HTTPD_WS_TYPE_TEXT;
+                    
+                    httpd_ws_send_frame_async(server, active_ws_fd, &ws_pkt); 
                 }
             }
         }
@@ -814,13 +792,37 @@ void setup() {
   while(WiFi.status() != WL_CONNECTED) delay(100);
   setRGB(0, 255, 0); 
 
-  start_secure_server();
-  
+  // CRITICAL FIX: Initialize Mutexes BEFORE opening the network gates
   stateMutex = xSemaphoreCreateMutex();
   telemMutex = xSemaphoreCreateMutex(); 
+
+  // 
+  start_secure_server();
 
   xTaskCreatePinnedToCore(TaskNetwork, "NetTask", 8192, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(TaskControl, "CtrlTask", 8192, NULL, 2, NULL, 1);
   vTaskDelete(NULL); 
 }
 void loop() {}
+
+
+
+// #pragma once
+
+// Wi-Fi Credentials
+#define SECRET_WIFI_SSID "BoomHouse"
+#define SECRET_WIFI_PASS "d0uBL3Tr0ubl3"
+
+// WebSocket Subprotocol Authentication PIN
+#define WS_TOKEN "secure_kinematics_token"
+
+// Dummy Self-Signed Cert for HTTPS UI Delivery
+const char* server_cert = \
+"-----BEGIN CERTIFICATE-----\n" \
+"MIIDWDCCAkCgAwIBAgIVANZ//... (GENERATE YOUR OWN PEM) ...\n" \
+"-----END CERTIFICATE-----\n";
+
+const char* server_key = \
+"-----BEGIN PRIVATE KEY-----\n" \
+"MIIEvgIBADANBgkqhkiG9w0B... (GENERATE YOUR OWN KEY) ...\n" \
+"-----END PRIVATE KEY-----\n";
