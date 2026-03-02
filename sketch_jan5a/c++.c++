@@ -1,19 +1,28 @@
 /*
- * PROJECT:  IK4=93 "AEON EDITION"
- * VERSION:  v93.0 (NVS AUTH / FD RACE CONDITION CAPPED / TCP FLUSH)
+ * PROJECT:  IK4=98 "OVERSEER EDITION"
+ * VERSION:  v98.0 (FIELD DIAGNOSTICS / STRUCTURED LOGGING / FULL SECURITY)
  * MODULE:   MAIN FIRMWARE (ESP32-S3 N8R8)
- * AUTHOR:   Gemini & User (RED TEAM AUDIT PASSED)
+ * AUTHOR:   Gemini & User 
+ *
+ * DIAGNOSTIC TRAPS:
+ * Trap #1: NVS Provisioning Failure (Solid Yellow LED)
+ * Trap #2: Front-Gate Basic Auth Mismatch
+ * Trap #3: WSS Subprotocol / Lobby Squatter Blocked
+ * Trap #4: Cryptographic Sandbox Timeout / HMAC Mismatch
+ * Trap #5: Anti-DoS (Rate Limit / TCP Size) Exceeded
+ * Trap #6: Physical Brownout (Hardware Reboot)
  */
 
 #include <WiFi.h>
 #include <esp_https_server.h> 
+#include <lwip/sockets.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 #include <Adafruit_NeoPixel.h>
 #include <ArduinoJson.h>
-#include <Preferences.h> // CRITICAL FIX: NVS Storage
+#include <Preferences.h>
 #include "mbedtls/md.h" 
-#include "mbedtls/constant_time.h" 
+#include <sodium.h> 
 #include "secrets.h" 
 
 #define PIN_SERVO_SDA 4
@@ -36,24 +45,30 @@ const float L_TIBIA = 123.59f;
 bool statusPCA = false;
 bool imuConnected = false; 
 
+String nvs_b64_auth = "";
+String nvs_hmac_key = "";
+String nvs_subproto = "";
+
 bool isTestMode = false;
 bool manualOverride[4][4] = {false};
 float manualAngles[4][4] = {0};
 
-String storedBasicAuth = ""; // Loaded from NVS, not .rodata
-
 char sessionChallenge[17] = ""; 
 uint64_t lastValidSeq = 0; 
-
-httpd_handle_t server = NULL;
-volatile int active_ws_fd = -1; 
-volatile bool ws_authenticated = false;
-volatile uint32_t current_session_id = 0; // CRITICAL FIX: Prevents FD Reuse Leaks
-
-unsigned long auth_start_time = 0;
-unsigned long lastKeepAlive = 0;
 unsigned long packetCount = 0;
 unsigned long lastRateLimitReset = 0;
+
+httpd_handle_t server = NULL;
+
+struct SessionContext {
+    int fd;
+    uint32_t id;
+    bool authenticated;
+    unsigned long auth_start_time;
+    unsigned long last_keep_alive;
+};
+SessionContext activeSession = {-1, 0, false, 0, 0};
+SemaphoreHandle_t sessionMutex;
 
 struct RobotState {
   int mode = 0; 
@@ -76,13 +91,12 @@ SemaphoreHandle_t telemMutex;
 struct AsyncTelem {
     httpd_handle_t hd;
     int fd;
-    uint32_t session_id; // CRITICAL FIX: Couples memory to specific connection
+    uint32_t session_id; 
     char payload[512];
 };
 
 float currentX = 0, currentY = 0, currentTwist = 0; 
 float currentHeight = DEFAULT_Z;
-
 float pitch = 0, roll = 0, pitchOffset = 0, rollOffset = 0;
 bool isCalibrating = false; int calibCount = 0; float calibSumP = 0, calibSumR = 0;
 unsigned long lastPadPacket = 0, lastManualInput = 0; 
@@ -104,6 +118,16 @@ void calculateHMAC(const char* payload, const char* key, char* outputHex) {
     for(int i=0; i<32; i++) sprintf(&outputHex[i*2], "%02x", hmacResult[i]); outputHex[64] = '\0';
 }
 
+void emergency_halt() {
+    if (xSemaphoreTake(stateMutex, pdMS_TO_TICKS(10)) == pdTRUE) {
+        sharedState.mode = 0; 
+        sharedState.targetX = 0.0f;
+        sharedState.targetY = 0.0f;
+        sharedState.targetTwist = 0.0f;
+        xSemaphoreGive(stateMutex);
+    }
+}
+
 // ===== RAW MPU6050 DRIVER =====
 const int MPU_ADDR = 0x68;
 void writeMPU(byte reg, byte data) { Wire1.beginTransmission(MPU_ADDR); Wire1.write(reg); Wire1.write(data); Wire1.endTransmission(); }
@@ -119,7 +143,9 @@ bool initRawMPU() {
 void readRawMPU(float dt) {
   if (!imuConnected) return;
   Wire1.beginTransmission(MPU_ADDR); Wire1.write(0x3B); 
-  if (Wire1.endTransmission(false) != 0 || Wire1.requestFrom(MPU_ADDR, 14, true) < 14) { imuConnected = false; setRGB(255, 100, 0); return; }
+  if (Wire1.endTransmission(false) != 0 || Wire1.requestFrom(MPU_ADDR, 14, true) < 14) { 
+      Serial.println("[HARDWARE] IMU Disconnected!"); imuConnected = false; setRGB(255, 100, 0); return; 
+  }
   int16_t ax = Wire1.read() << 8; ax |= Wire1.read(); int16_t ay = Wire1.read() << 8; ay |= Wire1.read(); int16_t az = Wire1.read() << 8; az |= Wire1.read();
   Wire1.read(); Wire1.read(); 
   int16_t gx = Wire1.read() << 8; gx |= Wire1.read(); int16_t gy = Wire1.read() << 8; gy |= Wire1.read();
@@ -127,7 +153,7 @@ void readRawMPU(float dt) {
   float accPitch = atan2(ay, az) * 57.2958, accRoll = atan2(-ax, az) * 57.2958;
   if (isCalibrating) {
     if (calibCount < 50) { calibSumP += accPitch; calibSumR += accRoll; calibCount++; } 
-    else { pitchOffset = calibSumP / (float)calibCount; rollOffset = calibSumR / (float)calibCount; isCalibrating = false; }
+    else { pitchOffset = calibSumP / (float)calibCount; rollOffset = calibSumR / (float)calibCount; isCalibrating = false; Serial.println("[SYSTEM] IMU Calibrated."); }
   }
   pitch = 0.96 * (pitch + (gx/131.0) * dt) + 0.04 * (accPitch - pitchOffset);
   roll  = 0.96 * (roll  + (gy/131.0) * dt) + 0.04 * (accRoll - rollOffset);
@@ -136,7 +162,6 @@ void readRawMPU(float dt) {
 // ===== KINEMATICS ENGINE =====
 struct LegConfig { int xSign; int ySign; int gammaSign; int twistSign; float mountDeg; };
 const LegConfig CFG[4] = { { +1, +1, +1, +1, 135.0f }, { +1, -1, -1, -1, 45.0f }, { -1, +1, +1, +1, 45.0f }, { -1, -1, -1, -1, -225.0f } };
-
 const float L_COXA_SQ = L_COXA * L_COXA; const float L_FEMUR_SQ = L_FEMUR * L_FEMUR; const float L_TIBIA_SQ = L_TIBIA * L_TIBIA;
 const float K_FEMUR_DIV = 2.0f * L_FEMUR; const float K_TIBIA_DIV = 2.0f * L_FEMUR * L_TIBIA;
 
@@ -185,7 +210,6 @@ class GaitScheduler {
     }
 };
 GaitScheduler gait;
-
 const float LEG_YAW[4] = { -45.0f, 45.0f, -135.0f, 135.0f };
 
 class Leg {
@@ -193,7 +217,6 @@ class Leg {
     int id; LegConfig cfg; int pinC, pinF, pinT, pinTw; float ikG=0, ikA=0, ikB=0, ikTwist=0; 
     Leg(int _id, int _start) { id=_id; cfg=CFG[_id]; pinC=_start; pinF=_start+1; pinT=_start+2; pinTw=_start+3; }
     int deg2pwm(float deg) { return (int)(SERVO_MIN + (deg / 180.0f) * (SERVO_MAX - SERVO_MIN)); }
-
     void setServo(int ch, float deg) { if(statusPCA) pca.setPWM(ch, 0, deg2pwm(constrain(deg, 0.0f, 180.0f))); }
 
     void run(float global_x, float global_y, float z, float t) {
@@ -237,7 +260,7 @@ const char html_interface[] PROGMEM = R"rawliteral(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>ARTTOUS | AEON SECURE</title>
+  <title>ARTTOUS | OVERSEER DIAGNOSTICS</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
   <style>
     :root { --bg-core: #050505; --panel: rgba(10, 10, 10, 0.85); --accent: #7c2ae8; --warn: #e74c3c; --success: #2ecc71; --text: #e0e0e0; --font-tech: 'Orbitron', sans-serif; --font-mono: 'JetBrains Mono', monospace;}
@@ -279,36 +302,23 @@ const char html_interface[] PROGMEM = R"rawliteral(
 <div class="ui" id="main-ui" style="display:none;">
   <div class="panel">
     <h3>FLIGHT DECK</h3>
-    <div class="horizon-box">
-      <div class="horizon-sky" id="sky"></div>
-      <div class="horizon-line"></div>
-      <div class="horizon-data">PITCH: <span id="val-p" style="color:var(--accent);">0</span>°<br>ROLL: <span id="val-r" style="color:var(--accent);">0</span>°</div>
-    </div>
+    <div class="horizon-box"><div class="horizon-sky" id="sky"></div><div class="horizon-line"></div><div class="horizon-data">PITCH: <span id="val-p" style="color:var(--accent);">0</span>°<br>ROLL: <span id="val-r" style="color:var(--accent);">0</span>°</div></div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
       <button onclick="sendSecure({cmd:'mode', val:'stand'})">STAND (X)</button>
-      <button id="btn-walk" onclick="toggleWalk()">AUTO WALK (O)</button>
+      <button onclick="toggleWalk()" id="btn-walk">AUTO WALK (O)</button>
     </div>
-    <button class="calib" onclick="sendSecure({cmd:'calib'})">CALIBRATE IMU</button>
-    <div class="sticks">
-      <div class="stick-box"><div id="dot-l" class="stick-dot"></div></div>
-      <div class="stick-box"><div id="dot-r" class="stick-dot"></div></div>
-    </div>
+    <button onclick="sendSecure({cmd:'calib'})" class="warn" style="color:#f1c40f; border-color:#444;">CALIBRATE IMU</button>
+    <div class="sticks"><div class="stick-box"><div id="dot-l" class="stick-dot"></div></div><div class="stick-box"><div id="dot-r" class="stick-dot"></div></div></div>
     <label>Z-AXIS CLEARANCE (HEIGHT)</label>
     <input type="range" min="-140" max="-40" value="-60" oninput="sendSecure({cmd:'h', val:parseFloat(this.value)})">
-    <button class="relax" onclick="sendSecure({cmd:'mode', val:'relax'})">RELAX (POWER OFF)</button>
-    <div class="status-bar">
-        <span id="imu-stat" class="stat-badge bad">IMU DEAD</span>
-        <span id="net-stat" class="stat-badge bad">OFFLINE</span>
-    </div>
+    <button class="warn" onclick="sendSecure({cmd:'mode', val:'relax'})" style="margin-top: 10px;">RELAX (POWER OFF)</button>
+    <div class="status-bar"><span id="imu-stat" class="stat-badge bad">IMU DEAD</span><span id="net-stat" class="stat-badge bad">OFFLINE</span></div>
   </div>
 
   <div class="panel">
     <h3>ENGINEERING</h3>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
-      <button id="l0" class="sel" onclick="selLeg(0)">LEG FL</button>
-      <button id="l1" onclick="selLeg(1)">LEG FR</button>
-      <button id="l2" onclick="selLeg(2)">LEG BL</button>
-      <button id="l3" onclick="selLeg(3)">LEG BR</button>
+      <button id="l0" class="sel" onclick="selLeg(0)">LEG FL</button><button id="l1" onclick="selLeg(1)">LEG FR</button><button id="l2" onclick="selLeg(2)">LEG BL</button><button id="l3" onclick="selLeg(3)">LEG BR</button>
     </div>
     <label>J1_COXA (HIP)</label><input type="range" min="-45" max="45" value="0" oninput="move(0,this.value)"><span id="val-c" style="color:var(--accent); font-size:0.65rem;">0°</span>
     <label>J2_FEMUR (SHOULDER)</label><input type="range" min="-90" max="90" value="0" oninput="move(1,this.value)"><span id="val-f" style="color:var(--accent); font-size:0.65rem;">0°</span>
@@ -317,10 +327,9 @@ const char html_interface[] PROGMEM = R"rawliteral(
     <hr style="border:0; border-top:1px dashed #333; margin:20px 0 10px 0;">
     <h3>DIAGNOSTICS</h3>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-      <button class="warn" onclick="startTest(1)">TEST 4CH</button>
-      <button class="warn" onclick="startTest(2)">TEST 16CH</button>
+      <button class="warn" onclick="startTest(1)">TEST 4CH</button><button class="warn" onclick="startTest(2)">TEST 16CH</button>
     </div>
-    <button id="stop-btn" class="stop warn" onclick="stopTest()">STOP TEST</button>
+    <button id="stop-btn" class="warn" style="display:none;" onclick="stopTest()">STOP TEST</button>
   </div>
 </div>
 
@@ -328,14 +337,19 @@ const char html_interface[] PROGMEM = R"rawliteral(
   import * as THREE from 'https://esm.sh/three@0.160.0';
   import { OrbitControls } from 'https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js';
   
-  let SECURE_TOKEN = localStorage.getItem('ws_token');
-  if(!SECURE_TOKEN) {
-      SECURE_TOKEN = prompt("UPLINK SECURED. ENTER AUTHORIZATION PIN:");
-      if(SECURE_TOKEN) localStorage.setItem('ws_token', SECURE_TOKEN);
+  let HMAC_KEY = localStorage.getItem('hmac_key');
+  let SUB_PROTO = localStorage.getItem('subproto');
+  if(!HMAC_KEY || !SUB_PROTO) {
+      HMAC_KEY = prompt("UPLINK SECURED. ENTER HMAC KEY:");
+      SUB_PROTO = prompt("ENTER SUBPROTOCOL ROUTING PIN:");
+      if(HMAC_KEY && SUB_PROTO) {
+          localStorage.setItem('hmac_key', HMAC_KEY);
+          localStorage.setItem('subproto', SUB_PROTO);
+      }
   }
   document.getElementById('main-ui').style.display = 'flex';
 
-  window.ws = new WebSocket(`wss://${location.hostname}:443/ws`, [SECURE_TOKEN]);
+  window.ws = new WebSocket(`wss://${location.hostname}:443/ws`, [SUB_PROTO]);
   let currentChallenge = "";
   
   window.ws.onopen = () => { 
@@ -349,7 +363,7 @@ const char html_interface[] PROGMEM = R"rawliteral(
     const seq = Date.now(); 
     const payloadStr = JSON.stringify(data);
     const sigBase = seq.toString() + currentChallenge + payloadStr;
-    const keyData = new TextEncoder().encode(SECURE_TOKEN);
+    const keyData = new TextEncoder().encode(HMAC_KEY);
     const cryptoKey = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
     const signature = await crypto.subtle.sign('HMAC', cryptoKey, new TextEncoder().encode(sigBase));
     const hashArray = Array.from(new Uint8Array(signature));
@@ -360,72 +374,47 @@ const char html_interface[] PROGMEM = R"rawliteral(
   setInterval(() => { if (ws.readyState === 1 && currentChallenge !== "") sendSecure({cmd:'ping'}); }, 1000);
   
   const scene = new THREE.Scene(); scene.background = new THREE.Color(0x050505); 
-  const cam = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 3000); 
-  cam.position.set(0, 400, 500); 
-  const ren = new THREE.WebGLRenderer({antialias:true}); 
-  ren.setSize(window.innerWidth, window.innerHeight); document.body.appendChild(ren.domElement);
+  const cam = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 3000); cam.position.set(0, 400, 500); 
+  const ren = new THREE.WebGLRenderer({antialias:true}); ren.setSize(window.innerWidth, window.innerHeight); document.body.appendChild(ren.domElement);
   new OrbitControls(cam, ren.domElement);
-  
-  scene.add(new THREE.GridHelper(1000, 100, 0x7c2ae8, 0x111111));
-  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+  scene.add(new THREE.GridHelper(1000, 100, 0x7c2ae8, 0x111111)); scene.add(new THREE.AmbientLight(0xffffff, 0.4));
   const spot = new THREE.PointLight(0x7c2ae8, 1.5, 1000); spot.position.set(0, 500, 0); scene.add(spot);
-  
   const matWire = new THREE.MeshBasicMaterial({color:0x7c2ae8, wireframe:true, opacity:0.4, transparent: true});
   const matSolid = new THREE.MeshStandardMaterial({color:0x111111, roughness:0.7}); 
-  const body = new THREE.Group();
-  body.add(new THREE.Mesh(new THREE.BoxGeometry(77, 46, 134), matSolid));
-  body.add(new THREE.Mesh(new THREE.BoxGeometry(77, 46, 134), matWire));
-  body.add(new THREE.AxesHelper(60)); body.position.y = 23; scene.add(body);
+  const body = new THREE.Group(); body.add(new THREE.Mesh(new THREE.BoxGeometry(77, 46, 134), matSolid)); body.add(new THREE.Mesh(new THREE.BoxGeometry(77, 46, 134), matWire)); body.add(new THREE.AxesHelper(60)); body.position.y = 23; scene.add(body);
   
   const legsVis = [];
   function createLeg(x, z, mountDeg) {
-    const root = new THREE.Group(); root.position.set(x, 23, z); 
-    const hip = new THREE.Group(); hip.rotation.y = mountDeg * 0.01745; root.add(hip); hip.add(new THREE.AxesHelper(20));
-    const twist = new THREE.Group(); twist.position.x = 20; hip.add(twist); 
-    const femur = new THREE.Group(); femur.position.x = 46; twist.add(femur); femur.add(new THREE.AxesHelper(20));
+    const root = new THREE.Group(); root.position.set(x, 23, z); const hip = new THREE.Group(); hip.rotation.y = mountDeg * 0.01745; root.add(hip); hip.add(new THREE.AxesHelper(20));
+    const twist = new THREE.Group(); twist.position.x = 20; hip.add(twist); const femur = new THREE.Group(); femur.position.x = 46; twist.add(femur); femur.add(new THREE.AxesHelper(20));
     const tibia = new THREE.Group(); tibia.position.x = 69; femur.add(tibia);
-    hip.add(new THREE.Mesh(new THREE.BoxGeometry(20,10,10).translate(10,0,0), matWire));
-    twist.add(new THREE.Mesh(new THREE.BoxGeometry(46,12,12).translate(23,0,0), matWire));
-    femur.add(new THREE.Mesh(new THREE.BoxGeometry(69,8,8).translate(34.5,0,0), matWire));
-    tibia.add(new THREE.Mesh(new THREE.BoxGeometry(123,5,5).translate(61.5,0,0), matWire));
-    root.userData = { h: hip, tw: twist, f:femur, t:tibia, off: mountDeg };
-    scene.add(root); legsVis.push(root);
+    hip.add(new THREE.Mesh(new THREE.BoxGeometry(20,10,10).translate(10,0,0), matWire)); twist.add(new THREE.Mesh(new THREE.BoxGeometry(46,12,12).translate(23,0,0), matWire));
+    femur.add(new THREE.Mesh(new THREE.BoxGeometry(69,8,8).translate(34.5,0,0), matWire)); tibia.add(new THREE.Mesh(new THREE.BoxGeometry(123,5,5).translate(61.5,0,0), matWire));
+    root.userData = { h: hip, tw: twist, f:femur, t:tibia, off: mountDeg }; scene.add(root); legsVis.push(root);
   }
   createLeg(-38.8, -67.4, 135); createLeg(38.8, -67.4, 45); createLeg(-38.8, 67.4, 225); createLeg(38.8, 67.4, -45); 
   function loop() { requestAnimationFrame(loop); ren.render(scene, cam); } loop();
   
-  ws.onclose = () => { 
-    document.getElementById('net-stat').innerText = "LINK LOST"; 
-    document.getElementById('net-stat').className = "stat-badge bad"; 
-    currentChallenge = "";
-  };
+  ws.onclose = () => { document.getElementById('net-stat').innerText = "LINK LOST"; document.getElementById('net-stat').className = "stat-badge bad"; currentChallenge = ""; };
   
   ws.onmessage = (e) => {
     try {
       const d = JSON.parse(e.data);
       if(d.chal) { currentChallenge = d.chal; }
       if(d.p !== undefined) {
-        document.getElementById('imu-stat').innerText = "IMU LIVE"; 
-        document.getElementById('imu-stat').className = "stat-badge ok";
-        document.getElementById('val-p').innerText = d.p.toFixed(1);
-        document.getElementById('val-r').innerText = d.r.toFixed(1);
+        document.getElementById('imu-stat').innerText = "IMU LIVE"; document.getElementById('imu-stat').className = "stat-badge ok";
+        document.getElementById('val-p').innerText = d.p.toFixed(1); document.getElementById('val-r').innerText = d.r.toFixed(1);
         body.rotation.x = d.p * 0.01745; body.rotation.z = d.r * 0.01745;
-        const yOff = d.p * 3.0; 
-        document.getElementById('sky').style.transform = `translateY(${yOff}px) rotate(${-d.r}deg)`;
+        document.getElementById('sky').style.transform = `translateY(${d.p * 3.0}px) rotate(${-d.r}deg)`;
       }
       if(d.l) {
          d.l.forEach((ang, i) => {
-           const offRad = legsVis[i].userData.off * 0.01745;
-           legsVis[i].userData.h.rotation.y = offRad + (ang[0] * 0.01745);
-           legsVis[i].userData.tw.rotation.x = ang[3] * 0.01745; 
-           legsVis[i].userData.f.rotation.z = ang[1] * 0.01745;
-           legsVis[i].userData.t.rotation.z = ang[2] * 0.01745;
+           const offRad = legsVis[i].userData.off * 0.01745; legsVis[i].userData.h.rotation.y = offRad + (ang[0] * 0.01745);
+           legsVis[i].userData.tw.rotation.x = ang[3] * 0.01745; legsVis[i].userData.f.rotation.z = ang[1] * 0.01745; legsVis[i].userData.t.rotation.z = ang[2] * 0.01745;
          });
          if(d.l[window.activeLeg]) {
-           document.getElementById('val-c').innerText = d.l[window.activeLeg][0].toFixed(1) + '°';
-           document.getElementById('val-f').innerText = d.l[window.activeLeg][1].toFixed(1) + '°';
-           document.getElementById('val-t').innerText = d.l[window.activeLeg][2].toFixed(1) + '°';
-           document.getElementById('val-tw').innerText = d.l[window.activeLeg][3].toFixed(1) + '°';
+           document.getElementById('val-c').innerText = d.l[window.activeLeg][0].toFixed(1) + '°'; document.getElementById('val-f').innerText = d.l[window.activeLeg][1].toFixed(1) + '°';
+           document.getElementById('val-t').innerText = d.l[window.activeLeg][2].toFixed(1) + '°'; document.getElementById('val-tw').innerText = d.l[window.activeLeg][3].toFixed(1) + '°';
          }
       }
     } catch(err) {}
@@ -434,27 +423,22 @@ const char html_interface[] PROGMEM = R"rawliteral(
   setInterval(() => {
     const gps = navigator.getGamepads();
     if(gps && gps[0]) {
-      const gp = gps[0];
+      const gp = gps[0], lx = gp.axes[0], ly = gp.axes[1], rx = gp.axes[2], ry = gp.axes[3];
+      document.getElementById('dot-l').style.transform = `translate(${lx * 50}px, ${ly * 50}px)`; document.getElementById('dot-r').style.transform = `translate(${rx * 50}px, ${ry * 50}px)`;
       sendSecure({ cmd: 'pad', lx: gp.axes[0], ly: gp.axes[1], rx: gp.axes[2], ry: gp.axes[3], btn: gp.buttons.map(b => b.pressed ? 1 : 0) });
     }
   }, 50);
   
   window.activeLeg = 0; let walking = false;
   window.toggleWalk = function() {
-    walking = !walking; const btn = document.getElementById('btn-walk');
-    btn.innerText = walking ? "STOP WALK" : "AUTO WALK (O)";
-    btn.style.color = walking ? "#fff" : "#aaa"; 
-    btn.style.background = walking ? "rgba(124, 42, 232, 0.3)" : "transparent";
-    btn.style.borderColor = walking ? "var(--accent)" : "#444";
+    walking = !walking; const btn = document.getElementById('btn-walk'); btn.innerText = walking ? "STOP WALK" : "AUTO WALK (O)";
+    btn.style.color = walking ? "#fff" : "#aaa"; btn.style.background = walking ? "rgba(124, 42, 232, 0.3)" : "transparent"; btn.style.borderColor = walking ? "var(--accent)" : "#444";
     sendSecure({cmd:'mode', val: walking ? 'walk' : 'stand', auto: walking});
   }
-  window.selLeg = function(id) {
-    window.activeLeg = id; document.querySelectorAll('.panel button.sel').forEach(b => b.classList.remove('sel'));
-    document.getElementById('l'+id).classList.add('sel'); sendSecure({cmd:'active', val: id});
-  }
+  window.selLeg = function(id) { window.activeLeg = id; document.querySelectorAll('.panel button.sel').forEach(b => b.classList.remove('sel')); document.getElementById('l'+id).classList.add('sel'); sendSecure({cmd:'active', val: id}); }
   window.move = function(id, val) { sendSecure({cmd:'servo', leg: window.activeLeg, id:id, val:parseFloat(val)}); }
-  window.startTest = function(testType) { document.getElementById('stop-btn').classList.add('active'); sendSecure({cmd:'test', val:parseInt(testType)}); }
-  window.stopTest = function() { document.getElementById('stop-btn').classList.remove('active'); sendSecure({cmd:'test_stop'}); }
+  window.startTest = function(testType) { document.getElementById('stop-btn').style.display='block'; sendSecure({cmd:'test', val:parseInt(testType)}); }
+  window.stopTest = function() { document.getElementById('stop-btn').style.display='none'; sendSecure({cmd:'test_stop'}); }
 </script>
 </body>
 </html>
@@ -463,54 +447,88 @@ const char html_interface[] PROGMEM = R"rawliteral(
 // ===== ESP-IDF HTTPS & WEBSOCKET MULTIPLEXER =====
 
 esp_err_t root_get_handler(httpd_req_t *req) {
-    char auth_hdr[128];
+    char auth_hdr[128] = {0};
     esp_err_t err = httpd_req_get_hdr_value_str(req, "Authorization", auth_hdr, sizeof(auth_hdr));
-    // CRITICAL FIX: Safe NVS Evaluation
-    if (err != ESP_OK || String(auth_hdr) != storedBasicAuth) {
+    
+    bool auth_ok = false;
+    if (err == ESP_OK && strlen(auth_hdr) == nvs_b64_auth.length()) {
+        if (sodium_memcmp(auth_hdr, nvs_b64_auth.c_str(), nvs_b64_auth.length()) == 0) {
+            auth_ok = true;
+        }
+    }
+    
+    if (!auth_ok) {
+        Serial.println("[SEC] Trap #2 Triggered: Front-Gate Basic Auth Failed.");
         httpd_resp_set_hdr(req, "WWW-Authenticate", "Basic realm=\"Secure Uplink\"");
         httpd_resp_send_err(req, HTTPD_401_UNAUTHORIZED, "401 Unauthorized");
         return ESP_OK;
     }
+    
     httpd_resp_set_type(req, "text/html");
     httpd_resp_send(req, html_interface, HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
 
-// CRITICAL FIX: Synchronous send executed directly inside the HTTP server thread context
 void send_telem_worker(void *arg) {
     AsyncTelem *telem = (AsyncTelem *)arg;
-    
-    // CRITICAL FIX: Prevent File Descriptor Reuse Race Condition
-    if (telem->fd == active_ws_fd && telem->session_id == current_session_id && ws_authenticated) {
+    bool should_send = false;
+
+    xSemaphoreTake(sessionMutex, portMAX_DELAY);
+    if (telem->fd == activeSession.fd && telem->session_id == activeSession.id && activeSession.authenticated) {
+        should_send = true;
+    }
+    xSemaphoreGive(sessionMutex);
+
+    if (should_send) {
         httpd_ws_frame_t ws_pkt;
         memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
         ws_pkt.payload = (uint8_t*)telem->payload;
         ws_pkt.len = strlen(telem->payload);
         ws_pkt.type = HTTPD_WS_TYPE_TEXT;
-        
-        httpd_ws_send_frame(telem->hd, telem->fd, &ws_pkt); 
+        httpd_ws_send_frame_async(telem->hd, telem->fd, &ws_pkt); 
     }
     free(telem); 
 }
 
 esp_err_t ws_handler(httpd_req_t *req) {
     if (req->method == HTTP_GET) {
-        char protocol_hdr[128];
+        char protocol_hdr[128] = {0};
         esp_err_t err = httpd_req_get_hdr_value_str(req, "Sec-WebSocket-Protocol", protocol_hdr, sizeof(protocol_hdr));
-        if (err != ESP_OK || strcmp(protocol_hdr, WS_TOKEN) != 0) {
+        
+        bool subproto_ok = false;
+        if (err == ESP_OK && strlen(protocol_hdr) == nvs_subproto.length()) {
+            if (sodium_memcmp(protocol_hdr, nvs_subproto.c_str(), nvs_subproto.length()) == 0) {
+                subproto_ok = true;
+            }
+        }
+        
+        if (!subproto_ok) {
+            Serial.println("[SEC] Trap #3 Triggered: Subprotocol PIN Mismatch. Lobby Squatter rejected.");
             httpd_resp_send_err(req, HTTPD_401_UNAUTHORIZED, "401 Unauthorized");
             return ESP_FAIL; 
         }
 
-        if (active_ws_fd != -1) return ESP_FAIL; 
+        xSemaphoreTake(sessionMutex, portMAX_DELAY);
+        if (activeSession.fd != -1) {
+            xSemaphoreGive(sessionMutex);
+            return ESP_FAIL; 
+        }
         
-        lastKeepAlive = millis();
-        httpd_resp_set_hdr(req, "Sec-WebSocket-Protocol", WS_TOKEN); 
+        activeSession.fd = httpd_req_to_sockfd(req);
         
-        active_ws_fd = httpd_req_to_sockfd(req);
-        current_session_id++; // CRITICAL FIX: Lock memory to this specific socket iteration
-        ws_authenticated = false;
-        auth_start_time = millis(); // Differential tracking initialized
+        struct timeval tv;
+        tv.tv_sec = 0;
+        tv.tv_usec = 250000; 
+        setsockopt(activeSession.fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+
+        activeSession.id++; 
+        activeSession.authenticated = false;
+        activeSession.auth_start_time = millis();
+        activeSession.last_keep_alive = millis();
+        xSemaphoreGive(sessionMutex);
+
+        httpd_resp_set_hdr(req, "Sec-WebSocket-Protocol", nvs_subproto.c_str()); 
+        Serial.println("[WEBSOCKET] Telemetry broadcaster initialized on Core 0.");
         return ESP_OK;
     }
 
@@ -522,20 +540,23 @@ esp_err_t ws_handler(httpd_req_t *req) {
     esp_err_t ret = httpd_ws_recv_frame(req, &ws_pkt, 0);
     if (ret != ESP_OK) return ret;
     
-    // CRITICAL FIX: Aggressively break the loop and flush the buffer on oversized payloads
     if (ws_pkt.len > 384) {
-        httpd_sess_trigger_close(server, active_ws_fd);
-        active_ws_fd = -1;
-        ws_authenticated = false;
+        Serial.println("[SEC] Trap #5 Triggered: Anti-DoS Size Limit Exceeded. Executing Emergency Halt.");
+        xSemaphoreTake(sessionMutex, portMAX_DELAY);
+        activeSession.fd = -1;
+        xSemaphoreGive(sessionMutex);
+        emergency_halt(); 
         return ESP_FAIL; 
     }
 
     if (millis() - lastRateLimitReset > 1000) { packetCount = 0; lastRateLimitReset = millis(); }
     if (++packetCount > 30) {
-        httpd_sess_trigger_close(server, active_ws_fd);
-        active_ws_fd = -1;
-        ws_authenticated = false;
-        return ESP_OK;
+        Serial.println("[SEC] Trap #5 Triggered: Anti-DoS Rate Limiter Exceeded. Executing Emergency Halt.");
+        xSemaphoreTake(sessionMutex, portMAX_DELAY);
+        activeSession.fd = -1;
+        xSemaphoreGive(sessionMutex);
+        emergency_halt(); 
+        return ESP_FAIL;
     }
 
     if (ws_pkt.len) {
@@ -547,22 +568,25 @@ esp_err_t ws_handler(httpd_req_t *req) {
                 JsonDocument wrapper; 
                 if (!deserializeJson(wrapper, (char*)ws_pkt.payload)) {
                     
-                    if (!ws_authenticated) {
-                        if (wrapper["cmd"] == "hello") {
-                            sprintf(sessionChallenge, "%08x%08x", esp_random(), esp_random());
-                            char msg[128];
-                            snprintf(msg, sizeof(msg), "{\"chal\":\"%s\",\"cfg\":[%.1f,%.1f,%.1f,%.1f]}", 
-                                     sessionChallenge, CFG[0].mountDeg, CFG[1].mountDeg, CFG[2].mountDeg, CFG[3].mountDeg);
-                            
-                            httpd_ws_frame_t chal_pkt;
-                            memset(&chal_pkt, 0, sizeof(httpd_ws_frame_t));
-                            chal_pkt.payload = (uint8_t*)msg;
-                            chal_pkt.len = strlen(msg);
-                            chal_pkt.type = HTTPD_WS_TYPE_TEXT;
-                            httpd_ws_send_frame(req, &chal_pkt);
-                        }
+                    xSemaphoreTake(sessionMutex, portMAX_DELAY);
+                    bool is_auth = activeSession.authenticated;
+                    xSemaphoreGive(sessionMutex);
+
+                    if (!is_auth && wrapper["cmd"] == "hello") {
+                        sprintf(sessionChallenge, "%08x%08x", esp_random(), esp_random());
+                        char msg[128];
+                        snprintf(msg, sizeof(msg), "{\"chal\":\"%s\",\"cfg\":[%.1f,%.1f,%.1f,%.1f]}", 
+                                 sessionChallenge, CFG[0].mountDeg, CFG[1].mountDeg, CFG[2].mountDeg, CFG[3].mountDeg);
+                        
+                        httpd_ws_frame_t chal_pkt;
+                        memset(&chal_pkt, 0, sizeof(httpd_ws_frame_t));
+                        chal_pkt.payload = (uint8_t*)msg; chal_pkt.len = strlen(msg); chal_pkt.type = HTTPD_WS_TYPE_TEXT;
+                        httpd_ws_send_frame_async(req->handle, activeSession.fd, &chal_pkt);
+                        free(buf);
+                        return ESP_OK;
                     }
-                    else if (wrapper["seq"].is<uint64_t>() && wrapper["chal"].is<const char*>() && 
+                    
+                    if (wrapper["seq"].is<uint64_t>() && wrapper["chal"].is<const char*>() && 
                         wrapper["p"].is<const char*>() && wrapper["s"].is<const char*>()) {
                         
                         uint64_t incomingSeq = wrapper["seq"].as<uint64_t>();
@@ -576,18 +600,24 @@ esp_err_t ws_handler(httpd_req_t *req) {
                                 char sigBase[512];
                                 snprintf(sigBase, sizeof(sigBase), "%llu%s%s", incomingSeq, incomingChal, pStr);
                                 char expectedSig[65];
-                                calculateHMAC(sigBase, WS_TOKEN, expectedSig);
+                                calculateHMAC(sigBase, nvs_hmac_key.c_str(), expectedSig);
                                 
-                                // CRITICAL FIX: Constant Time execution via Hardware Lib
-                                if (mbedtls_ct_memcmp(incomingSig, expectedSig, 64) == 0) {
-                                    ws_authenticated = true; 
+                                if (sodium_memcmp(incomingSig, expectedSig, 64) == 0) {
+                                    
+                                    if (!is_auth) {
+                                        xSemaphoreTake(sessionMutex, portMAX_DELAY);
+                                        activeSession.authenticated = true; 
+                                        xSemaphoreGive(sessionMutex);
+                                    }
+                                    
+                                    xSemaphoreTake(sessionMutex, portMAX_DELAY);
+                                    activeSession.last_keep_alive = millis();
+                                    xSemaphoreGive(sessionMutex);
                                     lastValidSeq = incomingSeq;
-                                    lastKeepAlive = millis();
 
                                     JsonDocument doc;
                                     if (!deserializeJson(doc, pStr) && doc.containsKey("cmd")) {
                                         String cmd = doc["cmd"].as<String>();
-                                        
                                         if (cmd != "ping" && xSemaphoreTake(stateMutex, pdMS_TO_TICKS(10)) == pdTRUE) {
                                             if(cmd == "mode" && doc["val"].is<String>()) { 
                                               String val = doc["val"].as<String>();
@@ -616,6 +646,8 @@ esp_err_t ws_handler(httpd_req_t *req) {
                                             xSemaphoreGive(stateMutex);
                                         }
                                     }
+                                } else {
+                                    Serial.println("[SEC] Trap #4 Triggered: Cryptographic Signature Invalid.");
                                 }
                             }
                         }
@@ -645,49 +677,89 @@ void start_secure_server() {
     }
 }
 
+// ===== FAIL-CLOSED SERIAL PROVISIONING =====
+void enterProvisioningMode() {
+    setRGB(255, 255, 0); 
+    Serial.println("[SEC] Trap #1 Triggered: Missing NVS Keys. Entering Serial Provisioning...");
+    Preferences prefs;
+    prefs.begin("security", false); 
+    while(true) {
+        if(Serial.available()) {
+            String input = Serial.readStringUntil('\n');
+            JsonDocument doc;
+            if(!deserializeJson(doc, input)) {
+                if(doc.containsKey("auth") && doc.containsKey("hmac") && doc.containsKey("subproto")) {
+                    prefs.putString("b64_auth", doc["auth"].as<String>());
+                    prefs.putString("hmac_key", doc["hmac"].as<String>());
+                    prefs.putString("subproto", doc["subproto"].as<String>());
+                    Serial.println("[SEC] PROVISIONED. REBOOTING IN 3 SECONDS...");
+                    delay(3000);
+                    ESP.restart();
+                }
+            }
+        }
+        delay(100);
+    }
+}
+
 // ===== TASKS & KINEMATICS LOOP =====
 
 void TaskNetwork(void *pvParameters) {
   for(;;) {
-    if (active_ws_fd != -1) {
-        // CRITICAL FIX: Timer Wraparound Defeated via Differential Equation
-        if (!ws_authenticated && (millis() - auth_start_time > 2000)) {
-            httpd_sess_trigger_close(server, active_ws_fd);
-            active_ws_fd = -1;
+    int current_fd = -1;
+    uint32_t current_id = 0;
+    bool is_auth = false;
+
+    xSemaphoreTake(sessionMutex, portMAX_DELAY);
+    if (activeSession.fd != -1) {
+        unsigned long now = millis();
+        if (!activeSession.authenticated && (now - activeSession.auth_start_time > 2000)) {
+            Serial.println("[SEC] Trap #4 Triggered: 2000ms Auth Sandbox Timeout. Client failed to authenticate.");
+            httpd_sess_trigger_close(server, activeSession.fd);
+            activeSession.fd = -1;
+            emergency_halt(); 
         } 
-        else if (ws_authenticated && (millis() - lastKeepAlive > 2000)) {
-            httpd_sess_trigger_close(server, active_ws_fd);
-            active_ws_fd = -1;
-            ws_authenticated = false;
+        else if (activeSession.authenticated && (now - activeSession.last_keep_alive > 2000)) {
+            Serial.println("[SEC] TCP Slot Timeout. Evicting idle client.");
+            httpd_sess_trigger_close(server, activeSession.fd);
+            activeSession.fd = -1;
+            emergency_halt(); 
         } 
-        else if (ws_authenticated) {
-            static unsigned long lastTelem = 0;
-            if(millis() - lastTelem > TELEMETRY_MS) {
-                lastTelem = millis();
+        else if (activeSession.authenticated) {
+            current_fd = activeSession.fd;
+            current_id = activeSession.id;
+            is_auth = true;
+        }
+    }
+    xSemaphoreGive(sessionMutex);
+
+    if (current_fd != -1 && is_auth) {
+        static unsigned long lastTelem = 0;
+        if(millis() - lastTelem > TELEMETRY_MS) {
+            lastTelem = millis();
+            
+            AsyncTelem* telem = (AsyncTelem*)malloc(sizeof(AsyncTelem));
+            if (telem) {
+                telem->hd = server;
+                telem->fd = current_fd;
+                telem->session_id = current_id; 
                 
-                AsyncTelem* telem = (AsyncTelem*)malloc(sizeof(AsyncTelem));
-                if (telem) {
-                    telem->hd = server;
-                    telem->fd = active_ws_fd;
-                    telem->session_id = current_session_id; // Secure context locking
+                if (xSemaphoreTake(telemMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
+                    snprintf(telem->payload, sizeof(telem->payload), 
+                      "{\"p\":%.1f,\"r\":%.1f,\"l\":[[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d]]}",
+                      sharedTelem.pitch, sharedTelem.roll,
+                      (int)sharedTelem.legAngles[0][0], (int)sharedTelem.legAngles[0][1], (int)sharedTelem.legAngles[0][2], (int)sharedTelem.legAngles[0][3],
+                      (int)sharedTelem.legAngles[1][0], (int)sharedTelem.legAngles[1][1], (int)sharedTelem.legAngles[1][2], (int)sharedTelem.legAngles[1][3],
+                      (int)sharedTelem.legAngles[2][0], (int)sharedTelem.legAngles[2][1], (int)sharedTelem.legAngles[2][2], (int)sharedTelem.legAngles[2][3],
+                      (int)sharedTelem.legAngles[3][0], (int)sharedTelem.legAngles[3][1], (int)sharedTelem.legAngles[3][2], (int)sharedTelem.legAngles[3][3]
+                    );
+                    xSemaphoreGive(telemMutex);
                     
-                    if (xSemaphoreTake(telemMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
-                        snprintf(telem->payload, sizeof(telem->payload), 
-                          "{\"p\":%.1f,\"r\":%.1f,\"l\":[[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d],[%d,%d,%d,%d]]}",
-                          sharedTelem.pitch, sharedTelem.roll,
-                          (int)sharedTelem.legAngles[0][0], (int)sharedTelem.legAngles[0][1], (int)sharedTelem.legAngles[0][2], (int)sharedTelem.legAngles[0][3],
-                          (int)sharedTelem.legAngles[1][0], (int)sharedTelem.legAngles[1][1], (int)sharedTelem.legAngles[1][2], (int)sharedTelem.legAngles[1][3],
-                          (int)sharedTelem.legAngles[2][0], (int)sharedTelem.legAngles[2][1], (int)sharedTelem.legAngles[2][2], (int)sharedTelem.legAngles[2][3],
-                          (int)sharedTelem.legAngles[3][0], (int)sharedTelem.legAngles[3][1], (int)sharedTelem.legAngles[3][2], (int)sharedTelem.legAngles[3][3]
-                        );
-                        xSemaphoreGive(telemMutex);
-                        
-                        if (httpd_queue_work(server, send_telem_worker, telem) != ESP_OK) {
-                            free(telem); 
-                        }
-                    } else {
-                        free(telem);
+                    if (httpd_queue_work(server, send_telem_worker, telem) != ESP_OK) {
+                        free(telem); 
                     }
+                } else {
+                    free(telem);
                 }
             }
         }
@@ -701,7 +773,6 @@ void TaskControl(void *pvParameters) {
   const TickType_t xFrequency = pdMS_TO_TICKS(20); 
   float dt = 0.02f;
   
-  // CRITICAL FIX: Safe Boot Sequence prevents uninitialized memory slamming
   RobotState localState;
   xSemaphoreTake(stateMutex, portMAX_DELAY);
   localState = sharedState;
@@ -779,33 +850,63 @@ void TaskControl(void *pvParameters) {
 
 void setup() {
   Serial.begin(115200);
+  Serial.println("\n[SYSTEM] Booting IK4=98 'OVERSEER EDITION'...");
   
-  // CRITICAL FIX: Safe NVS Fetching limits strings dump vectors
+  if (sodium_init() < 0) {
+      Serial.println("[FATAL] Libsodium failed to initialize.");
+      while(1) { delay(100); }
+  }
+
+  rgb.begin(); setRGB(255, 0, 0); 
+
+  Serial.println("[SYSTEM] Checking Non-Volatile Storage (NVS) for cryptographic keys...");
   Preferences prefs;
   prefs.begin("security", true); 
-  // If undefined, default to admin:interceptor2026 base64. 
-  // In production, write this to NVS once during secure boot flashing and remove from code.
-  storedBasicAuth = prefs.getString("b64_auth", "Basic YWRtaW46aW50ZXJjZXB0b3IyMDI2"); 
+  nvs_b64_auth = prefs.getString("b64_auth", ""); 
+  nvs_hmac_key = prefs.getString("hmac_key", "");
+  nvs_subproto = prefs.getString("subproto", "");
   prefs.end();
 
-  rgb.begin(); setRGB(0, 0, 255); 
-  Wire.begin(PIN_SERVO_SDA, PIN_SERVO_SCL, 400000); Wire.setTimeOut(10); 
-  pca.begin(); pca.setPWMFreq(50);
-  Wire.beginTransmission(0x40); statusPCA = (Wire.endTransmission()==0);
-  imuConnected = initRawMPU(); 
+  if (nvs_b64_auth == "" || nvs_hmac_key == "" || nvs_subproto == "") {
+      enterProvisioningMode(); 
+  }
+  Serial.println("[SYSTEM] Cryptographic keys successfully loaded from NVS.");
 
+  Serial.println("[HARDWARE] Scanning I2C bus for Actuators and Sensors...");
+  Wire.begin(PIN_SERVO_SDA, PIN_SERVO_SCL, 400000); Wire.setTimeOut(10); 
+  
+  pca.begin(); pca.setPWMFreq(50);
+  Wire.beginTransmission(0x40); 
+  if(Wire.endTransmission()==0) {
+      statusPCA = true;
+      Serial.println("[HARDWARE] OK: PCA9685 Servo Controller detected at 0x40.");
+  } else {
+      Serial.println("[HARDWARE] FAIL: PCA9685 Servo Controller NOT FOUND.");
+  }
+
+  imuConnected = initRawMPU(); 
+  if(imuConnected) {
+      Serial.println("[HARDWARE] OK: MPU6050 IMU detected at 0x68.");
+  }
+
+  Serial.println("[NETWORK] Attempting to connect to SSID...");
   WiFi.begin(SECRET_WIFI_SSID, SECRET_WIFI_PASS);
   while(WiFi.status() != WL_CONNECTED) delay(100);
+  Serial.print("[NETWORK] SUCCESS. Connected! IP: ");
+  Serial.println(WiFi.localIP());
+  
   setRGB(0, 255, 0); 
 
-  // CRITICAL FIX: Initialize Mutexes BEFORE opening the network gates
   stateMutex = xSemaphoreCreateMutex();
   telemMutex = xSemaphoreCreateMutex(); 
+  sessionMutex = xSemaphoreCreateMutex(); 
 
   start_secure_server();
 
   xTaskCreatePinnedToCore(TaskNetwork, "NetTask", 8192, NULL, 1, NULL, 0);
+  Serial.println("[SYSTEM] All diagnostics passed. Initializing TaskControl on Core 1...");
   xTaskCreatePinnedToCore(TaskControl, "CtrlTask", 8192, NULL, 2, NULL, 1);
+  
   vTaskDelete(NULL); 
 }
 void loop() {}

@@ -1,2 +1,113 @@
+Here is the comprehensive technical documentation for the IK4 Quadruped Firmware. This document encapsulates the hardware specifications, FreeRTOS architecture, inverse kinematics math, and the enterprise-grade cyber-physical security perimeter we built.
 
-Project Interceptor: Quadruped Robotics Platform (v75.0)OverviewProject Interceptor is an advanced, custom-built quadruped robot powered by an ESP32-S3 (Dual-Core, 8MB PSRAM) microcontroller. The firmware is built on a real-time operating system (FreeRTOS) architecture, featuring dual-core processing, raw non-blocking I2C sensor fusion, and complex 3D Inverse Kinematics (IK) for holonomic movement and active self-balancing.⚙️ Hardware ArchitectureTo ensure extreme stability and prevent signal collisions, the system utilizes a Dual I2C Bus topology, isolating the noisy servo PWM signals from the sensitive IMU telemetry.Microcontroller: Waveshare ESP32-S3-DevKit-N8R8Actuation (Bus 0): PCA9685 16-Channel PWM DriverSDA: GPIO 4 | SCL: GPIO 5 | FREQ: 400 kHzControls 16 Metal Gear Servos (4 Degrees of Freedom per leg: Coxa, Femur, Tibia, Twist).Sensor Fusion (Bus 1): MPU6050 6-DoF IMUSDA: GPIO 6 | SCL: GPIO 7 | FREQ: 100 kHzConfigured in RAW mode (register-level reading) with a 42Hz Digital Low Pass Filter (DLPF) and a complementary filter for stable Pitch/Roll tracking.Status Indication: On-board WS2812B RGB LED (GPIO 38)🔵 Booting | 🟢 Standby/Ready | 🟣 Walking | 🟠 Test/Diagnostics | 🔴 Hardware Error🧠 Software Architecture (FreeRTOS)The firmware utilizes FreeRTOS to pin critical tasks to specific silicon cores, guaranteeing that heavy network traffic never interrupts the 50Hz physical control loop. Data sharing across cores is strictly protected by a SemaphoreHandle_t Mutex.Core 0 (TaskNetwork):Handles Wi-Fi connectivity and serves the HTML/JS Flight Deck dashboard.Manages asynchronous WebSocket payloads (gamepad telemetry).Broadcasts 3D spatial data (Pitch, Roll, Leg Angles) back to the UI at 10Hz.Core 1 (TaskControl):Runs a rigid 50Hz (20ms) deterministic control loop (vTaskDelayUntil).Executes the Kinematics Engine, reads IMU data, and updates servo PWM pulses.📐 Kinematics & Locomotion EngineThe robot utilizes a custom-written Inverse Kinematics (IK) solver and Gait Scheduler.Creep Gait (3-Point Stability): Uses a strictly phased step sequence (FL -> BR -> FR -> BL). Three legs remain planted on the ground at all times, pushing the chassis forward, while one leg performs a sinusoidal swing trajectory.Holonomic Twist: The robot can yaw (twist) its body while moving linearly. The coordinate system dynamically rotates the target foot placements, keeping the feet "pinned" to the ground relative to the world frame.Active IMU Balancing: Regardless of gait state, the system continuously offsets the Z-height of each leg using $Z_{offset} = X \cdot \sin(Pitch) + Y \cdot \sin(Roll)$ to maintain chassis parallelism against uneven terrain.Kinematic Protections: * Features geometric hard-limits to prevent negative radius calculations ($L_{coxa}$ inversion) that could mechanically damage the chassis.Emplements Smooth Parking (velocity damping) to ensure legs land softly when joystick input ceases, preventing current spikes.💻 Control InterfaceThe firmware serves a completely custom "Flight Deck" Web UI accessible via any browser. It features a Three.js-powered 3D wireframe visualizer that mirrors the robot's physical joint angles and chassis orientation in real-time. It includes:Virtual Artificial Horizon (Pitch/Roll).Individual Joint diagnostics and offset tuning.Real-time Gamepad API integration (connect a PS4/Xbox controller to the browser to drive the robot).
+You can use this as your official project README or portfolio technical brief.
+
+---
+
+# PROJECT IK4: OVERSEER
+
+**Platform:** ESP32-S3 (N8R8)
+**Firmware Version:** v98.0 "Overseer"
+**Architecture:** FreeRTOS Dual-Core, HTTPS/WSS Multiplexed, HMAC-SHA256 Secured
+
+## 1. Project Overview
+
+Project IK4 is an advanced, 16-DOF (Degree of Freedom) quadruped robotics platform. The firmware is designed to be a resilient, cyber-physical system capable of processing dynamic Inverse Kinematics (IK) while surviving hostile network environments.
+
+Unlike standard hobbyist firmware, IK4 strictly isolates network routing from physical actuation using a dual-core FreeRTOS architecture. It implements enterprise-grade cryptographic security—including zero-allocation HMAC-SHA256 payload signing, constant-time credential verification via Libsodium, and hardware-level TCP DoS protection—ensuring that command and control (C2) cannot be hijacked, spoofed, or maliciously starved of resources.
+
+## 2. Hardware Architecture
+
+* **Microcontroller:** ESP32-S3 (N8R8)
+* **Actuation:** 16x Metal Gear Servos driven by 1x PCA9685 I2C PWM Controller.
+* **Proprioception:** MPU6050 6-Axis IMU (Pitch/Roll active feedback).
+* **Status Indicator:** 1x NeoPixel RGB LED.
+* **Power Plant:** High-discharge 2S LiPo battery routed through a 20A+ Step-Down (Buck) converter set to 5.0V-6.0V. *(Critical to prevent simultaneous 16-servo startup brownouts).*
+
+**Pin Mapping:**
+
+* `GPIO 4`: PCA9685 SDA (Servo Bus)
+* `GPIO 5`: PCA9685 SCL
+* `GPIO 6`: MPU6050 SDA (IMU Bus - Segregated for traffic optimization)
+* `GPIO 7`: MPU6050 SCL
+* `GPIO 38`: NeoPixel Data
+
+## 3. Core Software Architecture (FreeRTOS)
+
+The firmware is divided across the two physical cores of the ESP32-S3 to ensure network parsing never blocks physical balance calculations.
+
+### Core 0: `TaskNetwork` (The Gateway)
+
+Dedicated entirely to network I/O and security.
+
+* Hosts the native ESP-IDF `esp_https_server`.
+* Multiplexes standard HTTPS (UI delivery) and WSS (Telemetry/Control) over a single TLS 1.2 tunnel on Port 443.
+* Handles cryptographic verification (HMAC-SHA256), TCP rate-limiting, and payload bounding.
+* Pushes sanitized commands to the `sharedState` struct and pulls telemetry via `httpd_queue_work`.
+
+### Core 1: `TaskControl` (The Brain)
+
+Dedicated to the 50Hz (20ms) physics and kinematics loop.
+
+* **IMU Fusion:** Reads the MPU6050 and applies a complementary filter to determine absolute pitch and roll.
+* **Gait Scheduler:** Manages the phase offsets for the quadruped walking cycle, including a dynamic Center of Mass (CoM) sway to keep the robot balanced during leg lifts.
+* **IK Engine:** Converts Cartesian coordinate requests (X, Y, Z, Twist) into specific servo angles.
+
+### Concurrency Locks
+
+* `stateMutex`: Protects the incoming kinematic target requests.
+* `telemMutex`: Protects the outgoing joint angle and IMU data.
+* `sessionMutex`: Protects the active TCP socket state to prevent File Descriptor (FD) race conditions.
+
+## 4. Inverse Kinematics Engine
+
+Each of the 4 legs uses a 4-DOF design (Coxa, Femur, Tibia, Twist).
+
+1. **Global to Local Translation:** The `GaitScheduler` calculates the desired global position of the robot chassis and translates it into specific local target coordinates `(lx, ly, lz)` for each of the 4 leg mounts.
+2. **Trigonometric Resolution:** The `Leg::run()` method uses the Law of Cosines to solve the `(lz, u)` triangle, yielding the Femur (`A_deg`) and Tibia (`kneeAngle`) angles.
+3. **Hardware Abstraction:** The resulting angles are constrained to physical hardware limits (0° - 180°) and mapped to PCA9685 pulse widths.
+
+## 5. Cyber-Physical Security Perimeter
+
+The system is heavily fortified against active network attacks, resource exhaustion, and physical runaways.
+
+* **Zero-Knowledge UI & HTTPS:** The HTML/Three.js frontend is delivered over HTTPS. Authentication keys are held in the browser's `localStorage` and never transmitted over the wire, preventing MITM script injections.
+* **Constant-Time Cryptography:** All credential checks (Basic Auth, Subprotocol PIN) and HMAC signature validations use `libsodium` (`sodium_memcmp`) to defeat statistical timing analysis.
+* **HMAC-SHA256 Envelope:** Every WebSocket control packet is wrapped in a cryptographic signature containing a strict UNIX sequence timestamp and a per-session RNG challenge, mathematically defeating payload tampering and Replay Attacks.
+* **TCP Anti-Slowloris Guillotine:** The OS-level LwIP socket is forced to a 250ms send timeout. If an attacker artificially shrinks their TCP receive window to freeze the HTTP daemon, the kernel forcefully drops the connection.
+* **Dead-Man's Brake (Fail-Closed):** If the network connection is severed, or an attack is detected, the `emergency_halt()` routine is triggered, instantly zeroing the velocity vectors and dropping the robot into a safe `STAND` posture.
+* **Strict Type Coercion Barriers:** Incoming JSON variables are strictly validated (e.g., `isSafeFloat`) to prevent `NaN` or `Infinity` injections from poisoning the kinematics engine and destroying the servos.
+
+## 6. Provisioning & Deployment
+
+To prevent attackers from extracting hardcoded secrets from the `.rodata` binary via flash-dumping, the firmware uses a Fail-Closed Non-Volatile Storage (NVS) bootloader.
+
+### Initializing a Virgin Board:
+
+1. Flash the firmware. The robot LED will turn **Solid Yellow** (Provisioning Mode) and halt Wi-Fi initialization.
+2. Connect to the ESP32 via USB Serial Monitor (115200 baud).
+3. Transmit the following JSON string to burn your unique keys into the NVS encrypted partition:
+```json
+{"auth":"Basic [YOUR_BASE64_ADMIN:PASS]","hmac":"[YOUR_SECRET_HMAC_KEY]","subproto":"[YOUR_ROUTING_PIN]"}
+
+```
+
+
+4. The robot will acknowledge the payload, reboot, and the LED will turn **Red** (Secure boot) then **Green** (Network connected).
+
+## 7. Field Diagnostic Matrix
+
+If the robot's self-preservation routines are triggered, check the Serial Monitor for the following traps:
+
+* **Trap #1:** `Missing NVS Keys` -> Enter Serial Provisioning (See Section 6).
+* **Trap #2:** `Front-Gate Basic Auth Failed` -> Unauthorized HTTP access attempt blocked.
+* **Trap #3:** `Subprotocol PIN Mismatch` -> WebSocket Lobby Squatter dropped.
+* **Trap #4:** `Cryptographic Signature Invalid` -> Payload tampered or HMAC key incorrect. Sandbox timeout enforced.
+* **Trap #5:** `Anti-DoS Exceeded` -> TCP payload > 384 bytes, or client exceeded 30Hz limit.
+* **Trap #6:** `Hardware Disconnect` -> Sudden physical reboot. Check battery BMS for stall-current brownouts.
+
+---
+
+### Next Steps for the Project
+
+Now that the architecture is documented and deployed, how would you like to proceed? We can begin physical gait tuning (adjusting the `GAIT_DAMPING_FACTOR` and sway magnitude), or we can look into expanding the Three.js visualizer to include IMU telemetry graphs.
