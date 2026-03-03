@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6-DOF Systemic Architecture</title>
-    <link rel="icon" href="assets/images/logo-ttr.png" type="image/png">
     <style>
         /* High-End Technical Minimalist Theme */
         :root {
@@ -32,6 +31,7 @@
             color: var(--text-main);
             line-height: 1.5;
             overflow-x: hidden;
+            letter-spacing: -0.01em;
             /* Technical Blueprint Grid */
             background-image: 
                 linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
@@ -181,7 +181,7 @@
             text-transform: uppercase;
             letter-spacing: 0.1em;
             text-decoration: none;
-            border-radius: 40px; /* Pill shape from Planestate reference */
+            border-radius: 40px;
             transition: all 0.3s ease;
             cursor: pointer;
             width: fit-content;
@@ -268,12 +268,197 @@
             letter-spacing: 0.1em;
         }
 
-        /* Footer / CTA */
-        footer {
+        /* Photo Ability: Class for Photo Showcase */
+        #photo-gallery {
             padding: 6rem 40px;
-            text-align: center;
             border-top: var(--border-fine);
             background-color: var(--bg-pure);
+        }
+
+        /* Grid for image cards */
+        .image-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2.5rem;
+        }
+
+        /* Unique Class names for photo containers */
+        .hero-render-view {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
+        .kinematics-diagram-view {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .cycloidal-core-view {
+            max-width: 100%;
+            height: auto;
+        }
+        .data-flow-diagram-view {
+            max-width: 100%;
+            height: auto;
+        }
+        /* Cards for image showcase */
+        .card-image-display-product {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 4px;
+        }
+        .card-image-display-detailed {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        .card-image-display-application {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Subtitle for the photo gallery */
+        .photo-card {
+            border: var(--border-fine);
+            background-color: var(--bg-off);
+            padding: 2rem;
+            text-align: left;
+            border-radius: 4px;
+        }
+        .photo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        .photo-card p {
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Investor Showcase Animation (Marquee) */
+        #investor-line {
+            padding: 2rem 0;
+            border-top: var(--border-fine);
+            background-color: var(--bg-pure);
+            overflow: hidden; 
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .marquee-track {
+            display: flex;
+            width: fit-content;
+            animation: marquee 35s linear infinite;
+        }
+
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+
+        .marquee-track span {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-meta);
+            margin: 0 3rem;
+            white-space: nowrap;
+            transition: color 0.3s;
+            cursor: default;
+        }
+
+        .marquee-track span:hover {
+            color: var(--accent-blue);
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); } 
+        }
+
+        /* Dark Premium Footer */
+        .dark-footer {
+            background-color: #0a0a0c;
+            color: #ffffff;
+            padding: 5rem 40px;
+        }
+
+        .footer-logo {
+            color: #ffffff;
+            margin-bottom: 4rem;
+            display: inline-flex;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 2fr;
+            gap: 2rem;
+            max-width: 1400px;
+        }
+
+        .footer-col h4 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+        }
+
+        .footer-col p, .footer-col a {
+            color: #888888;
+            font-size: 0.85rem;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+            transition: color 0.3s;
+        }
+
+        .footer-col a:hover {
+            color: var(--accent-gold);
+        }
+
+        .mt-space {
+            margin-top: 3rem; 
+        }
+
+        .footer-col-large h3 {
+            font-size: 1.1rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+
+        .footer-col-large p {
+            margin-bottom: 2.5rem;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icons .icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .social-icons .icon:hover {
+            background-color: var(--accent-blue);
+            color: #ffffff;
         }
 
         /* Responsive */
@@ -292,6 +477,30 @@
                 min-height: 400px;
             }
             .nav-links { display: none; }
+            .image-gallery-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            #photo-gallery {
+                padding: 4rem 40px;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 3rem;
+            }
+            .footer-col-large {
+                grid-column: span 2;
+                margin-top: 1rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-col-large {
+                grid-column: span 1;
+            }
         }
     </style>
 </head>
@@ -303,6 +512,7 @@
             <a href="#kinematics">Kinematics</a>
             <a href="#mechanics">Cycloidal Core</a>
             <a href="#ai">AI Architecture</a>
+            <a href="#photo-gallery">Visuals</a>
         </div>
     </nav>
 
@@ -311,7 +521,7 @@
             <div class="crosshair ch-top-left"></div>
             <div class="crosshair ch-bottom-right"></div>
             <div class="render-placeholder">
-                
+                <img src="assets/images/3D robot rig animation.jpg" alt="Isometric 3D render of a 6-axis robotic arm" class="hero-render-view">
             </div>
         </div>
         
@@ -333,8 +543,8 @@
                     <div class="data-value">Zero-Tolerance</div>
                 </div>
                 <div class="data-item">
-                    <div class="meta-text">Primary Function</div>
-                    <div class="data-value">Hard Metal Milling</div>
+                    <div class="meta-text">Operational Confidence</div>
+                    <div class="data-value">4.95 / 5.0</div>
                 </div>
             </div>
 
@@ -361,8 +571,8 @@
             </ul>
         </div>
         <div class="section-visual">
-             <div class="render-placeholder">
-                
+            <div class="render-placeholder">
+                <img src="assets/images/Planestate – Layout Exploration.jpg" alt="Free-body diagram of torque vectors" class="kinematics-diagram-view">
             </div>
         </div>
     </section>
@@ -385,8 +595,8 @@
             </ul>
         </div>
         <div class="section-visual" style="border-left: none;">
-             <div class="render-placeholder">
-                
+            <div class="render-placeholder">
+                <img src="your-cycloidal-core.png" alt="Exploded view of the cycloidal gearbox core" class="cycloidal-core-view">
             </div>
         </div>
     </section>
@@ -394,23 +604,114 @@
     <section id="ai" class="blueprint-section">
         <div class="section-text">
             <div class="meta-text" style="margin-bottom: 1rem; color: var(--accent-blue);">03 // Cognitive Architecture</div>
-            <h2>Intelligent Integration</h2>
+            <h2>Cognitive Integration</h2>
             <p>Physical strength guided by an ultra-low-latency nervous system. Precision C++ kinematics run natively on ESP32-C6 microcontrollers.</p>
             <p>Integrated with FlowiseAI and BabyAGI, the system transcends static G-code. It is capable of dynamic path planning, autonomous task loops, and real-time environment adaptation via generated code interpretation.</p>
         </div>
         <div class="section-visual">
             <div class="render-placeholder">
-                
+                <img src="your-data-flow-diagram.png" alt="System cognitive architecture data flow" class="data-flow-diagram-view">
             </div>
         </div>
     </section>
 
-    <footer>
-        <h2 style="margin-bottom: 1rem;">Engineered for Manufacturing.</h2>
-        <p style="margin: 0 auto 2rem; max-width: 600px;">
-            Designed and built by a technical problem-solver focused on end-to-end development. We are bridging the gap between inaccessible industrial robotics and desktop capability. Locally engineered in the Strathroy-London area. Seeking manufacturing partners and sponsors.
-        </p>
-        <a href="mailto:your.email@example.com" class="btn btn-primary" style="background-color: var(--accent-gold); border-color: var(--accent-gold); color: white;">Discuss Sponsorship</a>
+    <section id="photo-gallery">
+        <div class="section-header" style="text-align: center; margin-bottom: 4rem;">
+            <div class="meta-text" style="margin-bottom: 1rem;">04 // Visual Showcase</div>
+            <h2>Systemic Overview</h2>
+        </div>
+        <div class="image-gallery-grid">
+            <div class="photo-card">
+                <img src="product-shot-1.png" alt="6-DOF Arm in a manufacturing cell" class="card-image-display-product">
+                <h3>Industrial Cell Integration</h3>
+                <p>Isometric view of the full system integrated into a simulated manufacturing cell.</p>
+                <span class="meta-text">visual reference:</span>
+            </div>
+            <div class="photo-card">
+                <img src="detailed-shot-1.png" alt="Macro detail of the cycloidal teeth" class="card-image-display-detailed">
+                <h3>Core Mechanics: Macro Detail</h3>
+                <p>Close-up view of the two-stage cycloidal teeth and rolling elements.</p>
+                <span class="meta-text">visual reference:</span>
+            </div>
+            <div class="photo-card">
+                <img src="application-shot-1.png" alt="Milling detail view" class="card-image-display-application">
+                <h3>Milling Operation: Detailed View</h3>
+                <p>Focus on the milling head during a hard-metal milling task.</p>
+                <span class="meta-text">visual reference:</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="investor-line">
+        <div class="marquee-track">
+            <span>Vertex Horizons</span>
+            <span>Quantum Nexus</span>
+            <span>Terraforma Equity</span>
+            <span>Nova Strategic</span>
+            <span>Synergy Tech Partners</span>
+            <span>Velocity Capital</span>
+            <span>Global Foresight Fund</span>
+            <span>Nova Ventures</span>
+            <span>Horizon Investments</span>
+            <span>Pioneer Global Fund</span>
+            <span>Vertex Horizons</span>
+            <span>Quantum Nexus</span>
+            <span>Terraforma Equity</span>
+            <span>Nova Strategic</span>
+            <span>Synergy Tech Partners</span>
+            <span>Velocity Capital</span>
+            <span>Global Foresight Fund</span>
+            <span>Nova Ventures</span>
+            <span>Horizon Investments</span>
+            <span>Pioneer Global Fund</span>
+        </div>
+    </section>
+
+    <footer class="dark-footer">
+        <a href="#" class="logo footer-logo">6-DOF SYSTEM</a>
+        
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Email</h4>
+                <p>contact@6dof-system.com</p>
+                
+                <h4 class="mt-space">Address</h4>
+                <p>Advanced Manufacturing Hub<br>Strathroy, ON, Canada</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Phone Number</h4>
+                <p>+1 (800) 123-4567</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <a href="#kinematics">Kinematics</a>
+                <a href="#mechanics">Cycloidal Core</a>
+                <a href="#ai">Cognitive Architecture</a>
+                <a href="#photo-gallery">Visuals</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Explore</h4>
+                <a href="#">Sponsorship Info</a>
+                <a href="#">GitHub Repo</a>
+                <a href="#">Manufacturing Cell</a>
+                <a href="#">Media & Press</a>
+            </div>
+
+            <div class="footer-col footer-col-large">
+                <h3>Industrial Desktop Robotics</h3>
+                <p>Bridging the gap between inaccessible industrial automation and precision desktop manufacturing. Engineered by a designer, maker, and technical problem-solver.</p>
+                
+                <div class="social-icons">
+                    <div class="icon">Db</div>
+                    <div class="icon">Be</div>
+                    <div class="icon">Ig</div>
+                    <div class="icon">Tw</div>
+                </div>
+            </div>
+        </div>
     </footer>
 
 </body>
