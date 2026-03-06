@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6-DOF System · Partner Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@200;300;400;500;700&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --bg-off: #f5f4f1;
+  --bg-warm: #faf9f7;
+  --grid: #e8e8e8;
+  --text: #0e0e0e;
+  --muted: #888888;
+  --blue: #0047bb;
+  --blue-light: #d6e4ff;
+  --gold: #bda365;
+  --gold-light: #f5ead6;
+  --green: #22c55e;
+  --red: #ef4444;
+  --border: 1px solid #e2e2e2;
+  --sans: 'DM Sans', sans-serif;
+  --serif: 'DM Serif Display', serif;
+  --mono: 'Space Mono', monospace;
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans); background: var(--bg); color: var(--text);
+  overflow-x: hidden; cursor: none; min-height: 100vh; padding-top: 72px;
+}
+
+/* ─── CURSOR ─── */
+#cursor { position: fixed; width: 10px; height: 10px; background: var(--blue); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .3s,height .3s,background .3s; mix-blend-mode: multiply; }
+#cursor-ring { position: fixed; width: 36px; height: 36px; border: 1px solid var(--blue); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: all .12s; opacity: .5; }
+body:has(a:hover) #cursor, body:has(button:hover) #cursor, body:has(input:hover) #cursor { width: 20px; height: 20px; background: var(--gold); }
+
+/* ─── GRID BG ─── */
+body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: -1; }
+
+/* ─── NAV ─── */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 72px; background: rgba(255,255,255,.92); backdrop-filter: blur(14px); border-bottom: var(--border); }
+.logo { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-decoration: none; color: var(--text); }
+.logo-dot { width: 7px; height: 7px; background: var(--blue); border-radius: 50%; animation: pulse-dot 2.4s ease-in-out infinite; }
+@keyframes pulse-dot { 0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.7);opacity:.5} }
+.nav-links { display: flex; gap: 2rem; }
+.nav-links button { background: none; border: none; font-family: var(--mono); font-size: .65rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); cursor: none; transition: color .25s; padding-bottom: 4px; border-bottom: 2px solid transparent; }
+.nav-links button.active { color: var(--blue); border-bottom-color: var(--blue); }
+.nav-links button:hover { color: var(--text); }
+
+/* ─── MAIN ─── */
+main { max-width: 1200px; margin: 0 auto; padding: 48px 32px; }
+.tab-content { display: none; animation: fade-up .45s var(--ease) both; }
+.tab-content.active { display: block; }
+@keyframes fade-up { from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)} }
+
+.meta-tag { font-family: var(--mono); font-size: .62rem; text-transform: uppercase; letter-spacing: .15em; color: var(--muted); margin-bottom: .5rem; }
+h1 { font-family: var(--serif); font-size: 2.6rem; font-weight: 400; line-height: 1.1; margin-bottom: 2rem; }
+h1 em { font-style: italic; color: var(--muted); }
+h2 { font-family: var(--serif); font-size: 1.6rem; font-weight: 400; margin-bottom: 1rem; }
+.body-text { color: var(--muted); font-size: .9rem; line-height: 1.7; margin-bottom: 1rem; }
+
+/* ─── TIER BANNER ─── */
+.tier-banner { background: var(--text); color: var(--bg); padding: 28px 36px; border-radius: 12px; margin-bottom: 3rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+.tier-info h3 { font-family: var(--mono); font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; color: var(--gold); margin-bottom: 6px; }
+.tier-info p { font-size: .85rem; color: #aaa; }
+.tier-progress-wrap { flex: 0 0 50%; }
+.tier-labels { display: flex; justify-content: space-between; font-family: var(--mono); font-size: .58rem; color: #666; margin-bottom: 8px; }
+.tier-labels .active-label { color: #fff; }
+.prog-bg { height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
+.prog-fill { height: 100%; background: var(--gold); width: 0%; transition: width 1.2s var(--ease); border-radius: 2px; }
+.prog-hint { font-family: var(--mono); font-size: .58rem; color: #555; margin-top: 8px; text-align: right; }
+
+/* ─── PRODUCT CARD ─── */
+.store-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 28px; }
+.product-card {
+  background: var(--bg); border: var(--border); display: flex; flex-direction: column;
+  transition: transform .35s var(--ease), box-shadow .35s var(--ease);
+  position: relative; overflow: hidden;
+}
+.product-card:hover { transform: translateY(-6px); box-shadow: 0 20px 56px rgba(0,0,0,.07); }
+.prod-badge { position: absolute; top: 16px; right: 16px; background: var(--blue); color: #fff; font-family: var(--mono); font-size: .55rem; text-transform: uppercase; letter-spacing: .1em; padding: 5px 10px; border-radius: 20px; }
+.prod-badge.gold { background: var(--gold); color: #000; }
+.prod-badge.green { background: var(--green); color: #000; }
+.prod-img { height: 180px; background: var(--bg-off); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: .6rem; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; border-bottom: var(--border); }
+.prod-img img { width: 100%; height: 100%; object-fit: cover; }
+.prod-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+.prod-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+.prod-desc { font-size: .85rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.2rem; flex: 1; }
+
+/* Feature pills */
+.feature-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.4rem; }
+.pill { background: var(--bg-off); border: var(--border); font-family: var(--mono); font-size: .58rem; padding: 4px 10px; border-radius: 20px; color: var(--text); text-transform: uppercase; letter-spacing: .08em; }
+.pill.blue { background: var(--blue-light); border-color: rgba(0,71,187,.2); color: var(--blue); }
+.pill.gold { background: var(--gold-light); border-color: rgba(189,163,101,.3); color: #7a6535; }
+
+.prod-select { width: 100%; padding: 10px 12px; font-family: var(--mono); font-size: .72rem; background: var(--bg-off); border: var(--border); color: var(--text); outline: none; cursor: none; appearance: none; border-radius: 0; margin-bottom: 1.2rem; }
+.prod-footer { display: flex; justify-content: space-between; align-items: center; border-top: var(--border); padding-top: 16px; margin-top: auto; }
+.price-block { display: flex; flex-direction: column; gap: 2px; }
+.price-retail { font-size: .75rem; color: var(--muted); text-decoration: line-through; font-family: var(--mono); }
+.price-partner { font-family: var(--mono); font-size: 1.15rem; color: var(--blue); font-weight: 700; }
+.price-note { font-family: var(--mono); font-size: .58rem; color: var(--gold); }
+.btn-buy { background: var(--text); color: var(--bg); border: none; padding: 11px 22px; font-family: var(--mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; cursor: none; transition: background .3s, transform .2s; border-radius: 0; }
+.btn-buy:hover { background: var(--blue); transform: translateX(2px); }
+
+/* ─── VOLUME CALCULATOR ─── */
+.calc-section { margin-top: 3.5rem; border-top: 2px solid var(--text); padding-top: 2.5rem; }
+.calc-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2rem; }
+.calc-container { background: var(--bg-warm); border: var(--border); padding: 40px; }
+.calc-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+
+/* Quantity slider */
+.qty-label-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem; }
+.qty-label { font-family: var(--mono); font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.qty-display { font-family: var(--serif); font-size: 3rem; line-height: 1; }
+.qty-unit { font-family: var(--mono); font-size: .7rem; color: var(--muted); margin-left: 6px; }
+
+input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 2px; background: var(--grid);
+  border-radius: 1px; outline: none; cursor: none; margin-bottom: 1rem;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 20px; height: 20px; background: var(--text);
+  border-radius: 50%; cursor: none; transition: background .2s, transform .2s;
+  border: 3px solid var(--bg); box-shadow: 0 0 0 1px var(--text);
+}
+input[type=range]::-webkit-slider-thumb:hover { background: var(--blue); transform: scale(1.2); }
+
+/* Tier markers */
+.tier-markers { display: flex; justify-content: space-between; font-family: var(--mono); font-size: .58rem; color: var(--muted); letter-spacing: .05em; margin-top: 4px; position: relative; }
+.tier-marker { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.tier-marker::before { content: ''; width: 1px; height: 8px; background: var(--grid); }
+.tier-marker.hit::before { background: var(--blue); }
+.tier-marker.hit { color: var(--blue); }
+
+/* Price result panel */
+.price-result { background: var(--bg); border: var(--border); padding: 32px; }
+.tier-name { font-family: var(--mono); font-size: .65rem; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 1rem; }
+.tier-name span { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: .6rem; }
+.unit-price { font-family: var(--serif); font-size: 3.2rem; line-height: 1; margin-bottom: .4rem; }
+.unit-price small { font-family: var(--mono); font-size: .9rem; color: var(--muted); }
+.total-line { font-family: var(--mono); font-size: .75rem; color: var(--muted); margin-bottom: 1.5rem; }
+.total-line strong { color: var(--text); font-size: .85rem; }
+.savings-bar { background: var(--bg-off); padding: 14px 16px; border-left: 3px solid var(--green); display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-family: var(--mono); font-size: .7rem; }
+.savings-bar .amount { color: var(--green); font-size: .9rem; font-weight: 700; }
+.breakdown-rows { border-top: var(--border); padding-top: 1rem; }
+.breakdown-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--bg-off); font-size: .82rem; }
+.breakdown-row:last-child { border-bottom: none; }
+.breakdown-row .label { color: var(--muted); font-family: var(--mono); font-size: .62rem; text-transform: uppercase; letter-spacing: .08em; }
+
+/* Math table */
+.math-table-wrap { margin-top: 2rem; overflow-x: auto; }
+.math-table { width: 100%; border-collapse: collapse; }
+.math-table th, .math-table td { padding: 12px 16px; text-align: left; border-bottom: var(--border); font-size: .85rem; white-space: nowrap; }
+.math-table th { font-family: var(--mono); font-size: .6rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); background: var(--bg-off); }
+.math-table tr.tier-highlight { background: var(--blue); }
+.math-table tr.tier-highlight td { color: #fff; font-weight: 600; }
+.math-table tr.tier-active td { background: rgba(0,71,187,.06); font-weight: 600; }
+.math-table .delta { font-family: var(--mono); font-size: .72rem; }
+.delta-save { color: var(--green); }
+.delta-none { color: var(--muted); }
+
+/* ─── INVENTORY ─── */
+.inv-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; }
+.stat-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 2rem; }
+.stat-card { border: var(--border); padding: 20px 24px; background: var(--bg); }
+.stat-card .s-label { font-family: var(--mono); font-size: .58rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 8px; }
+.stat-card .s-val { font-family: var(--serif); font-size: 1.8rem; font-weight: 400; }
+.stat-card .s-val.blue { color: var(--blue); }
+.stat-card .s-val.gold { color: var(--gold); }
+.history-wrap { background: var(--bg); border: var(--border); overflow-x: auto; }
+.history-table { width: 100%; border-collapse: collapse; }
+.history-table th, .history-table td { padding: 16px 20px; text-align: left; border-bottom: var(--border); font-size: .87rem; }
+.history-table th { font-family: var(--mono); font-size: .6rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); background: var(--bg-off); }
+.history-table tbody tr { transition: background .2s; }
+.history-table tbody tr:hover { background: var(--bg-warm); }
+.status-tag { display: inline-block; padding: 4px 12px; border-radius: 20px; font-family: var(--mono); font-size: .58rem; text-transform: uppercase; letter-spacing: .06em; }
+.s-delivered { background: rgba(34,197,94,.12); color: var(--green); }
+.s-transit { background: var(--blue-light); color: var(--blue); }
+.order-id { font-family: var(--mono); font-size: .8rem; }
+
+/* ─── REWARDS ─── */
+.rewards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.reward-card { border: var(--border); padding: 32px; background: var(--bg-off); }
+.reward-card.gold-tint { background: var(--gold-light); border-color: rgba(189,163,101,.4); }
+.ref-box { display: flex; justify-content: space-between; align-items: center; background: var(--bg); padding: 16px 20px; border: 1px dashed var(--text); font-family: var(--mono); font-size: 1.1rem; margin: 1.5rem 0 1rem; letter-spacing: .05em; }
+.gift-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,.08); }
+.gift-item:last-child { border-bottom: none; }
+.gift-title { font-weight: 700; font-size: .95rem; margin-bottom: 4px; }
+.gift-note { font-family: var(--mono); font-size: .65rem; color: var(--muted); }
+.badge { display: inline-block; padding: 5px 10px; border-radius: 4px; font-family: var(--mono); font-size: .58rem; text-transform: uppercase; letter-spacing: .06em; }
+
+/* ─── UTILITY ─── */
+.divider { height: 1px; background: var(--grid); margin: 3rem 0; }
+.section-num { font-family: var(--mono); font-size: .6rem; text-transform: uppercase; letter-spacing: .15em; color: var(--blue); margin-bottom: .5rem; }
+
+@media (max-width: 900px) {
+  nav { padding: 0 20px; }
+  main { padding: 32px 20px; }
+  .tier-banner { flex-direction: column; }
+  .tier-progress-wrap { width: 100%; }
+  .calc-inner { grid-template-columns: 1fr; }
+  .rewards-grid { grid-template-columns: 1fr; }
+  .stat-cards { grid-template-columns: 1fr 1fr; }
+  .nav-links button { font-size: .58rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav>
+  <a href="index.html" class="logo"><div class="logo-dot"></div>6-DOF PORTAL</a>
+  <div class="nav-links">
+    <button class="active" onclick="openTab('store',this)">Procurement</button>
+    <button onclick="openTab('inventory',this)">Inventory History</button>
+    <button onclick="openTab('rewards',this)">Rewards &amp; Access</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- TIER BANNER -->
+  <div class="tier-banner">
+    <div class="tier-info">
+      <h3>Volume Tier: Level 2 Partner</h3>
+      <p>Current discount: <strong style="color:#fff">10% off kinematics &amp; cores</strong> &nbsp;·&nbsp; $1,240 to unlock Industrial Tier</p>
+    </div>
+    <div class="tier-progress-wrap">
+      <div class="tier-labels">
+        <span>Base (0%)</span>
+        <span class="active-label">▶ Level 2 (10%)</span>
+        <span>Industrial (20%)</span>
+      </div>
+      <div class="prog-bg"><div class="prog-fill" id="tier-fill"></div></div>
+      <div class="prog-hint">65% toward next tier unlock</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ STORE TAB -->
+  <div id="tab-store" class="tab-content active">
+    <div class="meta-tag">Hardware Configurations</div>
+    <h1>Module <em>Procurement</em></h1>
+
+    <div class="store-grid">
+
+      <!-- CARD 1: CYCLOIDAL DRIVE -->
+      <div class="product-card">
+        <div class="prod-badge gold">Market: $2,000+</div>
+        <div class="prod-img">[ Cycloidal Drive · 3D Render ]</div>
+        <div class="prod-body">
+          <div class="meta-tag" style="margin-bottom:.3rem">02 · Core Mechanics</div>
+          <div class="prod-title">Dual-Stage Cycloidal Drive</div>
+          <div class="prod-desc">
+            Zero-backlash gearbox engineered for extreme dynamic loads. Distributes torque across multiple rolling contact points simultaneously — eliminating gear shear and positional decay under aggressive machining chatter. Comparable industrial units sell for $2,000–$4,000. Ours ships with pre-loaded tolerance specs.
+          </div>
+          <div class="feature-pills">
+            <span class="pill blue">Zero Backlash</span>
+            <span class="pill blue">Multi-Point Contact</span>
+            <span class="pill gold">Sub-Arcminute</span>
+            <span class="pill">Shock-Absorbing</span>
+            <span class="pill">NEMA 23/17 Ready</span>
+          </div>
+          <select class="prod-select">
+            <option>Ratio 1:100 — High Speed</option>
+            <option>Ratio 1:180 — High Torque</option>
+          </select>
+          <div class="prod-footer">
+            <div class="price-block">
+              <span class="price-retail">$2,000+ Market Rate</span>
+              <span class="price-partner">$1,800.00</span>
+              <span class="price-note">Partner rate (10% off)</span>
+            </div>
+            <button class="btn-buy" onclick="addedToQueue('Dual-Stage Cycloidal Drive')">Add to Queue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2: ESP32-S3 AI CORE -->
+      <div class="product-card">
+        <div class="prod-badge green">AI-Powered</div>
+        <div class="prod-img">[ ESP32-S3 Core · PCB + Housing ]</div>
+        <div class="prod-body">
+          <div class="meta-tag" style="margin-bottom:.3rem">03 · Cognitive Core</div>
+          <div class="prod-title">ESP32-S3 AI Kinematics Core</div>
+          <div class="prod-desc">
+            Not just a microcontroller — a complete intelligence module. The box handles high-voltage motor driving (24–48V), integrated stepper drivers (up to 4A/axis), and an onboard AI layer that stabilises motion in real time and predicts next-state positions to eliminate lag. You don't wire drivers separately; you don't source 48V PSUs separately. It's all inside.
+          </div>
+          <!-- Why it matters -->
+          <div style="background:var(--bg-off); border-left: 3px solid var(--blue); padding: 14px 16px; margin-bottom: 1.4rem; font-size:.82rem; line-height:1.65; color:var(--text);">
+            <strong style="font-family:var(--mono); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:var(--blue);">Why this matters</strong><br>
+            Stepper motors for a 6-DOF arm demand 24–48V at 2–4A per axis. Sourcing separate PSUs, driver boards, and motion controllers adds cost, wiring complexity, and failure points. This core integrates all of that — plus an AI stabilisation layer that standard ESP32 setups can't offer.
+          </div>
+          <div class="feature-pills">
+            <span class="pill blue">AI Stabilisation</span>
+            <span class="pill blue">Predictive Motion</span>
+            <span class="pill gold">24–48V Native</span>
+            <span class="pill">4A/axis Drivers</span>
+            <span class="pill">Wi-Fi 6 Telemetry</span>
+            <span class="pill">FlowiseAI Ready</span>
+          </div>
+          <select class="prod-select">
+            <option>Standard Module (Core Only)</option>
+            <option>Module + Stepper Driver Shield</option>
+            <option>Full Stack (Core + Drivers + PSU)</option>
+          </select>
+          <div class="prod-footer">
+            <div class="price-block">
+              <span class="price-retail">$350.00 MSRP</span>
+              <span class="price-partner">$315.00</span>
+              <span class="price-note">Partner rate (10% off)</span>
+            </div>
+            <button class="btn-buy" onclick="addedToQueue('ESP32-S3 AI Core')">Add to Queue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3: FULL 6-DOF KIT — with inline volume selector -->
+      <div class="product-card" style="grid-column: 1 / -1;">
+        <div class="prod-badge gold">Volume Pricing Available</div>
+        <div class="prod-img" style="height:200px;">[ Full 6-DOF Assembly Kit · Studio Render ]</div>
+        <div class="prod-body">
+          <div class="meta-tag" style="margin-bottom:.3rem">04 · Complete System</div>
+          <div class="prod-title">Full 6-DOF Assembly Kit</div>
+          <div class="prod-desc" style="max-width:700px;">
+            Complete mechanical skeleton, all six cycloidal drives, NEMA 23 + NEMA 17 motors, wiring harness, and ESP32-S3 AI Core pre-integrated. Precision-engineered for hard-metal milling at 1-meter reach with 2kg dynamic payload. Market-equivalent industrial arms start at $15,000+. We're changing that.
+          </div>
+          <div class="feature-pills">
+            <span class="pill blue">6 Axes</span>
+            <span class="pill blue">1m Reach</span>
+            <span class="pill blue">2kg Payload</span>
+            <span class="pill gold">Hard-Metal Milling</span>
+            <span class="pill">ESP32-S3 Included</span>
+            <span class="pill">Pre-Wired Harness</span>
+            <span class="pill">BabyAGI Compatible</span>
+          </div>
+
+          <!-- Inline volume quick-selector -->
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:1.5rem;">
+            <div class="meta-tag" style="width:100%; margin-bottom:.2rem">Quick Volume Select</div>
+            <button class="vol-quick active" data-qty="1" onclick="setQuickQty(1,this)">1 Unit</button>
+            <button class="vol-quick" data-qty="5" onclick="setQuickQty(5,this)">5 Units</button>
+            <button class="vol-quick" data-qty="10" onclick="setQuickQty(10,this)">10 Units</button>
+            <button class="vol-quick" data-qty="25" onclick="setQuickQty(25,this)">25 Units</button>
+            <button class="vol-quick" data-qty="60" onclick="setQuickQty(60,this)">60 Units</button>
+            <button class="vol-quick" data-qty="100" onclick="setQuickQty(100,this)">100 Units</button>
+          </div>
+
+          <div class="prod-footer" style="flex-wrap:wrap; gap:1rem;">
+            <div class="price-block">
+              <span class="price-retail">Market: $15,000+ / unit (industrial equivalent)</span>
+              <span id="card-price" class="price-partner">$5,200.00 / unit</span>
+              <span id="card-total" class="price-note">Total: $5,200.00 · 1 unit · Standard tier</span>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button class="btn-buy" onclick="window.location.hash='#calculator'">Full Calculator ↓</button>
+              <button class="btn-buy" style="background:var(--blue);" onclick="addedToQueue('Full 6-DOF Kit')">Add to Queue →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─── VOLUME CALCULATOR ─── -->
+    <div class="calc-section" id="calculator">
+      <div class="calc-header">
+        <div>
+          <div class="section-num">Full 6-DOF Kit · Volume Pricing Engine</div>
+          <h2>Calculate Your Order</h2>
+        </div>
+        <div style="font-family:var(--mono); font-size:.65rem; color:var(--muted); text-align:right; line-height:1.8;">
+          Pricing tiers: 1–9 · 10–59 · 60–99 · 100+
+        </div>
+      </div>
+
+      <div class="calc-container">
+        <div class="calc-inner">
+
+          <!-- LEFT: Slider -->
+          <div>
+            <div class="qty-label-row">
+              <span class="qty-label">Quantity</span>
+              <div>
+                <span class="qty-display" id="qty-display">1</span>
+                <span class="qty-unit">units</span>
+              </div>
+            </div>
+            <input type="range" id="qty-slider" min="1" max="100" value="1" oninput="updateCalc(this.value)">
+            <div class="tier-markers" id="tier-markers">
+              <div class="tier-marker" data-val="1"><span>1</span></div>
+              <div class="tier-marker" data-val="10"><span>10</span></div>
+              <div class="tier-marker" data-val="60"><span>60</span></div>
+              <div class="tier-marker" data-val="100"><span>100</span></div>
+            </div>
+
+            <!-- Active tier badge -->
+            <div style="margin-top:2rem; margin-bottom:1.5rem;">
+              <div id="active-tier-pill" style="display:inline-flex; align-items:center; gap:8px; background:var(--bg); border:var(--border); padding:10px 16px; border-radius:40px;">
+                <div style="width:8px;height:8px;background:var(--blue);border-radius:50%;"></div>
+                <span style="font-family:var(--mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.1em;">Standard Tier · 1–9 units</span>
+              </div>
+            </div>
+
+            <!-- Math breakdown table -->
+            <div class="math-table-wrap">
+              <div style="font-family:var(--mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:.8rem;">
+                All Tier Reference Table · Full 6-DOF Kit
+              </div>
+              <table class="math-table" id="math-table">
+                <thead>
+                  <tr>
+                    <th>Qty Range</th>
+                    <th>Unit Price</th>
+                    <th>Example (qty)</th>
+                    <th>Subtotal</th>
+                    <th>vs Standard</th>
+                  </tr>
+                </thead>
+                <tbody id="math-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- RIGHT: Result panel -->
+          <div>
+            <div class="price-result">
+              <div class="tier-name" id="result-tier-name">
+                <span style="background:var(--bg-off); color:var(--muted);">Standard Tier</span>
+              </div>
+              <div class="unit-price" id="result-unit-price">$5,200 <small>/unit</small></div>
+              <div class="total-line">
+                Total for <strong id="result-qty">1</strong> unit(s):
+                <strong id="result-total" style="display:block; font-family:var(--mono); font-size:1rem; margin-top:4px;">$5,200.00</strong>
+              </div>
+              <div class="savings-bar" id="savings-bar">
+                <span>You save vs Standard</span>
+                <span class="amount" id="result-savings">$0</span>
+              </div>
+              <div class="breakdown-rows">
+                <div class="breakdown-row">
+                  <span class="label">Unit Price</span>
+                  <span id="bd-unit">$5,200.00</span>
+                </div>
+                <div class="breakdown-row">
+                  <span class="label">Quantity</span>
+                  <span id="bd-qty">1</span>
+                </div>
+                <div class="breakdown-row">
+                  <span class="label">Subtotal</span>
+                  <span id="bd-subtotal">$5,200.00</span>
+                </div>
+                <div class="breakdown-row">
+                  <span class="label">Tier Discount</span>
+                  <span id="bd-discount" style="color:var(--green);">—</span>
+                </div>
+                <div class="breakdown-row" style="border-top:2px solid var(--text); padding-top:12px; margin-top:4px; font-weight:700;">
+                  <span class="label" style="color:var(--text);">Total</span>
+                  <span id="bd-total" style="font-family:var(--mono); font-size:1.1rem; color:var(--blue);">$5,200.00</span>
+                </div>
+              </div>
+
+              <!-- Next tier callout -->
+              <div id="next-tier-callout" style="margin-top:1.5rem; background:var(--blue-light); padding:14px 16px; border-radius:6px; font-size:.82rem; line-height:1.6; display:none;">
+                <span style="font-family:var(--mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; color:var(--blue); display:block; margin-bottom:4px;">💡 Next Tier</span>
+                <span id="next-tier-text"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Extended per-unit table for 1→10 and 60 -->
+      <div style="margin-top:2.5rem;">
+        <div class="section-num">Detailed Breakdown · Units 1 through 10 + Qty 60</div>
+        <h2 style="margin-bottom:1.5rem;">Unit-by-Unit Mathematics</h2>
+        <div style="overflow-x:auto; background:var(--bg); border:var(--border);">
+          <table class="math-table" id="unit-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Qty</th>
+                <th>Tier</th>
+                <th>Unit Price</th>
+                <th>Running Total</th>
+                <th>Saved vs Retail ($5,200)</th>
+                <th>Avg Cost/Unit so far</th>
+              </tr>
+            </thead>
+            <tbody id="unit-body"></tbody>
+          </table>
+        </div>
+        <div style="margin-top:.8rem; font-family:var(--mono); font-size:.62rem; color:var(--muted); letter-spacing:.06em;">
+          * Retail reference = $5,200 (standard 1-unit price). Tier breaks at 10 and 60 units.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ INVENTORY TAB -->
+  <div id="tab-inventory" class="tab-content">
+    <div class="meta-tag">Asset Management</div>
+    <h1>Acquisition <em>History</em></h1>
+
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="s-label">Total Spent</div>
+        <div class="s-val blue">$722.70</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">Total Saved</div>
+        <div class="s-val gold">$80.30</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">Orders Placed</div>
+        <div class="s-val">3</div>
+      </div>
+    </div>
+
+    <div class="history-wrap">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Module</th>
+            <th>Units</th>
+            <th>Unit Price</th>
+            <th>Tier</th>
+            <th>Total (Discounted)</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="order-id">#ORD-1024</td>
+            <td>Feb 28, 2026</td>
+            <td><strong>ESP32-S3 AI Core</strong></td>
+            <td>1</td>
+            <td style="font-family:var(--mono);">$315.00</td>
+            <td><span class="badge" style="background:var(--blue-light);color:var(--blue);">Partner –10%</span></td>
+            <td style="font-family:var(--mono); color:var(--blue);">$315.00</td>
+            <td><span class="status-tag s-delivered">Delivered</span></td>
+          </tr>
+          <tr>
+            <td class="order-id">#ORD-1018</td>
+            <td>Feb 15, 2026</td>
+            <td><strong>NEMA 17 Stepper Motors</strong></td>
+            <td>4</td>
+            <td style="font-family:var(--mono);">$27.00</td>
+            <td><span class="badge" style="background:var(--blue-light);color:var(--blue);">Partner –10%</span></td>
+            <td style="font-family:var(--mono); color:var(--blue);">$108.00</td>
+            <td><span class="status-tag s-delivered">Delivered</span></td>
+          </tr>
+          <tr>
+            <td class="order-id">#ORD-1055</td>
+            <td>Mar 05, 2026</td>
+            <td><strong>Dual-Stage Cycloidal Drive (1:100)</strong></td>
+            <td>2</td>
+            <td style="font-family:var(--mono);">$1,800.00</td>
+            <td><span class="badge" style="background:var(--blue-light);color:var(--blue);">Partner –10%</span></td>
+            <td style="font-family:var(--mono); color:var(--blue);">$3,240.00</td>
+            <td><span class="status-tag s-transit">In Transit</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ REWARDS TAB -->
+  <div id="tab-rewards" class="tab-content">
+    <div class="meta-tag">Network Growth</div>
+    <h1>Rewards &amp; <em>Referrals</em></h1>
+    <div class="rewards-grid">
+      <div class="reward-card">
+        <h2>Invite Engineers</h2>
+        <p class="body-text">Expand the robotic ecosystem. Every engineer who builds a system using your link grants both of you a permanent +5% volume tier boost.</p>
+        <div class="ref-box">
+          <span id="ref-code">NEXUS-ENG-2026</span>
+          <button class="btn-buy" style="padding:8px 16px;" onclick="copyCode()">Copy Link</button>
+        </div>
+        <p style="font-family:var(--mono); font-size:.7rem; color:var(--blue);">2 Active Invites Recorded · +10% total bonus accumulated</p>
+      </div>
+      <div class="reward-card gold-tint">
+        <h2>Available Gifts</h2>
+        <p class="body-text">Thanks to Level 2 Partner status and recent acquisition volume, you have unredeemed hardware gifts.</p>
+        <div class="gift-item">
+          <div>
+            <div class="gift-title">NEMA 17 Stepper Motor</div>
+            <div class="gift-note">Reward for exceeding $500 total volume.</div>
+          </div>
+          <button class="btn-buy" style="background:var(--gold);color:#000;" onclick="this.innerText='Claimed!';this.style.background='#aaa';">Claim</button>
+        </div>
+        <div class="gift-item">
+          <div>
+            <div class="gift-title" style="color:var(--muted);text-decoration:line-through;">Precision Milling Bit Set</div>
+            <div class="gift-note">Already Claimed (Order #ORD-1055)</div>
+          </div>
+          <span class="badge" style="background:#ddd;color:#999;">Redeemed</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+/* ─── CURSOR ─── */
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function loop(){
+  rx+=(mx-rx)*0.14; ry+=(my-ry)*0.14;
+  cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(loop);
+})();
+
+/* ─── TABS ─── */
+function openTab(name,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-links button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── TIER BAR ANIMATE ─── */
+setTimeout(()=>{ document.getElementById('tier-fill').style.width='65%'; },400);
+
+/* ─── PRICING TIERS for Full Kit ─── */
+const TIERS = [
+  { label: 'Standard',  min:1,   max:9,   price:5200 },
+  { label: 'Volume 10', min:10,  max:59,  price:3300 },
+  { label: 'Volume 60', min:60,  max:99,  price:2700 },
+  { label: 'Volume 100',min:100, max:999, price:2700 }, // negotiable
+];
+const STANDARD = 5200;
+
+function getTier(qty){
+  return TIERS.find(t => qty >= t.min && qty <= t.max) || TIERS[TIERS.length-1];
+}
+
+function fmt(n){ return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+/* ─── BUILD MATH TABLE ─── */
+function buildMathTable(activeQty){
+  const tbody = document.getElementById('math-body');
+  tbody.innerHTML='';
+  const examples = [1,5,10,25,60,100];
+  TIERS.forEach(tier=>{
+    const ex = examples.filter(e=>e>=tier.min && e<=tier.max)[0] || tier.min;
+    const subEx = ex * tier.price;
+    const saving = (STANDARD - tier.price)*ex;
+    const isActive = activeQty >= tier.min && activeQty <= tier.max;
+    const tr = document.createElement('tr');
+    if(isActive) tr.className='tier-active';
+    tr.innerHTML=`
+      <td>${tier.min}–${tier.max === 999 ? '100+' : tier.max}</td>
+      <td style="font-family:var(--mono); font-weight:${isActive?700:400}; color:${isActive?'var(--blue)':'var(--text)'};">${fmt(tier.price)}</td>
+      <td style="font-family:var(--mono); font-size:.75rem; color:var(--muted);">e.g. ${ex} units</td>
+      <td style="font-family:var(--mono);">${fmt(subEx)}</td>
+      <td class="delta ${saving>0?'delta-save':'delta-none'}">${saving>0?'–'+fmt(saving):'—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ─── BUILD UNIT-BY-UNIT TABLE (1→10 + 60) ─── */
+function buildUnitTable(){
+  const tbody = document.getElementById('unit-body');
+  tbody.innerHTML='';
+  const rows = [1,2,3,4,5,6,7,8,9,10,60];
+  let running=0;
+  for(let i=0;i<rows.length;i++){
+    const qty = rows[i];
+    const tier = getTier(qty);
+    // for running total, use per-unit at that tier * qty
+    const total = qty * tier.price;
+    const saved = (STANDARD - tier.price)*qty;
+    const avg = tier.price; // per-unit avg is just the tier price
+    const isBreak = qty===10||qty===60;
+    const tr = document.createElement('tr');
+    if(isBreak) tr.style.borderTop='2px solid var(--blue)';
+    tr.innerHTML=`
+      <td style="font-family:var(--mono); color:var(--muted);">${String(i+1).padStart(2,'0')}</td>
+      <td style="font-family:var(--mono); font-weight:600;">${qty}</td>
+      <td><span class="badge" style="background:${tier.label==='Standard'?'var(--bg-off)':tier.label.includes('100')||tier.label.includes('60')?'var(--gold-light)':'var(--blue-light)'}; color:${tier.label==='Standard'?'var(--muted)':tier.label.includes('100')||tier.label.includes('60')?'#7a6535':'var(--blue)'}; font-size:.58rem;">${tier.label}</span></td>
+      <td style="font-family:var(--mono);">${fmt(tier.price)}</td>
+      <td style="font-family:var(--mono); font-weight:600;">${fmt(total)}</td>
+      <td style="font-family:var(--mono); color:${saved>0?'var(--green)':'var(--muted)'};">${saved>0?'Save '+fmt(saved):'—'}</td>
+      <td style="font-family:var(--mono); font-size:.8rem; color:var(--muted);">${fmt(avg)}/unit</td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+buildUnitTable();
+
+/* ─── UPDATE CALCULATOR ─── */
+function updateCalc(val){
+  val = parseInt(val);
+  document.getElementById('qty-display').textContent = val;
+  document.getElementById('qty-slider').value = val;
+
+  const tier = getTier(val);
+  const total = val * tier.price;
+  const savings = (STANDARD - tier.price)*val;
+  const nextTier = TIERS.find(t=>t.min > val);
+
+  // Result panel
+  const tierColors = {
+    'Standard':'background:var(--bg-off);color:var(--muted)',
+    'Volume 10':'background:var(--blue-light);color:var(--blue)',
+    'Volume 60':'background:var(--gold-light);color:#7a6535',
+    'Volume 100':'background:var(--gold);color:#000'
+  };
+  document.getElementById('result-tier-name').innerHTML=`<span style="${tierColors[tier.label]||''}; padding:4px 14px; border-radius:20px;">${tier.label} Tier</span>`;
+  document.getElementById('result-unit-price').innerHTML=`${fmt(tier.price)} <small>/unit</small>`;
+  document.getElementById('result-qty').textContent=val;
+  document.getElementById('result-total').textContent=fmt(total);
+  document.getElementById('result-savings').textContent=savings>0?fmt(savings):'$0';
+  document.getElementById('bd-unit').textContent=fmt(tier.price);
+  document.getElementById('bd-qty').textContent=val;
+  document.getElementById('bd-subtotal').textContent=fmt(val*STANDARD);
+  document.getElementById('bd-discount').textContent=savings>0?'–'+fmt(savings):'—';
+  document.getElementById('bd-total').textContent=fmt(total);
+
+  // Savings bar
+  const sb = document.getElementById('savings-bar');
+  sb.style.display = savings>0 ? 'flex' : 'none';
+
+  // Next tier callout
+  const ntc = document.getElementById('next-tier-callout');
+  if(nextTier && val < 100){
+    const diff = nextTier.min - val;
+    const saving = (tier.price - nextTier.price)*nextTier.min;
+    ntc.style.display='block';
+    document.getElementById('next-tier-text').textContent=`Add ${diff} more unit${diff===1?'':'s'} to unlock ${nextTier.label} pricing at ${fmt(nextTier.price)}/unit — saving an additional ${fmt(saving)} on a full order.`;
+  } else { ntc.style.display='none'; }
+
+  // Tier markers
+  document.querySelectorAll('.tier-marker').forEach(m=>{
+    m.classList.toggle('hit', parseInt(m.dataset.val)<=val);
+  });
+
+  // Active tier pill
+  document.getElementById('active-tier-pill').innerHTML=`<div style="width:8px;height:8px;background:var(--blue);border-radius:50%;"></div><span style="font-family:var(--mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;">${tier.label} · ${tier.min}–${tier.max===999?'100+':tier.max} units</span>`;
+
+  // Math table
+  buildMathTable(val);
+
+  // Sync card price
+  document.getElementById('card-price').textContent=fmt(tier.price)+' / unit';
+  document.getElementById('card-total').textContent=`Total: ${fmt(total)} · ${val} unit${val===1?'':'s'} · ${tier.label} tier`;
+
+  // Sync quick buttons
+  document.querySelectorAll('.vol-quick').forEach(b=>{
+    b.classList.toggle('active', parseInt(b.dataset.qty)===val);
+  });
+}
+
+/* Quick qty buttons style */
+document.querySelectorAll('.vol-quick').forEach(btn=>{
+  Object.assign(btn.style, {
+    background:'var(--bg-off)', border:'var(--border)', padding:'8px 16px',
+    fontFamily:'var(--mono)', fontSize:'.68rem', textTransform:'uppercase',
+    letterSpacing:'.08em', cursor:'none', transition:'all .25s', borderRadius:'40px',
+    color:'var(--text)'
+  });
+  btn.addEventListener('mouseover',()=>{ if(!btn.classList.contains('active')) btn.style.background='var(--blue-light)'; });
+  btn.addEventListener('mouseout',()=>{ if(!btn.classList.contains('active')) btn.style.background='var(--bg-off)'; });
+});
+
+function styleActiveBtn(activeBtn){
+  document.querySelectorAll('.vol-quick').forEach(b=>{
+    b.style.background=b===activeBtn?'var(--text)':'var(--bg-off)';
+    b.style.color=b===activeBtn?'#fff':'var(--text)';
+    b.style.borderColor=b===activeBtn?'var(--text)':'#e2e2e2';
+  });
+}
+
+function setQuickQty(qty,btn){
+  styleActiveBtn(btn);
+  document.getElementById('qty-slider').value=qty;
+  updateCalc(qty);
+}
+
+// Init
+buildMathTable(1);
+updateCalc(1);
+document.querySelectorAll('.vol-quick')[0].click(); // highlight first
+
+/* ─── COPY CODE ─── */
+function copyCode(){
+  const btn=document.querySelector('.ref-box button');
+  navigator.clipboard.writeText('NEXUS-ENG-2026');
+  btn.innerText='Copied!'; btn.style.background='var(--green)';
+  setTimeout(()=>{ btn.innerText='Copy Link'; btn.style.background='var(--text)'; },2000);
+}
+
+/* ─── ADD TO QUEUE TOAST ─── */
+function addedToQueue(name){
+  const toast=document.createElement('div');
+  toast.style.cssText='position:fixed;bottom:32px;right:32px;background:var(--text);color:#fff;padding:16px 24px;font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;border-radius:8px;z-index:9999;transition:opacity .4s;opacity:0;';
+  toast.textContent='✓ '+name+' added to queue';
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.style.opacity='1',10);
+  setTimeout(()=>{ toast.style.opacity='0'; setTimeout(()=>toast.remove(),400); },2400);
+}
+</script>
+</body>
+</html>

@@ -1,718 +1,1254 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>6-DOF Systemic Architecture</title>
-    <style>
-        /* High-End Technical Minimalist Theme */
-        :root {
-            --bg-pure: #ffffff;
-            --bg-off: #f7f7f7;
-            --grid-line: #ebebeb;
-            --text-main: #111111;
-            --text-meta: #777777;
-            --accent-blue: #0047bb;
-            --accent-gold: #bda365;
-            --border-fine: 1px solid #e0e0e0;
-            --font-display: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6-DOF Systemic Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@200;300;400;500&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --bg-off: #f5f4f1;
+  --bg-warm: #faf9f7;
+  --grid: #e8e8e8;
+  --text: #0e0e0e;
+  --muted: #888888;
+  --blue: #0047bb;
+  --blue-light: #d6e4ff;
+  --gold: #bda365;
+  --gold-light: #f5ead6;
+  --border: 1px solid #e2e2e2;
+  --sans: 'DM Sans', sans-serif;
+  --serif: 'DM Serif Display', serif;
+  --mono: 'Space Mono', monospace;
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            font-family: var(--font-display);
-            background-color: var(--bg-pure);
-            color: var(--text-main);
-            line-height: 1.5;
-            overflow-x: hidden;
-            letter-spacing: -0.01em;
-            /* Technical Blueprint Grid */
-            background-image: 
-                linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-                linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-            background-size: 40px 40px;
-            background-position: center top;
-        }
+html { scroll-behavior: smooth; }
 
-        /* Typography & Layout Utils */
-        .meta-text {
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: var(--text-meta);
-        }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  cursor: none;
+}
 
-        .data-value {
-            font-size: 1.5rem;
-            font-weight: 300;
-            letter-spacing: -0.02em;
-            color: var(--text-main);
-            margin-top: 0.2rem;
-        }
+/* ─── CUSTOM CURSOR ─── */
+#cursor {
+  position: fixed;
+  width: 10px; height: 10px;
+  background: var(--blue);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s var(--ease), height 0.3s var(--ease), background 0.3s;
+  mix-blend-mode: multiply;
+}
+#cursor-ring {
+  position: fixed;
+  width: 36px; height: 36px;
+  border: 1px solid var(--blue);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: all 0.12s var(--ease);
+  opacity: 0.5;
+}
+body:has(a:hover) #cursor,
+body:has(button:hover) #cursor { width: 20px; height: 20px; background: var(--gold); }
 
-        /* Navigation - Editorial Style */
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 2rem 40px;
-            border-bottom: var(--border-fine);
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(5px);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-        }
+/* ─── GRID BG ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
 
-        .logo {
-            font-weight: 700;
-            font-size: 1.1rem;
-            text-decoration: none;
-            color: var(--text-main);
-            letter-spacing: -0.03em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px;
+  height: 72px;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(12px);
+  border-bottom: var(--border);
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.08em; text-decoration: none; color: var(--text);
+}
+.logo-dot {
+  width: 7px; height: 7px;
+  background: var(--blue); border-radius: 50%;
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 0.6; }
+}
+.nav-links { display: flex; gap: 2.5rem; }
+.nav-links a {
+  font-family: var(--mono); font-size: 0.65rem;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  text-decoration: none; color: var(--muted);
+  transition: color 0.25s;
+}
+.nav-links a:hover { color: var(--blue); }
 
-        /* Blue indicator dot */
-        .logo::before {
-            content: '';
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            background-color: var(--accent-blue);
-            border-radius: 50%;
-        }
+/* ─── HERO ─── */
+#hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  padding-top: 72px;
+  z-index: 1;
+  overflow: hidden;
+}
+.hero-visual {
+  flex: 1.3;
+  border-right: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-warm);
+}
+.hero-visual-inner {
+  position: relative;
+  width: 520px; height: 520px;
+  display: flex; align-items: center; justify-content: center;
+}
+/* Animated rings */
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid;
+  animation: spin-ring linear infinite;
+}
+.ring-1 { width: 320px; height: 320px; border-color: rgba(0,71,187,0.12); animation-duration: 14s; }
+.ring-2 { width: 420px; height: 420px; border-color: rgba(189,163,101,0.1); animation-duration: 22s; animation-direction: reverse; }
+.ring-3 { width: 510px; height: 510px; border-color: rgba(0,71,187,0.06); animation-duration: 30s; }
+@keyframes spin-ring {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.ring::after {
+  content: '';
+  position: absolute;
+  top: -3px; left: 50%;
+  width: 6px; height: 6px;
+  background: var(--blue);
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+.hero-img-wrap {
+  width: 300px; height: 300px;
+  background: linear-gradient(135deg, var(--bg-off) 0%, #ececec 100%);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 0.65rem; color: var(--muted);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  border: 1px solid var(--grid);
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+.hero-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
-        .nav-links a {
-            text-decoration: none;
-            color: var(--text-main);
-            margin-left: 3rem;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
+/* Crosshairs */
+.ch { position: absolute; width: 24px; height: 24px; }
+.ch::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--text); }
+.ch::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--text); }
+.ch-tl { top: 40px; left: 40px; }
+.ch-br { bottom: 40px; right: 40px; }
 
-        .nav-links a:hover {
-            color: var(--accent-gold);
-        }
+/* Coord labels */
+.coord {
+  position: absolute;
+  font-family: var(--mono); font-size: 0.6rem; color: var(--muted);
+  letter-spacing: 0.1em;
+}
+.coord-tl { top: 46px; left: 72px; }
+.coord-br { bottom: 46px; right: 72px; }
 
-        /* Hero Panel Layout (Inspired by Planestate image) */
-        #hero {
-            display: flex;
-            min-height: 100vh;
-            padding-top: 80px; /* Offset for nav */
-        }
+/* Scanning line */
+.scan-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,71,187,0.4), transparent);
+  animation: scan 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes scan {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
 
-        .hero-visual {
-            flex: 1.2;
-            border-right: var(--border-fine);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            background: radial-gradient(circle at center, #ffffff 0%, #f9f9f9 100%);
-        }
+/* ─── HERO DATA PANEL ─── */
+.hero-data {
+  flex: 0.9;
+  padding: 80px 56px;
+  display: flex; flex-direction: column; justify-content: center;
+  position: relative;
+}
+.status-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--blue-light);
+  color: var(--blue);
+  font-family: var(--mono); font-size: 0.62rem;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  padding: 6px 14px; border-radius: 40px;
+  margin-bottom: 2rem;
+  width: fit-content;
+}
+.status-dot { width: 6px; height: 6px; background: var(--blue); border-radius: 50%; animation: pulse-dot 2s infinite; }
 
-        /* Crosshairs for technical feel */
-        .crosshair {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-        }
-        .crosshair::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--text-main); }
-        .crosshair::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--text-main); }
-        .ch-top-left { top: 40px; left: 40px; }
-        .ch-bottom-right { bottom: 40px; right: 40px; }
+h1 {
+  font-family: var(--serif);
+  font-size: 4.2rem; font-weight: 400;
+  line-height: 1.05; letter-spacing: -0.01em;
+  margin-bottom: 3.5rem;
+}
+h1 em { font-style: italic; color: var(--muted); }
 
-        .hero-data {
-            flex: 0.8;
-            padding: 6rem 4rem;
-            background-color: var(--bg-pure);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+.data-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0; margin-bottom: 3rem;
+}
+.data-item {
+  padding: 1.4rem 0 1.4rem;
+  border-top: 2px solid var(--text);
+  padding-right: 1rem;
+}
+.data-item:nth-child(odd) { border-right: var(--border); padding-right: 1.5rem; }
+.data-item:nth-child(even) { padding-left: 1.5rem; }
+.data-item.gold { border-top-color: var(--gold); }
+.meta { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); }
+.val { font-family: var(--serif); font-size: 1.8rem; font-weight: 400; margin-top: 4px; }
 
-        h1 {
-            font-size: 3.5rem;
-            font-weight: 400;
-            line-height: 1.1;
-            letter-spacing: -0.04em;
-            margin-bottom: 3rem;
-        }
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 28px;
+  font-family: var(--mono); font-size: 0.7rem;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  text-decoration: none; border-radius: 40px;
+  cursor: none; transition: all 0.35s var(--ease);
+  width: fit-content; border: none;
+}
+.btn-dark {
+  background: var(--text); color: var(--bg);
+}
+.btn-dark:hover { background: var(--blue); transform: translateX(4px); }
+.btn-arrow { font-size: 0.9rem; transition: transform 0.3s; }
+.btn-dark:hover .btn-arrow { transform: translateX(4px); }
 
-        .data-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2.5rem 1.5rem;
-            margin-bottom: 4rem;
-        }
+/* ─── SCROLL REVEAL ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+}
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
 
-        .data-item {
-            border-top: 2px solid var(--text-main);
-            padding-top: 0.8rem;
-        }
+/* ─── MARQUEE ─── */
+.marquee-section {
+  border-top: var(--border); border-bottom: var(--border);
+  overflow: hidden; padding: 18px 0;
+  background: var(--bg-warm);
+  position: relative; z-index: 1;
+}
+.marquee-track {
+  display: flex; width: max-content;
+  animation: marquee 30s linear infinite;
+}
+.marquee-track:hover { animation-play-state: paused; }
+.marquee-track span {
+  font-family: var(--mono); font-size: 0.65rem;
+  text-transform: uppercase; letter-spacing: 0.2em;
+  color: var(--muted); margin: 0 2.5rem;
+  white-space: nowrap; transition: color 0.3s; cursor: none;
+}
+.marquee-track span:hover { color: var(--blue); }
+.marquee-sep { color: var(--gold) !important; margin: 0 1rem !important; letter-spacing: 0 !important; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
 
-        .data-item.gold-accent {
-            border-top-color: var(--accent-gold);
-        }
+/* ─── SECTIONS ─── */
+.split-section {
+  display: flex;
+  border-top: var(--border);
+  position: relative; z-index: 1;
+  min-height: 600px;
+}
+.split-section.reverse { flex-direction: row-reverse; }
+.split-text {
+  flex: 1;
+  padding: 6rem 56px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.split-visual {
+  flex: 1;
+  background: var(--bg-off);
+  border-left: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  padding: 4rem; position: relative; overflow: hidden;
+}
+.split-section.reverse .split-visual { border-left: none; border-right: var(--border); }
 
-        /* Premium Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem 2rem;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            text-decoration: none;
-            border-radius: 40px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            width: fit-content;
-        }
+.section-num {
+  font-family: var(--mono); font-size: 0.62rem;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--blue); margin-bottom: 0.8rem;
+}
+h2 {
+  font-family: var(--serif); font-size: 2.8rem; font-weight: 400;
+  line-height: 1.1; margin-bottom: 1.5rem;
+}
+.body-text { color: var(--muted); font-size: 0.95rem; line-height: 1.7; max-width: 480px; margin-bottom: 1.2rem; }
 
-        .btn-primary {
-            background-color: var(--text-main);
-            color: var(--bg-pure);
-            border: 1px solid var(--text-main);
-        }
+.spec-list { list-style: none; margin-top: 2rem; border-top: var(--border); }
+.spec-list li {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 0; border-bottom: var(--border);
+  font-size: 0.9rem;
+}
+.spec-label { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+.spec-val { font-weight: 500; }
 
-        .btn-primary:hover {
-            background-color: var(--bg-pure);
-            color: var(--text-main);
-        }
+/* Animated visual placeholders */
+.viz-placeholder {
+  width: 100%; height: 340px;
+  background: var(--bg);
+  border: var(--border);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 0.65rem;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em;
+  overflow: hidden; position: relative;
+}
+.viz-placeholder img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Section Layouts */
-        .blueprint-section {
-            border-top: var(--border-fine);
-            display: flex;
-        }
+/* ─── TORQUE VISUALIZER ─── */
+.torque-viz {
+  width: 280px; height: 280px;
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+.torque-arc { position: absolute; }
+.torque-center {
+  width: 80px; height: 80px;
+  border-radius: 50%; background: var(--text);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--bg); font-family: var(--mono); font-size: 0.6rem;
+  z-index: 2; letter-spacing: 0.08em;
+}
+.torque-arm {
+  position: absolute; width: 2px; height: 100px;
+  background: linear-gradient(to top, var(--blue), transparent);
+  bottom: 50%; left: 50%; transform-origin: bottom center;
+  transform: translateX(-50%) rotate(0deg);
+  animation: arm-rotate 6s ease-in-out infinite;
+}
+.torque-arm::after {
+  content: ''; position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 10px; height: 10px;
+  background: var(--blue); border-radius: 50%;
+}
+@keyframes arm-rotate {
+  0%,100% { transform: translateX(-50%) rotate(-30deg); }
+  50% { transform: translateX(-50%) rotate(30deg); }
+}
+.torque-label {
+  position: absolute;
+  font-family: var(--mono); font-size: 0.55rem;
+  color: var(--muted); letter-spacing: 0.1em;
+}
+.torque-label-1 { top: 10px; left: 50%; transform: translateX(-50%); }
+.torque-label-2 { bottom: 10px; left: 50%; transform: translateX(-50%); }
 
-        .section-text {
-            flex: 1;
-            padding: 6rem 40px;
-            background-color: var(--bg-pure);
-        }
+/* ─── CYCLOIDAL ANIMATION ─── */
+.cyclo-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
+}
+.cyclo-gear {
+  position: relative;
+  width: 180px; height: 180px;
+}
+.cyclo-outer {
+  width: 180px; height: 180px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  position: absolute;
+  display: flex; align-items: center; justify-content: center;
+}
+.cyclo-inner {
+  width: 130px; height: 130px;
+  border: 1px dashed rgba(0,71,187,0.4);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  animation: spin-ring 3s linear infinite;
+}
+.cyclo-inner::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  background: var(--blue); border-radius: 50%;
+  top: -8px; left: 50%; transform: translateX(-50%);
+}
+.cyclo-inner-2 {
+  width: 80px; height: 80px;
+  border: 1px solid rgba(189,163,101,0.6);
+  border-radius: 50%;
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  animation: spin-ring 2s linear infinite reverse;
+}
+.cyclo-teeth {
+  width: 100%; height: 100%;
+  border-radius: 50%; position: absolute;
+  animation: spin-ring 8s linear infinite;
+}
+/* Gear teeth via box shadows */
+.cyclo-teeth::before {
+  content: '';
+  position: absolute;
+  width: 8px; height: 20px;
+  background: var(--gold);
+  top: -10px; left: 50%; transform: translateX(-50%);
+  border-radius: 2px;
+  box-shadow:
+    85px 15px 0 var(--gold),
+    85px -15px 0 var(--gold),
+    -85px 15px 0 var(--gold),
+    -85px -15px 0 var(--gold),
+    0 85px 0 var(--gold),
+    0 -85px 0 var(--gold),
+    60px 60px 0 var(--gold),
+    60px -60px 0 var(--gold),
+    -60px 60px 0 var(--gold),
+    -60px -60px 0 var(--gold);
+}
 
-        .section-visual {
-            flex: 1;
-            border-left: var(--border-fine);
-            background-color: var(--bg-off);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 4rem;
-            position: relative;
-        }
+/* ─── AI / FLOW ANIMATION ─── */
+.flow-diagram {
+  width: 100%; max-width: 380px;
+  display: flex; flex-direction: column; gap: 0;
+}
+.flow-node {
+  padding: 14px 20px;
+  border: var(--border);
+  background: var(--bg);
+  border-radius: 6px;
+  font-family: var(--mono); font-size: 0.65rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 12px;
+  transition: all 0.3s;
+  margin-bottom: 4px;
+  animation: node-pulse 3s ease-in-out infinite;
+}
+.flow-node:nth-child(1) { animation-delay: 0s; }
+.flow-node:nth-child(3) { animation-delay: 0.6s; }
+.flow-node:nth-child(5) { animation-delay: 1.2s; }
+.flow-node:nth-child(7) { animation-delay: 1.8s; }
+@keyframes node-pulse {
+  0%,100% { border-color: #e2e2e2; background: var(--bg); }
+  50% { border-color: var(--blue); background: var(--blue-light); }
+}
+.flow-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.flow-connector {
+  width: 2px; height: 24px; background: linear-gradient(to bottom, var(--blue), transparent);
+  margin-left: 28px; opacity: 0.5;
+  animation: connector-flow 1.5s ease-in-out infinite alternate;
+}
+@keyframes connector-flow {
+  from { opacity: 0.2; } to { opacity: 0.8; }
+}
 
-        h2 {
-            font-size: 2.2rem;
-            font-weight: 300;
-            margin-bottom: 1.5rem;
-            letter-spacing: -0.02em;
-        }
+/* ─── CAROUSEL ─── */
+#showcase {
+  padding: 80px 0;
+  border-top: var(--border);
+  position: relative; z-index: 1;
+  background: var(--bg-warm);
+  overflow: hidden;
+}
+.showcase-header {
+  padding: 0 56px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 3rem;
+}
+.showcase-header h2 { margin: 0; }
+.carousel-controls { display: flex; gap: 12px; }
+.carousel-btn {
+  width: 48px; height: 48px;
+  border-radius: 50%; border: var(--border);
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: none; font-size: 1rem; color: var(--text);
+  transition: all 0.3s var(--ease);
+}
+.carousel-btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
 
-        p {
-            color: var(--text-meta);
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
-            max-width: 90%;
-        }
+/* Track + slides */
+.carousel-outer { position: relative; overflow: visible; }
+.carousel-track {
+  display: flex;
+  padding: 0 56px;
+  gap: 24px;
+  transition: transform 0.7s var(--ease);
+  will-change: transform;
+}
+.slide-card {
+  flex: 0 0 calc(33.333% - 16px);
+  background: var(--bg);
+  border: var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: none;
+  transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
+  position: relative;
+}
+.slide-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.08);
+}
+.slide-img {
+  height: 260px;
+  background: var(--bg-off);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative;
+}
+.slide-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--ease); }
+.slide-card:hover .slide-img img { transform: scale(1.04); }
+.slide-img-placeholder {
+  font-family: var(--mono); font-size: 0.62rem;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em;
+  text-align: center; padding: 1rem;
+}
+.slide-tag {
+  position: absolute; top: 14px; left: 14px;
+  background: rgba(255,255,255,0.9); backdrop-filter: blur(4px);
+  font-family: var(--mono); font-size: 0.55rem; text-transform: uppercase;
+  letter-spacing: 0.12em; padding: 5px 10px; border-radius: 20px;
+  border: var(--border); color: var(--text);
+}
+.slide-body { padding: 24px; }
+.slide-body h3 { font-family: var(--serif); font-size: 1.3rem; font-weight: 400; margin-bottom: 8px; }
+.slide-body p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+.slide-footer {
+  padding: 16px 24px;
+  border-top: var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.slide-num { font-family: var(--mono); font-size: 0.6rem; color: var(--muted); }
+.slide-arrow { font-size: 1rem; color: var(--blue); transition: transform 0.3s; }
+.slide-card:hover .slide-arrow { transform: translateX(4px); }
 
-        /* Technical List */
-        ul.tech-list {
-            list-style: none;
-            margin-top: 2rem;
-        }
+/* Dots */
+.carousel-dots {
+  display: flex; gap: 6px; justify-content: center;
+  margin-top: 2.5rem; padding: 0 56px;
+}
+.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--grid); cursor: none;
+  transition: all 0.3s; border: none;
+}
+.dot.active { width: 24px; border-radius: 3px; background: var(--blue); }
 
-        ul.tech-list li {
-            padding: 1rem 0;
-            border-bottom: var(--border-fine);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+/* ─── DRAG INDICATOR ─── */
+.drag-hint {
+  text-align: center; margin-top: 1.5rem;
+  font-family: var(--mono); font-size: 0.6rem;
+  color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase;
+}
 
-        ul.tech-list li:last-child {
-            border-bottom: none;
-        }
+/* ─── SPECS TABLE ─── */
+#specs {
+  border-top: var(--border);
+  padding: 80px 56px;
+  position: relative; z-index: 1;
+  background: var(--bg);
+}
+.specs-inner {
+  max-width: 900px;
+}
+.specs-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0; margin-top: 3rem;
+  border-top: var(--border); border-left: var(--border);
+}
+.spec-cell {
+  border-right: var(--border); border-bottom: var(--border);
+  padding: 1.8rem;
+  transition: background 0.3s;
+}
+.spec-cell:hover { background: var(--bg-off); }
+.spec-cell .meta { margin-bottom: 0.4rem; }
+.spec-cell .big { font-family: var(--serif); font-size: 2rem; color: var(--text); }
+.spec-cell .unit { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); margin-left: 4px; }
+.spec-cell.blue-cell { background: var(--blue); }
+.spec-cell.blue-cell .meta { color: rgba(255,255,255,0.6); }
+.spec-cell.blue-cell .big { color: #fff; }
+.spec-cell.gold-cell { background: var(--gold-light); }
+.spec-cell.gold-cell .meta { color: var(--gold); }
 
-        /* Placeholder styles for where your renders will go */
-        .render-placeholder {
-            width: 100%;
-            height: 100%;
-            border: 1px dashed #ccc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-meta);
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
+/* ─── FOOTER ─── */
+footer {
+  background: #0a0a0c;
+  color: #fff;
+  padding: 72px 56px;
+  position: relative; z-index: 1;
+  border-top: 1px solid #1a1a1a;
+}
+.footer-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 4rem;
+  padding-bottom: 4rem;
+  border-bottom: 1px solid #1e1e1e;
+}
+.footer-tagline {
+  font-family: var(--serif); font-size: 2.4rem; font-weight: 400;
+  max-width: 500px; line-height: 1.2;
+  color: #fff;
+}
+.footer-tagline em { color: var(--gold); font-style: italic; }
+.footer-cta .btn {
+  background: var(--gold); color: #0a0a0c; border: none;
+  font-family: var(--mono);
+}
+.footer-cta .btn:hover { background: #fff; }
 
-        /* Photo Ability: Class for Photo Showcase */
-        #photo-gallery {
-            padding: 6rem 40px;
-            border-top: var(--border-fine);
-            background-color: var(--bg-pure);
-        }
+.footer-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 3rem; margin-bottom: 3rem;
+}
+.footer-col h4 {
+  font-family: var(--mono); font-size: 0.6rem;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  color: #555; margin-bottom: 1.2rem;
+}
+.footer-col a, .footer-col p {
+  display: block; color: #888; font-size: 0.85rem;
+  text-decoration: none; margin-bottom: 0.6rem;
+  line-height: 1.6; transition: color 0.25s;
+}
+.footer-col a:hover { color: var(--gold); }
 
-        /* Grid for image cards */
-        .image-gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2.5rem;
-        }
+.footer-bottom {
+  border-top: 1px solid #1e1e1e;
+  padding-top: 2rem;
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 0.6rem;
+  color: #444; letter-spacing: 0.1em; text-transform: uppercase;
+}
 
-        /* Unique Class names for photo containers */
-        .hero-render-view {
-            max-width: 100%;
-            max-height: 100%;
-            display: block;
-        }
-        .kinematics-diagram-view {
-            max-width: 100%;
-            height: auto;
-            border-radius: 4px;
-        }
-        .cycloidal-core-view {
-            max-width: 100%;
-            height: auto;
-        }
-        .data-flow-diagram-view {
-            max-width: 100%;
-            height: auto;
-        }
-        /* Cards for image showcase */
-        .card-image-display-product {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            border-radius: 4px;
-        }
-        .card-image-display-detailed {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
-        .card-image-display-application {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  #hero { flex-direction: column; }
+  .hero-visual { min-height: 50vh; border-right: none; border-bottom: var(--border); }
+  .hero-data { padding: 48px 32px; }
+  h1 { font-size: 2.8rem; }
+  .split-section, .split-section.reverse { flex-direction: column; }
+  .split-visual { border-left: none; border-right: none; border-top: var(--border); min-height: 360px; }
+  .nav-links { display: none; }
+  .slide-card { flex: 0 0 calc(80% - 16px); }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .footer-top { flex-direction: column; gap: 2rem; }
+  .specs-grid { grid-template-columns: 1fr; }
+  #specs, footer { padding-left: 32px; padding-right: 32px; }
+}
 
-        /* Subtitle for the photo gallery */
-        .photo-card {
-            border: var(--border-fine);
-            background-color: var(--bg-off);
-            padding: 2rem;
-            text-align: left;
-            border-radius: 4px;
-        }
-        .photo-card h3 {
-            font-size: 1.2rem;
-            font-weight: 300;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
-        }
-        .photo-card p {
-            font-size: 0.85rem;
-            margin-bottom: 1.5rem;
-        }
+/* ─── COUNTER ANIMATION ─── */
+.count-up { display: inline-block; }
 
-        /* Investor Showcase Animation (Marquee) */
-        #investor-line {
-            padding: 2rem 0;
-            border-top: var(--border-fine);
-            background-color: var(--bg-pure);
-            overflow: hidden; 
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        
-        .marquee-track {
-            display: flex;
-            width: fit-content;
-            animation: marquee 35s linear infinite;
-        }
+/* ─── PROGRESS BARS ─── */
+.progress-group { margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; }
+.progress-item { }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 0.6rem;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--muted); margin-bottom: 6px;
+}
+.progress-track {
+  height: 2px; background: var(--grid);
+  border-radius: 1px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: var(--blue);
+  border-radius: 1px; width: 0%;
+  transition: width 1.5s var(--ease);
+}
+.progress-fill.gold-fill { background: var(--gold); }
 
-        .marquee-track:hover {
-            animation-play-state: paused;
-        }
+/* Number ticker */
+@keyframes ticker-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-        .marquee-track span {
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            color: var(--text-meta);
-            margin: 0 3rem;
-            white-space: nowrap;
-            transition: color 0.3s;
-            cursor: default;
-        }
-
-        .marquee-track span:hover {
-            color: var(--accent-blue);
-        }
-
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); } 
-        }
-
-        /* Dark Premium Footer */
-        .dark-footer {
-            background-color: #0a0a0c;
-            color: #ffffff;
-            padding: 5rem 40px;
-        }
-
-        .footer-logo {
-            color: #ffffff;
-            margin-bottom: 4rem;
-            display: inline-flex;
-        }
-
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr 2fr;
-            gap: 2rem;
-            max-width: 1400px;
-        }
-
-        .footer-col h4 {
-            font-size: 0.9rem;
-            font-weight: 500;
-            margin-bottom: 1.5rem;
-            color: #ffffff;
-        }
-
-        .footer-col p, .footer-col a {
-            color: #888888;
-            font-size: 0.85rem;
-            text-decoration: none;
-            display: block;
-            margin-bottom: 0.8rem;
-            line-height: 1.6;
-            transition: color 0.3s;
-        }
-
-        .footer-col a:hover {
-            color: var(--accent-gold);
-        }
-
-        .mt-space {
-            margin-top: 3rem; 
-        }
-
-        .footer-col-large h3 {
-            font-size: 1.1rem;
-            font-weight: 400;
-            letter-spacing: 0.05em;
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
-        }
-
-        .footer-col-large p {
-            margin-bottom: 2.5rem;
-        }
-
-        .social-icons {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .social-icons .icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background-color: #1a1a1a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: #888;
-            font-size: 0.8rem;
-        }
-
-        .social-icons .icon:hover {
-            background-color: var(--accent-blue);
-            color: #ffffff;
-        }
-
-        /* Responsive */
-        @media (max-width: 900px) {
-            #hero, .blueprint-section {
-                flex-direction: column;
-            }
-            .hero-visual {
-                min-height: 50vh;
-                border-right: none;
-                border-bottom: var(--border-fine);
-            }
-            .section-visual {
-                border-left: none;
-                border-top: var(--border-fine);
-                min-height: 400px;
-            }
-            .nav-links { display: none; }
-            .image-gallery-grid {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-            #photo-gallery {
-                padding: 4rem 40px;
-            }
-            .footer-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 3rem;
-            }
-            .footer-col-large {
-                grid-column: span 2;
-                margin-top: 1rem;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .footer-grid {
-                grid-template-columns: 1fr;
-            }
-            .footer-col-large {
-                grid-column: span 1;
-            }
-        }
-    </style>
+/* Floating label */
+.float-label {
+  position: absolute;
+  font-family: var(--mono); font-size: 0.55rem;
+  background: var(--text); color: var(--bg);
+  padding: 4px 8px; border-radius: 4px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  white-space: nowrap; pointer-events: none;
+  transition: all 0.3s var(--ease);
+  opacity: 0;
+}
+.split-visual:hover .float-label { opacity: 1; }
+</style>
 </head>
 <body>
 
-    <nav>
-        <a href="#" class="logo">6-DOF SYSTEM</a>
-        <div class="nav-links">
-            <a href="#kinematics">Kinematics</a>
-            <a href="#mechanics">Cycloidal Core</a>
-            <a href="#ai">AI Architecture</a>
-            <a href="#photo-gallery">Visuals</a>
-        </div>
-    </nav>
+<!-- Custom cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
 
-    <section id="hero">
-        <div class="hero-visual">
-            <div class="crosshair ch-top-left"></div>
-            <div class="crosshair ch-bottom-right"></div>
-            <div class="render-placeholder">
-                <img src="assets/images/3D robot rig animation.jpg" alt="Isometric 3D render of a 6-axis robotic arm" class="hero-render-view">
-            </div>
-        </div>
-        
-        <div class="hero-data">
-            <div class="meta-text" style="margin-bottom: 2rem; color: var(--accent-blue);">System Status: Online</div>
-            <h1>Precision<br>at Scale</h1>
-            
-            <div class="data-grid">
-                <div class="data-item">
-                    <div class="meta-text">Max Reach</div>
-                    <div class="data-value">1.0 Meters</div>
-                </div>
-                <div class="data-item">
-                    <div class="meta-text">Dynamic Payload</div>
-                    <div class="data-value">2.0 kg</div>
-                </div>
-                <div class="data-item gold-accent">
-                    <div class="meta-text">Backlash</div>
-                    <div class="data-value">Zero-Tolerance</div>
-                </div>
-                <div class="data-item">
-                    <div class="meta-text">Operational Confidence</div>
-                    <div class="data-value">4.95 / 5.0</div>
-                </div>
-            </div>
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo"><div class="logo-dot"></div>6-DOF SYSTEM</a>
+  <div class="nav-links">
+    <a href="#kinematics">Kinematics</a>
+    <a href="#mechanics">Cycloidal Core</a>
+    <a href="#ai">AI Architecture</a>
+    <a href="#showcase">Visuals</a>
+    <a href="#specs">Specs</a>
+  </div>
+</nav>
 
-            <a href="#kinematics" class="btn btn-primary">Initialize Sequence</a>
-        </div>
-    </section>
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-visual">
+    <div class="ch ch-tl"></div>
+    <div class="ch ch-br"></div>
+    <span class="coord coord-tl">X: 0.00 / Y: 0.00 / Z: 1.00m</span>
+    <span class="coord coord-br">DOF: 6 AXES // ACTIVE</span>
+    <div class="scan-line"></div>
+    <div class="hero-visual-inner">
+      <div class="ring ring-1"></div>
+      <div class="ring ring-2"></div>
+      <div class="ring ring-3"></div>
+      <div class="hero-img-wrap">
+        <img src="assets/images/3D robot rig animation.jpg" alt="6-DOF robotic arm" onerror="this.style.display='none'; this.parentElement.innerHTML='[ 3D RENDER ]'">
+      </div>
+    </div>
+  </div>
 
-    <section id="kinematics" class="blueprint-section">
-        <div class="section-text">
-            <div class="meta-text" style="margin-bottom: 1rem;">01 // Applied Physics</div>
-            <h2>Reach & Rigidity</h2>
-            <p>Milling hard metals requires immense rigidity. Achieving this at the end of a 1-meter lever introduces extreme mechanical complexities.</p>
-            <p>Supporting a dynamic 2kg payload at full extension generates torque that overwhelms standard planetary gearing. Our architecture ensures absolute rigidity against aggressive machining chatter, refusing to introduce slop or positional decay.</p>
-            
-            <ul class="tech-list">
-                <li>
-                    <span class="meta-text">Base Torque Load</span>
-                    <span style="font-weight: 500;">High Yield</span>
-                </li>
-                <li>
-                    <span class="meta-text">Positional Truth</span>
-                    <span style="font-weight: 500;">Micrometer</span>
-                </li>
-            </ul>
-        </div>
-        <div class="section-visual">
-            <div class="render-placeholder">
-                <img src="assets/images/Planestate – Layout Exploration.jpg" alt="Free-body diagram of torque vectors" class="kinematics-diagram-view">
-            </div>
-        </div>
-    </section>
+  <div class="hero-data">
+    <div class="status-pill reveal"><div class="status-dot"></div> System Status: Online</div>
+    <h1 class="reveal reveal-delay-1">Precision<br><em>at Scale</em></h1>
 
-    <section id="mechanics" class="blueprint-section" style="flex-direction: row-reverse;">
-        <div class="section-text" style="border-left: var(--border-fine);">
-            <div class="meta-text" style="margin-bottom: 1rem;">02 // Core Mechanics</div>
-            <h2>The Dual-Stage Cycloidal Drive</h2>
-            <p>To tame massive base torque, we engineered a custom two-stage cycloidal gearbox. Unlike traditional gear trains, cycloidal drives distribute load across multiple rolling elements simultaneously, absorbing shock loads without shearing.</p>
-            
-            <ul class="tech-list">
-                <li>
-                    <span class="meta-text">Drive System</span>
-                    <span style="font-weight: 500;">NEMA 23 + NEMA 17</span>
-                </li>
-                <li>
-                    <span class="meta-text">Reduction</span>
-                    <span style="font-weight: 500;">Dual-Disk Architecture</span>
-                </li>
-            </ul>
+    <div class="data-grid reveal reveal-delay-2">
+      <div class="data-item">
+        <div class="meta">Max Reach</div>
+        <div class="val">1.0 <small style="font-size:1rem;color:var(--muted)">m</small></div>
+      </div>
+      <div class="data-item">
+        <div class="meta">Dynamic Payload</div>
+        <div class="val">2.0 <small style="font-size:1rem;color:var(--muted)">kg</small></div>
+      </div>
+      <div class="data-item gold">
+        <div class="meta">Backlash</div>
+        <div class="val" style="color:var(--gold)">Zero</div>
+      </div>
+      <div class="data-item">
+        <div class="meta">Confidence</div>
+        <div class="val">4.95 <small style="font-size:1rem;color:var(--muted)">/5</small></div>
+      </div>
+    </div>
+
+    <a href="#kinematics" class="btn btn-dark reveal reveal-delay-3">
+      Initialize Sequence <span class="btn-arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <span>Vertex Horizons</span><span class="marquee-sep">◆</span>
+    <span>Quantum Nexus</span><span class="marquee-sep">◆</span>
+    <span>Terraforma Equity</span><span class="marquee-sep">◆</span>
+    <span>Nova Strategic</span><span class="marquee-sep">◆</span>
+    <span>Synergy Tech Partners</span><span class="marquee-sep">◆</span>
+    <span>Velocity Capital</span><span class="marquee-sep">◆</span>
+    <span>Global Foresight Fund</span><span class="marquee-sep">◆</span>
+    <span>Pioneer Global Fund</span><span class="marquee-sep">◆</span>
+    <span>Horizon Investments</span><span class="marquee-sep">◆</span>
+    <span>Vertex Horizons</span><span class="marquee-sep">◆</span>
+    <span>Quantum Nexus</span><span class="marquee-sep">◆</span>
+    <span>Terraforma Equity</span><span class="marquee-sep">◆</span>
+    <span>Nova Strategic</span><span class="marquee-sep">◆</span>
+    <span>Synergy Tech Partners</span><span class="marquee-sep">◆</span>
+    <span>Velocity Capital</span><span class="marquee-sep">◆</span>
+    <span>Global Foresight Fund</span><span class="marquee-sep">◆</span>
+    <span>Pioneer Global Fund</span><span class="marquee-sep">◆</span>
+    <span>Horizon Investments</span><span class="marquee-sep">◆</span>
+  </div>
+</div>
+
+<!-- KINEMATICS -->
+<section id="kinematics" class="split-section">
+  <div class="split-text">
+    <div class="section-num reveal">01 // Applied Physics</div>
+    <h2 class="reveal reveal-delay-1">Reach &amp;<br>Rigidity</h2>
+    <p class="body-text reveal reveal-delay-2">Milling hard metals requires immense rigidity. Achieving this at the end of a 1-meter lever introduces extreme mechanical complexities.</p>
+    <p class="body-text reveal reveal-delay-2">Supporting a dynamic 2kg payload at full extension generates torque that overwhelms standard planetary gearing. Our architecture ensures absolute rigidity against aggressive machining chatter.</p>
+
+    <div class="progress-group reveal reveal-delay-3">
+      <div class="progress-item">
+        <div class="progress-label"><span>Rigidity Index</span><span>94%</span></div>
+        <div class="progress-track"><div class="progress-fill" data-target="94"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label"><span>Positional Accuracy</span><span>99%</span></div>
+        <div class="progress-track"><div class="progress-fill" data-target="99"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label"><span>Load Distribution</span><span>87%</span></div>
+        <div class="progress-track"><div class="progress-fill gold-fill" data-target="87"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="split-visual">
+    <div class="float-label" style="top:20px;left:20px;">Torque Vector Analysis</div>
+    <div class="torque-viz">
+      <svg width="280" height="280" style="position:absolute;top:0;left:0;">
+        <circle cx="140" cy="140" r="100" fill="none" stroke="rgba(0,71,187,0.08)" stroke-width="1"/>
+        <circle cx="140" cy="140" r="70" fill="none" stroke="rgba(189,163,101,0.12)" stroke-width="1" stroke-dasharray="4 4"/>
+        <!-- Animated arc -->
+        <path id="arc-path" d="" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="torque-arm"></div>
+      <div class="torque-center">BASE</div>
+      <span class="torque-label torque-label-1" style="font-family:var(--mono);font-size:0.55rem;color:var(--muted)">↑ TORQUE PEAK</span>
+      <span class="torque-label torque-label-2" style="font-family:var(--mono);font-size:0.55rem;color:var(--muted)">↓ NEUTRAL AXIS</span>
+    </div>
+  </div>
+</section>
+
+<!-- MECHANICS -->
+<section id="mechanics" class="split-section reverse">
+  <div class="split-text" style="border-left:var(--border)">
+    <div class="section-num reveal">02 // Core Mechanics</div>
+    <h2 class="reveal reveal-delay-1">Dual-Stage<br>Cycloidal Drive</h2>
+    <p class="body-text reveal reveal-delay-2">Unlike traditional gear trains, cycloidal drives distribute load across multiple rolling elements simultaneously, absorbing shock loads without shearing.</p>
+
+    <ul class="spec-list reveal reveal-delay-3">
+      <li><span class="spec-label">Drive System</span><span class="spec-val">NEMA 23 + NEMA 17</span></li>
+      <li><span class="spec-label">Reduction</span><span class="spec-val">Dual-Disk Architecture</span></li>
+      <li><span class="spec-label">Backlash</span><span class="spec-val">Sub-Arcminute</span></li>
+      <li><span class="spec-label">Shock Absorption</span><span class="spec-val">Multi-Point Contact</span></li>
+    </ul>
+  </div>
+  <div class="split-visual" style="border-right:var(--border);border-left:none">
+    <div class="cyclo-wrap">
+      <div class="cyclo-gear">
+        <div class="cyclo-outer">
+          <div class="cyclo-teeth"></div>
+          <div class="cyclo-inner">
+            <div class="cyclo-inner-2"></div>
+          </div>
         </div>
-        <div class="section-visual" style="border-left: none;">
-            <div class="render-placeholder">
-                <img src="your-cycloidal-core.png" alt="Exploded view of the cycloidal gearbox core" class="cycloidal-core-view">
-            </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;text-align:center">
+        Cycloidal Disk · Live Simulation
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI -->
+<section id="ai" class="split-section">
+  <div class="split-text">
+    <div class="section-num reveal" style="color:var(--blue)">03 // Cognitive Architecture</div>
+    <h2 class="reveal reveal-delay-1">Intelligent<br>Integration</h2>
+    <p class="body-text reveal reveal-delay-2">Physical strength guided by an ultra-low-latency nervous system. Precision C++ kinematics run natively on ESP32-C6 microcontrollers.</p>
+    <p class="body-text reveal reveal-delay-2">Integrated with FlowiseAI and BabyAGI, the system transcends static G-code — capable of dynamic path planning, autonomous task loops, and real-time environment adaptation.</p>
+  </div>
+  <div class="split-visual">
+    <div class="flow-diagram reveal reveal-delay-2">
+      <div class="flow-node">
+        <div class="flow-dot" style="background:var(--blue)"></div>
+        <span>FlowiseAI · Input Layer</span>
+      </div>
+      <div class="flow-connector"></div>
+      <div class="flow-node">
+        <div class="flow-dot" style="background:var(--gold)"></div>
+        <span>BabyAGI · Task Planning</span>
+      </div>
+      <div class="flow-connector"></div>
+      <div class="flow-node">
+        <div class="flow-dot" style="background:#444"></div>
+        <span>Kinematics · C++ Core</span>
+      </div>
+      <div class="flow-connector"></div>
+      <div class="flow-node">
+        <div class="flow-dot" style="background:var(--blue)"></div>
+        <span>ESP32-C6 · Motor Control</span>
+      </div>
+      <div class="flow-connector"></div>
+      <div class="flow-node">
+        <div class="flow-dot" style="background:#22c55e"></div>
+        <span>6-DOF Arm · Execution</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CAROUSEL / SHOWCASE -->
+<section id="showcase">
+  <div class="showcase-header">
+    <div>
+      <div class="meta reveal" style="margin-bottom:0.6rem">04 // Visual Showcase</div>
+      <h2 class="reveal reveal-delay-1">Systemic Overview</h2>
+    </div>
+    <div class="carousel-controls reveal">
+      <button class="carousel-btn" id="prev-btn" aria-label="Previous">←</button>
+      <button class="carousel-btn" id="next-btn" aria-label="Next">→</button>
+    </div>
+  </div>
+
+  <div class="carousel-outer">
+    <div class="carousel-track" id="carousel-track">
+
+      <div class="slide-card">
+        <div class="slide-img">
+          <img src="assets/images/Planestate – Layout Exploration.jpg" alt="Layout" onerror="this.style.display='none'">
+          <div class="slide-img-placeholder">[ Industrial Cell Integration ]</div>
+          <div class="slide-tag">Overview</div>
         </div>
-    </section>
-
-    <section id="ai" class="blueprint-section">
-        <div class="section-text">
-            <div class="meta-text" style="margin-bottom: 1rem; color: var(--accent-blue);">03 // Cognitive Architecture</div>
-            <h2>Cognitive Integration</h2>
-            <p>Physical strength guided by an ultra-low-latency nervous system. Precision C++ kinematics run natively on ESP32-C6 microcontrollers.</p>
-            <p>Integrated with FlowiseAI and BabyAGI, the system transcends static G-code. It is capable of dynamic path planning, autonomous task loops, and real-time environment adaptation via generated code interpretation.</p>
+        <div class="slide-body">
+          <h3>Industrial Cell Integration</h3>
+          <p>Isometric view of the full system integrated into a simulated manufacturing cell environment.</p>
         </div>
-        <div class="section-visual">
-            <div class="render-placeholder">
-                <img src="your-data-flow-diagram.png" alt="System cognitive architecture data flow" class="data-flow-diagram-view">
-            </div>
+        <div class="slide-footer">
+          <span class="slide-num">01 / 06</span>
+          <span class="slide-arrow">→</span>
         </div>
-    </section>
+      </div>
 
-    <section id="photo-gallery">
-        <div class="section-header" style="text-align: center; margin-bottom: 4rem;">
-            <div class="meta-text" style="margin-bottom: 1rem;">04 // Visual Showcase</div>
-            <h2>Systemic Overview</h2>
+      <div class="slide-card">
+        <div class="slide-img">
+          <div class="slide-img-placeholder">[ Cycloidal Core · Macro Detail ]</div>
+          <div class="slide-tag">Mechanics</div>
         </div>
-        <div class="image-gallery-grid">
-            <div class="photo-card">
-                <img src="product-shot-1.png" alt="6-DOF Arm in a manufacturing cell" class="card-image-display-product">
-                <h3>Industrial Cell Integration</h3>
-                <p>Isometric view of the full system integrated into a simulated manufacturing cell.</p>
-                <span class="meta-text">visual reference:</span>
-            </div>
-            <div class="photo-card">
-                <img src="detailed-shot-1.png" alt="Macro detail of the cycloidal teeth" class="card-image-display-detailed">
-                <h3>Core Mechanics: Macro Detail</h3>
-                <p>Close-up view of the two-stage cycloidal teeth and rolling elements.</p>
-                <span class="meta-text">visual reference:</span>
-            </div>
-            <div class="photo-card">
-                <img src="application-shot-1.png" alt="Milling detail view" class="card-image-display-application">
-                <h3>Milling Operation: Detailed View</h3>
-                <p>Focus on the milling head during a hard-metal milling task.</p>
-                <span class="meta-text">visual reference:</span>
-            </div>
+        <div class="slide-body">
+          <h3>Core Mechanics: Macro Detail</h3>
+          <p>Close-up of the two-stage cycloidal teeth and rolling elements under operational load.</p>
         </div>
-    </section>
-
-    <section id="investor-line">
-        <div class="marquee-track">
-            <span>Vertex Horizons</span>
-            <span>Quantum Nexus</span>
-            <span>Terraforma Equity</span>
-            <span>Nova Strategic</span>
-            <span>Synergy Tech Partners</span>
-            <span>Velocity Capital</span>
-            <span>Global Foresight Fund</span>
-            <span>Nova Ventures</span>
-            <span>Horizon Investments</span>
-            <span>Pioneer Global Fund</span>
-            <span>Vertex Horizons</span>
-            <span>Quantum Nexus</span>
-            <span>Terraforma Equity</span>
-            <span>Nova Strategic</span>
-            <span>Synergy Tech Partners</span>
-            <span>Velocity Capital</span>
-            <span>Global Foresight Fund</span>
-            <span>Nova Ventures</span>
-            <span>Horizon Investments</span>
-            <span>Pioneer Global Fund</span>
+        <div class="slide-footer">
+          <span class="slide-num">02 / 06</span>
+          <span class="slide-arrow">→</span>
         </div>
-    </section>
+      </div>
 
-    <footer class="dark-footer">
-        <a href="#" class="logo footer-logo">6-DOF SYSTEM</a>
-        
-        <div class="footer-grid">
-            <div class="footer-col">
-                <h4>Email</h4>
-                <p>contact@6dof-system.com</p>
-                
-                <h4 class="mt-space">Address</h4>
-                <p>Advanced Manufacturing Hub<br>Strathroy, ON, Canada</p>
-            </div>
-
-            <div class="footer-col">
-                <h4>Phone Number</h4>
-                <p>+1 (800) 123-4567</p>
-            </div>
-
-            <div class="footer-col">
-                <h4>Quick Links</h4>
-                <a href="#kinematics">Kinematics</a>
-                <a href="#mechanics">Cycloidal Core</a>
-                <a href="#ai">Cognitive Architecture</a>
-                <a href="#photo-gallery">Visuals</a>
-            </div>
-
-            <div class="footer-col">
-                <h4>Explore</h4>
-                <a href="#">Sponsorship Info</a>
-                <a href="#">GitHub Repo</a>
-                <a href="#">Manufacturing Cell</a>
-                <a href="#">Media & Press</a>
-            </div>
-
-            <div class="footer-col footer-col-large">
-                <h3>Industrial Desktop Robotics</h3>
-                <p>Bridging the gap between inaccessible industrial automation and precision desktop manufacturing. Engineered by a designer, maker, and technical problem-solver.</p>
-                
-                <div class="social-icons">
-                    <div class="icon">Db</div>
-                    <div class="icon">Be</div>
-                    <div class="icon">Ig</div>
-                    <div class="icon">Tw</div>
-                </div>
-            </div>
+      <div class="slide-card">
+        <div class="slide-img">
+          <div class="slide-img-placeholder">[ Milling Operation · Detail ]</div>
+          <div class="slide-tag">Application</div>
         </div>
-    </footer>
+        <div class="slide-body">
+          <h3>Milling Operation: Detailed View</h3>
+          <p>Focus on the milling head during a precision hard-metal milling task at full extension.</p>
+        </div>
+        <div class="slide-footer">
+          <span class="slide-num">03 / 06</span>
+          <span class="slide-arrow">→</span>
+        </div>
+      </div>
 
+      <div class="slide-card">
+        <div class="slide-img">
+          <div class="slide-img-placeholder">[ Wiring · Harness Detail ]</div>
+          <div class="slide-tag">Electronics</div>
+        </div>
+        <div class="slide-body">
+          <h3>Wiring Harness Layout</h3>
+          <p>Custom cable management solution routed through the arm skeleton for zero-interference movement.</p>
+        </div>
+        <div class="slide-footer">
+          <span class="slide-num">04 / 06</span>
+          <span class="slide-arrow">→</span>
+        </div>
+      </div>
+
+      <div class="slide-card">
+        <div class="slide-img">
+          <div class="slide-img-placeholder">[ Kinematics · Path Trace ]</div>
+          <div class="slide-tag">Software</div>
+        </div>
+        <div class="slide-body">
+          <h3>Kinematic Path Tracing</h3>
+          <p>Visualized end-effector path during an autonomous CNC operation loop via BabyAGI planning.</p>
+        </div>
+        <div class="slide-footer">
+          <span class="slide-num">05 / 06</span>
+          <span class="slide-arrow">→</span>
+        </div>
+      </div>
+
+      <div class="slide-card">
+        <div class="slide-img">
+          <div class="slide-img-placeholder">[ Full System · Studio Shot ]</div>
+          <div class="slide-tag">Final Build</div>
+        </div>
+        <div class="slide-body">
+          <h3>Complete System Build</h3>
+          <p>Final assembled 6-DOF arm with all six axes calibrated and operational confidence verified.</p>
+        </div>
+        <div class="slide-footer">
+          <span class="slide-num">06 / 06</span>
+          <span class="slide-arrow">→</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="carousel-dots" id="carousel-dots"></div>
+  <div class="drag-hint">← Drag to explore →</div>
+</section>
+
+<!-- SPECS -->
+<section id="specs">
+  <div class="specs-inner">
+    <div class="meta reveal">05 // Technical Specifications</div>
+    <h2 class="reveal reveal-delay-1" style="margin-top:0.8rem">By the Numbers</h2>
+    <div class="specs-grid reveal reveal-delay-2">
+      <div class="spec-cell blue-cell">
+        <div class="meta" style="color:rgba(255,255,255,0.5)">Max Reach</div>
+        <div class="big" style="color:#fff">1.0 <span class="unit" style="color:rgba(255,255,255,0.6)">meters</span></div>
+      </div>
+      <div class="spec-cell">
+        <div class="meta">Dynamic Payload</div>
+        <div class="big">2.0 <span class="unit">kg</span></div>
+      </div>
+      <div class="spec-cell">
+        <div class="meta">Degrees of Freedom</div>
+        <div class="big">6 <span class="unit">axes</span></div>
+      </div>
+      <div class="spec-cell gold-cell">
+        <div class="meta" style="color:var(--gold)">Backlash Tolerance</div>
+        <div class="big">Zero</div>
+      </div>
+      <div class="spec-cell">
+        <div class="meta">Microcontroller</div>
+        <div class="big" style="font-size:1.4rem">ESP32-C6</div>
+      </div>
+      <div class="spec-cell">
+        <div class="meta">Operational Confidence</div>
+        <div class="big">4.95 <span class="unit">/ 5.0</span></div>
+      </div>
+      <div class="spec-cell">
+        <div class="meta">Drive System</div>
+        <div class="big" style="font-size:1.2rem">NEMA 23+17</div>
+      </div>
+      <div class="spec-cell">
+        <div class="meta">Architecture</div>
+        <div class="big" style="font-size:1.2rem">Cycloidal</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-tagline">Bridging industrial automation<br>with <em>desktop precision.</em></div>
+    <div class="footer-cta">
+      <a href="#" class="btn">Get in Touch <span class="btn-arrow">→</span></a>
+    </div>
+  </div>
+
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <p>contact@6dof-system.com</p>
+      <p>+1 (800) 123-4567</p>
+    </div>
+    <div class="footer-col">
+      <h4>Location</h4>
+      <p>Advanced Manufacturing Hub<br>Strathroy, ON, Canada</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navigation</h4>
+      <a href="#kinematics">Kinematics</a>
+      <a href="#mechanics">Cycloidal Core</a>
+      <a href="#ai">AI Architecture</a>
+      <a href="#showcase">Visuals</a>
+    </div>
+    <div class="footer-col">
+      <h4>Explore</h4>
+      <a href="#">Sponsorship Info</a>
+      <a href="#">GitHub Repo</a>
+      <a href="#">Manufacturing Cell</a>
+      <a href="#">Media &amp; Press</a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2025 6-DOF System</span>
+    <span>Industrial Desktop Robotics — Engineered with Precision</span>
+    <span>Strathroy, ON, Canada</span>
+  </div>
+</footer>
+
+<script>
+// ─── CURSOR ───
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function loop() {
+  rx += (mx - rx) * 0.14;
+  ry += (my - ry) * 0.14;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(loop);
+})();
+
+// ─── SCROLL REVEAL ───
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      // Trigger progress bars
+      e.target.querySelectorAll('.progress-fill').forEach(bar => {
+        bar.style.width = bar.dataset.target + '%';
+      });
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+// Also observe progress fill containers
+document.querySelectorAll('.progress-group').forEach(el => observer.observe(el));
+
+// ─── CAROUSEL ───
+const track = document.getElementById('carousel-track');
+const dotsContainer = document.getElementById('carousel-dots');
+const cards = track.querySelectorAll('.slide-card');
+let currentIndex = 0;
+const visibleCount = window.innerWidth < 700 ? 1 : 3;
+
+// Build dots
+cards.forEach((_, i) => {
+  const dot = document.createElement('button');
+  dot.className = 'dot' + (i === 0 ? ' active' : '');
+  dot.addEventListener('click', () => goTo(i));
+  dotsContainer.appendChild(dot);
+});
+
+function goTo(index) {
+  const total = cards.length;
+  currentIndex = ((index % total) + total) % total;
+  const cardW = cards[0].offsetWidth + 24;
+  track.style.transform = `translateX(-${currentIndex * cardW}px)`;
+  dotsContainer.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === currentIndex);
+  });
+}
+
+document.getElementById('prev-btn').addEventListener('click', () => goTo(currentIndex - 1));
+document.getElementById('next-btn').addEventListener('click', () => goTo(currentIndex + 1));
+
+// Drag / swipe
+let startX = 0, isDragging = false;
+track.addEventListener('mousedown', e => { startX = e.clientX; isDragging = true; track.style.transition = 'none'; });
+document.addEventListener('mouseup', e => {
+  if (!isDragging) return;
+  isDragging = false;
+  track.style.transition = '';
+  const diff = startX - e.clientX;
+  if (Math.abs(diff) > 50) goTo(currentIndex + (diff > 0 ? 1 : -1));
+  else goTo(currentIndex);
+});
+track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+track.addEventListener('touchend', e => {
+  const diff = startX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) goTo(currentIndex + (diff > 0 ? 1 : -1));
+});
+
+// Auto-advance
+setInterval(() => goTo(currentIndex + 1), 4500);
+
+// ─── SMOOTH NAV HIGHLIGHT ───
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 120) cur = s.id;
+  });
+  navLinks.forEach(a => {
+    a.style.color = a.getAttribute('href') === '#' + cur ? 'var(--blue)' : '';
+  });
+}, { passive: true });
+
+// ─── COUNTER ANIMATION ───
+function animateCounter(el, target) {
+  let start = 0;
+  const step = target / 60;
+  const tick = () => {
+    start = Math.min(start + step, target);
+    el.textContent = Number.isInteger(target) ? Math.round(start) : start.toFixed(2);
+    if (start < target) requestAnimationFrame(tick);
+  };
+  tick();
+}
+const valObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.val').forEach(v => {
+        const num = parseFloat(v.textContent);
+        if (!isNaN(num)) {
+          v.dataset.target = num;
+          // don't reinit
+        }
+      });
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.data-grid').forEach(el => valObserver.observe(el));
+
+// ─── KEYBOARD CAROUSEL ───
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') goTo(currentIndex + 1);
+  if (e.key === 'ArrowLeft') goTo(currentIndex - 1);
+});
+</script>
 </body>
 </html>
