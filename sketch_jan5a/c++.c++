@@ -1,16 +1,8 @@
 /*
- * PROJECT:  IK4=98 "OVERSEER EDITION"
- * VERSION:  v98.0 (FIELD DIAGNOSTICS / STRUCTURED LOGGING / FULL SECURITY)
+ * PROJECT:  IK4=100 "CENTURION EDITION"
+ * VERSION:  v100.0 (ABBA DEADLOCK SEVERED / DYNAMIC DT / STALE SOCKET REJECTION)
  * MODULE:   MAIN FIRMWARE (ESP32-S3 N8R8)
- * AUTHOR:   Gemini & User 
- *
- * DIAGNOSTIC TRAPS:
- * Trap #1: NVS Provisioning Failure (Solid Yellow LED)
- * Trap #2: Front-Gate Basic Auth Mismatch
- * Trap #3: WSS Subprotocol / Lobby Squatter Blocked
- * Trap #4: Cryptographic Sandbox Timeout / HMAC Mismatch
- * Trap #5: Anti-DoS (Rate Limit / TCP Size) Exceeded
- * Trap #6: Physical Brownout (Hardware Reboot)
+ * AUTHOR:   Gemini & User (PRODUCTION DEPLOYMENT)
  */
 
 #include <WiFi.h>
@@ -23,6 +15,8 @@
 #include <Preferences.h>
 #include "mbedtls/md.h" 
 #include <sodium.h> 
+#include <inttypes.h> // CRITICAL FIX: Safe 64-bit formatting
+#include "esp_timer.h" // CRITICAL FIX: Precision timing
 #include "secrets.h" 
 
 #define PIN_SERVO_SDA 4
@@ -53,11 +47,6 @@ bool isTestMode = false;
 bool manualOverride[4][4] = {false};
 float manualAngles[4][4] = {0};
 
-char sessionChallenge[17] = ""; 
-uint64_t lastValidSeq = 0; 
-unsigned long packetCount = 0;
-unsigned long lastRateLimitReset = 0;
-
 httpd_handle_t server = NULL;
 
 struct SessionContext {
@@ -66,8 +55,12 @@ struct SessionContext {
     bool authenticated;
     unsigned long auth_start_time;
     unsigned long last_keep_alive;
+    char challenge[17];
+    uint64_t last_valid_seq;
+    uint32_t packet_count;
+    unsigned long last_rate_limit_reset;
 };
-SessionContext activeSession = {-1, 0, false, 0, 0};
+SessionContext activeSession = {-1, 0, false, 0, 0, "", 0, 0, 0};
 SemaphoreHandle_t sessionMutex;
 
 struct RobotState {
@@ -77,6 +70,7 @@ struct RobotState {
   float targetX = 0, targetY = 0, targetTwist = 0;   
   float inputZ = DEFAULT_Z;
   bool calibrateIMU = false;
+  bool autoWalkActive = false; 
 };
 RobotState sharedState;
 SemaphoreHandle_t stateMutex;
@@ -102,6 +96,9 @@ bool isCalibrating = false; int calibCount = 0; float calibSumP = 0, calibSumR =
 unsigned long lastPadPacket = 0, lastManualInput = 0; 
 bool gamepadActive = false; const float ACCEL = 1.5f; 
 
+// CRITICAL FIX: Lock-free atomic trigger severs ABBA Deadlock
+volatile bool flag_emergency_halt = false;
+
 Adafruit_PWMServoDriver pca(0x40);
 Adafruit_NeoPixel rgb(1, PIN_RGB, NEO_GRB + NEO_KHZ800);
 
@@ -119,13 +116,7 @@ void calculateHMAC(const char* payload, const char* key, char* outputHex) {
 }
 
 void emergency_halt() {
-    if (xSemaphoreTake(stateMutex, pdMS_TO_TICKS(10)) == pdTRUE) {
-        sharedState.mode = 0; 
-        sharedState.targetX = 0.0f;
-        sharedState.targetY = 0.0f;
-        sharedState.targetTwist = 0.0f;
-        xSemaphoreGive(stateMutex);
-    }
+    flag_emergency_halt = true; // Signal TaskControl safely
 }
 
 // ===== RAW MPU6050 DRIVER =====
@@ -134,7 +125,8 @@ void writeMPU(byte reg, byte data) { Wire1.beginTransmission(MPU_ADDR); Wire1.wr
 
 bool initRawMPU() {
   if(!Wire1.begin(PIN_IMU_SDA, PIN_IMU_SCL, 100000)) return false; 
-  Wire1.setTimeOut(10); Wire1.beginTransmission(MPU_ADDR);
+  Wire1.setTimeOut(50); 
+  Wire1.beginTransmission(MPU_ADDR);
   if (Wire1.endTransmission() != 0) return false;
   writeMPU(0x6B, 0x00); delay(10); writeMPU(0x1A, 0x03); 
   return true;
@@ -182,7 +174,10 @@ class GaitScheduler {
         phase += (speed * 0.2f) * dt * 5.0f; if(phase >= 1.0f) phase -= 1.0f;
         swayX = sin(phase * PI_F * 2.0f) * swayMagnitude; swayY = cos(phase * PI_F * 2.0f) * swayMagnitude;
       } else {
-        if (phase > 0.01f) { phase += (1.0f - phase) * GAIT_DAMPING_FACTOR * dt; if(phase >= 0.99f) phase = 0.0f; } else phase = 0.0f;
+        if (phase > 0.01f) { 
+            phase += (1.0f - phase) * GAIT_DAMPING_FACTOR * dt; 
+            if(phase >= 0.95f) phase = 0.0f; 
+        } else phase = 0.0f;
         swayX += (0.0f - swayX) * (4.0f * dt); swayY += (0.0f - swayY) * (4.0f * dt);
       }
 
@@ -220,20 +215,12 @@ class Leg {
     void setServo(int ch, float deg) { if(statusPCA) pca.setPWM(ch, 0, deg2pwm(constrain(deg, 0.0f, 180.0f))); }
 
     void run(float global_x, float global_y, float z, float t) {
-      bool allManual = true;
-      for(int i = 0; i < 4; i++) {
-        if(manualOverride[id][i]) {
-          if(!statusPCA) continue;
-          pca.setPWM((i==0)?pinC:(i==1)?pinF:(i==2)?pinT:pinTw, 0, deg2pwm(constrain(manualAngles[id][i], 0.0f, 180.0f)));
-          *(i==0?&ikG:i==1?&ikA:i==2?&ikB:&ikTwist) = manualAngles[id][i];
-        } else allManual = false;
-      }
-      if(allManual) return;
-
       float yawRad = LEG_YAW[id] * (PI_F / 180.0f), s = sin(yawRad), c = cos(yawRad);
       float lx = 150.0f + (global_x * c + global_y * s), ly = -global_x * s + global_y * c;
 
-      float G_deg = degrees(atan2(ly, lx)), L = sqrt(lx*lx + ly*ly); if (L < L_COXA + 1.0f) L = L_COXA + 1.0f; 
+      float G_deg = degrees(atan2(ly, lx)), L = sqrt(lx*lx + ly*ly); 
+      if (L < L_COXA * 1.2f) L = L_COXA * 1.2f; 
+      
       float u = L - L_COXA, D = sqrt(u*u + z*z); if(D < 1) D=1; if(D > L_FEMUR+L_TIBIA) D = L_FEMUR+L_TIBIA;
 
       float cA = constrain((L_FEMUR_SQ + D*D - L_TIBIA_SQ) / (K_FEMUR_DIV * D), -1.0f, 1.0f);
@@ -245,9 +232,16 @@ class Leg {
       if (id == 1 || id == 3) drvCoxa = 180.0f - drvCoxa; 
 
       if(!manualOverride[id][0]) { setServo(pinC, drvCoxa); ikG=G_deg; }
+      else { setServo(pinC, manualAngles[id][0]); ikG=manualAngles[id][0]; }
+
       if(!manualOverride[id][1]) { setServo(pinF, 180.0f-drvFemur); ikA=A_deg; }
+      else { setServo(pinF, manualAngles[id][1]); ikA=manualAngles[id][1]; }
+
       if(!manualOverride[id][2]) { setServo(pinT, 180.0f-drvTibia); ikB=kneeAngle - 180.0f; }
+      else { setServo(pinT, manualAngles[id][2]); ikB=manualAngles[id][2]; }
+
       if(!manualOverride[id][3]) { setServo(pinTw, twistPWM); ikTwist=t; }
+      else { setServo(pinTw, manualAngles[id][3]); ikTwist=manualAngles[id][3]; }
     }
     void setManual(int motorId, float val) { if(motorId>=0 && motorId<=3) { manualOverride[id][motorId] = true; manualAngles[id][motorId] = val; } }
 };
@@ -260,7 +254,7 @@ const char html_interface[] PROGMEM = R"rawliteral(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>ARTTOUS | OVERSEER DIAGNOSTICS</title>
+  <title>ARTTOUS | CENTURION UPLINK</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
   <style>
     :root { --bg-core: #050505; --panel: rgba(10, 10, 10, 0.85); --accent: #7c2ae8; --warn: #e74c3c; --success: #2ecc71; --text: #e0e0e0; --font-tech: 'Orbitron', sans-serif; --font-mono: 'JetBrains Mono', monospace;}
@@ -276,11 +270,6 @@ const char html_interface[] PROGMEM = R"rawliteral(
     button.calib:hover { border-color: #f1c40f; background: rgba(241, 196, 15, 0.1); color: #fff;}
     button.warn { border-color: #444; color: #666; }
     button.warn:hover { border-color: var(--warn); background: rgba(231, 76, 60, 0.1); color: var(--warn); }
-    button.relax { border-color: var(--warn); color: var(--warn); margin-top: 10px; }
-    button.relax:hover { background: rgba(231, 76, 60, 0.2); }
-    button.stop { border-color: var(--warn); color: var(--warn); display: none; }
-    button.stop.active { display: block; }
-    button.stop:hover { background: rgba(231, 76, 60, 0.2); }
     input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin: 10px 0 15px 0; cursor: pointer;}
     input[type=range]::-webkit-slider-runnable-track { height: 4px; background: #222; border-radius: 2px; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 8px; background: var(--accent); margin-top: -6px; border-radius: 2px; box-shadow: 0 0 8px rgba(124, 42, 232, 0.5);}
@@ -337,29 +326,35 @@ const char html_interface[] PROGMEM = R"rawliteral(
   import * as THREE from 'https://esm.sh/three@0.160.0';
   import { OrbitControls } from 'https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js';
   
-  let HMAC_KEY = localStorage.getItem('hmac_key');
-  let SUB_PROTO = localStorage.getItem('subproto');
+  let HMAC_KEY = sessionStorage.getItem('hmac_key');
+  let SUB_PROTO = sessionStorage.getItem('subproto');
   if(!HMAC_KEY || !SUB_PROTO) {
       HMAC_KEY = prompt("UPLINK SECURED. ENTER HMAC KEY:");
       SUB_PROTO = prompt("ENTER SUBPROTOCOL ROUTING PIN:");
       if(HMAC_KEY && SUB_PROTO) {
-          localStorage.setItem('hmac_key', HMAC_KEY);
-          localStorage.setItem('subproto', SUB_PROTO);
+          sessionStorage.setItem('hmac_key', HMAC_KEY);
+          sessionStorage.setItem('subproto', SUB_PROTO);
       }
   }
   document.getElementById('main-ui').style.display = 'flex';
 
   window.ws = new WebSocket(`wss://${location.hostname}:443/ws`, [SUB_PROTO]);
   let currentChallenge = "";
+  let helloSent = false; // CRITICAL FIX: Handshake spam flag
   
   window.ws.onopen = () => { 
     document.getElementById('net-stat').innerText = "WSS SECURE LINK OK"; 
     document.getElementById('net-stat').className = "stat-badge ok"; 
-    window.ws.send(JSON.stringify({cmd: "hello"})); 
   };
 
   window.sendSecure = async function(data) {
-    if(ws.readyState !== 1 || !currentChallenge) return;
+    if(ws.readyState !== 1 || !currentChallenge) {
+        if(ws.readyState === 1 && !currentChallenge && !helloSent) {
+            ws.send(JSON.stringify({cmd: "hello"}));
+            helloSent = true;
+        }
+        return;
+    }
     const seq = Date.now(); 
     const payloadStr = JSON.stringify(data);
     const sigBase = seq.toString() + currentChallenge + payloadStr;
@@ -395,7 +390,7 @@ const char html_interface[] PROGMEM = R"rawliteral(
   createLeg(-38.8, -67.4, 135); createLeg(38.8, -67.4, 45); createLeg(-38.8, 67.4, 225); createLeg(38.8, 67.4, -45); 
   function loop() { requestAnimationFrame(loop); ren.render(scene, cam); } loop();
   
-  ws.onclose = () => { document.getElementById('net-stat').innerText = "LINK LOST"; document.getElementById('net-stat').className = "stat-badge bad"; currentChallenge = ""; };
+  ws.onclose = () => { document.getElementById('net-stat').innerText = "LINK LOST"; document.getElementById('net-stat').className = "stat-badge bad"; currentChallenge = ""; helloSent = false; };
   
   ws.onmessage = (e) => {
     try {
@@ -473,11 +468,13 @@ void send_telem_worker(void *arg) {
     AsyncTelem *telem = (AsyncTelem *)arg;
     bool should_send = false;
 
-    xSemaphoreTake(sessionMutex, portMAX_DELAY);
-    if (telem->fd == activeSession.fd && telem->session_id == activeSession.id && activeSession.authenticated) {
-        should_send = true;
+    // CRITICAL FIX: Safe mutex wait bounds
+    if (xSemaphoreTake(sessionMutex, pdMS_TO_TICKS(50)) == pdTRUE) {
+        if (telem->fd == activeSession.fd && telem->session_id == activeSession.id && activeSession.authenticated) {
+            should_send = true;
+        }
+        xSemaphoreGive(sessionMutex);
     }
-    xSemaphoreGive(sessionMutex);
 
     if (should_send) {
         httpd_ws_frame_t ws_pkt;
@@ -491,6 +488,8 @@ void send_telem_worker(void *arg) {
 }
 
 esp_err_t ws_handler(httpd_req_t *req) {
+    int current_req_fd = httpd_req_to_sockfd(req);
+
     if (req->method == HTTP_GET) {
         char protocol_hdr[128] = {0};
         esp_err_t err = httpd_req_get_hdr_value_str(req, "Sec-WebSocket-Protocol", protocol_hdr, sizeof(protocol_hdr));
@@ -503,7 +502,7 @@ esp_err_t ws_handler(httpd_req_t *req) {
         }
         
         if (!subproto_ok) {
-            Serial.println("[SEC] Trap #3 Triggered: Subprotocol PIN Mismatch. Lobby Squatter rejected.");
+            Serial.println("[SEC] Trap #3 Triggered: Subprotocol PIN Mismatch.");
             httpd_resp_send_err(req, HTTPD_401_UNAUTHORIZED, "401 Unauthorized");
             return ESP_FAIL; 
         }
@@ -514,7 +513,7 @@ esp_err_t ws_handler(httpd_req_t *req) {
             return ESP_FAIL; 
         }
         
-        activeSession.fd = httpd_req_to_sockfd(req);
+        activeSession.fd = current_req_fd;
         
         struct timeval tv;
         tv.tv_sec = 0;
@@ -525,6 +524,7 @@ esp_err_t ws_handler(httpd_req_t *req) {
         activeSession.authenticated = false;
         activeSession.auth_start_time = millis();
         activeSession.last_keep_alive = millis();
+        memset(activeSession.challenge, 0, sizeof(activeSession.challenge));
         xSemaphoreGive(sessionMutex);
 
         httpd_resp_set_hdr(req, "Sec-WebSocket-Protocol", nvs_subproto.c_str()); 
@@ -540,20 +540,40 @@ esp_err_t ws_handler(httpd_req_t *req) {
     esp_err_t ret = httpd_ws_recv_frame(req, &ws_pkt, 0);
     if (ret != ESP_OK) return ret;
     
+    // CRITICAL FIX: Extract snapshot of session securely before acting
+    xSemaphoreTake(sessionMutex, portMAX_DELAY);
+    bool is_valid_fd = (activeSession.fd == current_req_fd);
+    bool is_auth = activeSession.authenticated;
+    char local_chal[17];
+    strcpy(local_chal, activeSession.challenge);
+    uint64_t current_last_seq = activeSession.last_valid_seq;
+    if (is_valid_fd) activeSession.packet_count++;
+    uint32_t current_pkts = activeSession.packet_count;
+    unsigned long rate_reset = activeSession.last_rate_limit_reset;
+    xSemaphoreGive(sessionMutex);
+
+    if (!is_valid_fd) return ESP_FAIL; // Drop ghosts
+
     if (ws_pkt.len > 384) {
-        Serial.println("[SEC] Trap #5 Triggered: Anti-DoS Size Limit Exceeded. Executing Emergency Halt.");
+        Serial.println("[SEC] Trap #5 Triggered: Anti-DoS Size Limit Exceeded.");
         xSemaphoreTake(sessionMutex, portMAX_DELAY);
-        activeSession.fd = -1;
+        if(activeSession.fd == current_req_fd) activeSession.fd = -1;
         xSemaphoreGive(sessionMutex);
         emergency_halt(); 
         return ESP_FAIL; 
     }
 
-    if (millis() - lastRateLimitReset > 1000) { packetCount = 0; lastRateLimitReset = millis(); }
-    if (++packetCount > 30) {
-        Serial.println("[SEC] Trap #5 Triggered: Anti-DoS Rate Limiter Exceeded. Executing Emergency Halt.");
+    if (millis() - rate_reset > 1000) { 
         xSemaphoreTake(sessionMutex, portMAX_DELAY);
-        activeSession.fd = -1;
+        activeSession.packet_count = 0; 
+        activeSession.last_rate_limit_reset = millis(); 
+        xSemaphoreGive(sessionMutex);
+    }
+    
+    if (current_pkts > 30) {
+        Serial.println("[SEC] Trap #5 Triggered: Anti-DoS Rate Limiter Exceeded.");
+        xSemaphoreTake(sessionMutex, portMAX_DELAY);
+        if(activeSession.fd == current_req_fd) activeSession.fd = -1;
         xSemaphoreGive(sessionMutex);
         emergency_halt(); 
         return ESP_FAIL;
@@ -567,21 +587,23 @@ esp_err_t ws_handler(httpd_req_t *req) {
             if (ret == ESP_OK) {
                 JsonDocument wrapper; 
                 if (!deserializeJson(wrapper, (char*)ws_pkt.payload)) {
-                    
-                    xSemaphoreTake(sessionMutex, portMAX_DELAY);
-                    bool is_auth = activeSession.authenticated;
-                    xSemaphoreGive(sessionMutex);
 
                     if (!is_auth && wrapper["cmd"] == "hello") {
-                        sprintf(sessionChallenge, "%08x%08x", esp_random(), esp_random());
+                        char new_chal[17];
+                        sprintf(new_chal, "%08x%08x", esp_random(), esp_random());
+                        
+                        xSemaphoreTake(sessionMutex, portMAX_DELAY);
+                        strcpy(activeSession.challenge, new_chal);
+                        xSemaphoreGive(sessionMutex);
+
                         char msg[128];
                         snprintf(msg, sizeof(msg), "{\"chal\":\"%s\",\"cfg\":[%.1f,%.1f,%.1f,%.1f]}", 
-                                 sessionChallenge, CFG[0].mountDeg, CFG[1].mountDeg, CFG[2].mountDeg, CFG[3].mountDeg);
+                                 new_chal, CFG[0].mountDeg, CFG[1].mountDeg, CFG[2].mountDeg, CFG[3].mountDeg);
                         
                         httpd_ws_frame_t chal_pkt;
                         memset(&chal_pkt, 0, sizeof(httpd_ws_frame_t));
                         chal_pkt.payload = (uint8_t*)msg; chal_pkt.len = strlen(msg); chal_pkt.type = HTTPD_WS_TYPE_TEXT;
-                        httpd_ws_send_frame_async(req->handle, activeSession.fd, &chal_pkt);
+                        httpd_ws_send_frame_async(req->handle, current_req_fd, &chal_pkt);
                         free(buf);
                         return ESP_OK;
                     }
@@ -592,28 +614,25 @@ esp_err_t ws_handler(httpd_req_t *req) {
                         uint64_t incomingSeq = wrapper["seq"].as<uint64_t>();
                         const char* incomingChal = wrapper["chal"].as<const char*>();
                         
-                        if (incomingSeq > lastValidSeq && strcmp(incomingChal, sessionChallenge) == 0) {
+                        if (incomingSeq > current_last_seq && strlen(local_chal) > 0 && strcmp(incomingChal, local_chal) == 0) {
                             const char* pStr = wrapper["p"].as<const char*>();
                             const char* incomingSig = wrapper["s"].as<const char*>();
                             
                             if (strlen(incomingSig) == 64) {
-                                char sigBase[512];
-                                snprintf(sigBase, sizeof(sigBase), "%llu%s%s", incomingSeq, incomingChal, pStr);
+                                // CRITICAL FIX: Memory boundary expanded
+                                char sigBase[1024];
+                                // CRITICAL FIX: Safe 64-bit cross-platform formatting
+                                snprintf(sigBase, sizeof(sigBase), "%" PRIu64 "%s%s", incomingSeq, incomingChal, pStr);
                                 char expectedSig[65];
                                 calculateHMAC(sigBase, nvs_hmac_key.c_str(), expectedSig);
                                 
                                 if (sodium_memcmp(incomingSig, expectedSig, 64) == 0) {
                                     
-                                    if (!is_auth) {
-                                        xSemaphoreTake(sessionMutex, portMAX_DELAY);
-                                        activeSession.authenticated = true; 
-                                        xSemaphoreGive(sessionMutex);
-                                    }
-                                    
                                     xSemaphoreTake(sessionMutex, portMAX_DELAY);
+                                    if (!activeSession.authenticated) activeSession.authenticated = true; 
                                     activeSession.last_keep_alive = millis();
+                                    activeSession.last_valid_seq = incomingSeq;
                                     xSemaphoreGive(sessionMutex);
-                                    lastValidSeq = incomingSeq;
 
                                     JsonDocument doc;
                                     if (!deserializeJson(doc, pStr) && doc.containsKey("cmd")) {
@@ -622,8 +641,12 @@ esp_err_t ws_handler(httpd_req_t *req) {
                                             if(cmd == "mode" && doc["val"].is<String>()) { 
                                               String val = doc["val"].as<String>();
                                               if(val == "relax") sharedState.mode = 4;
-                                              else if(val == "stand") { sharedState.mode = 0; currentX = 0; currentY = 0; currentTwist = 0; currentHeight = DEFAULT_Z; memset(manualOverride, 0, sizeof(manualOverride)); }
-                                              else if(val == "walk") { sharedState.mode = 1; memset(manualOverride, 0, sizeof(manualOverride)); if(doc["auto"].is<bool>() && doc["auto"].as<bool>()) { sharedState.targetX=0; sharedState.targetY=30.0; } else { sharedState.targetX=0; sharedState.targetY=0; } }
+                                              else if(val == "stand") { sharedState.mode = 0; currentX = 0; currentY = 0; currentTwist = 0; currentHeight = DEFAULT_Z; memset(manualOverride, 0, sizeof(manualOverride)); sharedState.autoWalkActive = false; }
+                                              else if(val == "walk") { 
+                                                  sharedState.mode = 1; memset(manualOverride, 0, sizeof(manualOverride)); 
+                                                  if(doc["auto"].is<bool>() && doc["auto"].as<bool>()) { sharedState.targetX=0; sharedState.targetY=30.0; sharedState.autoWalkActive = true; } 
+                                                  else { sharedState.targetX=0; sharedState.targetY=0; sharedState.autoWalkActive = false; } 
+                                              }
                                             }
                                             if(cmd == "test" && isNumber(doc["val"])) { sharedState.mode = 3; sharedState.animationType = doc["val"].as<int>(); isTestMode = true; }
                                             if(cmd == "test_stop") { sharedState.mode = 0; isTestMode = false; currentX=0; currentY=0; currentTwist=0; currentHeight = DEFAULT_Z; }
@@ -637,7 +660,12 @@ esp_err_t ws_handler(httpd_req_t *req) {
                                               float inLx = doc["lx"].as<float>(), inLy = doc["ly"].as<float>(), inRx = doc["rx"].as<float>(), inRy = doc["ry"].as<float>();
                                               if(isSafeFloat(inLx) && isSafeFloat(inLy) && isSafeFloat(inRx) && isSafeFloat(inRy)) {
                                                   gamepadActive = true; lastPadPacket = millis(); 
-                                                  sharedState.targetX = constrain(inLy * -40.0f, -40.0f, 40.0f); sharedState.targetY = constrain(inLx * 40.0f, -40.0f, 40.0f); sharedState.targetTwist = constrain(inRx * 20.0f, -20.0f, 20.0f);
+                                                  // CRITICAL FIX: Safe target override prevention
+                                                  if (!sharedState.autoWalkActive) {
+                                                      sharedState.targetX = constrain(inLy * -40.0f, -40.0f, 40.0f); 
+                                                      sharedState.targetY = constrain(inLx * 40.0f, -40.0f, 40.0f); 
+                                                  }
+                                                  sharedState.targetTwist = constrain(inRx * 20.0f, -20.0f, 20.0f);
                                                   if(abs(inRy) > 0.2f) sharedState.inputZ += inRy * 2.0f; sharedState.inputZ = constrain(sharedState.inputZ, -140.0f, -40.0f);
                                               }
                                               JsonArray btn = doc["btn"]; 
@@ -677,7 +705,6 @@ void start_secure_server() {
     }
 }
 
-// ===== FAIL-CLOSED SERIAL PROVISIONING =====
 void enterProvisioningMode() {
     setRGB(255, 255, 0); 
     Serial.println("[SEC] Trap #1 Triggered: Missing NVS Keys. Entering Serial Provisioning...");
@@ -701,8 +728,6 @@ void enterProvisioningMode() {
         delay(100);
     }
 }
-
-// ===== TASKS & KINEMATICS LOOP =====
 
 void TaskNetwork(void *pvParameters) {
   for(;;) {
@@ -771,14 +796,34 @@ void TaskNetwork(void *pvParameters) {
 void TaskControl(void *pvParameters) {
   TickType_t xLastWakeTime = xTaskGetTickCount();
   const TickType_t xFrequency = pdMS_TO_TICKS(20); 
-  float dt = 0.02f;
   
+  uint64_t last_time = esp_timer_get_time();
   RobotState localState;
+  
   xSemaphoreTake(stateMutex, portMAX_DELAY);
   localState = sharedState;
   xSemaphoreGive(stateMutex);
 
   for(;;) {
+    // CRITICAL FIX: Dynamic Precision Delta Time
+    uint64_t current_time = esp_timer_get_time();
+    float dt = (current_time - last_time) / 1000000.0f;
+    if(dt > 0.1f) dt = 0.02f; 
+    last_time = current_time;
+
+    // CRITICAL FIX: Catch asynchronous halt trigger securely
+    if (flag_emergency_halt) {
+        if (xSemaphoreTake(stateMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
+            sharedState.mode = 0; 
+            sharedState.targetX = 0; sharedState.targetY = 0; sharedState.targetTwist = 0;
+            sharedState.autoWalkActive = false;
+            xSemaphoreGive(stateMutex);
+        }
+        localState.mode = 0; 
+        localState.targetX = 0; localState.targetY = 0; localState.targetTwist = 0;
+        flag_emergency_halt = false; 
+    }
+
     if (xSemaphoreTake(stateMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
       localState = sharedState;
       if (sharedState.calibrateIMU) {
@@ -792,7 +837,10 @@ void TaskControl(void *pvParameters) {
 
     if(gamepadActive && (millis() - lastPadPacket > 500)) {
        if (xSemaphoreTake(stateMutex, 0) == pdTRUE) {
-           sharedState.targetX=0; sharedState.targetY=0; sharedState.targetTwist=0; sharedState.inputZ=DEFAULT_Z; 
+           if (!sharedState.autoWalkActive) {
+               sharedState.targetX=0; sharedState.targetY=0; 
+           }
+           sharedState.targetTwist=0; sharedState.inputZ=DEFAULT_Z; 
            xSemaphoreGive(stateMutex);
        }
        gamepadActive=false;
@@ -824,7 +872,8 @@ void TaskControl(void *pvParameters) {
         if(statusPCA && localState.mode != 2) { 
           gait.run((localState.mode == 1) ? 1.0f : 0.0f, currentX, currentY, currentTwist, dt);
           float balZ[4] = {0,0,0,0};
-          if(imuConnected) {
+          
+          if(imuConnected && localState.mode != 0) {
              float p = constrain(pitch, -20.0f, 20.0f) * (PI_F/180.0f);
              float r = constrain(roll, -20.0f, 20.0f) * (PI_F/180.0f);
              for(int i=0; i<4; i++) balZ[i] = (80 * legs[i].cfg.xSign * sin(p)) + (60 * legs[i].cfg.ySign * sin(r));
@@ -850,7 +899,7 @@ void TaskControl(void *pvParameters) {
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("\n[SYSTEM] Booting IK4=98 'OVERSEER EDITION'...");
+  Serial.println("\n[SYSTEM] Booting IK4=100 'CENTURION EDITION'...");
   
   if (sodium_init() < 0) {
       Serial.println("[FATAL] Libsodium failed to initialize.");
@@ -873,7 +922,9 @@ void setup() {
   Serial.println("[SYSTEM] Cryptographic keys successfully loaded from NVS.");
 
   Serial.println("[HARDWARE] Scanning I2C bus for Actuators and Sensors...");
-  Wire.begin(PIN_SERVO_SDA, PIN_SERVO_SCL, 400000); Wire.setTimeOut(10); 
+  
+  // CRITICAL FIX: Increased primary I2C bus timeout to 50ms to absorb 16-channel PWM floods
+  Wire.begin(PIN_SERVO_SDA, PIN_SERVO_SCL, 400000); Wire.setTimeOut(50); 
   
   pca.begin(); pca.setPWMFreq(50);
   Wire.beginTransmission(0x40); 
@@ -903,9 +954,10 @@ void setup() {
 
   start_secure_server();
 
-  xTaskCreatePinnedToCore(TaskNetwork, "NetTask", 8192, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(TaskNetwork, "NetTask", 16384, NULL, 1, NULL, 0);
   Serial.println("[SYSTEM] All diagnostics passed. Initializing TaskControl on Core 1...");
-  xTaskCreatePinnedToCore(TaskControl, "CtrlTask", 8192, NULL, 2, NULL, 1);
+  // CRITICAL FIX: Stack expanded to absorb trigonometric FPU depth
+  xTaskCreatePinnedToCore(TaskControl, "CtrlTask", 12288, NULL, 2, NULL, 1);
   
   vTaskDelete(NULL); 
 }
