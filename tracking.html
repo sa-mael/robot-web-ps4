@@ -5,355 +5,802 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARTTOUS | Live Telemetry v75.4</title>
     <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-core: #050505;
-            --bg-panel: rgba(14, 14, 14, 0.75);
-            --accent: #7c2ae8;
-            --alert: #e74c3c;
-            --success: #2ecc71;
-            --text-main: #e0e0e0;
-            --font-tech: 'Orbitron', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-        }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* ══════════════════════════════════════
+       THEMES — 8 colour schemes
+    ══════════════════════════════════════ */
+    :root {
+        --accent:      #c8a05a;
+        --accent-dim:  #7a5e2e;
+        --accent-pale: rgba(200,160,90,0.09);
+        --accent-glow: rgba(200,160,90,0.28);
+        --bg:          #060606;
+        --surface:     #0f0f0f;
+        --surface2:    #151515;
+        --line:        #1e1e1e;
+        --line2:       #2a2a2a;
+        --text:        #f0f0e8;
+        --text-mid:    #a8a8a0;
+        --text-dim:    #606058;
+        --pos:         #4a7a54;
+        --neg:         #8a4848;
+        --warn:        #8a7a28;
+        --font-serif:  'Cormorant Garamond', serif;
+        --font-mono:   'DM Mono', monospace;
+        --font-body:   'DM Sans', sans-serif;
+        --nav-h:       50px;
+    }
+    [data-theme="platinum"] { --accent:#ccccc4; --accent-dim:#888880; --accent-pale:rgba(204,204,196,0.08); --accent-glow:rgba(204,204,196,0.20); }
+    [data-theme="sapphire"] { --accent:#5a8ec8; --accent-dim:#2a4e78; --accent-pale:rgba(90,142,200,0.09); --accent-glow:rgba(90,142,200,0.28); }
+    [data-theme="emerald"]  { --accent:#5aaa7a; --accent-dim:#2a5a3a; --accent-pale:rgba(90,170,122,0.09); --accent-glow:rgba(90,170,122,0.28); }
+    [data-theme="rouge"]    { --accent:#c86a58; --accent-dim:#783a28; --accent-pale:rgba(200,106,88,0.09); --accent-glow:rgba(200,106,88,0.28); }
+    [data-theme="violet"]   { --accent:#8a6ac8; --accent-dim:#4a3a78; --accent-pale:rgba(138,106,200,0.09); --accent-glow:rgba(138,106,200,0.28); }
+    [data-theme="obsidian"] { --accent:#e0d7c0; --accent-dim:#908070; --accent-pale:rgba(224,215,192,0.07); --accent-glow:rgba(224,215,192,0.20); --bg:#020202; --surface:#080808; --surface2:#0d0d0d; --line:#181818; --line2:#222222; }
+    [data-theme="frost"]    { --accent:#3a6a9a; --accent-dim:#1a3a5a; --accent-pale:rgba(58,106,154,0.10); --accent-glow:rgba(58,106,154,0.25); --bg:#f0ede8; --surface:#e8e4de; --surface2:#e0dbd4; --line:#ccc8c0; --line2:#b8b4ac; --text:#181816; --text-mid:#4a4a42; --text-dim:#7a7a70; --pos:#2a6034; --neg:#7a2828; }
 
-        body {
-            background: var(--bg-core);
-            background-image: 
-                radial-gradient(circle at 50% 50%, rgba(124, 42, 232, 0.05) 0%, transparent 60%),
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 100% 100%, 40px 40px, 40px 40px;
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            overflow: hidden; 
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
+    /* ══════════════════════════════════════
+       BASE
+    ══════════════════════════════════════ */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-       
-        /* HEADER */
-        nav { 
-            padding: 15px 30px; border-bottom: 1px solid #333; display: flex; 
-            justify-content: space-between; align-items: center; background: rgba(5,5,5,0.9);
-            position: relative; z-index: 10; backdrop-filter: blur(5px);
-        }
-        .logo { font-family: var(--font-tech); font-weight: 900; color: #fff; text-decoration: none; font-size: 1.2rem; animation: textGlow 2s infinite alternate;}
-        .accent { color: var(--accent); }
-        
-        .live-indicator { 
-            font-family: var(--font-mono); font-size: 0.75rem; color: var(--success); 
-            display: flex; align-items: center; gap: 8px; border: 1px solid var(--success); 
-            padding: 5px 10px; border-radius: 4px; background: rgba(46, 204, 113, 0.1);
-            box-shadow: 0 0 10px rgba(46, 204, 113, 0.2);
-        }
-        .blink { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: blink 1s infinite; box-shadow: 0 0 8px var(--success);}
+    html { font-size: clamp(12px, 0.45vw + 9px, 17px); }
 
-        /* DASHBOARD GRID */
-        .dash-container {
-            display: grid; grid-template-columns: 320px 1fr 320px; grid-template-rows: 2fr 1fr;
-            flex: 1; gap: 15px; padding: 15px; position: relative; z-index: 5;
-        }
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-weight: 400;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: background .35s, color .35s;
+    }
 
-        .panel {
-            background: var(--bg-panel); border: 1px solid #222; padding: 25px;
-            position: relative; overflow: hidden; backdrop-filter: blur(10px);
-            border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            /* Boot animation */
-            opacity: 0; transform: scale(0.95) translateY(20px);
-            animation: bootUp 0.6s cubic-bezier(0.1, 1, 0.1, 1) forwards;
-        }
-        
-        /* Staggered Boot */
-        .p-vitals { animation-delay: 0.1s; }
-        .p-radar { animation-delay: 0.3s; }
-        .p-graphs { animation-delay: 0.5s; }
-        .p-logs { animation-delay: 0.7s; }
-        .p-controls { animation-delay: 0.9s; }
+    /* Grid overlay */
+    body::before {
+        content: '';
+        position: fixed; inset: 0;
+        background-image:
+            linear-gradient(var(--accent-pale) 1px, transparent 1px),
+            linear-gradient(90deg, var(--accent-pale) 1px, transparent 1px);
+        background-size: 48px 48px;
+        pointer-events: none;
+        z-index: 0;
+        opacity: .5;
+    }
 
-        .panel::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.5;
-        }
+    /* Grain */
+    body::after {
+        content: '';
+        position: fixed; inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+        background-size: 160px;
+        pointer-events: none;
+        z-index: 9000;
+    }
 
-        .panel-title {
-            font-family: var(--font-tech); font-size: 0.85rem; color: #fff; margin-bottom: 20px; display: block;
-            letter-spacing: 2px; border-bottom: 1px dashed #333; padding-bottom: 10px;
-        }
+    /* ══════════════════════════════════════
+       TOPBAR
+    ══════════════════════════════════════ */
+    .topbar {
+        height: var(--nav-h);
+        background: var(--bg);
+        border-bottom: 1px solid var(--line);
+        display: flex; align-items: center;
+        padding: 0 clamp(14px, 1.8vw, 32px);
+        gap: clamp(8px, 1vw, 18px);
+        position: relative; z-index: 100;
+        flex-shrink: 0;
+        transition: background .35s, border-color .35s;
+    }
 
-        /* LEFT: ROBOT STATUS */
-        .stat-row { display: flex; justify-content: space-between; margin-bottom: 15px; }
-        .stat-label { font-family: var(--font-mono); font-size: 0.75rem; color: #888; }
-        .stat-val { font-family: var(--font-mono); font-size: 0.9rem; color: #fff; font-weight: bold; text-shadow: 0 0 5px rgba(255,255,255,0.3);}
-        .val-good { color: var(--success); text-shadow: 0 0 5px rgba(46, 204, 113, 0.4);}
-        .val-warn { color: var(--alert); text-shadow: 0 0 5px rgba(231, 76, 60, 0.4);}
+    .logo {
+        font-family: var(--font-serif);
+        font-weight: 400;
+        font-size: clamp(14px, .95rem, 19px);
+        letter-spacing: .32em;
+        color: var(--text);
+        text-decoration: none;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .logo em { font-style: normal; color: var(--accent); }
 
-        /* CENTER: RADAR */
-        .radar-view {
-            grid-column: 2; grid-row: 1 / span 2;
-            background: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #000 100%);
-            display: flex; align-items: center; justify-content: center; position: relative;
-        }
-        
-        /* Crosshairs */
-        .radar-view::after {
-            content: ""; position: absolute; width: 100%; height: 100%;
-            background: 
-                linear-gradient(rgba(124, 42, 232, 0.2) 1px, transparent 1px) 50% 50% / 100% 20px,
-                linear-gradient(90deg, rgba(124, 42, 232, 0.2) 1px, transparent 1px) 50% 50% / 20px 100%;
-            pointer-events: none; z-index: 1; opacity: 0.5;
-        }
+    .tb-sep { width: 1px; height: 18px; background: var(--line2); flex-shrink: 0; }
 
-        .scanner {
-            width: 80%; max-width: 600px; aspect-ratio: 1/1; 
-            border: 2px solid rgba(124, 42, 232, 0.5); border-radius: 50%; 
-            position: relative; z-index: 2; box-shadow: 0 0 50px rgba(124, 42, 232, 0.1) inset;
-        }
-        
-        /* True Radar Sweep */
-        .scan-line {
-            width: 100%; height: 100%; border-radius: 50%; position: absolute; top: 0; left: 0;
-            background: conic-gradient(from 0deg, rgba(124, 42, 232, 0.8) 0deg, transparent 60deg, transparent 360deg);
-            animation: radarSpin 4s linear infinite;
-        }
+    /* Live indicator */
+    .live-badge {
+        display: flex; align-items: center; gap: 7px;
+        font-family: var(--font-mono);
+        font-size: clamp(8px, .58rem, 10px);
+        letter-spacing: .16em;
+        color: var(--pos);
+        border: 1px solid var(--pos);
+        padding: clamp(3px, .26rem, 5px) clamp(9px, .75rem, 14px);
+        text-transform: uppercase;
+    }
+    .blink-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: var(--pos);
+        box-shadow: 0 0 6px var(--pos);
+        animation: blink 1.2s infinite;
+        flex-shrink: 0;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
 
-        /* DOTS (Robot & Anchors) */
-        .dot { position: absolute; border-radius: 50%; transform: translate(-50%, -50%); z-index: 5; }
-        .robot-dot { background: #fff; width: 12px; height: 12px; box-shadow: 0 0 15px #fff; top: 50%; left: 50%; }
-        .anchor-dot { background: var(--accent); width: 8px; height: 8px; box-shadow: 0 0 10px var(--accent);}
-        
-        /* Ping effect when sweep passes */
-        .ping-anim { animation: pingGlow 4s infinite; }
-        
-        .label-float { 
-            position: absolute; color: var(--accent); font-family: var(--font-mono); 
-            font-size: 0.65rem; transform: translate(12px, -12px); background: rgba(0,0,0,0.8); padding: 2px 4px; border: 1px solid #333;
+    /* Theme switcher */
+    .theme-bar { display: flex; align-items: center; gap: clamp(3px,.28vw,6px); }
+    .theme-lbl {
+        font-family: var(--font-mono);
+        font-size: clamp(7px,.5rem,9px);
+        letter-spacing: .18em; color: var(--text-dim);
+        text-transform: uppercase; margin-right: 2px; white-space: nowrap;
+    }
+    .sw {
+        width: clamp(11px,.85rem,17px); height: clamp(11px,.85rem,17px);
+        border-radius: 50%; border: 1.5px solid transparent;
+        cursor: pointer; flex-shrink: 0;
+        transition: transform .18s, box-shadow .18s, border-color .18s;
+    }
+    .sw:hover { transform: scale(1.3); }
+    .sw.on { border-color: var(--text); box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--text); }
+    .sw-gold     { background: #c8a05a; }
+    .sw-platinum { background: #c8c8c0; }
+    .sw-sapphire { background: #5a8ec8; }
+    .sw-emerald  { background: #5aaa7a; }
+    .sw-rouge    { background: #c86a58; }
+    .sw-violet   { background: #8a6ac8; }
+    .sw-obsidian { background: #e0d7c0; }
+    .sw-frost    { background: linear-gradient(135deg,#d0e4f4,#3a6a9a); }
+
+    .tb-right {
+        margin-left: auto; display: flex; align-items: center;
+        gap: clamp(8px,.8vw,16px); flex-shrink: 0;
+    }
+    .tb-clock {
+        font-family: var(--font-mono);
+        font-size: clamp(9px,.62rem,11px);
+        letter-spacing: .08em; color: var(--text-dim); white-space: nowrap;
+    }
+    .btn-back {
+        font-family: var(--font-mono);
+        font-size: clamp(7px,.52rem,10px);
+        letter-spacing: .14em; color: var(--text-dim);
+        background: none; border: 1px solid var(--line2);
+        padding: clamp(4px,.3rem,6px) clamp(10px,.8rem,14px);
+        cursor: pointer; transition: color .2s, border-color .2s; text-transform: uppercase;
+    }
+    .btn-back:hover { color: var(--text); border-color: var(--text-dim); }
+
+    /* ══════════════════════════════════════
+       DASHBOARD GRID
+    ══════════════════════════════════════ */
+    .dash {
+        display: grid;
+        grid-template-columns: clamp(220px,18vw,300px) 1fr clamp(220px,18vw,300px);
+        grid-template-rows: 2fr 1fr;
+        flex: 1;
+        gap: clamp(8px,.8vw,14px);
+        padding: clamp(8px,.8vw,14px);
+        position: relative; z-index: 1;
+        min-height: 0;
+    }
+
+    /* ── Panel base ── */
+    .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        padding: clamp(14px,1.3vw,24px);
+        position: relative; overflow: hidden;
+        opacity: 0; transform: translateY(10px);
+        animation: bootUp .5s cubic-bezier(.2,1,.2,1) forwards;
+        transition: background .35s, border-color .35s;
+    }
+    .panel::after {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        opacity: .35;
+    }
+
+    .p-vitals   { animation-delay: .08s; }
+    .p-radar    { animation-delay: .18s; grid-column: 2; grid-row: 1 / span 2; padding: 0; overflow: visible; }
+    .p-graphs   { animation-delay: .28s; }
+    .p-logs     { animation-delay: .40s; }
+    .p-controls { animation-delay: .52s; }
+
+    @keyframes bootUp { to { opacity:1; transform:translateY(0); } }
+
+    /* ── Panel header ── */
+    .panel-hdr {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: clamp(12px,1.1rem,20px);
+        padding-bottom: clamp(8px,.7rem,13px);
+        border-bottom: 1px solid var(--line);
+    }
+    .panel-title {
+        font-family: var(--font-mono);
+        font-size: clamp(8px,.58rem,10px);
+        letter-spacing: .2em; color: var(--text-mid); text-transform: uppercase;
+    }
+    .panel-badge {
+        font-family: var(--font-mono);
+        font-size: clamp(7px,.52rem,9px);
+        letter-spacing: .14em; color: var(--accent);
+        border: 1px solid var(--accent-dim);
+        padding: 2px 7px; text-transform: uppercase;
+    }
+
+    /* ══════════════════════════════════════
+       LEFT — VITALS
+    ══════════════════════════════════════ */
+    .stat-row {
+        display: flex; justify-content: space-between; align-items: baseline;
+        padding: clamp(7px,.6rem,11px) 0;
+        border-bottom: 1px solid var(--line);
+    }
+    .stat-row:last-of-type { border-bottom: none; }
+    .stat-lbl {
+        font-family: var(--font-mono);
+        font-size: clamp(8px,.58rem,10px);
+        letter-spacing: .12em; color: var(--text-dim); text-transform: uppercase;
+    }
+    .stat-val {
+        font-family: var(--font-mono);
+        font-size: clamp(11px,.82rem,15px);
+        font-weight: 500; color: var(--text);
+        letter-spacing: .04em;
+        transition: color .3s;
+    }
+    .val-good { color: var(--pos) !important; }
+    .val-warn { color: var(--neg) !important; }
+
+    .section-gap { margin-top: clamp(12px,1.1rem,20px); padding-top: clamp(12px,1.1rem,20px); border-top: 1px solid var(--line); }
+
+    /* ══════════════════════════════════════
+       CENTER — RADAR
+    ══════════════════════════════════════ */
+    .radar-panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        display: flex; align-items: center; justify-content: center;
+        position: relative; overflow: hidden;
+    }
+
+    /* Crosshair grid */
+    .radar-panel::before {
+        content: '';
+        position: absolute; inset: 0;
+        background:
+            linear-gradient(var(--accent-pale) 1px, transparent 1px) center / 100% clamp(28px,4vw,60px),
+            linear-gradient(90deg, var(--accent-pale) 1px, transparent 1px) center / clamp(28px,4vw,60px) 100%;
+        pointer-events: none; z-index: 1; opacity: .7;
+    }
+
+    .scanner {
+        width: min(70%, 480px); aspect-ratio: 1;
+        border: 1px solid var(--accent-dim);
+        border-radius: 50%;
+        position: relative; z-index: 2;
+        box-shadow: 0 0 40px var(--accent-glow) inset, 0 0 60px rgba(0,0,0,.8);
+    }
+
+    /* Concentric rings */
+    .scanner::before {
+        content: '';
+        position: absolute; inset: 20%;
+        border: 1px solid var(--accent-dim);
+        border-radius: 50%; opacity: .4;
+    }
+    .scanner::after {
+        content: '';
+        position: absolute; inset: 45%;
+        border: 1px solid var(--accent-dim);
+        border-radius: 50%; opacity: .4;
+    }
+
+    /* Sweep */
+    .sweep {
+        position: absolute; inset: 0; border-radius: 50%;
+        background: conic-gradient(
+            from 0deg,
+            var(--accent-glow) 0deg,
+            rgba(200,160,90,0.12) 45deg,
+            transparent 90deg,
+            transparent 360deg
+        );
+        animation: sweep 4s linear infinite;
+    }
+    @keyframes sweep { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+    /* Cross lines */
+    .radar-cross {
+        position: absolute; inset: 0; border-radius: 50%;
+        pointer-events: none;
+    }
+    .radar-cross::before {
+        content: ''; position: absolute; left: 50%; top: 0; bottom: 0;
+        width: 1px; background: var(--accent-dim); opacity: .35;
+        transform: translateX(-50%);
+    }
+    .radar-cross::after {
+        content: ''; position: absolute; top: 50%; left: 0; right: 0;
+        height: 1px; background: var(--accent-dim); opacity: .35;
+        transform: translateY(-50%);
+    }
+
+    /* Blip */
+    .dot { position: absolute; border-radius: 50%; transform: translate(-50%,-50%); z-index: 5; }
+    .robot-dot {
+        width: clamp(8px,.7rem,14px); height: clamp(8px,.7rem,14px);
+        background: var(--text); box-shadow: 0 0 12px var(--text);
+        top: 50%; left: 50%;
+    }
+    .anchor-dot {
+        width: clamp(6px,.55rem,10px); height: clamp(6px,.55rem,10px);
+        background: var(--accent); box-shadow: 0 0 8px var(--accent);
+        animation: blipPulse 4s infinite;
+    }
+    @keyframes blipPulse {
+        0%,85%  { box-shadow: 0 0 6px var(--accent); opacity: .9; }
+        90%     { box-shadow: 0 0 20px var(--text), 0 0 30px var(--accent-glow); opacity: 1; }
+        100%    { box-shadow: 0 0 6px var(--accent); opacity: .9; }
+    }
+
+    .blip-label {
+        position: absolute;
+        font-family: var(--font-mono);
+        font-size: clamp(7px,.5rem,9px);
+        letter-spacing: .1em;
+        color: var(--accent);
+        transform: translate(10px, -16px);
+        background: var(--surface);
+        border: 1px solid var(--line2);
+        padding: 1px 5px;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+
+    .unit-label {
+        position: absolute; top: 52%; left: 52%;
+        font-family: var(--font-mono);
+        font-size: clamp(7px,.52rem,9px);
+        letter-spacing: .1em; color: var(--text);
+        background: var(--surface);
+        border: 1px solid var(--line2); padding: 1px 5px;
+    }
+
+    /* Radar footer */
+    .radar-footer {
+        position: absolute; bottom: clamp(10px,1rem,18px); left: 0; right: 0;
+        display: flex; justify-content: center; gap: clamp(16px,2vw,32px);
+        z-index: 3;
+    }
+    .radar-stat {
+        font-family: var(--font-mono);
+        font-size: clamp(7px,.52rem,9px);
+        letter-spacing: .14em; color: var(--text-dim); text-align: center; text-transform: uppercase;
+    }
+    .radar-stat strong {
+        display: block;
+        font-size: clamp(11px,.82rem,15px);
+        color: var(--text); letter-spacing: .04em; margin-bottom: 2px;
+        font-weight: 400;
+    }
+
+    /* ══════════════════════════════════════
+       RIGHT — GRAPHS
+    ══════════════════════════════════════ */
+    .graph-section { margin-bottom: clamp(14px,1.3rem,22px); }
+    .graph-section:last-child { margin-bottom: 0; }
+    .graph-box {
+        height: clamp(52px,5rem,84px);
+        display: flex; align-items: flex-end; gap: clamp(1px,.15vw,3px);
+        margin-top: clamp(8px,.7rem,12px);
+    }
+    .bar {
+        flex: 1; background: var(--line2);
+        border-top: 1px solid var(--line2);
+        transition: height .22s ease, background .22s, border-color .22s;
+        min-height: 2px;
+    }
+    .bar.active {
+        background: var(--accent-pale);
+        border-top-color: var(--accent);
+        box-shadow: 0 -2px 8px var(--accent-glow);
+    }
+
+    /* ══════════════════════════════════════
+       BOTTOM LEFT — LOGS
+    ══════════════════════════════════════ */
+    .log-feed { display: flex; flex-direction: column; gap: clamp(5px,.45rem,8px); overflow: hidden; flex: 1; }
+    .log-line {
+        font-family: var(--font-mono);
+        font-size: clamp(8px,.6rem,11px);
+        letter-spacing: .04em; color: var(--text-dim);
+        line-height: 1.5;
+        border-left: 1px solid var(--line2);
+        padding-left: clamp(8px,.7rem,12px);
+        animation: slideIn .28s ease-out;
+        transition: color .3s, border-color .3s;
+    }
+    .log-line.fresh { border-left-color: var(--accent); color: var(--text-mid); }
+    .log-line.err   { border-left-color: var(--neg); color: var(--neg); }
+    @keyframes slideIn { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:translateX(0)} }
+
+    /* ══════════════════════════════════════
+       BOTTOM RIGHT — CONTROLS
+    ══════════════════════════════════════ */
+    .controls-panel { display: flex; flex-direction: column; gap: clamp(8px,.7rem,12px); }
+    .ctrl-btn {
+        font-family: var(--font-mono);
+        font-size: clamp(8px,.6rem,11px);
+        letter-spacing: .14em;
+        background: var(--surface2);
+        border: 1px solid var(--line2);
+        color: var(--text-dim);
+        padding: clamp(10px,.85rem,15px);
+        cursor: pointer;
+        text-align: center;
+        text-transform: uppercase;
+        transition: all .22s;
+        position: relative; overflow: hidden;
+    }
+    .ctrl-btn:hover { color: var(--text); border-color: var(--text-dim); background: var(--surface); }
+
+    .ctrl-btn.e-stop {
+        border-color: var(--neg);
+        color: var(--neg);
+    }
+    .ctrl-btn.e-stop:hover {
+        background: rgba(138,72,72,.12);
+        box-shadow: 0 0 16px rgba(138,72,72,.25);
+        color: var(--text);
+    }
+    .ctrl-btn.e-stop::before {
+        content: '';
+        position: absolute; top: 0; left: -120%; width: 60%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(138,72,72,.2), transparent);
+        transform: skewX(-18deg);
+        animation: shimmer 3s infinite;
+    }
+    @keyframes shimmer { 0%{left:-120%} 60%,100%{left:220%} }
+
+    /* Digital sig */
+    .dig-sig {
+        position: absolute; bottom: clamp(8px,.7rem,14px); right: clamp(14px,1.4vw,24px);
+        font-family: var(--font-mono);
+        font-size: clamp(7px,.5rem,8px);
+        letter-spacing: .1em; color: var(--text-dim); text-align: right; z-index: 10;
+        line-height: 1.7;
+    }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media(max-width:1100px) {
+        .dash {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto;
+            overflow-y: auto;
         }
+        .p-radar { grid-column: 1 / span 2; grid-row: auto; height: 380px; }
+        body { overflow: auto; }
+        .dash { overflow-y: auto; }
+    }
+    @media(max-width:680px) {
+        .dash { grid-template-columns: 1fr; }
+        .p-radar { grid-column: 1; }
+    }
 
-        /* RIGHT: GRAPHS */
-        .graph-box { height: 80px; display: flex; align-items: flex-end; gap: 3px; margin-bottom: 30px; }
-        .bar { flex: 1; background: #222; transition: height 0.3s ease, background 0.3s; border-top: 2px solid #444;}
-        .bar.active { background: rgba(124, 42, 232, 0.6); border-top: 2px solid var(--accent); box-shadow: 0 0 10px rgba(124, 42, 232, 0.5);}
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 2px; }
 
-        /* BOTTOM LEFT: LOGS */
-        .logs-panel { font-family: var(--font-mono); font-size: 0.75rem; color: #888; overflow-y: hidden; }
-        .log-feed { display: flex; flex-direction: column; gap: 8px; }
-        .log-line { border-left: 2px solid #333; padding-left: 10px; animation: slideInLeft 0.3s ease-out; }
-        .log-line.new { border-left-color: var(--accent); color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.3);}
-
-        /* BOTTOM RIGHT: CONTROLS */
-        .controls-panel { display: flex; flex-direction: column; gap: 12px; }
-        .ctrl-btn {
-            background: #111; border: 1px solid #333; color: #666; padding: 12px;
-            font-family: var(--font-tech); cursor: not-allowed; text-align: center; font-size: 0.8rem;
-            position: relative; overflow: hidden; transition: 0.3s;
-        }
-        .ctrl-btn.active { border-color: var(--alert); color: var(--alert); cursor: pointer; }
-        .ctrl-btn.active::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(231, 76, 60, 0.3), transparent);
-            transform: skewX(-20deg); transition: 0.5s;
-        }
-        .ctrl-btn.active:hover { background: rgba(231, 76, 60, 0.1); box-shadow: 0 0 15px rgba(231, 76, 60, 0.4); color: #fff;}
-        .ctrl-btn.active:hover::before { left: 200%; }
-
-        /* FOOTER SIG */
-        .digital-sig {
-            position: absolute; bottom: 15px; right: 25px;
-            font-family: var(--font-mono); font-size: 0.65rem; color: #555; text-align: right; z-index: 10;
-        }
-
-        /* ANIMATIONS */
-        @keyframes bootUp { to { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes blink { 0%, 100% {opacity: 1;} 50% {opacity: 0.3;} }
-        @keyframes radarSpin { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
-        @keyframes pingGlow { 0%, 90% { box-shadow: 0 0 5px var(--accent); background: var(--accent); } 95% { box-shadow: 0 0 20px #fff; background: #fff; } 100% { box-shadow: 0 0 5px var(--accent); background: var(--accent); } }
-        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes textGlow { from { text-shadow: 0 0 5px rgba(124,42,232,0.2); } to { text-shadow: 0 0 15px rgba(124,42,232,0.8); } }
-
-        @media (max-width: 1024px) {
-            .dash-container { display: flex; flex-direction: column; overflow-y: auto; }
-            .radar-view { height: 400px; }
-            body { overflow: auto; }
-        }
     </style>
 </head>
-<body>
+<body data-theme="gold">
 
-    <nav>
-        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div class="live-indicator">
-            <div class="blink"></div>
-            UPLINK_ESTABLISHED
+    <!-- ══ TOPBAR ══ -->
+    <header class="topbar">
+        <a href="../account.html" class="logo">ART<em>TOUS</em></a>
+        <div class="tb-sep"></div>
+
+        <div class="live-badge">
+            <div class="blink-dot"></div>
+            Uplink Established
         </div>
-    </nav>
 
-    <div class="dash-container">
-        
-        <div class="panel p-vitals">
-            <span class="panel-title">SYSTEM VITALS // CORE 1</span>
-            
+        <div class="tb-sep"></div>
+
+        <div class="theme-bar">
+            <span class="theme-lbl">Theme</span>
+            <div class="sw sw-gold on"      data-t="gold"     title="Gold"></div>
+            <div class="sw sw-platinum"     data-t="platinum" title="Platinum"></div>
+            <div class="sw sw-sapphire"     data-t="sapphire" title="Sapphire"></div>
+            <div class="sw sw-emerald"      data-t="emerald"  title="Emerald"></div>
+            <div class="sw sw-rouge"        data-t="rouge"    title="Rouge"></div>
+            <div class="sw sw-violet"       data-t="violet"   title="Violet"></div>
+            <div class="sw sw-obsidian"     data-t="obsidian" title="Obsidian"></div>
+            <div class="sw sw-frost"        data-t="frost"    title="Frost"></div>
+        </div>
+
+        <div class="tb-right">
+            <div class="tb-clock" id="clock">—</div>
+            <div class="tb-sep"></div>
+            <a href="../account.html" class="btn-back">← Dashboard</a>
+        </div>
+    </header>
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="dash">
+
+        <!-- LEFT: VITALS -->
+        <div class="panel p-vitals" style="display:flex;flex-direction:column;">
+            <div class="panel-hdr">
+                <span class="panel-title">System Vitals — Core 1</span>
+                <span class="panel-badge">Live</span>
+            </div>
             <div class="stat-row">
-                <span class="stat-label">BATTERY (2S)</span>
+                <span class="stat-lbl">Battery (2S)</span>
                 <span class="stat-val val-good" id="v-bat">7.84 V</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">CURRENT DRAW</span>
+                <span class="stat-lbl">Current Draw</span>
                 <span class="stat-val" id="v-amp">1.24 A</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">CPU LOAD</span>
+                <span class="stat-lbl">CPU Load</span>
                 <span class="stat-val" id="v-cpu">12.4 %</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">CORE TEMP</span>
+                <span class="stat-lbl">Core Temp</span>
                 <span class="stat-val" id="v-tmp">42.1 °C</span>
             </div>
-            
-            <span class="panel-title" style="margin-top: 40px;">MESH NETWORK // CORE 0</span>
-            <div class="stat-row">
-                <span class="stat-label">LORA RSSI</span>
-                <span class="stat-val val-warn" id="v-rssi">-89 dBm</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-label">ANCHORS</span>
-                <span class="stat-val">3 / 4</span>
+
+            <div class="section-gap">
+                <div class="panel-hdr" style="margin-bottom:clamp(10px,.9rem,16px);">
+                    <span class="panel-title">Mesh Network — Core 0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-lbl">LoRa RSSI</span>
+                    <span class="stat-val val-warn" id="v-rssi">−89 dBm</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-lbl">Anchors</span>
+                    <span class="stat-val">3 / 4</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-lbl">Packet Loss</span>
+                    <span class="stat-val" id="v-loss">0.8 %</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-lbl">Uptime</span>
+                    <span class="stat-val" id="v-uptime">00:00:00</span>
+                </div>
             </div>
         </div>
 
-        <div class="panel radar-view p-radar">
+        <!-- CENTER: RADAR -->
+        <div class="panel radar-panel p-radar">
             <div class="scanner">
-                <div class="scan-line"></div>
-                
-                <div class="dot robot-dot"></div>
-                <span style="position: absolute; top: 52%; left: 52%; color: #fff; font-family: var(--font-mono); font-size: 0.7rem; text-shadow: 0 0 5px #000;">UNIT_01</span>
+                <div class="sweep"></div>
+                <div class="radar-cross"></div>
 
-                <div class="dot anchor-dot ping-anim" style="top: 30%; left: 40%; animation-delay: 0.5s;">
-                    <div class="label-float">ANCHOR_A</div>
+                <div class="dot robot-dot"></div>
+                <div class="unit-label">Unit 01</div>
+
+                <div class="dot anchor-dot" style="top:30%;left:38%;animation-delay:.4s;">
+                    <div class="blip-label">Anchor A</div>
                 </div>
-                <div class="dot anchor-dot ping-anim" style="top: 70%; left: 80%; animation-delay: 1.5s;">
-                    <div class="label-float">ANCHOR_B</div>
+                <div class="dot anchor-dot" style="top:72%;left:78%;animation-delay:1.6s;">
+                    <div class="blip-label">Anchor B</div>
                 </div>
-                <div class="dot anchor-dot ping-anim" style="top: 20%; left: 70%; animation-delay: 3s;">
-                    <div class="label-float">ANCHOR_C</div>
+                <div class="dot anchor-dot" style="top:18%;left:68%;animation-delay:3.1s;">
+                    <div class="blip-label">Anchor C</div>
                 </div>
+            </div>
+
+            <div class="radar-footer">
+                <div class="radar-stat"><strong id="r-freq">50 Hz</strong>Update Rate</div>
+                <div class="radar-stat"><strong>UWB</strong>Protocol</div>
+                <div class="radar-stat"><strong id="r-range">4.2 m</strong>Range Est.</div>
             </div>
         </div>
 
-        <div class="panel p-graphs">
-            <span class="panel-title">JOINT TORQUE (Nm)</span>
-            <div class="graph-box" id="torqueGraph"></div>
-
-            <span class="panel-title">IMU Z-AXIS COMP</span>
-            <div class="graph-box" id="imuGraph"></div>
-        </div>
-
-        <div class="panel logs-panel p-logs">
-            <span class="panel-title">RTOS KERNEL LOGS</span>
-            <div class="log-feed" id="logFeed">
+        <!-- RIGHT: GRAPHS -->
+        <div class="panel p-graphs" style="display:flex;flex-direction:column;">
+            <div class="graph-section">
+                <div class="panel-hdr">
+                    <span class="panel-title">Joint Torque (Nm)</span>
+                    <span class="panel-badge" id="tq-peak">Peak: —</span>
                 </div>
+                <div class="graph-box" id="torqueGraph"></div>
+            </div>
+            <div class="graph-section">
+                <div class="panel-hdr">
+                    <span class="panel-title">IMU Z-Axis Compensation</span>
+                    <span class="panel-badge" id="imu-val">±0.0°</span>
+                </div>
+                <div class="graph-box" id="imuGraph"></div>
+            </div>
         </div>
 
-        <div class="panel controls-panel p-controls">
-            <span class="panel-title">OVERRIDE COMMANDS</span>
-            <button class="ctrl-btn active" onclick="triggerEStop()">EMERGENCY STOP</button>
-            <button class="ctrl-btn" style="border-color: #444; color: #888; cursor: pointer;">REBOOT CORE 1</button>
-            <button class="ctrl-btn" style="border-color: #444; color: #888; cursor: pointer;">DUMP JSON LOGS</button>
+        <!-- BOTTOM LEFT: LOGS -->
+        <div class="panel p-logs" style="display:flex;flex-direction:column;">
+            <div class="panel-hdr">
+                <span class="panel-title">RTOS Kernel Log</span>
+                <span class="panel-badge" id="log-count">0 events</span>
+            </div>
+            <div class="log-feed" id="logFeed"></div>
+        </div>
+
+        <!-- BOTTOM RIGHT: CONTROLS -->
+        <div class="panel p-controls controls-panel">
+            <div class="panel-hdr">
+                <span class="panel-title">Override Commands</span>
+            </div>
+            <button class="ctrl-btn e-stop" onclick="triggerEStop()">Emergency Stop</button>
+            <button class="ctrl-btn" onclick="rebootCore()">Reboot Core 1</button>
+            <button class="ctrl-btn" onclick="dumpLogs()">Dump JSON Logs</button>
         </div>
 
     </div>
 
-    <div class="digital-sig">
-        SIGNED: SYSTEM_ADMIN | HASH: 0x99a...f42<br>
-        &copy; 2026 Arttous Robotics
+    <!-- Digital sig -->
+    <div class="dig-sig">
+        Signed: System_Admin · Hash: 0x99a…f42<br>
+        © 2026 Arttous Robotics
     </div>
 
     <script>
-        // 1. FAKE GRAPHS ANIMATION
-        function initGraph(id, count) {
-            const container = document.getElementById(id);
-            for(let i=0; i<count; i++) {
-                const bar = document.createElement('div');
-                bar.className = 'bar';
-                bar.style.height = Math.random() * 100 + '%';
-                container.appendChild(bar);
+    /* ── THEME ── */
+    function applyTheme(t) {
+        document.body.dataset.theme = t;
+        document.querySelectorAll('.sw').forEach(s => s.classList.toggle('on', s.dataset.t === t));
+        localStorage.setItem('telem-theme', t);
+    }
+    document.querySelectorAll('.sw').forEach(sw => sw.addEventListener('click', () => applyTheme(sw.dataset.t)));
+    applyTheme(localStorage.getItem('telem-theme') || localStorage.getItem('theme') || 'gold');
+
+    /* ── CLOCK ── */
+    function tick() {
+        const n = new Date(), p = x => String(x).padStart(2,'0');
+        document.getElementById('clock').textContent =
+            `${p(n.getUTCHours())}:${p(n.getUTCMinutes())}:${p(n.getUTCSeconds())} UTC`;
+    }
+    tick(); setInterval(tick, 1000);
+
+    /* ── UPTIME ── */
+    let uptimeSec = 0;
+    setInterval(() => {
+        uptimeSec++;
+        const h = Math.floor(uptimeSec / 3600);
+        const m = Math.floor((uptimeSec % 3600) / 60);
+        const s = uptimeSec % 60;
+        const p = x => String(x).padStart(2,'0');
+        document.getElementById('v-uptime').textContent = `${p(h)}:${p(m)}:${p(s)}`;
+    }, 1000);
+
+    /* ── GRAPHS ── */
+    function initGraph(id, count) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        for (let i = 0; i < count; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = Math.random() * 90 + 5 + '%';
+            el.appendChild(bar);
+        }
+    }
+    initGraph('torqueGraph', 32);
+    initGraph('imuGraph', 32);
+
+    let tqPeak = 0;
+    setInterval(() => {
+        let peak = 0;
+        document.querySelectorAll('#torqueGraph .bar').forEach(bar => {
+            if (Math.random() > 0.55) {
+                const h = Math.random() * 92 + 5;
+                bar.style.height = h + '%';
+                bar.classList.toggle('active', h > 72);
+                if (h > peak) peak = h;
             }
-        }
-        initGraph('torqueGraph', 30);
-        initGraph('imuGraph', 30);
+        });
+        document.querySelectorAll('#imuGraph .bar').forEach(bar => {
+            if (Math.random() > 0.55) {
+                const h = Math.random() * 85 + 5;
+                bar.style.height = h + '%';
+                bar.classList.toggle('active', h > 68);
+            }
+        });
+        if (peak > tqPeak) tqPeak = peak;
+        document.getElementById('tq-peak').textContent = `Peak: ${(tqPeak * 0.042).toFixed(2)} Nm`;
+        const imuAngle = (Math.random() * 4 - 2).toFixed(1);
+        document.getElementById('imu-val').textContent = `${imuAngle > 0 ? '+' : ''}${imuAngle}°`;
+    }, 160);
 
-        setInterval(() => {
-            document.querySelectorAll('.bar').forEach(bar => {
-                if(Math.random() > 0.6) { // Only update some bars to look like a rolling wave
-                    bar.style.height = Math.random() * 100 + '%';
-                    bar.classList.toggle('active', Math.random() > 0.8);
-                }
-            });
-        }, 150);
+    /* ── VITALS ── */
+    setInterval(() => {
+        const cpu = (10 + Math.random() * 16).toFixed(1);
+        document.getElementById('v-cpu').textContent = cpu + ' %';
+        document.getElementById('v-cpu').className = 'stat-val' + (parseFloat(cpu) > 22 ? ' val-warn' : '');
 
-        // 2. LIVE VITALS JITTER
-        const vCpu = document.getElementById('v-cpu');
-        const vAmp = document.getElementById('v-amp');
-        const vTmp = document.getElementById('v-tmp');
-        const vRssi = document.getElementById('v-rssi');
+        document.getElementById('v-amp').textContent = (1.1 + Math.random() * 0.85).toFixed(2) + ' A';
 
-        setInterval(() => {
-            // CPU: 10% - 25%
-            vCpu.innerText = (10 + Math.random() * 15).toFixed(1) + ' %';
-            // AMP: 1.1A - 1.9A
-            vAmp.innerText = (1.1 + Math.random() * 0.8).toFixed(2) + ' A';
-            // TEMP: 41C - 44C
-            vTmp.innerText = (41 + Math.random() * 3).toFixed(1) + ' °C';
-            // RSSI: -85 to -92
-            if(Math.random() > 0.7) vRssi.innerText = '-' + Math.floor(85 + Math.random() * 7) + ' dBm';
-        }, 800);
+        const tmp = (41 + Math.random() * 3.5).toFixed(1);
+        document.getElementById('v-tmp').textContent = tmp + ' °C';
+        document.getElementById('v-tmp').className = 'stat-val' + (parseFloat(tmp) > 43.5 ? ' val-warn' : '');
 
-        // 3. RTOS LOG FEED
-        const logFeed = document.getElementById('logFeed');
-        const messages = [
-            "TaskNetwork: WebSocket payload broadcast OK",
-            "TaskControl: stateMutex acquired",
-            "IK: Target unreachable. Applying NaN clamp.",
-            "IMU: Pitch +2.4°, applying Z-axis comp",
-            "Gait: Phase reset via smoothVx dampening",
-            "MESH: Packet ACK from ANCHOR_B (12ms)",
-            "SYS: Core 1 running at stable 50Hz",
-            "PCA9685: I2C transaction 0x40 OK"
-        ];
+        if (Math.random() > 0.65)
+            document.getElementById('v-rssi').textContent = '−' + Math.floor(84 + Math.random() * 8) + ' dBm';
 
-        // Initial logs
-        for(let i=0; i<4; i++) addLog("SYS: Initializing RTOS kernel modules...");
+        document.getElementById('v-loss').textContent = (Math.random() * 1.8).toFixed(1) + ' %';
 
-        function addLog(text) {
-            const div = document.createElement('div');
-            const time = new Date().toLocaleTimeString('en-US', {hour12: false});
-            div.className = 'log-line new';
-            div.innerText = `[${time}] ${text}`;
-            
-            // Demote old logs
-            Array.from(logFeed.children).forEach(child => child.classList.remove('new'));
-            
-            logFeed.prepend(div);
-            if(logFeed.children.length > 5) logFeed.lastChild.remove();
-        }
+        document.getElementById('r-range').textContent = (3.8 + Math.random() * 1.2).toFixed(1) + ' m';
+    }, 900);
 
-        setInterval(() => {
-            const msg = messages[Math.floor(Math.random() * messages.length)];
-            addLog(msg);
-        }, 2500);
+    /* ── LOG FEED ── */
+    const logFeed = document.getElementById('logFeed');
+    const messages = [
+        ['TaskNetwork: WebSocket payload broadcast OK', ''],
+        ['TaskControl: stateMutex acquired', ''],
+        ['IK: Target unreachable — applying NaN clamp', 'err'],
+        ['IMU: Pitch +2.4° — Z-axis compensation applied', ''],
+        ['Gait: Phase reset via smoothVx dampening', ''],
+        ['MESH: Packet ACK from ANCHOR_B — 12ms', ''],
+        ['SYS: Core 1 running at stable 50Hz', ''],
+        ['PCA9685: I2C transaction 0x40 OK', ''],
+        ['DRV: DM542 step pulse acknowledged', ''],
+        ['NET: LoRa SNR: 8.4 dB — RSSI: −88 dBm', ''],
+    ];
+    let logCount = 0;
 
-        // 4. E-STOP Function
-        function triggerEStop() {
-            alert('CRITICAL: KINEMATIC ENGINE HALTED. MOTORS DE-ENERGIZED.');
-            document.querySelectorAll('.bar').forEach(b => { b.style.height = '5%'; b.classList.remove('active'); });
-            addLog("ERR: EMERGENCY STOP ACTIVATED");
-        }
+    for (let i = 0; i < 5; i++) addLog('SYS: Initialising RTOS kernel modules…', '');
+
+    function addLog(text, cls) {
+        logCount++;
+        const div = document.createElement('div');
+        const t = new Date();
+        const p = x => String(x).padStart(2,'0');
+        div.className = 'log-line fresh ' + (cls || '');
+        div.textContent = `[${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}] ${text}`;
+        Array.from(logFeed.children).forEach(c => c.classList.remove('fresh'));
+        logFeed.prepend(div);
+        if (logFeed.children.length > 7) logFeed.lastChild.remove();
+        const cnt = document.getElementById('log-count');
+        if (cnt) cnt.textContent = logCount + ' events';
+    }
+
+    setInterval(() => {
+        const [msg, cls] = messages[Math.floor(Math.random() * messages.length)];
+        addLog(msg, cls);
+    }, 2200);
+
+    /* ── CONTROLS ── */
+    function triggerEStop() {
+        addLog('CRITICAL: Emergency stop activated — motors de-energised', 'err');
+        document.querySelectorAll('.bar').forEach(b => { b.style.height = '4%'; b.classList.remove('active'); });
+        document.getElementById('v-amp').textContent = '0.00 A';
+        document.getElementById('v-cpu').textContent = '0.0 %';
+    }
+
+    function rebootCore() {
+        addLog('SYS: Core 1 reboot initiated…', '');
+        setTimeout(() => addLog('SYS: Core 1 back online — 50Hz restored', ''), 3000);
+    }
+
+    function dumpLogs() {
+        const data = { timestamp: new Date().toISOString(), uptime: uptimeSec, events: logCount };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'rtos-dump.json'; a.click();
+        URL.revokeObjectURL(url);
+        addLog('SYS: JSON log dump transmitted', '');
+    }
     </script>
 </body>
 </html>

@@ -5,430 +5,210 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARTTOUS | Secure Gateway v75.4</title>
     <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-     <script src="assets/js/mobile-blocker.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="assets/js/mobile-blocker.js"></script>
     <style>
-        :root {
-            --bg-core: #050505;
-            --bg-card: rgba(10, 10, 10, 0.85);
-            --accent: #7c2ae8;
-            --text-main: #e0e0e0;
-            --text-dim: #666;
-            --font-tech: 'Orbitron', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --font-body: 'Inter', sans-serif;
-        }
+    :root{--accent:#c8a05a;--accent-dim:#7a5e2e;--accent-pale:rgba(200,160,90,0.09);--accent-glow:rgba(200,160,90,0.22);--bg:#080808;--surface:#101010;--surface2:#181818;--line:#202020;--line2:#2c2c2c;--text:#f0f0e8;--text-mid:#a8a8a0;--text-dim:#5e5e58;--pos:#4a7a54;--neg:#8a4848;--font-serif:'Cormorant Garamond',serif;--font-mono:'DM Mono',monospace;--font-body:'DM Sans',sans-serif;}
+    [data-theme="platinum"]{--accent:#ccccc4;--accent-dim:#888880;--accent-pale:rgba(204,204,196,0.08);--accent-glow:rgba(204,204,196,0.18);}
+    [data-theme="sapphire"]{--accent:#5a8ec8;--accent-dim:#2a4e78;--accent-pale:rgba(90,142,200,0.09);--accent-glow:rgba(90,142,200,0.22);}
+    [data-theme="emerald"]{--accent:#5aaa7a;--accent-dim:#2a5a3a;--accent-pale:rgba(90,170,122,0.09);--accent-glow:rgba(90,170,122,0.22);}
+    [data-theme="rouge"]{--accent:#c86a58;--accent-dim:#783a28;--accent-pale:rgba(200,106,88,0.09);--accent-glow:rgba(200,106,88,0.22);}
+    [data-theme="violet"]{--accent:#8a6ac8;--accent-dim:#4a3a78;--accent-pale:rgba(138,106,200,0.09);--accent-glow:rgba(138,106,200,0.22);}
+    [data-theme="obsidian"]{--accent:#e0d7c0;--accent-dim:#908070;--accent-pale:rgba(224,215,192,0.06);--accent-glow:rgba(224,215,192,0.18);--bg:#030303;--surface:#090909;--surface2:#0e0e0e;--line:#181818;--line2:#222222;}
+    [data-theme="frost"]{--accent:#3a6a9a;--accent-dim:#1a3a5a;--accent-pale:rgba(58,106,154,0.09);--accent-glow:rgba(58,106,154,0.22);--bg:#f2f0ec;--surface:#e8e4de;--surface2:#e0dbd4;--line:#ccc8c0;--line2:#b8b4ac;--text:#181816;--text-mid:#4a4a42;--text-dim:#7a7a70;--pos:#2a6034;--neg:#7a2828;}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{font-size:clamp(13px,.46vw+9.5px,18px);}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);height:100vh;display:flex;flex-direction:column;overflow:hidden;position:relative;transition:background .35s,color .35s;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--accent-pale) 1px,transparent 1px),linear-gradient(90deg,var(--accent-pale) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;z-index:0;opacity:.5;}
+    body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");background-size:160px;pointer-events:none;z-index:9000;}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    .topbar{position:absolute;top:0;left:0;right:0;height:clamp(50px,3.8vw,64px);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,2.5vw,44px);z-index:100;border-bottom:1px solid var(--line);transition:border-color .35s;}
+    .logo{font-family:var(--font-serif);font-weight:400;font-size:clamp(14px,.96rem,20px);letter-spacing:.32em;color:var(--text);text-decoration:none;}
+    .logo em{font-style:normal;color:var(--accent);}
+    .tb-right{display:flex;align-items:center;gap:clamp(4px,.4vw,8px);}
+    .gw-badge{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.16em;color:var(--text-dim);border:1px solid var(--line2);padding:clamp(3px,.24rem,5px) clamp(8px,.68rem,13px);text-transform:uppercase;margin-right:clamp(6px,.6rem,12px);}
+    .sw{width:clamp(10px,.78rem,15px);height:clamp(10px,.78rem,15px);border-radius:50%;border:1.5px solid transparent;cursor:pointer;flex-shrink:0;transition:transform .18s,box-shadow .18s;}
+    .sw:hover{transform:scale(1.32);}
+    .sw.on{border-color:var(--text);box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--text);}
+    .sw-gold{background:#c8a05a;}.sw-platinum{background:#c8c8c0;}.sw-sapphire{background:#5a8ec8;}.sw-emerald{background:#5aaa7a;}.sw-rouge{background:#c86a58;}.sw-violet{background:#8a6ac8;}.sw-obsidian{background:#e0d7c0;}.sw-frost{background:linear-gradient(135deg,#d0e4f4,#3a6a9a);}
 
-        body {
-            background: var(--bg-core);
-            color: var(--text-main);
-            font-family: var(--font-body);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-        }
+    .gateway{flex:1;display:grid;grid-template-columns:1fr 1fr;position:relative;z-index:5;}
 
-      
-        .bg-particles {
-            position: absolute; width: 100%; height: 100%; z-index: 1;
-            background-image: radial-gradient(var(--accent) 1px, transparent 1px);
-            background-size: 40px 40px; opacity: 0.15;
-            animation: moveGrid 20s linear infinite;
-        }
+    .gateway-left{display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(40px,5vw,80px);border-right:1px solid var(--line);padding-top:clamp(80px,8vw,120px);}
+    .gl-eyebrow{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.22em;color:var(--accent);text-transform:uppercase;margin-bottom:clamp(10px,.9rem,16px);opacity:.8;}
+    .gl-title{font-family:var(--font-serif);font-size:clamp(28px,3.2rem,58px);font-weight:300;color:var(--text);line-height:1.05;letter-spacing:.04em;margin-bottom:clamp(14px,1.4rem,24px);}
+    .gl-sub{font-family:var(--font-body);font-size:clamp(11px,.8rem,14px);color:var(--text-dim);line-height:1.8;max-width:340px;font-weight:300;margin-bottom:clamp(28px,3.2vw,52px);}
+    .gl-stat-row{display:flex;gap:clamp(16px,2vw,32px);border-top:1px solid var(--line);padding-top:clamp(16px,1.6rem,26px);}
+    .gl-stat{display:flex;flex-direction:column;gap:4px;}
+    .gl-stat-val{font-family:var(--font-mono);font-size:clamp(14px,1.1rem,20px);color:var(--text);}
+    .gl-stat-lbl{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.14em;color:var(--text-dim);text-transform:uppercase;}
 
-        @keyframes moveGrid {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(40px); }
-        }
+    .gateway-right{display:flex;align-items:center;justify-content:center;padding:clamp(24px,3vw,48px);padding-top:clamp(80px,8vw,120px);}
+    .auth-card{width:100%;max-width:clamp(300px,28vw,400px);background:var(--surface);border:1px solid var(--line);padding:clamp(22px,2.2vw,36px);position:relative;overflow:hidden;opacity:0;transform:translateY(10px);animation:cardIn .5s cubic-bezier(.2,1,.2,1) .12s forwards;}
+    .auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.5;}
+    @keyframes cardIn{to{opacity:1;transform:translateY(0);}}
 
-        /* HEADER */
-        nav { padding: 25px 40px; display: flex; justify-content: space-between; align-items: center; position: absolute; width: 100%; top: 0; z-index: 10; }
-        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; animation: textGlow 2s infinite alternate;}
-        .accent { color: var(--accent); }
-        .gateway-id { font-family: var(--font-mono); font-size: 0.75rem; color: #666; border: 1px solid #333; padding: 5px 10px;}
+    .auth-tabs{display:flex;border-bottom:1px solid var(--line);margin-bottom:clamp(16px,1.5rem,24px);}
+    .tab{flex:1;padding:clamp(8px,.7rem,12px);text-align:center;font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.18em;color:var(--text-dim);cursor:pointer;transition:color .2s;text-transform:uppercase;position:relative;background:none;border:none;}
+    .tab.active{color:var(--accent);}
+    .tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--accent);}
 
-        /* SPLIT LAYOUT */
-        .gateway-container {
-            display: flex; height: 100%; align-items: center; justify-content: center;
-            position: relative; z-index: 5;
-        }
+    .form-group{margin-bottom:clamp(12px,1.1rem,18px);}
+    .input-label{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.18em;color:var(--text-dim);display:block;margin-bottom:6px;text-transform:uppercase;}
+    .form-input{width:100%;background:var(--surface2);border:1px solid var(--line2);padding:clamp(9px,.75rem,13px) clamp(10px,.85rem,15px);color:var(--text);font-family:var(--font-mono);font-size:clamp(9px,.65rem,12px);outline:none;transition:border-color .2s;appearance:none;}
+    .form-input:focus{border-color:var(--accent-dim);}
+    .form-input::placeholder{color:var(--text-dim);}
+    select.form-input{cursor:pointer;}
 
-        /* THE CARD */
-        .auth-card {
-            width: 450px; background: var(--bg-card); border: 1px solid #333;
-            backdrop-filter: blur(15px); padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            position: relative;
-            animation: cardEntrance 0.8s cubic-bezier(0.1, 1, 0.1, 1) forwards;
-            opacity: 0; transform: translateY(30px);
-        }
-        .auth-card::before {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-        }
+    .oath-box{display:flex;gap:10px;align-items:flex-start;margin-bottom:clamp(12px,1.1rem,18px);padding:clamp(10px,.85rem,15px);background:var(--accent-pale);border:1px solid var(--accent-dim);}
+    .oath-text{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.04em;color:var(--text-mid);line-height:1.7;}
+    input[type="checkbox"]{width:auto;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin-top:2px;}
 
-        /* TABS */
-        .auth-tabs { display: flex; margin-bottom: 30px; border-bottom: 1px solid #333; }
-        .tab {
-            flex: 1; padding: 15px; text-align: center; font-family: var(--font-tech);
-            font-size: 0.9rem; color: #666; cursor: pointer; transition: 0.3s;
-        }
-        .tab:hover { color: #aaa; }
-        .tab.active { color: #fff; border-bottom: 2px solid var(--accent); text-shadow: 0 0 10px rgba(124, 42, 232, 0.5);}
+    .status-row{display:flex;align-items:center;gap:8px;margin-bottom:clamp(12px,1.1rem,18px);font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.1em;color:var(--text-dim);}
+    .status-pip{width:5px;height:5px;border-radius:50%;background:var(--line2);flex-shrink:0;}
 
-        /* FORMS */
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-family: var(--font-mono); font-size: 0.75rem; color: #888; margin-bottom: 8px; letter-spacing: 1px;}
-        input {
-            width: 100%; background: rgba(5,5,5,0.8); border: 1px solid #333; padding: 12px;
-            color: #fff; font-family: var(--font-mono); outline: none; transition: 0.3s;
-        }
-        input:focus { border-color: var(--accent); box-shadow: inset 0 0 10px rgba(124, 42, 232, 0.1);}
+    .btn-submit{width:100%;background:var(--accent);color:var(--bg);border:none;padding:clamp(10px,.85rem,15px);font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.2em;cursor:pointer;text-transform:uppercase;transition:opacity .2s;font-weight:500;}
+    .btn-submit:hover{opacity:.82;}
+    .link-xs{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.1em;color:var(--accent);text-decoration:none;opacity:.8;transition:opacity .2s;text-transform:uppercase;}
+    .link-xs:hover{opacity:1;}
 
-        .btn-submit {
-            width: 100%; background: var(--accent); color: #fff; border: none; padding: 15px;
-            font-family: var(--font-tech); font-size: 1rem; cursor: pointer; margin-top: 10px;
-            transition: 0.3s; position: relative; overflow: hidden; letter-spacing: 2px;
-        }
-        .btn-submit::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transform: skewX(-20deg); transition: 0.5s;
-        }
-        .btn-submit:hover { background: #9d50ff; box-shadow: 0 0 20px rgba(124, 42, 232, 0.6); }
-        .btn-submit:hover::before { left: 200%; }
+    .card-sig{margin-top:clamp(14px,1.3rem,22px);padding-top:clamp(10px,.85rem,15px);border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:clamp(7px,.48rem,9px);letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase;}
+    .card-sig em{font-style:normal;color:var(--accent);}
 
-        /* THE OATH (CHECKBOX) */
-        .oath-box {
-            display: flex; gap: 10px; align-items: flex-start; margin-bottom: 20px;
-            padding: 15px; background: rgba(124, 42, 232, 0.05); border: 1px dashed #333;
-            transition: 0.3s;
-        }
-        .oath-box:hover { border-color: var(--accent); }
-        .oath-text { font-size: 0.8rem; color: #aaa; line-height: 1.5; }
-        input[type="checkbox"] { width: auto; margin-top: 3px; accent-color: var(--accent); cursor: pointer;}
+    .loader-overlay{position:fixed;inset:0;background:var(--bg);z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center;gap:clamp(20px,2.5vw,38px);}
+    .loader-overlay.open{display:flex;}
+    .q-text{font-family:var(--font-serif);font-size:clamp(16px,1.5rem,26px);font-weight:300;color:var(--text);line-height:1.4;margin-bottom:10px;opacity:0;transition:opacity .9s;text-align:center;max-width:520px;padding:0 20px;}
+    .q-auth{font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.16em;color:var(--accent);opacity:0;transition:opacity .9s .5s;}
+    .loader-track{width:clamp(180px,20vw,300px);height:1px;background:var(--line2);position:relative;overflow:hidden;}
+    .loader-fill{position:absolute;left:0;top:0;height:100%;width:0%;background:linear-gradient(90deg,var(--accent-dim),var(--accent));box-shadow:0 0 8px var(--accent-glow);transition:width .08s linear;}
+    .loader-status{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.18em;color:var(--text-dim);text-transform:uppercase;}
 
-        /* LOADING OVERLAY (MOTIVATION) */
-        .neural-loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000;
-            z-index: 100; display: none; align-items: center; justify-content: center; flex-direction: column;
-        }
-        
-        .quote-container { max-width: 600px; text-align: center; padding: 20px; }
-        .quote-text {
-            font-family: 'Inter', sans-serif; font-size: 1.5rem; color: #fff; font-weight: 300;
-            margin-bottom: 20px; opacity: 0; transition: opacity 1s ease; line-height: 1.4;
-        }
-        .quote-author {
-            font-family: var(--font-mono); color: var(--accent); font-size: 0.9rem;
-            opacity: 0; transition: opacity 1s ease 0.5s;
-        }
-
-        .loader-bar { width: 300px; height: 2px; background: #222; margin-top: 40px; position: relative; overflow: hidden; }
-        .loader-fill { position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: var(--accent); transition: width 0.1s linear; box-shadow: 0 0 10px var(--accent);}
-        .loading-status { font-family: var(--font-mono); font-size: 0.7rem; color: #555; margin-top: 15px; letter-spacing: 1px;}
-        
-        /* FOOTER SIGNATURE */
-        .digital-sig {
-            margin-top: 30px; padding-top: 15px; border-top: 1px solid #222;
-            display: flex; justify-content: space-between; font-family: var(--font-mono);
-            font-size: 0.7rem; color: #444;
-        }
-
-        /* ANIMATIONS */
-        @keyframes cardEntrance { to { opacity: 1; transform: translateY(0); } }
-        @keyframes textGlow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
-        
-        .fade-out { animation: fadeOut 0.3s forwards; }
-        .fade-in { animation: fadeIn 0.3s forwards; }
-        @keyframes fadeOut { to { opacity: 0; display: none; } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; display: block; } }
-
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);backdrop-filter:blur(10px);z-index:9999;align-items:center;justify-content:center;}
+    .modal-overlay.open{display:flex;}
+    .modal-card{background:var(--surface);border:1px solid var(--accent-dim);width:clamp(280px,34vw,400px);padding:clamp(20px,2rem,34px);position:relative;}
+    .modal-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.5;}
+    .modal-close{position:absolute;top:clamp(8px,.7rem,14px);right:clamp(10px,.85rem,16px);font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.1em;color:var(--text-dim);cursor:pointer;background:none;border:none;text-transform:uppercase;transition:color .2s;}
+    .modal-close:hover{color:var(--neg);}
+    .modal-title{font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.2em;color:var(--accent);text-transform:uppercase;margin-bottom:clamp(8px,.7rem,14px);}
+    .modal-desc{font-family:var(--font-body);font-size:clamp(10px,.72rem,13px);color:var(--text-dim);line-height:1.7;margin-bottom:clamp(12px,1.1rem,20px);font-weight:300;}
     </style>
 </head>
-<body>
+<body data-theme="gold">
 
-    <nav>
-        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div class="gateway-id">SYS: GATEWAY_v75.4</div>
-    </nav>
+    <header class="topbar">
+        <a href="index.html" class="logo">ART<em>TOUS</em></a>
+        <div class="tb-right">
+            <div class="gw-badge">Gateway v75.4</div>
+            <div class="sw sw-gold on" data-t="gold"></div>
+            <div class="sw sw-platinum" data-t="platinum"></div>
+            <div class="sw sw-sapphire" data-t="sapphire"></div>
+            <div class="sw sw-emerald" data-t="emerald"></div>
+            <div class="sw sw-rouge" data-t="rouge"></div>
+            <div class="sw sw-violet" data-t="violet"></div>
+            <div class="sw sw-obsidian" data-t="obsidian"></div>
+            <div class="sw sw-frost" data-t="frost"></div>
+        </div>
+    </header>
 
-    <div class="gateway-container">
-        
-        <div class="bg-particles"></div>
-
-        <div class="auth-card">
-            <div class="auth-tabs">
-                <div class="tab active" onclick="switchTab('login')">IDENTIFY</div>
-                <div class="tab" onclick="switchTab('register')">INITIATE</div>
+    <div class="gateway">
+        <div class="gateway-left">
+            <div class="gl-eyebrow">Secure Gateway — RTOS v75.4</div>
+            <div class="gl-title">Operator<br>Identification</div>
+            <div class="gl-sub">Access to the Arttous Mesh is gated. Authenticate your operator credentials to continue to Mission Control.</div>
+            <div class="gl-stat-row">
+                <div class="gl-stat"><div class="gl-stat-val">16-DOF</div><div class="gl-stat-lbl">Kinematic Axes</div></div>
+                <div class="gl-stat"><div class="gl-stat-val">50 Hz</div><div class="gl-stat-lbl">Control Loop</div></div>
+                <div class="gl-stat"><div class="gl-stat-val">v75.4</div><div class="gl-stat-lbl">Firmware Rev</div></div>
             </div>
+        </div>
 
-            <form id="loginForm" class="fade-in" onsubmit="startSequence(event, 'login')">
-                <div style="text-align: right; margin-bottom: 15px;">
-                        <a href="#" onclick="openRequestModal()" style="font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--accent); text-decoration: none; transition: 0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--accent)'">REQUEST ACCESS KEY >></a>
+        <div class="gateway-right">
+            <div class="auth-card">
+                <div class="auth-tabs">
+                    <button class="tab active" onclick="switchTab('login',this)">Identify</button>
+                    <button class="tab" onclick="switchTab('register',this)">Initiate</button>
+                </div>
+
+                <form id="loginForm" onsubmit="startSequence(event,'login')">
+                    <div style="text-align:right;margin-bottom:clamp(10px,.85rem,16px);">
+                        <a href="#" class="link-xs" onclick="openKeyModal();return false;">Request Access Key →</a>
                     </div>
-                
-                <div class="form-group">
-                    <label>OPERATOR ID / EMAIL</label>
-                    <input type="email" placeholder="operator@mesh.net" required>
-                </div>
-                <div class="form-group">
-                    <label>ACCESS KEY</label>
-                    <input type="password" placeholder="••••••••" required>
-                </div>
-                
-                <div style="margin-bottom: 20px; font-family: 'JetBrains Mono'; font-size: 0.7rem; color: #555; display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 8px; height: 8px; background: #333; border-radius: 50%;"></div>
-                    2FA: DISABLED (Will activate on next cycle)
-                </div>
-
-                <button type="submit" class="btn-submit">CONNECT UPLINK</button>
-            </form>
-
-            <form id="registerForm" style="display: none;" onsubmit="startSequence(event, 'register')">
-                <div class="form-group">
-                    <label>DESIGNATION (NAME)</label>
-                    <input type="text" id="regName" placeholder="John Doe" required>
-                </div>
-                <div class="form-group">
-                    <label>COMMS CHANNEL (EMAIL)</label>
-                    <input type="email" id="regEmail" placeholder="pilot@mesh.net" required>
-                </div>
-
-                <div class="oath-box">
-                    <input type="checkbox" required id="oathCheck">
-                    <div class="oath-text">
-                        I acknowledge that the path of the Mesh is experimental. I am ready to contribute theoretical data and accept the risks of autonomous RTOS calibration.
+                    <div class="form-group">
+                        <label class="input-label">Operator ID / Email</label>
+                        <input type="email" class="form-input" placeholder="operator@mesh.net" required>
                     </div>
-                </div>
+                    <div class="form-group">
+                        <label class="input-label">Access Key</label>
+                        <input type="password" class="form-input" placeholder="••••••••" required>
+                    </div>
+                    <div class="status-row"><div class="status-pip"></div>2FA disabled — activates next cycle</div>
+                    <button type="submit" class="btn-submit">Connect Uplink</button>
+                </form>
 
-                <button type="submit" class="btn-submit">JOIN THE MESH</button>
-            </form>
+                <form id="registerForm" style="display:none;" onsubmit="startSequence(event,'register')">
+                    <div class="form-group">
+                        <label class="input-label">Designation</label>
+                        <input type="text" id="regName" class="form-input" placeholder="Alex Mercer" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="input-label">Comms Channel</label>
+                        <input type="email" id="regEmail" class="form-input" placeholder="pilot@mesh.net" required>
+                    </div>
+                    <div class="oath-box">
+                        <input type="checkbox" required>
+                        <div class="oath-text">I acknowledge that the Mesh is experimental and accept the risks of autonomous RTOS calibration.</div>
+                    </div>
+                    <button type="submit" class="btn-submit">Join the Mesh</button>
+                </form>
 
-            <div class="digital-sig">
-                <div>SIGNED: <span style="color: var(--accent);">SYS_ADMIN</span></div>
-                <div>HASH: 0x99a...f42</div>
+                <div class="card-sig"><span>Signed: <em>Sys_Admin</em></span><span>Hash: 0x99a…f42</span></div>
             </div>
-
         </div>
     </div>
 
-    <div class="neural-loader" id="loader">
-        <div class="quote-container">
-            <div class="quote-text" id="qText">"Where wheels fail, we shall walk."</div>
-            <div class="quote-author" id="qAuth">- Arttous Protocol</div>
-        </div>
-
-        <div class="loader-bar">
-            <div class="loader-fill" id="loadFill"></div>
-        </div>
-        <div class="loading-status" id="loadStatus">ESTABLISHING NEURAL LINK...</div>
+    <div class="loader-overlay" id="loader">
+        <div class="q-text" id="qText"></div>
+        <div class="q-auth" id="qAuth"></div>
+        <div class="loader-track"><div class="loader-fill" id="loadFill"></div></div>
+        <div class="loader-status" id="loadStatus">Establishing neural link…</div>
     </div>
 
-    <div id="keyModal" class="neural-loader" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none;">
-        <div class="auth-card" style="animation: none; opacity: 1; transform: translateY(0);">
-            <span onclick="closeRequestModal()" style="position: absolute; top: 15px; right: 20px; color: #666; cursor: pointer; font-family: var(--font-mono); transition: 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#666'">[X]</span>
-            
-            <h2 style="font-family: var(--font-tech); color: #fff; margin-bottom: 10px; font-size: 1.5rem;">REQUEST CLEARANCE</h2>
-            <p style="color: #666; font-size: 0.8rem; font-family: var(--font-mono); margin-bottom: 25px; line-height: 1.5;">
-                A one-time cryptographic access key will be sent to your secure channel.
-            </p>
-
-            <form onsubmit="sendAccessEmail(event)">
-                <div class="form-group">
-                    <label>COMMS CHANNEL (EMAIL)</label>
-                    <input type="email" id="reqEmail" placeholder="pilot@mesh.net" required>
-                </div>
-
-                <div class="form-group">
-                    <label>PING FREQUENCY</label>
-                    <select id="reqFreq" style="width: 100%; background: rgba(5,5,5,0.8); border: 1px solid #333; padding: 12px; color: #fff; font-family: var(--font-mono); outline: none; cursor: pointer;">
-                        <option value="Daily Briefing">Daily Briefing</option>
-                        <option value="Weekly Summary">Weekly Summary</option>
-                        <option value="Critical Alerts Only">Critical Alerts Only</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn-submit" id="reqBtn" style="margin-top: 20px;">TRANSMIT KEY</button>
+    <div class="modal-overlay" id="keyModal">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeModal('keyModal')">Close ✕</button>
+            <div class="modal-title">Request Clearance</div>
+            <div class="modal-desc">A one-time cryptographic access key will be dispatched to your secure channel.</div>
+            <form onsubmit="sendKey(event)">
+                <div class="form-group"><label class="input-label">Comms Channel</label><input type="email" id="reqEmail" class="form-input" placeholder="pilot@mesh.net" required></div>
+                <div class="form-group"><label class="input-label">Ping Frequency</label><select id="reqFreq" class="form-input"><option>Daily Briefing</option><option>Weekly Summary</option><option>Critical Alerts Only</option></select></div>
+                <button type="submit" class="btn-submit" id="reqBtn">Transmit Key</button>
             </form>
         </div>
     </div>
 
-   <script>
-    // --- CONFIGURATION ---
-    const EMAILJS_PUBLIC_KEY = "cQwk9aX1X3KV0dW9n"; 
-    const EMAILJS_SERVICE_ID = "service_9mz4aq2";      
-    
-    // TWO TEMPLATES:
-    const TEMPLATE_LOST_KEY = "template_tjkqo37";    // Для "Lost Key"
-    const TEMPLATE_WELCOME = "template_b3iywlc";     // Для "Registration"
-
-    // Initialize EmailJS immediately
-    (function(){
-        if(typeof emailjs !== 'undefined') {
-            emailjs.init(EMAILJS_PUBLIC_KEY);
-            console.log("Neural Link (EmailJS): READY");
-        } else {
-            console.error("Neural Link (EmailJS): MODULE MISSING");
-        }
-    })();
-
-    // --- TAB LOGIC ---
-    function switchTab(mode) {
-        const login = document.getElementById('loginForm');
-        const reg = document.getElementById('registerForm');
-        const tabs = document.querySelectorAll('.tab');
-
-        if (mode === 'login') {
-            reg.classList.replace('fade-in', 'fade-out');
-            setTimeout(() => {
-                reg.style.display = 'none';
-                login.style.display = 'block';
-                login.classList.remove('fade-out');
-                login.classList.add('fade-in');
-            }, 300);
-            tabs[0].classList.add('active');
-            tabs[1].classList.remove('active');
-        } else {
-            login.classList.replace('fade-in', 'fade-out');
-            setTimeout(() => {
-                login.style.display = 'none';
-                reg.style.display = 'block';
-                reg.classList.remove('fade-out');
-                reg.classList.add('fade-in');
-            }, 300);
-            tabs[0].classList.remove('active');
-            tabs[1].classList.add('active');
-        }
-    }
-
-    // --- MOTIVATIONAL QUOTES ---
-    const quotes = [
-        { t: "The science of today is the technology of tomorrow.", a: "Edward Teller" },
-        { t: "Any sufficiently advanced technology is indistinguishable from magic.", a: "Arthur C. Clarke" },
-        { t: "I do not think there is any thrill that can go through the human heart like that felt by the inventor.", a: "Nikola Tesla" },
-        { t: "Hardware eventually fails. Software eventually works.", a: "Michael Sinz" }
-    ];
-
-    // --- MAIN SEQUENCE LOGIC ---
-    function startSequence(e, type) {
-        e.preventDefault(); 
-        
-        const loader = document.getElementById('loader');
-        const qText = document.getElementById('qText');
-        const qAuth = document.getElementById('qAuth');
-        const fill = document.getElementById('loadFill');
-        const status = document.getElementById('loadStatus');
-
-        loader.style.display = 'flex';
-
-        if (type === 'register') {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const key = "OP-" + Math.random().toString(36).substr(2, 6).toUpperCase();
-
-            localStorage.setItem('userNick', name);
-            localStorage.setItem('userEmail', email);
-
-            const emailParams = {
-                user_name: name,
-                user_email: email, 
-                access_key: key
-            };
-            
-            if(typeof emailjs !== 'undefined') {
-                emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_WELCOME, emailParams)
-                    .then(() => console.log("WELCOME EMAIL SENT"));
-            }
-        }
-
-        // Play Animation & Redirect
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += 1;
-            fill.style.width = progress + '%';
-            
-            if(progress === 20) status.innerText = "ALLOCATING CORE 0 TASKS...";
-            if(progress === 50) status.innerText = "SYNCING I2C BUS PROTOCOLS...";
-            if(progress === 80) status.innerText = "AUTHENTICATING RTOS BIOMETRICS...";
-            
-            if (progress >= 100) {
-                clearInterval(interval);
-                window.location.href = 'account.html'; // Redirect
-            }
-        }, 40);
-
-        // Show Quote
-        const randomQ = quotes[Math.floor(Math.random() * quotes.length)];
-        qText.innerText = `"${randomQ.t}"`;
-        qAuth.innerText = `- ${randomQ.a}`;
-        
-        setTimeout(() => {
-            qText.style.opacity = 1;
-            qAuth.style.opacity = 1;
-        }, 500);
-    }
-
-    // --- MODAL CONTROLS ---
-    function openRequestModal() { document.getElementById('keyModal').style.display = 'flex'; }
-    function closeRequestModal() { document.getElementById('keyModal').style.display = 'none'; }
-
-    // --- LOST KEY EMAIL LOGIC ---
-    function sendAccessEmail(e) {
+    <script>
+    function applyTheme(t){document.body.dataset.theme=t;document.querySelectorAll('.sw').forEach(s=>s.classList.toggle('on',s.dataset.t===t));localStorage.setItem('theme',t);}
+    document.querySelectorAll('.sw').forEach(sw=>sw.addEventListener('click',()=>applyTheme(sw.dataset.t)));
+    applyTheme(localStorage.getItem('theme')||'gold');
+    const EJ_KEY='cQwk9aX1X3KV0dW9n',EJ_SVC='service_9mz4aq2',T_LOST='template_tjkqo37',T_WELCOME='template_b3iywlc';
+    if(typeof emailjs!=='undefined')emailjs.init(EJ_KEY);
+    function switchTab(mode,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('loginForm').style.display=mode==='login'?'block':'none';document.getElementById('registerForm').style.display=mode==='register'?'block':'none';}
+    const quotes=[{t:'The science of today is the technology of tomorrow.',a:'Edward Teller'},{t:'Any sufficiently advanced technology is indistinguishable from magic.',a:'Arthur C. Clarke'},{t:'I do not think there is any thrill that can go through the human heart like that felt by the inventor.',a:'Nikola Tesla'},{t:'Hardware eventually fails. Software eventually works.',a:'Michael Sinz'}];
+    function startSequence(e,type){
         e.preventDefault();
-        
-        const btn = document.getElementById('reqBtn');
-        const emailInput = document.getElementById('reqEmail').value;
-        const freq = document.getElementById('reqFreq').value;
-        
-        btn.innerText = "GENERATING HASH...";
-        btn.style.opacity = "0.7";
-        btn.disabled = true;
-        
-        const randomKey = "OP-" + Math.random().toString(36).substr(2, 6).toUpperCase();
-        
-        const templateParams = {
-            to_email: emailInput,  
-            passcode: randomKey,    
-            time: "24 HOURS",       
-            frequency: freq         
-        };
-
-        if(typeof emailjs !== 'undefined') {
-            emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_LOST_KEY, templateParams)
-                .then(function(response) {
-                    btn.innerText = "KEY TRANSMITTED";
-                    btn.style.background = "#2ecc71";
-                    btn.style.color = "#000";
-                    
-                    setTimeout(() => {
-                        alert(`UPLINK SUCCESSFUL.\nAccess Key sent to: ${emailInput}`);
-                        closeRequestModal();
-                        btn.innerText = "TRANSMIT KEY";
-                        btn.style.background = "";
-                        btn.style.color = "";
-                        btn.style.opacity = "1";
-                        btn.disabled = false;
-                    }, 500);
-                    
-                }, function(error) {
-                    btn.innerText = "TRANSMISSION FAILED";
-                    btn.style.background = "#e74c3c";
-                    btn.disabled = false;
-                    alert("ERROR: Neural Link Offline.");
-                });
-        } else {
-            alert("SYSTEM OFFLINE: Email service not loaded.");
-            btn.innerText = "TRANSMIT KEY";
-            btn.style.opacity = "1";
-            btn.disabled = false;
-        }
+        document.getElementById('loader').classList.add('open');
+        if(type==='register'){const n=document.getElementById('regName').value,em=document.getElementById('regEmail').value,k='OP-'+Math.random().toString(36).substr(2,6).toUpperCase();localStorage.setItem('userNick',n);localStorage.setItem('userEmail',em);if(typeof emailjs!=='undefined')emailjs.send(EJ_SVC,T_WELCOME,{user_name:n,user_email:em,access_key:k});}
+        const q=quotes[Math.floor(Math.random()*quotes.length)];
+        document.getElementById('qText').textContent=`"${q.t}"`;document.getElementById('qAuth').textContent=`— ${q.a}`;
+        setTimeout(()=>{document.getElementById('qText').style.opacity=1;document.getElementById('qAuth').style.opacity=1;},400);
+        let p=0;const fill=document.getElementById('loadFill'),status=document.getElementById('loadStatus');
+        const iv=setInterval(()=>{p++;fill.style.width=p+'%';if(p===22)status.textContent='Allocating Core 0 tasks…';if(p===52)status.textContent='Syncing I²C bus protocols…';if(p===80)status.textContent='Authenticating RTOS biometrics…';if(p>=100){clearInterval(iv);window.location.href='account.html';}},38);
     }
-</script>
+    function openKeyModal(){document.getElementById('keyModal').classList.add('open');}
+    function closeModal(id){document.getElementById(id).classList.remove('open');}
+    document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+    function sendKey(e){e.preventDefault();const btn=document.getElementById('reqBtn');btn.textContent='Generating hash…';btn.disabled=true;const k='OP-'+Math.random().toString(36).substr(2,6).toUpperCase(),p={to_email:document.getElementById('reqEmail').value,passcode:k,time:'24 HOURS',frequency:document.getElementById('reqFreq').value};const ok=()=>{btn.textContent='Key Transmitted';btn.style.background='var(--pos)';btn.style.color='var(--text)';setTimeout(()=>closeModal('keyModal'),1800);};const fail=()=>{btn.textContent='Transmission Failed';btn.style.background='var(--neg)';btn.disabled=false;};if(typeof emailjs!=='undefined'){emailjs.send(EJ_SVC,T_LOST,p).then(ok,fail);}else{setTimeout(ok,1200);}}
+    </script>
 </body>
 </html>

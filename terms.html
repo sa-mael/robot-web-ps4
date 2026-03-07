@@ -5,244 +5,586 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARTTOUS | Terms of Engagement</title>
     <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-     <script src="assets/js/mobile-blocker.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="assets/js/mobile-blocker.js"></script>
     <style>
-        :root {
-            --bg-core: #050505;
-            --bg-card: rgba(14, 14, 14, 0.85);
-            --accent: #7c2ae8;
-            --text-main: #e0e0e0;
-            --danger: #e74c3c;
-            --font-tech: 'Orbitron', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --font-body: 'Inter', sans-serif;
-        }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* ══════════════════════════════════════
+       THEMES
+    ══════════════════════════════════════ */
+    :root {
+        --accent:      #c8a05a;
+        --accent-dim:  #7a5e2e;
+        --accent-pale: rgba(200,160,90,0.08);
+        --accent-glow: rgba(200,160,90,0.22);
+        --bg:          #080808;
+        --surface:     #101010;
+        --surface2:    #161616;
+        --line:        #202020;
+        --line2:       #2c2c2c;
+        --text:        #f0f0e8;
+        --text-mid:    #a8a8a0;
+        --text-dim:    #5e5e58;
+        --text-faint:  #2c2c2a;
+        --neg:         #8a4848;
+        --font-serif:  'Cormorant Garamond', serif;
+        --font-mono:   'DM Mono', monospace;
+        --font-body:   'DM Sans', sans-serif;
+    }
+    [data-theme="platinum"] { --accent:#ccccc4; --accent-dim:#888880; --accent-pale:rgba(204,204,196,0.08); --accent-glow:rgba(204,204,196,0.18); }
+    [data-theme="sapphire"] { --accent:#5a8ec8; --accent-dim:#2a4e78; --accent-pale:rgba(90,142,200,0.08); --accent-glow:rgba(90,142,200,0.22); }
+    [data-theme="emerald"]  { --accent:#5aaa7a; --accent-dim:#2a5a3a; --accent-pale:rgba(90,170,122,0.08); --accent-glow:rgba(90,170,122,0.22); }
+    [data-theme="rouge"]    { --accent:#c86a58; --accent-dim:#783a28; --accent-pale:rgba(200,106,88,0.08); --accent-glow:rgba(200,106,88,0.22); }
+    [data-theme="violet"]   { --accent:#8a6ac8; --accent-dim:#4a3a78; --accent-pale:rgba(138,106,200,0.08); --accent-glow:rgba(138,106,200,0.22); }
+    [data-theme="obsidian"] { --accent:#e0d7c0; --accent-dim:#908070; --accent-pale:rgba(224,215,192,0.06); --accent-glow:rgba(224,215,192,0.18); --bg:#030303; --surface:#0a0a0a; --surface2:#0e0e0e; --line:#181818; --line2:#222222; }
+    [data-theme="frost"]    { --accent:#3a6a9a; --accent-dim:#1a3a5a; --accent-pale:rgba(58,106,154,0.09); --accent-glow:rgba(58,106,154,0.22); --bg:#f2f0ec; --surface:#e8e4de; --surface2:#e0dbd4; --line:#ccc8c0; --line2:#b8b4ac; --text:#181816; --text-mid:#4a4a42; --text-dim:#7a7a70; --text-faint:#c8c4bc; --neg:#7a2828; }
 
-        body {
-            background: var(--bg-core);
-            color: var(--text-main);
-            font-family: var(--font-body);
-            line-height: 1.7;
-            overflow-x: hidden;
-            position: relative;
-        }
+    /* ══════════════════════════════════════
+       BASE
+    ══════════════════════════════════════ */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { font-size: clamp(14px, 0.48vw + 10px, 19px); scroll-behavior: smooth; }
 
-        
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-weight: 400;
+        line-height: 1.75;
+        overflow-x: hidden;
+        transition: background .35s, color .35s;
+    }
 
-        /* HEADER */
-        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: relative; z-index: 10; background: rgba(5,5,5,0.9); backdrop-filter: blur(5px); }
-        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; animation: textGlow 2s infinite alternate;}
-        .accent { color: var(--accent); }
+    /* Grain */
+    body::after {
+        content: '';
+        position: fixed; inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+        background-size: 160px;
+        pointer-events: none; z-index: 9000;
+    }
 
-        /* LEGAL CONTAINER */
-        .doc-wrapper {
-            max-width: 900px;
-            margin: 60px auto;
-            padding: 0 5%;
-            position: relative;
-            z-index: 5;
-        }
+    /* ══════════════════════════════════════
+       TOPBAR
+    ══════════════════════════════════════ */
+    .topbar {
+        padding: 0 clamp(20px, 4vw, 60px);
+        height: clamp(52px, 4vw, 64px);
+        display: flex; justify-content: space-between; align-items: center;
+        border-bottom: 1px solid var(--line);
+        background: var(--bg);
+        position: sticky; top: 0; z-index: 200;
+        transition: background .35s, border-color .35s;
+    }
 
-        .doc-header {
-            margin-bottom: 60px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 30px;
-            animation: slideDown 0.8s cubic-bezier(0.1, 1, 0.1, 1);
-        }
-        
-        h1 { font-family: var(--font-tech); font-size: 2.8rem; margin-bottom: 15px; color: #fff; text-shadow: 0 0 15px rgba(124, 42, 232, 0.3); letter-spacing: 1px;}
-        .doc-meta { font-family: var(--font-mono); color: var(--accent); font-size: 0.85rem; letter-spacing: 1px; }
+    .topbar-left { display: flex; align-items: center; gap: clamp(10px, 1vw, 20px); }
 
-        /* CONTENT STYLES */
-        .term-section { 
-            margin-bottom: 50px; 
-            opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.1, 1, 0.1, 1);
-        }
-        .term-section.show { opacity: 1; transform: translateY(0); }
-        
-        h2 { 
-            font-family: var(--font-tech); 
-            font-size: 1.2rem; 
-            color: #fff; 
-            margin-bottom: 15px; 
-            border-left: 3px solid var(--accent);
-            padding-left: 15px;
-            background: linear-gradient(90deg, rgba(124, 42, 232, 0.1) 0%, transparent 100%);
-        }
+    .logo {
+        font-family: var(--font-serif);
+        font-weight: 400;
+        font-size: clamp(15px, 1rem, 20px);
+        letter-spacing: .32em;
+        color: var(--text);
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    .logo em { font-style: normal; color: var(--accent); }
 
-        p { color: #aaa; margin-bottom: 15px; text-align: justify; font-size: 0.95rem; }
-        strong { color: #fff; font-weight: 600; font-family: var(--font-mono); font-size: 0.9rem;}
+    .tb-sep { width: 1px; height: 18px; background: var(--line2); }
 
-        ul { list-style: none; margin-bottom: 20px; }
-        li { 
-            color: #aaa; margin-bottom: 10px; padding-left: 20px; position: relative; font-size: 0.95rem;
-        }
-        li::before { content: ">>"; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); font-size: 0.8rem; }
+    .doc-id {
+        font-family: var(--font-mono);
+        font-size: clamp(7px, .52rem, 10px);
+        letter-spacing: .16em;
+        color: var(--text-dim);
+        border: 1px solid var(--line2);
+        padding: clamp(3px,.26rem,5px) clamp(9px,.75rem,14px);
+        text-transform: uppercase;
+    }
 
-        /* CRITICAL WARNING BOX */
-        .hazard-box {
-            background: rgba(231, 76, 60, 0.05);
-            border: 1px solid var(--danger);
-            padding: 25px;
-            margin-bottom: 50px;
-            animation: dangerPulse 2s infinite;
-            position: relative;
-            opacity: 0; transform: scale(0.95); transition: all 0.5s ease;
-        }
-        .hazard-box.show { opacity: 1; transform: scale(1); }
-        
-        .hazard-title { color: var(--danger); font-family: var(--font-tech); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; font-size: 1.1rem; letter-spacing: 1px;}
-        .hazard-text { color: var(--danger); font-size: 0.85rem; font-family: var(--font-mono); line-height: 1.6;}
-        .blink-warn { animation: blink 1s step-end infinite; }
+    /* Theme bar */
+    .theme-bar { display: flex; align-items: center; gap: clamp(3px,.28vw,6px); }
+    .theme-lbl {
+        font-family: var(--font-mono);
+        font-size: clamp(7px,.5rem,9px);
+        letter-spacing: .18em; color: var(--text-dim);
+        text-transform: uppercase; margin-right: 2px; white-space: nowrap;
+    }
+    .sw {
+        width: clamp(11px,.85rem,17px); height: clamp(11px,.85rem,17px);
+        border-radius: 50%; border: 1.5px solid transparent;
+        cursor: pointer; flex-shrink: 0;
+        transition: transform .18s, box-shadow .18s, border-color .18s;
+    }
+    .sw:hover { transform: scale(1.3); }
+    .sw.on { border-color: var(--text); box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--text); }
+    .sw-gold     { background: #c8a05a; }
+    .sw-platinum { background: #c8c8c0; }
+    .sw-sapphire { background: #5a8ec8; }
+    .sw-emerald  { background: #5aaa7a; }
+    .sw-rouge    { background: #c86a58; }
+    .sw-violet   { background: #8a6ac8; }
+    .sw-obsidian { background: #e0d7c0; }
+    .sw-frost    { background: linear-gradient(135deg,#d0e4f4,#3a6a9a); }
 
-        /* FOOTER SIGNATURE */
-        .digital-sig {
-            margin-top: 80px; padding-top: 30px; border-top: 1px solid #333;
-            display: flex; justify-content: space-between; font-family: var(--font-mono);
-            font-size: 0.75rem; color: #555; padding-bottom: 40px;
-        }
-        .digital-sig a { color: #555; text-decoration: none; transition: 0.3s; }
-        .digital-sig a:hover { color: var(--accent); }
+    /* ══════════════════════════════════════
+       DOCUMENT WRAPPER
+    ══════════════════════════════════════ */
+    .doc-wrapper {
+        max-width: clamp(600px, 72vw, 860px);
+        margin: clamp(48px, 5vw, 88px) auto clamp(60px, 6vw, 100px);
+        padding: 0 clamp(20px, 4vw, 0px);
+    }
 
-        /* ANIMATIONS */
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes textGlow { from { text-shadow: 0 0 5px rgba(124,42,232,0.2); } to { text-shadow: 0 0 15px rgba(124,42,232,0.8); } }
-        @keyframes dangerPulse { 0%, 100% { box-shadow: 0 0 5px rgba(231, 76, 60, 0.1); } 50% { box-shadow: 0 0 25px rgba(231, 76, 60, 0.25); } }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    /* ── Doc header ── */
+    .doc-header {
+        margin-bottom: clamp(40px, 4.5vw, 70px);
+        padding-bottom: clamp(24px, 2.5vw, 40px);
+        border-bottom: 1px solid var(--line);
+        opacity: 0; transform: translateY(-10px);
+        animation: fadeSlideDown .6s cubic-bezier(.2,1,.2,1) .05s forwards;
+    }
+    @keyframes fadeSlideDown { to { opacity:1; transform:translateY(0); } }
 
-        @media (max-width: 768px) {
-            h1 { font-size: 2.2rem; }
-            .digital-sig { flex-direction: column; gap: 15px; text-align: center; }
-            .digital-sig div { text-align: center !important; }
-        }
+    .doc-eyebrow {
+        font-family: var(--font-mono);
+        font-size: clamp(8px, .58rem, 11px);
+        letter-spacing: .22em;
+        color: var(--accent);
+        text-transform: uppercase;
+        margin-bottom: clamp(10px, .9rem, 16px);
+        opacity: .85;
+    }
+
+    h1 {
+        font-family: var(--font-serif);
+        font-size: clamp(28px, 2.8rem, 52px);
+        font-weight: 300;
+        color: var(--text);
+        letter-spacing: .06em;
+        line-height: 1.05;
+        margin-bottom: clamp(14px, 1.3rem, 22px);
+    }
+
+    .doc-meta {
+        font-family: var(--font-mono);
+        font-size: clamp(9px, .65rem, 12px);
+        letter-spacing: .1em;
+        color: var(--accent);
+        opacity: .8;
+    }
+
+    /* ── TOC ── */
+    .toc {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        padding: clamp(18px, 1.8rem, 30px);
+        margin-bottom: clamp(32px, 3.5vw, 56px);
+        opacity: 0; transform: translateY(8px);
+        animation: fadeUp .5s cubic-bezier(.2,1,.2,1) .2s forwards;
+    }
+    @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+
+    .toc-title {
+        font-family: var(--font-mono);
+        font-size: clamp(8px, .58rem, 10px);
+        letter-spacing: .2em;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        margin-bottom: clamp(12px, 1.1rem, 18px);
+        padding-bottom: clamp(8px,.7rem,12px);
+        border-bottom: 1px solid var(--line);
+    }
+
+    .toc-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .toc-list li a {
+        font-family: var(--font-mono);
+        font-size: clamp(9px, .64rem, 12px);
+        letter-spacing: .08em;
+        color: var(--text-dim);
+        text-decoration: none;
+        transition: color .2s;
+        display: flex; align-items: baseline; gap: 10px;
+    }
+    .toc-list li a:hover { color: var(--accent); }
+    .toc-num {
+        color: var(--accent);
+        font-size: clamp(8px, .55rem, 10px);
+        letter-spacing: .12em;
+        flex-shrink: 0;
+        opacity: .7;
+    }
+
+    /* ── Hazard box ── */
+    .hazard-box {
+        background: rgba(138, 72, 72, 0.05);
+        border: 1px solid var(--neg);
+        padding: clamp(18px, 1.8rem, 30px);
+        margin-bottom: clamp(32px, 3.5vw, 56px);
+        position: relative;
+        overflow: hidden;
+    }
+    .hazard-box::before {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent, var(--neg), transparent);
+        opacity: .6;
+    }
+
+    .hazard-title {
+        font-family: var(--font-mono);
+        font-size: clamp(9px, .65rem, 12px);
+        letter-spacing: .2em;
+        color: var(--neg);
+        text-transform: uppercase;
+        margin-bottom: clamp(10px, .9rem, 16px);
+        display: flex; align-items: center; gap: 10px;
+    }
+    .hazard-pip {
+        width: 7px; height: 7px; border-radius: 50%;
+        background: var(--neg); flex-shrink: 0;
+        animation: negPulse 1.4s infinite;
+    }
+    @keyframes negPulse { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    .hazard-text {
+        font-family: var(--font-mono);
+        font-size: clamp(9px, .65rem, 12px);
+        letter-spacing: .06em;
+        color: var(--neg);
+        line-height: 1.8;
+        opacity: .85;
+    }
+
+    /* ── Sections ── */
+    .term-section {
+        margin-bottom: clamp(36px, 4vw, 60px);
+        opacity: 0; transform: translateY(16px);
+        transition: opacity .55s cubic-bezier(.2,1,.2,1), transform .55s cubic-bezier(.2,1,.2,1);
+    }
+    .term-section.show { opacity: 1; transform: translateY(0); }
+
+    h2 {
+        font-family: var(--font-mono);
+        font-size: clamp(9px, .65rem, 12px);
+        letter-spacing: .22em;
+        color: var(--text-mid);
+        text-transform: uppercase;
+        margin-bottom: clamp(16px, 1.5rem, 26px);
+        padding-bottom: clamp(10px, .9rem, 16px);
+        border-bottom: 1px solid var(--line);
+        display: flex; align-items: center; gap: 14px;
+    }
+    h2::before {
+        content: attr(data-num);
+        font-family: var(--font-serif);
+        font-size: clamp(14px, 1.1rem, 20px);
+        font-weight: 300;
+        color: var(--accent);
+        opacity: .7;
+        flex-shrink: 0;
+        line-height: 1;
+    }
+
+    p {
+        font-size: clamp(13px, .88rem, 16px);
+        color: var(--text-mid);
+        margin-bottom: clamp(12px, 1.1rem, 18px);
+        line-height: 1.8;
+        font-weight: 300;
+    }
+
+    strong {
+        color: var(--text);
+        font-weight: 500;
+        font-family: var(--font-mono);
+        font-size: .92em;
+        letter-spacing: .04em;
+    }
+
+    code {
+        font-family: var(--font-mono);
+        font-size: .88em;
+        color: var(--accent);
+        background: var(--accent-pale);
+        border: 1px solid var(--accent-dim);
+        padding: 1px 5px;
+        letter-spacing: .04em;
+    }
+
+    .disclaimer {
+        font-family: var(--font-mono);
+        font-size: clamp(8px, .6rem, 11px);
+        letter-spacing: .06em;
+        color: var(--text-dim);
+        line-height: 1.9;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        padding: clamp(14px, 1.3rem, 22px);
+    }
+
+    ul { list-style: none; margin-bottom: clamp(14px, 1.3rem, 22px); }
+    li {
+        font-size: clamp(13px, .88rem, 16px);
+        color: var(--text-mid);
+        margin-bottom: clamp(8px, .7rem, 12px);
+        padding-left: clamp(18px, 1.6rem, 26px);
+        position: relative;
+        font-weight: 300;
+        line-height: 1.7;
+    }
+    li::before {
+        content: '—';
+        position: absolute; left: 0;
+        color: var(--accent-dim);
+        font-family: var(--font-mono);
+        font-size: .9em;
+    }
+
+    /* ── Digital sig / footer ── */
+    .doc-footer {
+        margin-top: clamp(48px, 5vw, 80px);
+        padding-top: clamp(20px, 2vw, 32px);
+        border-top: 1px solid var(--line);
+        display: flex; justify-content: space-between; align-items: flex-end;
+        flex-wrap: wrap; gap: clamp(16px, 1.5rem, 24px);
+    }
+
+    .sig-block {
+        font-family: var(--font-mono);
+        font-size: clamp(8px, .58rem, 10px);
+        letter-spacing: .1em;
+        color: var(--text-dim);
+        line-height: 1.8;
+        text-transform: uppercase;
+    }
+    .sig-block em {
+        font-style: normal;
+        color: var(--accent);
+    }
+
+    .footer-links {
+        display: flex; gap: clamp(12px, 1.2rem, 20px);
+    }
+    .footer-links a {
+        font-family: var(--font-mono);
+        font-size: clamp(8px, .58rem, 10px);
+        letter-spacing: .12em;
+        color: var(--text-dim);
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: color .2s;
+    }
+    .footer-links a:hover { color: var(--accent); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 2px; }
+
+    @media(max-width:600px) {
+        .doc-footer { flex-direction: column; }
+        .footer-links { flex-wrap: wrap; }
+        .theme-lbl { display: none; }
+    }
+
     </style>
 </head>
-<body>
+<body data-theme="gold">
 
-    <nav>
-        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666; border: 1px solid #333; padding: 5px 10px;">DOC_ID: TOU_v75.4</div>
-    </nav>
+    <!-- ══ TOPBAR ══ -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <a href="index.html" class="logo">ART<em>TOUS</em></a>
+            <div class="tb-sep"></div>
+            <div class="doc-id">Doc ID: TOU_v75.4</div>
+        </div>
 
+        <div class="theme-bar">
+            <span class="theme-lbl">Theme</span>
+            <div class="sw sw-gold on"      data-t="gold"     title="Gold"></div>
+            <div class="sw sw-platinum"     data-t="platinum" title="Platinum"></div>
+            <div class="sw sw-sapphire"     data-t="sapphire" title="Sapphire"></div>
+            <div class="sw sw-emerald"      data-t="emerald"  title="Emerald"></div>
+            <div class="sw sw-rouge"        data-t="rouge"    title="Rouge"></div>
+            <div class="sw sw-violet"       data-t="violet"   title="Violet"></div>
+            <div class="sw sw-obsidian"     data-t="obsidian" title="Obsidian"></div>
+            <div class="sw sw-frost"        data-t="frost"    title="Frost"></div>
+        </div>
+    </header>
+
+    <!-- ══ DOCUMENT ══ -->
     <div class="doc-wrapper">
-        
+
+        <!-- Header -->
         <div class="doc-header">
-            <h1>TERMS OF ENGAGEMENT</h1>
-            <div class="doc-meta" id="decrypt-meta" data-value="EFFECTIVE DATE: Q1 2026 // STATUS: BINDING PROTOCOL">
-                [DECRYPTING METADATA...]
+            <div class="doc-eyebrow">Legal Instrument</div>
+            <h1>Terms of<br>Engagement</h1>
+            <div class="doc-meta" id="decrypt-meta" data-value="Effective Date: Q1 2026 · Status: Binding Protocol">
+                Decrypting metadata…
             </div>
         </div>
 
-        <div class="hazard-box animate-on-scroll">
-            <div class="hazard-title">
-                <span class="blink-warn">⚠️</span> CRITICAL SAFETY NOTICE
-            </div>
-            <div class="hazard-text">
-                THE HARDWARE DESIGNS PROVIDED HEREIN INVOLVE HIGH-TORQUE ACTUATORS AND LITHIUM-POLYMER BATTERIES. IMPROPER ASSEMBLY OR KINEMATIC CONFIGURATION MAY RESULT IN FIRE, PHYSICAL INJURY, OR CATASTROPHIC HARDWARE FAILURE. PROCEED AT YOUR OWN RISK.
-            </div>
-        </div>
-
-        <div class="term-section animate-on-scroll">
-            <h2>1. ACCEPTANCE OF PROTOCOLS</h2>
-            <p>
-                By accessing the Arttous platform, downloading our dual-core firmware (RTOS v75.4+), or utilizing our 3D mesh assets, you verify that you are a sentient entity capable of entering into a binding contract under the laws of Ontario, Canada. If you do not agree to these terms, terminate your secure connection immediately.
-            </p>
-        </div>
-
-        <div class="term-section animate-on-scroll">
-            <h2>2. INTELLECTUAL PROPERTY & LICENSE</h2>
-            <p>
-                <strong>2.1. Open Source Core.</strong> The primary firmware logic, including the <code>TaskControl</code> and <code>TaskNetwork</code> FreeRTOS tasks, is released under the MIT License. You are free to fork, modify, and deploy this code for personal projects.
-            </p>
-            <p>
-                <strong>2.2. Proprietary Assets.</strong> The "Arttous" branding, the specific 3D chassis designs labeled as "Proprietary," and the digital twin WebGL interfaces remain the exclusive property of Arttous Robotics Inc. You may not sell physical kits branding them as "Official Arttous" without a written Enterprise RaaS agreement.
-            </p>
-        </div>
-
-        <div class="term-section animate-on-scroll">
-            <h2>3. PROHIBITED CONDUCT (ZERO TOLERANCE)</h2>
-            <p>You agree NOT to use the Arttous platform or associated hardware for:</p>
-            <ul>
-                <li>Weaponization, ballistic modification, or attachment of kinetic/chemical payloads.</li>
-                <li>Surveillance of private property without explicit, documented consent.</li>
-                <li>Interference with public radio frequencies (LoRa TX/RX compliance is the sole responsibility of the operator).</li>
-                <li>Commercial mass-production without a sanctioned integration license.</li>
+        <!-- TOC -->
+        <div class="toc animate-on-scroll">
+            <div class="toc-title">Contents</div>
+            <ul class="toc-list">
+                <li><a href="#s1"><span class="toc-num">01</span> Acceptance of Protocols</a></li>
+                <li><a href="#s2"><span class="toc-num">02</span> Intellectual Property &amp; License</a></li>
+                <li><a href="#s3"><span class="toc-num">03</span> Prohibited Conduct</a></li>
+                <li><a href="#s4"><span class="toc-num">04</span> Disclaimer of Warranties</a></li>
+                <li><a href="#s5"><span class="toc-num">05</span> Governing Law &amp; Jurisdiction</a></li>
             </ul>
         </div>
 
-        <div class="term-section animate-on-scroll">
-            <h2>4. DISCLAIMER OF WARRANTIES</h2>
-            <p style="text-transform: uppercase; font-family: var(--font-mono); font-size: 0.8rem; color: #888;">
-                THE SYNTHETIC DATA AND KINEMATIC MODELS ARE PROVIDED "AS IS." ARTTOUS MAKES NO GUARANTEES THAT THE ROBOT WILL BALANCE, WALK, OR FUNCTION IN YOUR SPECIFIC GRAVITATIONAL ENVIRONMENT. WE DISCLAIM ALL LIABILITY FOR FRIED SERVOS, I2C BUS STARVATION, RTOS KERNEL PANICS, BATTERY VENTING, OR LOSS OF FINGERS DURING CALIBRATION.
-            </p>
+        <!-- Hazard notice -->
+        <div class="hazard-box animate-on-scroll">
+            <div class="hazard-title">
+                <div class="hazard-pip"></div>
+                Critical Safety Notice
+            </div>
+            <div class="hazard-text">
+                The hardware designs provided herein involve high-torque actuators and lithium-polymer batteries.
+                Improper assembly or kinematic configuration may result in fire, physical injury, or catastrophic
+                hardware failure. Proceed entirely at your own risk. This notice constitutes a mandatory disclosure
+                under applicable product liability statutes.
+            </div>
         </div>
 
-        <div class="term-section animate-on-scroll">
-            <h2>5. GOVERNING LAW & JURISDICTION</h2>
+        <!-- §1 -->
+        <div class="term-section animate-on-scroll" id="s1">
+            <h2 data-num="01">Acceptance of Protocols</h2>
             <p>
-                Any disputes arising from these terms shall be resolved in the digital or physical courts of <strong>Ontario, Canada</strong>. By initiating an uplink to our servers, you implicitly waive any objection to jurisdiction in this venue.
+                By accessing the Arttous platform, downloading our dual-core firmware (<code>RTOS v75.4+</code>),
+                or utilising our 3D mesh assets, you verify that you are a sentient entity capable of entering into
+                a binding contract under the laws of Ontario, Canada.
+            </p>
+            <p>
+                If you do not agree to these terms in their entirety, terminate your secure connection immediately
+                and destroy any cached firmware images. Continued use constitutes unconditional acceptance.
             </p>
         </div>
 
-        <div class="digital-sig">
-            <div>
-                SIGNED: <span style="color: var(--accent);">SYSTEM_ADMIN</span><br>
-                HASH: 0x99a...f42
-            </div>
-            <div style="text-align: right;">
-                &copy; 2026 Arttous Robotics Inc.<br>
-                <a href="index.html">Return to HQ</a>
+        <!-- §2 -->
+        <div class="term-section animate-on-scroll" id="s2">
+            <h2 data-num="02">Intellectual Property &amp; License</h2>
+            <p>
+                <strong>2.1 Open Source Core.</strong> The primary firmware logic, including the
+                <code>TaskControl</code> and <code>TaskNetwork</code> FreeRTOS tasks, is released under the
+                MIT License. You are free to fork, modify, and deploy this code for personal projects without
+                restriction or royalty obligation.
+            </p>
+            <p>
+                <strong>2.2 Proprietary Assets.</strong> The "Arttous" branding, the specific 3D chassis designs
+                labelled as "Proprietary," and the digital twin WebGL interfaces remain the exclusive intellectual
+                property of Arttous Robotics Inc. You may not sell physical kits branded as "Official Arttous"
+                without a written Enterprise RaaS agreement countersigned by a duly authorised officer.
+            </p>
+            <p>
+                <strong>2.3 Derivative Works.</strong> Any derivative firmware or hardware referencing this
+                platform must carry a visible attribution notice and must not imply official endorsement without
+                express written consent.
+            </p>
+        </div>
+
+        <!-- §3 -->
+        <div class="term-section animate-on-scroll" id="s3">
+            <h2 data-num="03">Prohibited Conduct</h2>
+            <p>You agree not to use the Arttous platform or associated hardware for any of the following:</p>
+            <ul>
+                <li>Weaponisation, ballistic modification, or attachment of kinetic or chemical payloads of any kind.</li>
+                <li>Surveillance of private property or individuals without explicit, documented, and revocable consent.</li>
+                <li>Interference with licensed public radio frequencies — LoRa TX/RX regulatory compliance is the sole responsibility of the operator.</li>
+                <li>Commercial mass-production or resale without a sanctioned integration licence.</li>
+                <li>Circumvention, reverse engineering, or decompilation of proprietary firmware modules designated as closed-source.</li>
+            </ul>
+            <p>
+                Violations of this section may result in immediate revocation of platform access, forfeiture of
+                earned operator credits, and referral to relevant law-enforcement authorities.
+            </p>
+        </div>
+
+        <!-- §4 -->
+        <div class="term-section animate-on-scroll" id="s4">
+            <h2 data-num="04">Disclaimer of Warranties</h2>
+            <div class="disclaimer">
+                The synthetic data, kinematic models, and firmware are provided "as is," without warranty of any
+                kind, express or implied. Arttous Robotics Inc. makes no representations that the robot will
+                balance, walk, or function correctly in your specific gravitational or electromagnetic environment.
+                We disclaim all liability for fried servos, I²C bus starvation, RTOS kernel panics, battery
+                venting, loss of extremities during calibration, or any consequential, incidental, or punitive
+                damages arising from use or inability to use the platform. Your use is entirely at your own risk.
             </div>
         </div>
 
-    </div>
+        <!-- §5 -->
+        <div class="term-section animate-on-scroll" id="s5">
+            <h2 data-num="05">Governing Law &amp; Jurisdiction</h2>
+            <p>
+                These terms shall be governed by and construed in accordance with the laws of the Province of
+                <strong>Ontario, Canada</strong>, without regard to conflict-of-law principles. Any dispute,
+                claim, or controversy arising out of or relating to these terms shall be submitted exclusively to
+                the courts of Ontario.
+            </p>
+            <p>
+                By initiating an uplink to Arttous servers you implicitly waive any objection to personal
+                jurisdiction or venue in this forum and irrevocably submit to the jurisdiction of such courts.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="doc-footer">
+            <div class="sig-block">
+                Signed: <em>System_Admin</em><br>
+                Hash: 0x99a…f42<br>
+                © 2026 Arttous Robotics Inc.
+            </div>
+            <div class="footer-links">
+                <a href="index.html">← Return to HQ</a>
+                <a href="account.html">Dashboard</a>
+            </div>
+        </div>
+
+    </div><!-- /doc-wrapper -->
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // 1. Decrypt Text Effect for Metadata
-            const decryptElement = document.getElementById('decrypt-meta');
-            const targetText = decryptElement.getAttribute('data-value');
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=';
-            let iterations = 0;
-            
-            const decryptInterval = setInterval(() => {
-                decryptElement.innerText = targetText.split('').map((letter, index) => {
-                    if (index < iterations) {
-                        return targetText[index];
-                    }
-                    return chars[Math.floor(Math.random() * chars.length)];
-                }).join('');
+    /* ── THEME ── */
+    function applyTheme(t) {
+        document.body.dataset.theme = t;
+        document.querySelectorAll('.sw').forEach(s => s.classList.toggle('on', s.dataset.t === t));
+        localStorage.setItem('theme', t);
+    }
+    document.querySelectorAll('.sw').forEach(sw => sw.addEventListener('click', () => applyTheme(sw.dataset.t)));
+    applyTheme(localStorage.getItem('theme') || 'gold');
 
-                if (iterations >= targetText.length) {
-                    clearInterval(decryptInterval);
+    /* ── DECRYPT EFFECT ── */
+    document.addEventListener('DOMContentLoaded', () => {
+        const el = document.getElementById('decrypt-meta');
+        const target = el.getAttribute('data-value');
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789·—/\\';
+        let i = 0;
+        const iv = setInterval(() => {
+            el.textContent = target.split('').map((ch, idx) => {
+                if (idx < i) return target[idx];
+                if (ch === ' ') return ' ';
+                return chars[Math.floor(Math.random() * chars.length)];
+            }).join('');
+            if (i >= target.length) clearInterval(iv);
+            i += 1.6;
+        }, 32);
+
+        /* ── SCROLL REVEAL ── */
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('show');
+                    obs.unobserve(e.target);
                 }
-                iterations += 1;
-            }, 40); // Speed of decryption
+            });
+        }, { threshold: 0.12 });
 
-            // 2. Intersection Observer for Scroll Animations
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.15 // Trigger when 15% visible
-            };
-
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('show');
-                        observer.unobserve(entry.target); // Only animate once
-                    }
-                });
-            }, observerOptions);
-
-            const scrollElements = document.querySelectorAll('.animate-on-scroll');
-            scrollElements.forEach(el => observer.observe(el));
-
-        });
+        document.querySelectorAll('.animate-on-scroll, .term-section').forEach(el => obs.observe(el));
+    });
     </script>
 </body>
 </html>

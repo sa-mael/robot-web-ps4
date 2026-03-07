@@ -5,312 +5,217 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARTTOUS | Protocols & Governance</title>
     <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-     <script src="assets/js/mobile-blocker.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="assets/js/mobile-blocker.js"></script>
     <style>
-        :root {
-            --bg-core: #050505;
-            --bg-panel: rgba(14, 14, 14, 0.85);
-            --accent-primary: #7c2ae8; 
-            --accent-dim: rgba(124, 42, 232, 0.1);
-            --text-main: #e0e0e0;
-            --text-muted: #666666;
-            --danger: #e74c3c;
-            --font-tech: 'Orbitron', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --font-body: 'Inter', sans-serif;
-        }
+    :root{--accent:#c8a05a;--accent-dim:#7a5e2e;--accent-pale:rgba(200,160,90,0.09);--accent-glow:rgba(200,160,90,0.22);--bg:#080808;--surface:#101010;--surface2:#181818;--line:#202020;--line2:#2c2c2c;--text:#f0f0e8;--text-mid:#a8a8a0;--text-dim:#5e5e58;--text-faint:#252522;--neg:#8a4848;--font-serif:'Cormorant Garamond',serif;--font-mono:'DM Mono',monospace;--font-body:'DM Sans',sans-serif;}
+    [data-theme="platinum"]{--accent:#ccccc4;--accent-dim:#888880;--accent-pale:rgba(204,204,196,0.08);}
+    [data-theme="sapphire"]{--accent:#5a8ec8;--accent-dim:#2a4e78;--accent-pale:rgba(90,142,200,0.09);}
+    [data-theme="emerald"]{--accent:#5aaa7a;--accent-dim:#2a5a3a;--accent-pale:rgba(90,170,122,0.09);}
+    [data-theme="rouge"]{--accent:#c86a58;--accent-dim:#783a28;--accent-pale:rgba(200,106,88,0.09);}
+    [data-theme="violet"]{--accent:#8a6ac8;--accent-dim:#4a3a78;--accent-pale:rgba(138,106,200,0.09);}
+    [data-theme="obsidian"]{--accent:#e0d7c0;--accent-dim:#908070;--accent-pale:rgba(224,215,192,0.06);--bg:#030303;--surface:#090909;--surface2:#0e0e0e;--line:#181818;--line2:#222222;}
+    [data-theme="frost"]{--accent:#3a6a9a;--accent-dim:#1a3a5a;--accent-pale:rgba(58,106,154,0.09);--bg:#f2f0ec;--surface:#e8e4de;--surface2:#e0dbd4;--line:#ccc8c0;--line2:#b8b4ac;--text:#181816;--text-mid:#4a4a42;--text-dim:#7a7a70;--text-faint:#d0ccc4;--neg:#7a2828;}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{font-size:clamp(13px,.46vw+9.5px,18px);scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.7;transition:background .35s,color .35s;position:relative;}
+    body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");background-size:160px;pointer-events:none;z-index:9000;}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            background-color: var(--bg-core);
-            color: var(--text-main);
-            font-family: var(--font-body);
-            line-height: 1.7;
-            position: relative;
-        }
+    /* Topbar */
+    .topbar{padding:0 clamp(20px,4vw,60px);height:clamp(52px,4vw,64px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:200;transition:background .35s,border-color .35s;}
+    .logo{font-family:var(--font-serif);font-weight:400;font-size:clamp(15px,1rem,20px);letter-spacing:.32em;color:var(--text);text-decoration:none;}
+    .logo em{font-style:normal;color:var(--accent);}
+    .tb-right{display:flex;align-items:center;gap:8px;}
+    .doc-badge{font-family:var(--font-mono);font-size:clamp(7px,.52rem,9px);letter-spacing:.16em;color:var(--text-dim);border:1px solid var(--line2);padding:clamp(3px,.25rem,5px) clamp(9px,.75rem,14px);text-transform:uppercase;margin-right:10px;}
+    .sw{width:clamp(11px,.85rem,16px);height:clamp(11px,.85rem,16px);border-radius:50%;border:1.5px solid transparent;cursor:pointer;flex-shrink:0;transition:transform .18s,box-shadow .18s;}
+    .sw:hover{transform:scale(1.3);}
+    .sw.on{border-color:var(--text);box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--text);}
+    .sw-gold{background:#c8a05a;}.sw-platinum{background:#c8c8c0;}.sw-sapphire{background:#5a8ec8;}.sw-emerald{background:#5aaa7a;}.sw-rouge{background:#c86a58;}.sw-violet{background:#8a6ac8;}.sw-obsidian{background:#e0d7c0;}.sw-frost{background:linear-gradient(135deg,#d0e4f4,#3a6a9a);}
 
-       
-        /* --- HEADER --- */
-        nav {
-            padding: 25px 5%;
-            background: rgba(5,5,5,0.9);
-            border-bottom: 1px solid #222;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            z-index: 10;
-            backdrop-filter: blur(5px);
-        }
-        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; letter-spacing: 3px; color: #fff; text-decoration: none; animation: textGlow 2s infinite alternate; }
-        .accent { color: var(--accent-primary); }
+    /* Document container */
+    .doc-wrapper{max-width:clamp(600px,72vw,860px);margin:clamp(48px,5vw,80px) auto clamp(60px,6vw,100px);padding:0 clamp(20px,4vw,0px);}
 
-        /* --- CONTENT CONTAINER --- */
-        .legal-container {
-            max-width: 900px;
-            margin: 60px auto;
-            padding: 0 5%;
-            position: relative;
-            z-index: 5;
-        }
+    /* Header */
+    .doc-eyebrow{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.22em;color:var(--accent);text-transform:uppercase;margin-bottom:clamp(10px,.9rem,16px);opacity:.8;}
+    .doc-h1{font-family:var(--font-serif);font-size:clamp(26px,2.8rem,52px);font-weight:300;color:var(--text);letter-spacing:.04em;line-height:1.05;margin-bottom:clamp(14px,1.4rem,22px);}
+    .doc-meta{font-family:var(--font-mono);font-size:clamp(8px,.58rem,10px);letter-spacing:.14em;color:var(--accent);padding-bottom:clamp(16px,1.5rem,24px);border-bottom:1px solid var(--line);margin-bottom:clamp(24px,2.8vw,44px);opacity:.7;}
 
-        h1 {
-            font-family: var(--font-tech);
-            font-size: 3rem;
-            margin-bottom: 10px;
-            background: linear-gradient(180deg, #fff 20%, #666 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: slideDown 0.8s cubic-bezier(0.1, 1, 0.1, 1);
-        }
+    /* Hazard box */
+    .hazard-box{display:flex;gap:clamp(12px,1.2rem,18px);align-items:flex-start;padding:clamp(14px,1.3rem,22px);border:1px solid var(--neg);background:rgba(138,72,72,0.06);margin-bottom:clamp(32px,3.5vw,56px);position:relative;}
+    .hazard-pip{width:5px;height:5px;border-radius:50%;background:var(--neg);flex-shrink:0;margin-top:5px;animation:pipPulse 2.5s ease infinite;}
+    @keyframes pipPulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+    .hazard-text{font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.05em;color:var(--text-mid);line-height:1.8;}
+    .hazard-text strong{color:var(--neg);letter-spacing:.1em;}
 
-        .meta-line {
-            font-family: var(--font-mono);
-            color: var(--accent-primary);
-            font-size: 0.8rem;
-            margin-bottom: 50px;
-            display: block;
-            border-bottom: 1px solid #222;
-            padding-bottom: 20px;
-            letter-spacing: 1px;
-        }
+    /* TOC */
+    .toc{border:1px solid var(--line);background:var(--surface);padding:clamp(14px,1.3rem,22px) clamp(18px,1.6rem,28px);margin-bottom:clamp(32px,3.5vw,56px);}
+    .toc-title{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.2em;color:var(--text-dim);text-transform:uppercase;margin-bottom:clamp(10px,.9rem,16px);}
+    .toc-list{list-style:none;display:flex;flex-direction:column;gap:7px;}
+    .toc-list a{font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.08em;color:var(--text-mid);text-decoration:none;transition:color .2s;display:flex;align-items:center;gap:10px;}
+    .toc-list a:hover{color:var(--accent);}
+    .toc-num{color:var(--accent);opacity:.6;font-size:clamp(7px,.5rem,9px);}
 
-        /* --- ARTICLES & SCROLL ANIMATION --- */
-        article {
-            margin-bottom: 60px;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.1, 1, 0.1, 1);
-        }
-        article.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    /* Articles */
+    article{margin-bottom:clamp(40px,4.5vw,72px);opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.2,1,.2,1),transform .6s cubic-bezier(.2,1,.2,1);}
+    article.show{opacity:1;transform:translateY(0);}
 
-        h2 {
-            font-family: var(--font-tech);
-            color: #fff;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            border-left: 3px solid var(--accent-primary);
-            padding-left: 15px;
-            background: linear-gradient(90deg, rgba(124, 42, 232, 0.1) 0%, transparent 100%);
-        }
+    h2{font-family:var(--font-serif);font-size:clamp(18px,1.7rem,30px);font-weight:400;color:var(--text);margin-bottom:clamp(14px,1.4rem,22px);padding-bottom:clamp(10px,.9rem,16px);border-bottom:1px solid var(--line);letter-spacing:.04em;display:flex;align-items:baseline;gap:clamp(10px,.9rem,16px);}
+    h2::before{content:attr(data-num);font-family:var(--font-serif);font-size:clamp(22px,2rem,36px);color:var(--accent);opacity:.5;font-weight:300;flex-shrink:0;}
 
-        h3 {
-            font-family: var(--font-mono);
-            color: #fff;
-            font-size: 1rem;
-            margin: 30px 0 15px;
-        }
+    h3{font-family:var(--font-mono);font-size:clamp(9px,.68rem,12px);letter-spacing:.16em;color:var(--text-mid);text-transform:uppercase;margin:clamp(20px,2rem,32px) 0 clamp(10px,.9rem,16px);}
 
-        p { color: #bbb; margin-bottom: 15px; font-size: 0.95rem; text-align: justify; }
-        ul { list-style: none; margin-bottom: 20px; }
-        li { color: #bbb; margin-bottom: 10px; padding-left: 20px; position: relative; }
-        li::before {
-            content: ">>"; font-family: var(--font-mono); color: var(--accent-primary);
-            position: absolute; left: 0; font-size: 0.8rem;
-        }
+    p{color:var(--text-mid);font-size:clamp(12px,.86rem,15px);margin-bottom:clamp(12px,1.1rem,18px);font-weight:300;line-height:1.8;}
+    p strong{color:var(--text);font-weight:500;}
 
-        .clause-box {
-            background: var(--bg-panel);
-            border: 1px solid var(--danger);
-            padding: 20px;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            color: #aaa;
-            margin: 20px 0;
-            box-shadow: 0 0 15px rgba(231, 76, 60, 0.1);
-            animation: dangerPulse 3s infinite;
-        }
+    ul{list-style:none;margin-bottom:clamp(14px,1.3rem,22px);}
+    li{color:var(--text-mid);font-size:clamp(12px,.84rem,14px);padding-left:clamp(16px,1.4rem,22px);margin-bottom:8px;position:relative;font-weight:300;line-height:1.7;}
+    li::before{content:'—';position:absolute;left:0;color:var(--accent);opacity:.5;font-family:var(--font-serif);}
 
-        .clause-box h3 { color: var(--danger); margin-top: 0; }
+    /* Mono block */
+    .mono-block{background:var(--surface2);border:1px solid var(--line2);border-left:2px solid var(--accent-dim);padding:clamp(14px,1.3rem,22px);font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.05em;color:var(--text-dim);line-height:1.9;margin:clamp(14px,1.3rem,22px) 0;text-transform:uppercase;}
 
-        /* --- FOOTER --- */
-        footer {
-            border-top: 1px solid #222; padding: 40px 5%; margin-top: 60px;
-            position: relative; z-index: 5; background: #050505;
-        }
-        .digital-sig {
-            display: flex; justify-content: space-between; font-family: var(--font-mono);
-            font-size: 0.75rem; color: #555; max-width: 900px; margin: 0 auto;
-        }
-        a { color: var(--text-muted); text-decoration: none; transition: 0.3s; }
-        a:hover { color: var(--accent-primary); }
+    /* Clause callout */
+    .clause-box{padding:clamp(14px,1.3rem,22px);border:1px solid var(--accent-dim);background:var(--accent-pale);margin:clamp(14px,1.3rem,22px) 0;}
+    .clause-h{font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;}
+    .clause-box p{color:var(--text-dim);margin-bottom:0;}
 
-        /* --- ANIMATIONS --- */
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes textGlow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
-        @keyframes dangerPulse { 0%, 100% { box-shadow: 0 0 5px rgba(231, 76, 60, 0.1); } 50% { box-shadow: 0 0 20px rgba(231, 76, 60, 0.3); } }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            .digital-sig { flex-direction: column; gap: 20px; text-align: center; }
-            .digital-sig div { text-align: center !important; }
-        }
+    /* Footer */
+    .doc-footer{padding-top:clamp(24px,2.5vw,40px);border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:clamp(16px,1.6rem,24px);}
+    .sig-block{font-family:var(--font-mono);font-size:clamp(8px,.58rem,10px);letter-spacing:.1em;color:var(--text-dim);line-height:1.9;text-transform:uppercase;}
+    .sig-block em{font-style:normal;color:var(--accent);}
+    .footer-links{display:flex;gap:clamp(14px,1.4rem,22px);}
+    .footer-links a{font-family:var(--font-mono);font-size:clamp(8px,.58rem,10px);letter-spacing:.12em;color:var(--text-dim);text-decoration:none;text-transform:uppercase;transition:color .2s;}
+    .footer-links a:hover{color:var(--accent);}
+    ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px;}
     </style>
 </head>
-<body>
+<body data-theme="gold">
 
-    <nav>
-        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666; border: 1px solid #333; padding: 5px 10px;">DOC_REF: LEG_v75.4_RTOS</div>
-    </nav>
+    <header class="topbar">
+        <a href="index.html" class="logo">ART<em>TOUS</em></a>
+        <div class="tb-right">
+            <div class="doc-badge">Doc Ref: LEG_v75.4</div>
+            <div class="sw sw-gold on" data-t="gold"></div>
+            <div class="sw sw-platinum" data-t="platinum"></div>
+            <div class="sw sw-sapphire" data-t="sapphire"></div>
+            <div class="sw sw-emerald" data-t="emerald"></div>
+            <div class="sw sw-rouge" data-t="rouge"></div>
+            <div class="sw sw-violet" data-t="violet"></div>
+            <div class="sw sw-obsidian" data-t="obsidian"></div>
+            <div class="sw sw-frost" data-t="frost"></div>
+        </div>
+    </header>
 
-    <div class="legal-container">
-        <h1>ACCESS PROTOCOLS &<br>DATA GOVERNANCE</h1>
-        <span class="meta-line" id="decrypt-text" data-value="LAST UPDATED: Q1 2026 // JURISDICTION: ONTARIO, CA // DOC_ID: 0x992F">
-            [ENCRYPTED DATA...]
-        </span>
+    <div class="doc-wrapper">
+        <div class="doc-eyebrow">Protocols & Governance</div>
+        <h1 class="doc-h1">Access Protocols &<br>Data Governance</h1>
+        <div class="doc-meta" id="metaLine">Last Updated: Q1 2026 · Jurisdiction: Ontario, CA · Doc ID: 0x992F</div>
 
-        <p class="clause-box" style="margin-bottom: 60px;">
-            <strong style="color: var(--danger); font-size: 1rem;">WARNING:</strong> BY ACCESSING, DOWNLOADING, OR UTILIZING ANY ASSETS FROM THE ARTTOUS NETWORK, YOU ACKNOWLEDGE THAT ALL DATA IS THEORETICAL IN NATURE. THE FOLLOWING AGREEMENT CONSTITUTES A BINDING LEGAL CONTRACT.
-        </p>
+        <div class="hazard-box">
+            <div class="hazard-pip"></div>
+            <div class="hazard-text"><strong>Notice —</strong> By accessing, downloading, or utilising any assets from the Arttous Network, you acknowledge that all data is theoretical in nature. The following agreement constitutes a binding legal contract between you and Arttous Robotics Inc.</div>
+        </div>
 
-        <article class="animate-on-scroll">
-            <h2>ARTICLE I: DEFINITIONS & APPLICABILITY</h2>
-            <p><strong>1.1. The Platform.</strong> "Arttous," "The Platform," "We," and "Us" refer to the Arttous Robotics experimental initiative, its creators, maintainers, and the associated digital infrastructure hosted on this domain and associated repositories (e.g., GitHub).</p>
-            <p><strong>1.2. The User.</strong> "You," "User," or "Entity" refers to any individual, machine logic, or corporate body accessing this site, downloading RTOS firmware, viewing 3D assets, or utilizing our documentation.</p>
-            <p><strong>1.3. Synthetic Data.</strong> Refers to all content, including but not limited to: dual-core code repositories, 3D models (.glb, .stl), kinematic equations, firmware logic, and textual explanations, which have been generated through a collaborative process involving human engineering and Generative Artificial Intelligence (AI) models.</p>
+        <nav class="toc">
+            <div class="toc-title">Contents</div>
+            <ul class="toc-list">
+                <li><a href="#art1"><span class="toc-num">I</span> Definitions &amp; Applicability</a></li>
+                <li><a href="#art2"><span class="toc-num">II</span> License Grant &amp; Restrictions</a></li>
+                <li><a href="#art3"><span class="toc-num">III</span> Nature of Theoretical Data</a></li>
+                <li><a href="#art4"><span class="toc-num">IV</span> Disclaimer of Liability</a></li>
+                <li><a href="#art5"><span class="toc-num">V</span> Privacy Policy</a></li>
+                <li><a href="#art6"><span class="toc-num">VI</span> Governing Law</a></li>
+            </ul>
+        </nav>
+
+        <article id="art1" class="animate-on-scroll">
+            <h2 data-num="I">Definitions &amp; Applicability</h2>
+            <p><strong>1.1. The Platform.</strong> "Arttous," "The Platform," "We," and "Us" refer to the Arttous Robotics experimental initiative, its creators, maintainers, and the associated digital infrastructure hosted on this domain and associated repositories.</p>
+            <p><strong>1.2. The User.</strong> "You," "User," or "Entity" refers to any individual, machine logic, or corporate body accessing this site, downloading RTOS firmware, viewing 3D assets, or utilising our documentation.</p>
+            <p><strong>1.3. Synthetic Data.</strong> Refers to all content including but not limited to: dual-core code repositories, 3D models (.glb, .stl), kinematic equations, firmware logic, and textual explanations generated through a collaborative process involving human engineering and Generative AI models.</p>
         </article>
 
-        <article class="animate-on-scroll">
-            <h2>ARTICLE II: LICENSE GRANT & RESTRICTIONS</h2>
+        <article id="art2" class="animate-on-scroll">
+            <h2 data-num="II">License Grant &amp; Restrictions</h2>
             <p>Arttous grants the User a limited, revocable, non-exclusive, non-transferable license to access and use the Synthetic Data subject strictly to the following terms:</p>
-            
-            <h3>2.1. Permitted Use (Educational & Research)</h3>
-            <p>You are authorized to view, download, and execute the provided files solely for the purposes of:</p>
+            <h3>2.1 Permitted Use — Educational &amp; Research</h3>
             <ul>
                 <li>Personal education and study of inverse kinematics and FreeRTOS architecture.</li>
-                <li>Non-commercial algorithmic training (e.g., training Neural Networks on our gait datasets).</li>
+                <li>Non-commercial algorithmic training on our gait datasets.</li>
                 <li>Academic research, provided proper attribution is given to Arttous.</li>
-                <li>Simulation within virtual environments (e.g., Gazebo, Unity, Unreal Engine) where no physical harm can occur.</li>
+                <li>Simulation within virtual environments (Gazebo, Unity, Unreal Engine) where no physical harm can occur.</li>
             </ul>
-
-            <h3>2.2. Prohibited Use (Industrial & Commercial)</h3>
-            <p>The User is strictly prohibited from utilizing any data, code, or models found on this Platform for:</p>
+            <h3>2.2 Prohibited Use — Industrial &amp; Commercial</h3>
             <ul>
                 <li>Industrial automation, manufacturing lines, or heavy machinery control.</li>
-                <li>Commercial product development or "for-profit" hardware sales.</li>
-                <li>Safety-critical systems, including medical robotics, autonomous transport, or military applications.</li>
+                <li>Commercial product development or for-profit hardware sales.</li>
+                <li>Safety-critical systems including medical robotics, autonomous transport, or military applications.</li>
                 <li>Any application where failure of the software could lead to physical injury or death.</li>
             </ul>
         </article>
 
-        <article class="animate-on-scroll">
-            <h2>ARTICLE III: NATURE OF THEORETICAL DATA</h2>
-            <div class="clause-box" style="border-color: var(--accent-primary); animation: none; box-shadow: none;">
-                <h3 style="color: var(--accent-primary); margin-top: 0;">3.1. The Human-AI Hybrid Origin</h3>
-                <p style="color: #aaa; margin-bottom: 0;">The User acknowledges that the content on Arttous is not the result of certified engineering standards (ISO/ASTM). It is the product of experimental collaboration between human enthusiasts and Generative AI. Consequently, the data may contain "hallucinations," logical errors, or physics calculations that function in simulation but fail in physical reality.</p>
+        <article id="art3" class="animate-on-scroll">
+            <h2 data-num="III">Nature of Theoretical Data</h2>
+            <div class="clause-box">
+                <div class="clause-h">3.1 Human-AI Hybrid Origin</div>
+                <p>The User acknowledges that the content on Arttous is not the result of certified engineering standards (ISO/ASTM). It is the product of experimental collaboration between human enthusiasts and Generative AI. Consequently, the data may contain logical errors or physics calculations that function in simulation but fail in physical reality.</p>
             </div>
-
-            <h3>3.2. No Guarantee of Feasibility</h3>
-            <p>We do not warrant that the 3D models provided are printable, structurally sound, or mechanically viable under high-torque loads. We do not warrant that the firmware code (C++/Python) is free of bugs, memory leaks, or race conditions that could overheat or destroy physical motors.</p>
+            <h3>3.2 No Guarantee of Feasibility</h3>
+            <p>We do not warrant that the 3D models provided are printable, structurally sound, or mechanically viable under high-torque loads. We do not warrant that the firmware code (C++ / Python) is free of bugs, memory leaks, or race conditions that could overheat or destroy physical motors.</p>
         </article>
 
-        <article class="animate-on-scroll">
-            <h2>ARTICLE IV: DISCLAIMER OF LIABILITY</h2>
-            <p style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px;">
-                TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE ARTTOUS PLATFORM AND ITS CREATORS DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-            </p>
-            <p style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; margin-top: 20px;">
-                IN NO EVENT SHALL ARTTOUS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-            </p>
-            <p><strong>Plain English Translation:</strong> If you build a robot using our code and it walks off a table, catches fire, or injures you, we are not responsible. You use this information entirely at your own risk.</p>
+        <article id="art4" class="animate-on-scroll">
+            <h2 data-num="IV">Disclaimer of Liability</h2>
+            <div class="mono-block">To the maximum extent permitted by applicable law, the Arttous Platform and its creators disclaim all warranties, express or implied, including the implied warranties of merchantability and fitness for a particular purpose. In no event shall Arttous be liable for any direct, indirect, incidental, special, exemplary, or consequential damages however caused and on any theory of liability, whether in contract, strict liability, or tort arising in any way out of the use of this software, even if advised of the possibility of such damage.</div>
+            <p><strong>Plain language:</strong> If you build a robot using our code and it injures you, we are not responsible. You use this information entirely at your own risk.</p>
         </article>
 
-        <article class="animate-on-scroll">
-            <h2>ARTICLE V: PRIVACY POLICY</h2>
-            
-            <h3>5.1. Data Collection</h3>
-            <p>We believe in data minimalism. However, for the security of the Mesh Network, we collect:</p>
+        <article id="art5" class="animate-on-scroll">
+            <h2 data-num="V">Privacy Policy</h2>
+            <h3>5.1 Data Collection</h3>
+            <p>We believe in data minimalism. For the security of the Mesh Network, we collect server logs (IP, browser type, timestamp), Specialist registration credentials (cryptographic hash only), and, where applicable, real-time sensor telemetry (IMU, battery voltage, LoRa coordinates) — anonymised and used for aggregate analysis.</p>
+            <h3>5.2 Use of Data</h3>
             <ul>
-                <li><strong>Server Logs:</strong> IP addresses, browser types, and timestamps of access requests.</li>
-                <li><strong>Specialist Registration:</strong> If you apply for "Specialist" status, we collect the cryptographic hash of your credentials and your self-reported technical skillset.</li>
-                <li><strong>Telemetry:</strong> If you connect a physical device to our "Live Telemetry" socket, we collect real-time sensor data (IMU, battery voltage, GPS/LoRa coordinates) which is anonymized and stored for aggregate analysis.</li>
-            </ul>
-
-            <h3>5.2. Use of Data</h3>
-            <p>Any data we collect is used solely for:</p>
-            <ul>
-                <li>Improving the Inverse Kinematics (IK) algorithms (Training Data).</li>
-                <li>Securing the site against DDoS and brute-force attacks.</li>
+                <li>Improving Inverse Kinematics algorithms.</li>
+                <li>Securing the platform against DDoS and brute-force attacks.</li>
                 <li>Verifying eligibility for community access.</li>
             </ul>
             <p>We do not sell, trade, or transfer your data to third-party commercial entities.</p>
         </article>
 
-        <article class="animate-on-scroll">
-            <h2>ARTICLE VI: GOVERNING LAW</h2>
-            <p>These terms shall be governed by and construed in accordance with the laws of the <strong>Province of Ontario, Canada</strong>, and the federal laws of Canada applicable therein, without regard to its conflict of law provisions.</p>
-            <p>Any dispute arising from these terms shall be resolved exclusively in the courts located within Middlesex County, Ontario.</p>
+        <article id="art6" class="animate-on-scroll">
+            <h2 data-num="VI">Governing Law</h2>
+            <p>These terms shall be governed by and construed in accordance with the laws of the <strong>Province of Ontario, Canada</strong>, and the federal laws of Canada applicable therein, without regard to its conflict of law provisions. Any dispute arising from these terms shall be resolved exclusively in the courts located within Middlesex County, Ontario.</p>
         </article>
 
-    </div>
-
-    <footer>
-        <div class="digital-sig">
-            <div>
-                SIGNED: <span style="color: var(--accent-primary);">SYSTEM_ADMIN</span><br>
-                HASH: 0x99a...f42
-            </div>
-            <div style="text-align: right;">
-                &copy; 2026 Arttous Robotics Inc.<br>
-                <a href="index.html" style="text-decoration: underline;">Return to Mission Control</a>
+        <div class="doc-footer">
+            <div class="sig-block">Signed: <em>System_Admin</em><br>Hash: 0x99a…f42<br>© 2026 Arttous Robotics Inc.</div>
+            <div class="footer-links">
+                <a href="index.html">← Return to HQ</a>
+                <a href="account.html">Dashboard</a>
             </div>
         </div>
-    </footer>
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // 1. Decrypt Text Effect
-            const decryptElement = document.getElementById('decrypt-text');
-            const targetText = decryptElement.getAttribute('data-value');
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
-            let iterations = 0;
-            const maxIterations = 30;
+    function applyTheme(t){document.body.dataset.theme=t;document.querySelectorAll('.sw').forEach(s=>s.classList.toggle('on',s.dataset.t===t));localStorage.setItem('theme',t);}
+    document.querySelectorAll('.sw').forEach(sw=>sw.addEventListener('click',()=>applyTheme(sw.dataset.t)));
+    applyTheme(localStorage.getItem('theme')||'gold');
 
-            const decryptInterval = setInterval(() => {
-                decryptElement.innerText = targetText.split('').map((letter, index) => {
-                    if (index < iterations) {
-                        return targetText[index];
-                    }
-                    return chars[Math.floor(Math.random() * chars.length)];
-                }).join('');
+    /* Decrypt effect on meta line */
+    const meta=document.getElementById('metaLine');
+    const target=meta.textContent.trim();
+    const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789·—/\\';
+    let it=0;
+    const iv=setInterval(()=>{
+        meta.textContent=target.split('').map((c,i)=>i<it?target[i]:chars[Math.floor(Math.random()*chars.length)]).join('');
+        if(it>=target.length)clearInterval(iv);
+        it+=1.6;
+    },32);
 
-                if (iterations >= targetText.length) {
-                    clearInterval(decryptInterval);
-                }
-                iterations += 1;
-            }, 30);
-
-            // 2. Intersection Observer for Scroll Animations
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.15 
-            };
-
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('show');
-                        observer.unobserve(entry.target); 
-                    }
-                });
-            }, observerOptions);
-
-            const scrollElements = document.querySelectorAll('.animate-on-scroll');
-            scrollElements.forEach(el => observer.observe(el));
-
-        });
+    /* Scroll reveal */
+    const obs=new IntersectionObserver((entries,o)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('show');o.unobserve(e.target);}});},{threshold:.12});
+    document.querySelectorAll('.animate-on-scroll').forEach(el=>obs.observe(el));
     </script>
 </body>
 </html>

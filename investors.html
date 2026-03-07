@@ -5,340 +5,249 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARTTOUS | Investor Relations</title>
     <link rel="icon" href="assets/images/logo-ttr.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-     <script src="assets/js/mobile-blocker.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="assets/js/mobile-blocker.js"></script>
     <style>
-        :root {
-            --bg-core: #050505;
-            --bg-card: rgba(14, 14, 14, 0.8);
-            --accent: #7c2ae8;
-            --profit: #2ecc71; 
-            --text-main: #e0e0e0;
-            --text-dim: #666;
-            --font-tech: 'Orbitron', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --font-body: 'Inter', sans-serif;
-        }
+    :root{--accent:#c8a05a;--accent-dim:#7a5e2e;--accent-pale:rgba(200,160,90,0.09);--accent-glow:rgba(200,160,90,0.22);--bg:#080808;--surface:#101010;--surface2:#181818;--line:#202020;--line2:#2c2c2c;--text:#f0f0e8;--text-mid:#a8a8a0;--text-dim:#5e5e58;--pos:#4a7a54;--neg:#8a4848;--font-serif:'Cormorant Garamond',serif;--font-mono:'DM Mono',monospace;--font-body:'DM Sans',sans-serif;}
+    [data-theme="platinum"]{--accent:#ccccc4;--accent-dim:#888880;--accent-pale:rgba(204,204,196,0.08);--accent-glow:rgba(204,204,196,0.18);}
+    [data-theme="sapphire"]{--accent:#5a8ec8;--accent-dim:#2a4e78;--accent-pale:rgba(90,142,200,0.09);--accent-glow:rgba(90,142,200,0.22);}
+    [data-theme="emerald"]{--accent:#5aaa7a;--accent-dim:#2a5a3a;--accent-pale:rgba(90,170,122,0.09);--accent-glow:rgba(90,170,122,0.22);}
+    [data-theme="rouge"]{--accent:#c86a58;--accent-dim:#783a28;--accent-pale:rgba(200,106,88,0.09);--accent-glow:rgba(200,106,88,0.22);}
+    [data-theme="violet"]{--accent:#8a6ac8;--accent-dim:#4a3a78;--accent-pale:rgba(138,106,200,0.09);--accent-glow:rgba(138,106,200,0.22);}
+    [data-theme="obsidian"]{--accent:#e0d7c0;--accent-dim:#908070;--accent-pale:rgba(224,215,192,0.06);--accent-glow:rgba(224,215,192,0.18);--bg:#030303;--surface:#090909;--surface2:#0e0e0e;--line:#181818;--line2:#222222;}
+    [data-theme="frost"]{--accent:#3a6a9a;--accent-dim:#1a3a5a;--accent-pale:rgba(58,106,154,0.09);--accent-glow:rgba(58,106,154,0.22);--bg:#f2f0ec;--surface:#e8e4de;--surface2:#e0dbd4;--line:#ccc8c0;--line2:#b8b4ac;--text:#181816;--text-mid:#4a4a42;--text-dim:#7a7a70;--pos:#2a6034;--neg:#7a2828;}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{font-size:clamp(13px,.46vw+9.5px,18px);scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;transition:background .35s,color .35s;}
+    body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");background-size:160px;pointer-events:none;z-index:9000;}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* Topbar */
+    .topbar{padding:0 clamp(20px,4vw,60px);height:clamp(52px,4vw,64px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:200;transition:background .35s,border-color .35s;}
+    .logo{font-family:var(--font-serif);font-weight:400;font-size:clamp(15px,1rem,20px);letter-spacing:.32em;color:var(--text);text-decoration:none;}
+    .logo em{font-style:normal;color:var(--accent);}
+    .tb-right{display:flex;align-items:center;gap:8px;}
+    .secure-badge{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.16em;color:var(--accent);border:1px solid var(--accent-dim);padding:clamp(3px,.25rem,5px) clamp(9px,.75rem,14px);text-transform:uppercase;background:var(--accent-pale);margin-right:10px;animation:badgePulse 3s ease infinite;}
+    @keyframes badgePulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+    .sw{width:clamp(11px,.85rem,16px);height:clamp(11px,.85rem,16px);border-radius:50%;border:1.5px solid transparent;cursor:pointer;flex-shrink:0;transition:transform .18s,box-shadow .18s;}
+    .sw:hover{transform:scale(1.3);}
+    .sw.on{border-color:var(--text);box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--text);}
+    .sw-gold{background:#c8a05a;}.sw-platinum{background:#c8c8c0;}.sw-sapphire{background:#5a8ec8;}.sw-emerald{background:#5aaa7a;}.sw-rouge{background:#c86a58;}.sw-violet{background:#8a6ac8;}.sw-obsidian{background:#e0d7c0;}.sw-frost{background:linear-gradient(135deg,#d0e4f4,#3a6a9a);}
 
-        body {
-            background: var(--bg-core);
-            color: var(--text-main);
-            font-family: var(--font-body);
-            overflow-x: hidden;
-            position: relative;
-        }
+    /* Hero */
+    .hero{padding:clamp(52px,6vw,96px) clamp(20px,5vw,80px) clamp(32px,4vw,64px);max-width:1200px;margin:0 auto;opacity:0;transform:translateY(-10px);animation:heroIn .55s cubic-bezier(.2,1,.2,1) .05s forwards;}
+    @keyframes heroIn{to{opacity:1;transform:translateY(0);}}
+    .hero-eyebrow{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.22em;color:var(--accent);text-transform:uppercase;margin-bottom:clamp(10px,.9rem,16px);opacity:.8;}
+    .hero-h1{font-family:var(--font-serif);font-size:clamp(30px,3.8rem,68px);font-weight:300;color:var(--text);line-height:1.02;letter-spacing:.04em;margin-bottom:clamp(14px,1.5rem,24px);}
+    .hero-sub{font-family:var(--font-body);font-size:clamp(12px,.86rem,15px);color:var(--text-dim);max-width:560px;line-height:1.8;font-weight:300;}
 
-       
-        /* HEADER */
-        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: relative; z-index: 10; background: rgba(5,5,5,0.9); }
-        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; animation: glow 2s infinite alternate; }
-        .accent { color: var(--accent); }
-        .secure-badge { 
-            border: 1px solid var(--accent); padding: 5px 12px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px;
-            animation: pulseBadge 2s infinite; background: rgba(124, 42, 232, 0.1);
-        }
+    /* Metrics */
+    .metrics-section{padding:0 clamp(20px,5vw,80px) clamp(32px,4vw,64px);max-width:1200px;margin:0 auto;}
+    .metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(8px,.8vw,14px);}
+    @media(max-width:700px){.metrics-grid{grid-template-columns:1fr;}}
+    .metric-card{background:var(--surface);border:1px solid var(--line);padding:clamp(22px,2.2vw,36px) clamp(18px,1.8vw,28px);position:relative;overflow:hidden;opacity:0;transform:translateY(14px);transition:opacity .45s,transform .45s,border-color .2s;}
+    .metric-card.show{opacity:1;transform:translateY(0);}
+    .metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .25s;}
+    .metric-card:hover{border-color:var(--accent-dim);}
+    .metric-card:hover::before{opacity:.5;}
+    .metric-lbl{font-family:var(--font-mono);font-size:clamp(7px,.52rem,9px);letter-spacing:.18em;color:var(--text-dim);text-transform:uppercase;margin-bottom:clamp(10px,.9rem,16px);}
+    .metric-val{font-family:var(--font-serif);font-size:clamp(32px,3.5rem,60px);font-weight:300;color:var(--text);line-height:1;margin-bottom:8px;}
+    .metric-tag{font-family:var(--font-mono);font-size:clamp(7px,.52rem,9px);letter-spacing:.12em;color:var(--pos);text-transform:uppercase;padding:4px 8px;background:rgba(74,122,84,0.12);border:1px solid rgba(74,122,84,0.2);display:inline-block;}
+    .metric-tag.neutral{color:var(--text-dim);background:var(--surface2);border-color:var(--line2);}
 
-        /* HERO SECTION */
-        .invest-hero {
-            padding: 100px 5% 60px;
-            text-align: center;
-            background: radial-gradient(circle at 50% 100%, rgba(46, 204, 113, 0.08), transparent 60%);
-            position: relative;
-            z-index: 5;
-            animation: slideDown 1s cubic-bezier(0.1, 1, 0.1, 1) forwards;
-            opacity: 0;
-            transform: translateY(-30px);
-        }
-        h1 { font-family: var(--font-tech); font-size: 3.5rem; margin-bottom: 20px; letter-spacing: 2px; }
-        .subtitle { color: #888; max-width: 700px; margin: 0 auto; line-height: 1.6; font-size: 1.1rem; }
+    /* Asset section */
+    .asset-section{padding:clamp(32px,4vw,64px) clamp(20px,5vw,80px);max-width:1200px;margin:0 auto;border-top:1px solid var(--line);}
+    .section-eyebrow{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.22em;color:var(--text-dim);text-transform:uppercase;margin-bottom:clamp(12px,1.2rem,20px);}
+    .section-title{font-family:var(--font-serif);font-size:clamp(20px,2rem,36px);font-weight:300;color:var(--text);letter-spacing:.04em;margin-bottom:clamp(18px,1.8rem,28px);}
+    .asset-frame{background:var(--surface);border:1px solid var(--line);padding:clamp(16px,1.6vw,24px);text-align:center;}
+    .asset-frame img{width:100%;max-width:900px;border:1px solid var(--line2);display:block;margin:0 auto clamp(12px,1.2rem,20px);}
+    .asset-caption{font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.12em;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;}
+    .asset-desc{font-family:var(--font-body);font-size:clamp(11px,.78rem,13px);color:var(--text-dim);max-width:700px;margin:0 auto;line-height:1.7;font-weight:300;}
 
-        /* METRICS GRID (UNIT ECONOMICS) */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            max-width: 1200px;
-            margin: 40px auto 80px;
-            padding: 0 5%;
-            position: relative;
-            z-index: 5;
-        }
-        .metric-card {
-            background: var(--bg-card); border: 1px solid #222; padding: 40px 20px; text-align: center;
-            transition: 0.4s cubic-bezier(0.1, 1, 0.1, 1);
-            backdrop-filter: blur(10px);
-            opacity: 0; transform: translateY(30px); /* For JS animation */
-        }
-        .metric-card:hover { border-color: var(--profit); transform: translateY(-10px) scale(1.02); box-shadow: 0 15px 30px rgba(46, 204, 113, 0.1); }
-        .metric-val { font-family: var(--font-tech); font-size: 3rem; color: #fff; margin-bottom: 5px; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
-        .metric-label { font-family: var(--font-mono); font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 1px;}
-        .growth-tag { color: var(--profit); font-size: 0.8rem; margin-top: 15px; display: block; font-family: var(--font-mono); background: rgba(46, 204, 113, 0.1); padding: 5px; border-radius: 4px;}
+    /* Timeline */
+    .timeline-section{padding:clamp(32px,4vw,64px) clamp(20px,5vw,80px);max-width:1200px;margin:0 auto;border-top:1px solid var(--line);}
+    .timeline-feed{border-left:1px solid var(--line2);padding-left:clamp(22px,2.2rem,36px);margin-left:clamp(8px,.8rem,14px);}
+    .tl-item{position:relative;margin-bottom:clamp(28px,3vw,48px);opacity:0;transform:translateX(-10px);transition:opacity .5s,transform .5s;}
+    .tl-item.show{opacity:1;transform:translateX(0);}
+    .tl-item::before{content:'';position:absolute;left:clamp(-30px,-2.4rem,-22px);top:7px;width:7px;height:7px;border-radius:50%;background:var(--bg);border:1px solid var(--line2);}
+    .tl-item.active::before{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-pale);}
+    .tl-item.future::before{border-color:var(--text-faint,#252522);}
+    .tl-phase{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:6px;opacity:.8;}
+    .tl-phase.done{color:var(--text-dim);}
+    .tl-phase.future{color:var(--text-dim);opacity:.5;}
+    .tl-title{font-family:var(--font-serif);font-size:clamp(16px,1.5rem,26px);font-weight:400;color:var(--text);margin-bottom:8px;letter-spacing:.04em;}
+    .tl-item.future .tl-title{color:var(--text-dim);}
+    .tl-desc{font-family:var(--font-body);font-size:clamp(11px,.78rem,13px);color:var(--text-dim);line-height:1.7;font-weight:300;}
 
-        /* DIGITAL TWIN SHOWCASE */
-        .software-asset {
-            max-width: 1200px; margin: 0 auto 80px; padding: 0 5%;
-            position: relative; z-index: 5;
-            opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out;
-        }
-        .software-asset.show { opacity: 1; transform: translateY(0); }
+    /* Capital tiers */
+    .tiers-section{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:clamp(40px,4.5vw,72px) clamp(20px,5vw,80px);}
+    .tiers-inner{max-width:1000px;margin:0 auto;}
+    .tiers-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(14px,1.4vw,22px);margin-top:clamp(28px,3vw,48px);}
+    @media(max-width:680px){.tiers-grid{grid-template-columns:1fr;}}
+    .tier-card{border:1px solid var(--line);padding:clamp(24px,2.4vw,38px);background:var(--bg);opacity:0;transform:translateY(14px);transition:opacity .45s,transform .45s,border-color .2s;}
+    .tier-card.show{opacity:1;transform:translateY(0);}
+    .tier-card.open{border-color:var(--accent-dim);}
+    .tier-card:hover{border-color:var(--accent-dim);}
+    .tier-name{font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.18em;color:var(--text-mid);text-transform:uppercase;margin-bottom:clamp(12px,1.2rem,20px);padding-bottom:clamp(10px,.9rem,16px);border-bottom:1px solid var(--line);}
+    .tier-card.open .tier-name{color:var(--accent);}
+    .tier-desc{font-family:var(--font-body);font-size:clamp(11px,.78rem,13px);color:var(--text-dim);line-height:1.7;margin-bottom:clamp(14px,1.4rem,22px);font-weight:300;}
+    .tier-list{list-style:none;margin-bottom:clamp(18px,1.8rem,28px);}
+    .tier-list li{font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.05em;color:var(--text-dim);padding:clamp(6px,.55rem,10px) 0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;}
+    .tier-list li::before{content:'—';color:var(--accent);opacity:.5;font-family:var(--font-serif);}
+    .tier-card.locked .tier-list li{color:var(--text-dim);opacity:.5;}
+    .btn-pitch{display:block;width:100%;padding:clamp(11px,.92rem,16px);background:transparent;border:1px solid var(--accent-dim);color:var(--accent);font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.18em;text-align:center;text-decoration:none;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s;}
+    .btn-pitch:hover{background:var(--accent);color:var(--bg);}
+    .locked-label{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.14em;color:var(--text-dim);border:1px solid var(--line2);padding:clamp(8px,.7rem,12px);text-align:center;text-transform:uppercase;margin-top:clamp(14px,1.3rem,22px);}
 
-        /* ROADMAP (TIMELINE) */
-        .roadmap-section {
-            padding: 80px 5%; max-width: 900px; margin: 0 auto; position: relative; z-index: 5;
-        }
-        .section-title { font-family: var(--font-tech); font-size: 2rem; margin-bottom: 50px; text-align: center; color: #fff; text-shadow: 0 0 10px rgba(124, 42, 232, 0.5);}
-        
-        .timeline { position: relative; border-left: 2px solid #222; padding-left: 40px; margin-left: 20px; }
-        .timeline-item { margin-bottom: 60px; position: relative; opacity: 0; transform: translateX(-30px); transition: all 0.6s ease-out; }
-        .timeline-item.show { opacity: 1; transform: translateX(0); }
-        
-        .timeline-dot {
-            width: 16px; height: 16px; background: #000; border: 2px solid var(--accent); border-radius: 50%;
-            position: absolute; left: -49px; top: 5px;
-            box-shadow: 0 0 15px var(--accent);
-        }
-        .timeline-dot.active { animation: radarPulse 2s infinite; }
-        .timeline-dot.future { border-color: #444; box-shadow: none; }
-        
-        .phase-title { font-family: var(--font-mono); color: var(--accent); font-size: 0.9rem; margin-bottom: 10px; letter-spacing: 1px; }
-        .milestone { font-family: var(--font-tech); font-size: 1.5rem; color: #fff; margin-bottom: 10px; }
-        .milestone-desc { color: #888; line-height: 1.6; }
-
-        /* INVESTMENT TIERS */
-        .tiers-section {
-            background: #080808; padding: 100px 5%; border-top: 1px solid #222; position: relative; z-index: 5;
-        }
-        .tiers-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; max-width: 1000px; margin: 0 auto;
-        }
-        .tier-card {
-            border: 1px solid #333; padding: 40px; background: var(--bg-core); position: relative;
-            opacity: 0; transform: translateY(40px); transition: all 0.8s ease-out;
-        }
-        .tier-card.show { opacity: 1; transform: translateY(0); }
-        .tier-card:hover { border-color: #555; }
-        .tier-card.open-tier { border-color: var(--profit); box-shadow: inset 0 0 20px rgba(46, 204, 113, 0.05); }
-        
-        .tier-name { font-family: var(--font-mono); color: #fff; font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; letter-spacing: 1px;}
-        .tier-list { list-style: none; margin-bottom: 40px; }
-        .tier-list li { color: #888; margin-bottom: 15px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;}
-        .tier-list li::before { content: "►"; color: var(--accent); font-size: 0.7rem; }
-        
-        .invest-btn {
-            width: 100%; padding: 15px; background: transparent; border: 1px solid var(--profit); color: var(--profit);
-            font-family: var(--font-tech); cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-block; text-align: center;
-            position: relative; overflow: hidden;
-        }
-        .invest-btn::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(46, 204, 113, 0.4), transparent);
-            transform: skewX(-20deg); transition: 0.5s;
-        }
-        .invest-btn:hover::before { left: 200%; }
-        .invest-btn:hover { background: var(--profit); color: #000; box-shadow: 0 0 20px rgba(46, 204, 113, 0.4); }
-
-        /* FOOTER */
-        footer { border-top: 1px solid #222; padding: 40px 0; text-align: center; font-family: var(--font-mono); font-size: 0.75rem; color: #444; position: relative; z-index: 5; background: #050505;}
-
-        /* ANIMATIONS */
-        @keyframes slideDown { to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulseBadge { 0%, 100% { opacity: 1; box-shadow: 0 0 5px var(--accent); } 50% { opacity: 0.5; box-shadow: none; } }
-        @keyframes glow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
-        @keyframes radarPulse { 0% { box-shadow: 0 0 0 0 rgba(124, 42, 232, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(124, 42, 232, 0); } 100% { box-shadow: 0 0 0 0 rgba(124, 42, 232, 0); } }
-
-        @media (max-width: 900px) {
-            .metrics-grid { grid-template-columns: 1fr; gap: 15px; }
-            .tiers-grid { grid-template-columns: 1fr; }
-            h1 { font-size: 2.5rem; }
-        }
+    /* Footer */
+    .doc-footer{max-width:1200px;margin:0 auto;padding:clamp(24px,2.5vw,40px) clamp(20px,5vw,80px);border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:clamp(16px,1.6rem,24px);}
+    .sig-block{font-family:var(--font-mono);font-size:clamp(8px,.58rem,10px);letter-spacing:.1em;color:var(--text-dim);line-height:1.9;text-transform:uppercase;}
+    .sig-block em{font-style:normal;color:var(--accent);}
+    .footer-links{display:flex;gap:clamp(14px,1.4rem,22px);}
+    .footer-links a{font-family:var(--font-mono);font-size:clamp(8px,.58rem,10px);letter-spacing:.12em;color:var(--text-dim);text-decoration:none;text-transform:uppercase;transition:color .2s;}
+    .footer-links a:hover{color:var(--accent);}
+    ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px;}
+    .animate-on-scroll{opacity:0;transform:translateY(16px);transition:opacity .55s cubic-bezier(.2,1,.2,1),transform .55s cubic-bezier(.2,1,.2,1);}
+    .animate-on-scroll.show{opacity:1;transform:translateY(0);}
     </style>
 </head>
-<body>
+<body data-theme="gold">
 
-    <nav>
-        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div class="secure-badge">SECURE DOC: IR_2026</div>
-    </nav>
+    <header class="topbar">
+        <a href="index.html" class="logo">ART<em>TOUS</em></a>
+        <div class="tb-right">
+            <div class="secure-badge">Secure Doc: IR 2026</div>
+            <div class="sw sw-gold on" data-t="gold"></div>
+            <div class="sw sw-platinum" data-t="platinum"></div>
+            <div class="sw sw-sapphire" data-t="sapphire"></div>
+            <div class="sw sw-emerald" data-t="emerald"></div>
+            <div class="sw sw-rouge" data-t="rouge"></div>
+            <div class="sw sw-violet" data-t="violet"></div>
+            <div class="sw sw-obsidian" data-t="obsidian"></div>
+            <div class="sw sw-frost" data-t="frost"></div>
+        </div>
+    </header>
 
-    <div class="invest-hero">
-        <h1>SCALING AUTONOMY</h1>
-        <p class="subtitle">
-            We are capitalizing on the $14B demand for GNSS-denied navigation. 
-            Arttous provides industrial RaaS (Robotics-as-a-Service) solutions for subterranean inspection and search & rescue.
-        </p>
+    <!-- Hero -->
+    <div class="hero">
+        <div class="hero-eyebrow">Investor Relations — Arttous Robotics Inc.</div>
+        <div class="hero-h1">Scaling<br>Autonomy</div>
+        <div class="hero-sub">Capitalising on the $14B demand for GNSS-denied navigation. Industrial RaaS solutions for subterranean inspection and search &amp; rescue.</div>
     </div>
 
-    <div class="metrics-grid" id="metrics">
-        <div class="metric-card">
-            <div class="metric-val" data-target="850" data-prefix="$">0</div>
-            <div class="metric-label">Bill of Materials (BOM)</div>
-            <span class="growth-tag">Target: $600 by Q4 2026</span>
-        </div>
-        <div class="metric-card">
-            <div class="metric-val" data-target="1200" data-prefix="$" data-suffix="K">0</div>
-            <div class="metric-label">Monthly RaaS Fee</div>
-            <span class="growth-tag" style="color: #fff; background: #222;">Recurring Revenue</span>
-        </div>
-        <div class="metric-card">
-            <div class="metric-val" data-target="84" data-suffix="%">0</div>
-            <div class="metric-label">Gross Margin</div>
-            <span class="growth-tag">+12% YoY Efficiency</span>
+    <!-- Metrics -->
+    <div class="metrics-section">
+        <div class="metrics-grid" id="metricsGrid">
+            <div class="metric-card">
+                <div class="metric-lbl">Bill of Materials (BOM)</div>
+                <div class="metric-val" data-target="850" data-prefix="$">$0</div>
+                <span class="metric-tag">Target: $600 by Q4 2026</span>
+            </div>
+            <div class="metric-card">
+                <div class="metric-lbl">Monthly RaaS Fee</div>
+                <div class="metric-val" data-target="1200" data-prefix="$" data-suffix="K">$0K</div>
+                <span class="metric-tag neutral">Recurring Revenue</span>
+            </div>
+            <div class="metric-card">
+                <div class="metric-lbl">Gross Margin</div>
+                <div class="metric-val" data-target="84" data-suffix="%">0%</div>
+                <span class="metric-tag">+12% YoY Efficiency</span>
+            </div>
         </div>
     </div>
 
-    <div class="software-asset animate-on-scroll">
-        <h3 style="color: var(--accent); margin-bottom: 20px; font-family: var(--font-tech); text-align: center;">SOFTWARE ASSET: DIGITAL TWIN UI</h3>
-        <div style="background: #0a0a0a; border: 1px solid #222; padding: 20px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-            <img src="assets/images/Screenshot 2026-02-22 124034.jpg" style="width: 100%; max-width: 900px; border: 1px solid #333; border-radius: 4px; margin-bottom: 20px;" alt="Flight Deck UI">
-            <h4 style="color: #fff; font-family: var(--font-tech); margin-bottom: 10px;">PROPRIETARY MISSION CONTROL INTERFACE</h4>
-            <p style="color: #888; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; max-width: 800px; margin: 0 auto;">
-                Served entirely from the ESP32-S3's onboard memory, this Zero-Install Web UI provides operators with a real-time WebGL Digital Twin. Features 50Hz WebSocket telemetry and direct kinematic control. A major differentiator for our enterprise RaaS clients.
-            </p>
+    <!-- Asset -->
+    <div class="asset-section animate-on-scroll">
+        <div class="section-eyebrow">Software Asset</div>
+        <div class="section-title">Digital Twin UI</div>
+        <div class="asset-frame">
+            <img src="assets/images/Screenshot 2026-02-22 124034.jpg" alt="Flight Deck UI">
+            <div class="asset-caption">Proprietary Mission Control Interface</div>
+            <div class="asset-desc">Served entirely from the ESP32-S3's onboard memory. Zero-Install Web UI provides real-time WebGL Digital Twin with 50Hz WebSocket telemetry and direct kinematic control — a major differentiator for enterprise RaaS clients.</div>
         </div>
     </div>
 
-    <section class="roadmap-section">
-        <h2 class="section-title">STRATEGIC TIMELINE</h2>
-        
-        <div class="timeline">
-            <div class="timeline-item animate-on-scroll">
-                <div class="timeline-dot"></div>
-                <div class="phase-title">PHASE 1: GENESIS (COMPLETED)</div>
-                <div class="milestone">RTOS Firmware v75.4.1</div>
-                <p class="milestone-desc">
-                    Achieved highly stable 16-DOF locomotion leveraging a Dual-Core FreeRTOS architecture. 
-                    Integrated T3S3 Mesh networking and deployed the open-source platform.
-                </p>
+    <!-- Timeline -->
+    <div class="timeline-section">
+        <div class="section-eyebrow">Strategic Roadmap</div>
+        <div class="section-title">Development Timeline</div>
+        <div class="timeline-feed">
+            <div class="tl-item animate-on-scroll">
+                <div class="tl-phase done">Phase 1: Genesis — Completed</div>
+                <div class="tl-title">RTOS Firmware v75.4</div>
+                <div class="tl-desc">Achieved stable 16-DOF locomotion via Dual-Core FreeRTOS. Integrated T3S3 Mesh networking and deployed the open-source platform.</div>
             </div>
-
-            <div class="timeline-item animate-on-scroll">
-                <div class="timeline-dot active"></div>
-                <div class="phase-title" style="color: var(--profit);">PHASE 2: DEPLOYMENT (CURRENT)</div>
-                <div class="milestone">Pilot Fleet Alpha</div>
-                <p class="milestone-desc">
-                    Deployment of 50 units to Ontario mining partners. 
-                    Stress-testing "Symmetric Twist" kinematics and active IMU balancing in real-world subterranean environments.
-                </p>
+            <div class="tl-item active animate-on-scroll">
+                <div class="tl-phase">Phase 2: Deployment — Current</div>
+                <div class="tl-title">Pilot Fleet Alpha</div>
+                <div class="tl-desc">Deployment of 50 units to Ontario mining partners. Stress-testing Symmetric Twist kinematics and active IMU balancing in real-world subterranean environments.</div>
             </div>
-
-            <div class="timeline-item animate-on-scroll">
-                <div class="timeline-dot future"></div>
-                <div class="phase-title" style="color: #666;">PHASE 3: SWARM (2027)</div>
-                <div class="milestone" style="color: #666;">Hive Mind Protocol</div>
-                <p class="milestone-desc">
-                    Transition from single-unit mesh to distributed swarm intelligence. 
-                    Robots will share mapping data to create real-time 3D scans of hazardous areas.
-                </p>
+            <div class="tl-item future animate-on-scroll">
+                <div class="tl-phase future">Phase 3: Swarm — 2027</div>
+                <div class="tl-title">Hive Mind Protocol</div>
+                <div class="tl-desc">Transition from single-unit mesh to distributed swarm intelligence. Robots share mapping data to create real-time 3D scans of hazardous areas.</div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <section class="tiers-section">
-        <h2 class="section-title" style="margin-bottom: 60px;">CAPITAL ALLOCATION</h2>
-        
-        <div class="tiers-grid">
-            
-            <div class="tier-card open-tier animate-on-scroll">
-                <div class="tier-name" style="color: var(--profit);">SEED ROUND (OPEN)</div>
-                <p style="color: #aaa; margin-bottom: 25px; line-height: 1.6;">
-                    Fueling the transition from prototype to mass production injection molding.
-                </p>
-                <ul class="tier-list">
-                    <li>Min Ticket: $25k</li>
-                    <li>Instrument: SAFE (Valuation Cap $8M)</li>
-                    <li>Quarterly Engineering Briefs</li>
-                    <li>Early Access to "Black Site" Tests</li>
-                </ul>
-                <a href="contact.html" class="invest-btn">REQUEST PITCH DECK</a>
-            </div>
-
-            <div class="tier-card animate-on-scroll" style="border-color: #222; opacity: 0.6;">
-                <div class="tier-name" style="color: #666;">SERIES A (LOCKED)</div>
-                <p style="color: #555; margin-bottom: 25px; line-height: 1.6;">
-                    Planned for Q3 2027. Expansion into military and federal search & rescue contracts.
-                </p>
-                <ul class="tier-list">
-                    <li style="color: #555;">Target Raise: $12M</li>
-                    <li style="color: #555;">Focus: Global Distribution</li>
-                    <li style="color: #555;">Swarm AI Acquisition</li>
-                </ul>
-                <div style="font-family: 'JetBrains Mono'; color: #444; text-align: center; margin-top: 50px; border: 1px solid #333; padding: 12px;">
-                    STATUS: PENDING METRICS
+    <!-- Capital Tiers -->
+    <div class="tiers-section">
+        <div class="tiers-inner">
+            <div class="section-eyebrow">Capital Allocation</div>
+            <div class="section-title">Investment Instruments</div>
+            <div class="tiers-grid">
+                <div class="tier-card open animate-on-scroll">
+                    <div class="tier-name">Seed Round (Open)</div>
+                    <div class="tier-desc">Fuelling the transition from prototype to mass-production injection moulding.</div>
+                    <ul class="tier-list">
+                        <li>Min ticket: $25k</li>
+                        <li>Instrument: SAFE (Valuation cap $8M)</li>
+                        <li>Quarterly engineering briefs</li>
+                        <li>Early access to Black Site tests</li>
+                    </ul>
+                    <a href="contact.html" class="btn-pitch">Request Pitch Deck</a>
+                </div>
+                <div class="tier-card locked animate-on-scroll">
+                    <div class="tier-name">Series A (Locked)</div>
+                    <div class="tier-desc">Planned for Q3 2027. Expansion into military and federal search &amp; rescue contracts.</div>
+                    <ul class="tier-list">
+                        <li>Target raise: $12M</li>
+                        <li>Focus: Global distribution</li>
+                        <li>Swarm AI acquisition</li>
+                    </ul>
+                    <div class="locked-label">Status: Pending Metrics</div>
                 </div>
             </div>
-
         </div>
-    </section>
+    </div>
 
-    <footer>
-        <p>&copy; 2026 Arttous Robotics Inc. | <a href="index.html" style="color: #666; text-decoration: none; transition: 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#666'">Return to HQ</a></p>
-    </footer>
+    <div class="doc-footer">
+        <div class="sig-block">Signed: <em>System_Admin</em><br>Hash: 0x99a…f42<br>© 2026 Arttous Robotics Inc.</div>
+        <div class="footer-links"><a href="index.html">← Return to HQ</a><a href="contact.html">Contact</a></div>
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // 1. NUMBER COUNTER ANIMATION
-            const counters = document.querySelectorAll('.metric-val');
-            const speed = 100; // The lower the slower
+    function applyTheme(t){document.body.dataset.theme=t;document.querySelectorAll('.sw').forEach(s=>s.classList.toggle('on',s.dataset.t===t));localStorage.setItem('theme',t);}
+    document.querySelectorAll('.sw').forEach(sw=>sw.addEventListener('click',()=>applyTheme(sw.dataset.t)));
+    applyTheme(localStorage.getItem('theme')||'gold');
 
-            const animateCounters = () => {
-                counters.forEach(counter => {
-                    const updateCount = () => {
-                        const target = +counter.getAttribute('data-target');
-                        const prefix = counter.getAttribute('data-prefix') || '';
-                        const suffix = counter.getAttribute('data-suffix') || '';
-                        // Remove prefix/suffix for math
-                        const currentText = counter.innerText.replace(/[^0-9]/g, ''); 
-                        const count = +currentText;
+    /* Counter animation */
+    function countUp(el){
+        const target=+el.dataset.target,prefix=el.dataset.prefix||'',suffix=el.dataset.suffix||'';
+        let cur=0;const speed=target/80;
+        const iv=setInterval(()=>{cur+=speed;if(cur>=target){cur=target;clearInterval(iv);}el.textContent=prefix+Math.ceil(cur).toLocaleString()+suffix;},16);
+    }
 
-                        const inc = target / speed;
+    /* Stagger metrics */
+    const gridObs=new IntersectionObserver((entries)=>{
+        if(!entries[0].isIntersecting)return;
+        document.querySelectorAll('.metric-card').forEach((c,i)=>setTimeout(()=>{c.classList.add('show');countUp(c.querySelector('.metric-val'));},i*140));
+        gridObs.disconnect();
+    },{threshold:.2});
+    gridObs.observe(document.getElementById('metricsGrid'));
 
-                        if (count < target) {
-                            counter.innerText = prefix + Math.ceil(count + inc) + suffix;
-                            setTimeout(updateCount, 15);
-                        } else {
-                            // Ensure final value is exact
-                            counter.innerText = prefix + target + suffix;
-                        }
-                    };
-                    updateCount();
-                });
-            };
-
-            // Trigger counters with a slight delay after load
-            setTimeout(() => {
-                const metricCards = document.querySelectorAll('.metric-card');
-                metricCards.forEach((card, index) => {
-                    setTimeout(() => {
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, index * 200); // Staggered entrance
-                });
-                animateCounters();
-            }, 800);
-
-            // 2. SCROLL REVEAL ANIMATIONS (Intersection Observer)
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.2 // Trigger when 20% visible
-            };
-
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('show');
-                        observer.unobserve(entry.target); // Only animate once
-                    }
-                });
-            }, observerOptions);
-
-            const animatedElements = document.querySelectorAll('.animate-on-scroll');
-            animatedElements.forEach(el => observer.observe(el));
-
-        });
+    /* Scroll reveal */
+    const obs=new IntersectionObserver((entries,o)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('show');o.unobserve(e.target);}});},{threshold:.14});
+    document.querySelectorAll('.animate-on-scroll,.tl-item,.tier-card').forEach(el=>obs.observe(el));
     </script>
 </body>
 </html>

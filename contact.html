@@ -5,415 +5,254 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARTTOUS | Secure Comms Uplink v75.4</title>
     <link rel="icon" href="assets/images/logo-ttr.png" type="image/png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-      <script src="assets/js/mobile-blocker.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
+    <script src="assets/js/mobile-blocker.js"></script>
     <style>
-        :root {
-            --bg-core: #050505;       
-            --bg-panel: rgba(14, 14, 14, 0.75);      
-            --accent-primary: #7c2ae8; 
-            --accent-glow: #9d50ff;   
-            --success: #2ecc71;
-            --danger: #e74c3c;
-            --text-main: #e0e0e0;     
-            --text-dim: #666666;      
-            --grid-color: rgba(124, 42, 232, 0.03);
-            --ease-tech: cubic-bezier(0.16, 1, 0.3, 1);
-        }
+    :root{--accent:#c8a05a;--accent-dim:#7a5e2e;--accent-pale:rgba(200,160,90,0.09);--accent-glow:rgba(200,160,90,0.22);--bg:#080808;--surface:#101010;--surface2:#181818;--line:#202020;--line2:#2c2c2c;--text:#f0f0e8;--text-mid:#a8a8a0;--text-dim:#5e5e58;--pos:#4a7a54;--neg:#8a4848;--font-serif:'Cormorant Garamond',serif;--font-mono:'DM Mono',monospace;--font-body:'DM Sans',sans-serif;}
+    [data-theme="platinum"]{--accent:#ccccc4;--accent-dim:#888880;--accent-pale:rgba(204,204,196,0.08);--accent-glow:rgba(204,204,196,0.18);}
+    [data-theme="sapphire"]{--accent:#5a8ec8;--accent-dim:#2a4e78;--accent-pale:rgba(90,142,200,0.09);--accent-glow:rgba(90,142,200,0.22);}
+    [data-theme="emerald"]{--accent:#5aaa7a;--accent-dim:#2a5a3a;--accent-pale:rgba(90,170,122,0.09);--accent-glow:rgba(90,170,122,0.22);}
+    [data-theme="rouge"]{--accent:#c86a58;--accent-dim:#783a28;--accent-pale:rgba(200,106,88,0.09);--accent-glow:rgba(200,106,88,0.22);}
+    [data-theme="violet"]{--accent:#8a6ac8;--accent-dim:#4a3a78;--accent-pale:rgba(138,106,200,0.09);--accent-glow:rgba(138,106,200,0.22);}
+    [data-theme="obsidian"]{--accent:#e0d7c0;--accent-dim:#908070;--accent-pale:rgba(224,215,192,0.06);--accent-glow:rgba(224,215,192,0.18);--bg:#030303;--surface:#090909;--surface2:#0e0e0e;--line:#181818;--line2:#222222;}
+    [data-theme="frost"]{--accent:#3a6a9a;--accent-dim:#1a3a5a;--accent-pale:rgba(58,106,154,0.09);--accent-glow:rgba(58,106,154,0.22);--bg:#f2f0ec;--surface:#e8e4de;--surface2:#e0dbd4;--line:#ccc8c0;--line2:#b8b4ac;--text:#181816;--text-mid:#4a4a42;--text-dim:#7a7a70;--pos:#2a6034;--neg:#7a2828;}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{font-size:clamp(13px,.46vw+9.5px,18px);}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;transition:background .35s,color .35s;opacity:0;}
+    body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");background-size:160px;pointer-events:none;z-index:9000;}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            background-color: var(--bg-core);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-            background-image: 
-                linear-gradient(var(--grid-color) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 60px 60px;
-            opacity: 0; 
-            visibility: hidden;
-        }
+    /* Topbar */
+    .topbar{padding:0 clamp(20px,4vw,60px);height:clamp(52px,4vw,64px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:200;transition:background .35s,border-color .35s;}
+    .logo{font-family:var(--font-serif);font-weight:400;font-size:clamp(15px,1rem,20px);letter-spacing:.32em;color:var(--text);text-decoration:none;}
+    .logo em{font-style:normal;color:var(--accent);}
+    .tb-right{display:flex;align-items:center;gap:8px;}
+    .sys-badge{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.16em;color:var(--text-dim);border:1px solid var(--line2);padding:clamp(3px,.25rem,5px) clamp(9px,.75rem,14px);text-transform:uppercase;margin-right:10px;}
+    .sw{width:clamp(11px,.85rem,16px);height:clamp(11px,.85rem,16px);border-radius:50%;border:1.5px solid transparent;cursor:pointer;flex-shrink:0;transition:transform .18s,box-shadow .18s;}
+    .sw:hover{transform:scale(1.3);}
+    .sw.on{border-color:var(--text);box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--text);}
+    .sw-gold{background:#c8a05a;}.sw-platinum{background:#c8c8c0;}.sw-sapphire{background:#5a8ec8;}.sw-emerald{background:#5aaa7a;}.sw-rouge{background:#c86a58;}.sw-violet{background:#8a6ac8;}.sw-obsidian{background:#e0d7c0;}.sw-frost{background:linear-gradient(135deg,#d0e4f4,#3a6a9a);}
 
-     
+    /* Hero */
+    .hero{padding:clamp(48px,5.5vw,88px) clamp(20px,5vw,80px) clamp(28px,3vw,48px);max-width:1300px;margin:0 auto;}
+    .hero-eyebrow{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.22em;color:var(--accent);text-transform:uppercase;margin-bottom:clamp(10px,.9rem,16px);opacity:.8;}
+    .hero-h1{font-family:var(--font-serif);font-size:clamp(28px,3.2rem,58px);font-weight:300;color:var(--text);line-height:1.05;letter-spacing:.04em;margin-bottom:clamp(10px,1rem,18px);}
+    .hero-h1 span{display:inline-block;width:clamp(10px,.7rem,14px);height:.08em;background:var(--accent);vertical-align:middle;margin-left:4px;animation:blink 1s step-end infinite;}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+    .hero-sub{font-family:var(--font-body);font-size:clamp(12px,.86rem,15px);color:var(--text-dim);max-width:520px;line-height:1.8;font-weight:300;}
 
-        /* --- TYPOGRAPHY --- */
-        h1, h2, h3, h4 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .accent { color: var(--accent-primary); }
-        .glow-text { color: var(--accent-glow); text-shadow: 0 0 15px rgba(157, 80, 255, 0.4); }
+    /* Layout */
+    .comms-container{max-width:1300px;margin:0 auto clamp(48px,5vw,80px);padding:0 clamp(20px,5vw,80px);display:grid;grid-template-columns:1fr 1.6fr;gap:clamp(24px,3vw,56px);}
+    @media(max-width:900px){.comms-container{grid-template-columns:1fr;}}
 
-        /* --- HEADER --- */
-        nav {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 25px 5%; position: fixed; width: 100%; z-index: 100;
-            background: linear-gradient(180deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0) 100%);
-            backdrop-filter: blur(5px); border-bottom: 1px solid rgba(255,255,255,0.05);
-            transition: background 0.4s var(--ease-tech), border-color 0.4s var(--ease-tech);
-        }
-        nav.scrolled { background: #0a0a0a; border-bottom: 1px solid #222; }
-        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: #fff; transition: color 0.3s ease; text-decoration: none;}
-        .sys-badge { border: 1px solid #333; padding: 5px 12px; font-family: var(--font-mono); font-size: 0.75rem; color: #888; background: rgba(0,0,0,0.5); }
+    /* Channels */
+    .channels-col{display:flex;flex-direction:column;gap:clamp(8px,.8vw,14px);}
+    .channel-card{background:var(--surface);border:1px solid var(--line);padding:clamp(16px,1.6vw,26px);text-decoration:none;display:flex;align-items:flex-start;gap:clamp(14px,1.4rem,22px);position:relative;transition:background .2s,border-color .2s;overflow:hidden;}
+    .channel-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line2);transition:background .2s,box-shadow .2s;}
+    .channel-card:hover{background:var(--surface2);border-color:var(--accent-dim);}
+    .channel-card:hover::before{background:var(--accent);box-shadow:0 0 8px var(--accent-glow);}
+    .ch-label{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.16em;color:var(--accent);text-transform:uppercase;margin-bottom:5px;opacity:.8;}
+    .ch-title{font-family:var(--font-mono);font-size:clamp(10px,.72rem,13px);color:var(--text);margin-bottom:5px;letter-spacing:.06em;}
+    .ch-desc{font-family:var(--font-body);font-size:clamp(10px,.72rem,12px);color:var(--text-dim);line-height:1.6;font-weight:300;}
+    .ch-icon{font-family:var(--font-mono);font-size:clamp(14px,1.1rem,20px);color:var(--line2);flex-shrink:0;margin-top:3px;transition:color .2s;}
+    .channel-card:hover .ch-icon{color:var(--accent);}
 
-        /* --- HERO --- */
-        .comms-hero {
-            padding: 150px 5% 60px;
-            text-align: center;
-            position: relative;
-            z-index: 10;
-        }
-        h1 {
-            font-size: 4rem; line-height: 1.1; margin-bottom: 20px;
-            background: linear-gradient(180deg, #fff 20%, #666 100%);
-            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .hero-desc { color: var(--text-dim); max-width: 600px; margin: 0 auto; line-height: 1.6; font-size: 1.1rem; }
-        .cursor { display: inline-block; width: 12px; height: 1.2em; background: var(--accent-primary); animation: blink 1s step-end infinite; vertical-align: bottom; margin-left: 5px; }
+    .enc-note{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.12em;color:var(--text-dim);opacity:.5;padding-left:2px;margin-top:clamp(6px,.6rem,10px);line-height:1.8;}
 
-        /* --- LAYOUT GRID --- */
-        .comms-container {
-            max-width: 1400px;
-            margin: 0 auto 100px;
-            padding: 0 5%;
-            display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: 60px;
-            position: relative;
-            z-index: 10;
-        }
+    /* Form panel */
+    .form-panel{background:var(--surface);border:1px solid var(--line);padding:clamp(22px,2.2vw,38px);position:relative;}
+    .form-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.4;}
+    .form-panel-title{font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.2em;color:var(--text-dim);text-transform:uppercase;margin-bottom:clamp(18px,1.8rem,28px);padding-bottom:clamp(12px,1.1rem,18px);border-bottom:1px solid var(--line);}
 
-        /* LEFT: CHANNELS */
-        .channels-col { display: flex; flex-direction: column; gap: 20px; }
-        .channel-card {
-            background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05); padding: 30px;
-            backdrop-filter: blur(10px); display: flex; align-items: flex-start; gap: 20px;
-            text-decoration: none; transition: all 0.4s var(--ease-tech);
-            will-change: transform, box-shadow; position: relative; overflow: hidden;
-        }
-        .channel-card::before {
-            content: ''; position: absolute; left: 0; top: 0; width: 3px; height: 100%; background: #333; transition: 0.4s var(--ease-tech);
-        }
-        .channel-card:hover {
-            transform: translateY(-4px) scale(1.01); background: #111;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5); border-color: rgba(124, 42, 232, 0.3);
-        }
-        .channel-card:hover::before { background: var(--accent-primary); box-shadow: 0 0 15px var(--accent-primary); }
-        
-        .c-icon { font-size: 2rem; color: #444; transition: 0.4s; }
-        .channel-card:hover .c-icon { color: var(--accent-primary); text-shadow: 0 0 15px var(--accent-primary); }
-        .c-title { font-family: var(--font-tech); font-size: 1.1rem; color: #fff; margin-bottom: 5px; }
-        .c-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; font-family: var(--font-mono); }
+    .form-group{margin-bottom:clamp(14px,1.3rem,20px);}
+    .input-label{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.18em;color:var(--text-dim);display:block;margin-bottom:6px;text-transform:uppercase;}
+    .form-input{width:100%;background:var(--surface2);border:1px solid var(--line2);padding:clamp(9px,.75rem,13px) clamp(11px,.9rem,16px);color:var(--text);font-family:var(--font-mono);font-size:clamp(9px,.65rem,12px);outline:none;transition:border-color .2s;appearance:none;resize:vertical;}
+    .form-input:focus{border-color:var(--accent-dim);}
+    .form-input::placeholder{color:var(--text-dim);}
+    textarea.form-input{min-height:clamp(90px,7rem,130px);}
+    select.form-input{cursor:pointer;}
 
-        /* RIGHT: TRANSMISSION FORM */
-        .form-col {
-            background: rgba(5,5,5,0.8); border: 1px solid #222; padding: 50px;
-            position: relative; backdrop-filter: blur(15px); box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-        }
-        /* Tech border accents */
-        .form-col::after {
-            content: ''; position: absolute; top: -1px; left: -1px; width: 30px; height: 30px;
-            border-top: 2px solid var(--accent-primary); border-left: 2px solid var(--accent-primary);
-        }
-        .form-col::before {
-            content: ''; position: absolute; bottom: -1px; right: -1px; width: 30px; height: 30px;
-            border-bottom: 2px solid var(--accent-primary); border-right: 2px solid var(--accent-primary);
-        }
+    .btn-transmit{width:100%;background:var(--accent);color:var(--bg);border:none;padding:clamp(11px,.92rem,16px);font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.2em;cursor:pointer;text-transform:uppercase;transition:opacity .2s;font-weight:500;margin-top:clamp(6px,.6rem,10px);}
+    .btn-transmit:hover{opacity:.82;}
+    .btn-transmit:disabled{opacity:.45;pointer-events:none;}
 
-        .form-group { margin-bottom: 25px; position: relative; }
-        .form-group label {
-            display: block; font-family: var(--font-mono); font-size: 0.75rem; color: #888;
-            margin-bottom: 8px; letter-spacing: 1px; transition: 0.3s;
-        }
-        
-        .form-control {
-            width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 15px;
-            color: #fff; font-family: var(--font-mono); font-size: 0.9rem; outline: none;
-            transition: all 0.3s var(--ease-tech);
-        }
-        textarea.form-control { resize: vertical; min-height: 120px; }
-        
-        .form-control:focus {
-            border-color: var(--accent-primary); background: #000;
-            box-shadow: inset 0 0 15px rgba(124, 42, 232, 0.1);
-        }
-        .form-control:focus + .input-highlight { width: 100%; }
-        
-        .input-highlight {
-            position: absolute; bottom: 0; left: 0; height: 1px; width: 0%;
-            background: var(--accent-primary); transition: width 0.4s var(--ease-tech);
-        }
+    /* Transmission log */
+    .tx-log{margin-top:clamp(14px,1.3rem,22px);border-top:1px solid var(--line);padding-top:clamp(12px,1.1rem,18px);font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.06em;color:var(--text-dim);display:none;flex-direction:column;gap:7px;line-height:1.7;}
+    .tx-line{opacity:0;transform:translateX(-8px);}
+    .tx-ok{color:var(--pos);}
+    .tx-final{font-size:clamp(9px,.68rem,12px);margin-top:4px;}
 
-        .btn-transmit {
-            width: 100%; background: var(--accent-primary); color: #fff; border: none; padding: 18px;
-            font-family: var(--font-tech); font-size: 1rem; cursor: pointer; margin-top: 10px;
-            transition: all 0.4s var(--ease-tech); position: relative; overflow: hidden; letter-spacing: 2px;
-            font-weight: 700;
-        }
-        .btn-transmit::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transform: skewX(-20deg); transition: 0.5s;
-        }
-        .btn-transmit:hover { background: #8e44ad; box-shadow: 0 10px 30px rgba(124, 42, 232, 0.4); transform: translateY(-2px); }
-        .btn-transmit:hover::before { left: 200%; }
-
-        /* TERMINAL LOG PROGRESS */
-        .transmission-log {
-            margin-top: 30px; border-top: 1px dashed #333; padding-top: 20px;
-            font-family: var(--font-mono); font-size: 0.75rem; color: #666;
-            display: none; flex-direction: column; gap: 8px;
-        }
-        .log-line { opacity: 0; transform: translateX(-10px); }
-
-        /* FOOTER */
-        footer { border-top: 1px solid #222; padding: 40px 5%; margin-top: auto; position: relative; z-index: 5; background: #050505;}
-        .digital-sig { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.75rem; color: #555; max-width: 1400px; margin: 0 auto; }
-        .digital-sig a { color: #555; text-decoration: none; transition: 0.3s; }
-        .digital-sig a:hover { color: var(--accent-primary); }
-
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        @keyframes textGlow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
-
-        @media (max-width: 1024px) {
-            .comms-container { grid-template-columns: 1fr; }
-            h1 { font-size: 3rem; }
-        }
-        @media (max-width: 600px) {
-            .digital-sig { flex-direction: column; gap: 15px; text-align: center; }
-            .digital-sig div { text-align: center !important; }
-        }
+    /* Footer */
+    .doc-footer{max-width:1300px;margin:0 auto;padding:clamp(24px,2.5vw,40px) clamp(20px,5vw,80px);border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:clamp(16px,1.6rem,24px);}
+    .sig-block{font-family:var(--font-mono);font-size:clamp(8px,.58rem,10px);letter-spacing:.1em;color:var(--text-dim);line-height:1.9;text-transform:uppercase;}
+    .sig-block em{font-style:normal;color:var(--accent);}
+    .footer-links{display:flex;gap:clamp(14px,1.4rem,22px);}
+    .footer-links a{font-family:var(--font-mono);font-size:clamp(8px,.58rem,10px);letter-spacing:.12em;color:var(--text-dim);text-decoration:none;text-transform:uppercase;transition:color .2s;}
+    .footer-links a:hover{color:var(--accent);}
+    ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px;}
     </style>
 </head>
-<body>
+<body data-theme="gold">
 
-    <nav>
-        <a href="index.html" class="logo page-link">ART<span class="accent">TOUS</span></a>
-        <div class="sys-badge">SYS: COMMS_v75.4</div>
-    </nav>
+    <header class="topbar">
+        <a href="index.html" class="logo">ART<em>TOUS</em></a>
+        <div class="tb-right">
+            <div class="sys-badge">Comms v75.4</div>
+            <div class="sw sw-gold on" data-t="gold"></div>
+            <div class="sw sw-platinum" data-t="platinum"></div>
+            <div class="sw sw-sapphire" data-t="sapphire"></div>
+            <div class="sw sw-emerald" data-t="emerald"></div>
+            <div class="sw sw-rouge" data-t="rouge"></div>
+            <div class="sw sw-violet" data-t="violet"></div>
+            <div class="sw sw-obsidian" data-t="obsidian"></div>
+            <div class="sw sw-frost" data-t="frost"></div>
+        </div>
+    </header>
 
-    <div class="comms-hero gs-reveal">
-        <h1 id="hero-title"></h1>
-        <p class="hero-desc">
-            Initiate a direct, encrypted uplink to the Arttous Engineering division. For bug reports, hardware integration inquiries, or investor relations, transmit your payload below.
-        </p>
+    <div class="hero">
+        <div class="hero-eyebrow">Encrypted Uplink — RSA-4096</div>
+        <div class="hero-h1" id="heroTitle">Secure Comms<span></span></div>
+        <div class="hero-sub">Initiate a direct, encrypted uplink to the Arttous Engineering division. For bug reports, hardware inquiries, or investor relations.</div>
     </div>
 
     <div class="comms-container">
-        
+        <!-- Channels -->
         <div class="channels-col">
-            <a href="community.html" class="channel-card gs-stagger page-link">
-                <div class="c-icon">#</div>
+            <a href="community.html" class="channel-card">
+                <div class="ch-icon">#</div>
                 <div>
-                    <div class="c-title">DISCORD_OPS</div>
-                    <div class="c-desc">Immediate tactical support and kinematic mesh troubleshooting from the operator community.</div>
+                    <div class="ch-label">Channel</div>
+                    <div class="ch-title">Discord_Ops</div>
+                    <div class="ch-desc">Tactical support and kinematic mesh troubleshooting from the operator community.</div>
                 </div>
             </a>
-
-            <a href="repo.html" class="channel-card gs-stagger page-link">
-                <div class="c-icon">⌘</div>
+            <a href="repo.html" class="channel-card">
+                <div class="ch-icon">⌘</div>
                 <div>
-                    <div class="c-title">GITHUB_ISSUE</div>
-                    <div class="c-desc">Submit RTOS kernel panics, firmware bugs, or hardware chassis revision requests.</div>
+                    <div class="ch-label">Repository</div>
+                    <div class="ch-title">GitHub_Issue</div>
+                    <div class="ch-desc">Submit RTOS kernel panics, firmware bugs, or hardware chassis revision requests.</div>
                 </div>
             </a>
-
-            <a href="investor.html" class="channel-card gs-stagger page-link">
-                <div class="c-icon">◆</div>
+            <a href="investor.html" class="channel-card">
+                <div class="ch-icon">◆</div>
                 <div>
-                    <div class="c-title">INVESTOR_RELATIONS</div>
-                    <div class="c-desc">Seed round inquiries, RaaS enterprise scaling, and cap table documentation requests.</div>
+                    <div class="ch-label">Finance</div>
+                    <div class="ch-title">Investor_Relations</div>
+                    <div class="ch-desc">Seed round inquiries, RaaS enterprise scaling, and cap table documentation.</div>
                 </div>
             </a>
-            
-            <div class="mono" style="font-size: 0.7rem; color: #444; margin-top: 20px; padding-left: 30px;" class="gs-stagger">
-                /// ENCRYPTION: RSA-4096<br>
-                /// SERVER: NA-EAST-01
-            </div>
+            <div class="enc-note">Encryption: RSA-4096<br>Server: NA-EAST-01<br>Latency: &lt;40ms</div>
         </div>
 
-        <div class="form-col gs-stagger">
+        <!-- Form -->
+        <div class="form-panel">
+            <div class="form-panel-title">Transmission Payload</div>
             <form id="contactForm" onsubmit="handleTransmission(event)">
-                
                 <div class="form-group">
-                    <label>OPERATOR DESIGNATION</label>
-                    <input type="text" id="opName" class="form-control" placeholder="E.g. Alex Mercer" required>
-                    <div class="input-highlight"></div>
+                    <label class="input-label">Operator Designation</label>
+                    <input type="text" id="opName" class="form-input" placeholder="Alex Mercer" required>
                 </div>
-
                 <div class="form-group">
-                    <label>SECURE COMMS CHANNEL (EMAIL)</label>
-                    <input type="email" id="opEmail" class="form-control" placeholder="operator@mesh.net" required>
-                    <div class="input-highlight"></div>
+                    <label class="input-label">Secure Comms Channel (Email)</label>
+                    <input type="email" id="opEmail" class="form-input" placeholder="operator@mesh.net" required>
                 </div>
-
                 <div class="form-group">
-                    <label>TRANSMISSION TYPE</label>
-                    <select id="opType" class="form-control" style="cursor: pointer; appearance: none;">
-                        <option value="Hardware Integration">Hardware Integration</option>
-                        <option value="RTOS Firmware Bug">RTOS Firmware Bug</option>
-                        <option value="Enterprise RaaS">Enterprise RaaS Partnership</option>
-                        <option value="General Uplink">General Uplink</option>
+                    <label class="input-label">Transmission Type</label>
+                    <select id="opType" class="form-input">
+                        <option>Hardware Integration</option>
+                        <option>RTOS Firmware Bug</option>
+                        <option>Enterprise RaaS Partnership</option>
+                        <option>General Uplink</option>
                     </select>
-                    <div class="input-highlight"></div>
                 </div>
-
                 <div class="form-group">
-                    <label>ENCRYPTED PAYLOAD</label>
-                    <textarea id="opMessage" class="form-control" placeholder="Enter logic data..." required></textarea>
-                    <div class="input-highlight"></div>
+                    <label class="input-label">Encrypted Payload</label>
+                    <textarea id="opMessage" class="form-input" placeholder="Enter logic data…" required></textarea>
                 </div>
-
-                <button type="submit" class="btn-transmit" id="submitBtn">TRANSMIT DATA</button>
+                <button type="submit" class="btn-transmit" id="submitBtn">Transmit Data</button>
             </form>
 
-            <div class="transmission-log" id="transLog">
-                <div class="log-line" id="log1">> Allocating Core 0 Network Task... OK</div>
-                <div class="log-line" id="log2">> Encrypting payload (RSA-4096)... OK</div>
-                <div class="log-line" id="log3">> Routing via T3S3 LoRa Mesh...</div>
-                <div class="log-line" id="log4" style="color: var(--success); font-weight: bold; font-size: 0.85rem; margin-top: 10px;">> TRANSMISSION DELIVERED.</div>
+            <div class="tx-log" id="txLog">
+                <div class="tx-line" id="txL1">Allocating Core 0 network task… OK</div>
+                <div class="tx-line" id="txL2">Encrypting payload (RSA-4096)… OK</div>
+                <div class="tx-line" id="txL3">Routing via T3S3 LoRa Mesh…</div>
+                <div class="tx-line tx-ok tx-final" id="txL4">Transmission delivered.</div>
             </div>
         </div>
-
     </div>
 
-    <footer>
-        <div class="digital-sig">
-            <div>
-                SIGNED: <span style="color: var(--accent-primary);">SYSTEM_ADMIN</span><br>
-                HASH: 0x99a...f42
-            </div>
-            <div style="text-align: right;">
-                &copy; 2026 Arttous Robotics Inc.<br>
-                <a href="index.html" class="page-link">Return to Mission Control</a>
-            </div>
-        </div>
-    </footer>
+    <div class="doc-footer">
+        <div class="sig-block">Signed: <em>System_Admin</em><br>Hash: 0x99a…f42<br>© 2026 Arttous Robotics Inc.</div>
+        <div class="footer-links"><a href="index.html">← Return to HQ</a><a href="account.html">Dashboard</a></div>
+    </div>
 
     <script>
-        // --- EMAILJS CONFIG (From Login.html) ---
-        const EMAILJS_PUBLIC_KEY = "cQwk9aX1X3KV0dW9n"; 
-        const EMAILJS_SERVICE_ID = "service_9mz4aq2";      
-        const TEMPLATE_CONTACT = "template_b3iywlc"; // Assume using the welcome template or a generic one
+    /* ── THEME ── */
+    function applyTheme(t){document.body.dataset.theme=t;document.querySelectorAll('.sw').forEach(s=>s.classList.toggle('on',s.dataset.t===t));localStorage.setItem('theme',t);}
+    document.querySelectorAll('.sw').forEach(sw=>sw.addEventListener('click',()=>applyTheme(sw.dataset.t)));
+    applyTheme(localStorage.getItem('theme')||'gold');
 
-        (function(){
-            if(typeof emailjs !== 'undefined') {
-                emailjs.init(EMAILJS_PUBLIC_KEY);
-            }
-        })();
+    /* ── EmailJS ── */
+    const EJ_KEY='cQwk9aX1X3KV0dW9n',EJ_SVC='service_9mz4aq2',T_CONTACT='template_b3iywlc';
+    if(typeof emailjs!=='undefined')emailjs.init(EJ_KEY);
 
-        document.addEventListener('DOMContentLoaded', () => {
-            gsap.registerPlugin(ScrollTrigger);
-            gsap.set("body", { visibility: "visible" });
+    /* ── GSAP load ── */
+    window.addEventListener('load',()=>{
+        if(typeof gsap==='undefined')return;
+        gsap.to('body',{opacity:1,duration:.45,ease:'none'});
+        gsap.from('.topbar',{y:-30,opacity:0,duration:.8,ease:'power3.out',delay:.1});
+        gsap.from('.hero',{y:20,opacity:0,duration:.8,ease:'power3.out',delay:.2});
+        gsap.from('.channel-card',{y:20,opacity:0,duration:.7,stagger:.1,ease:'power3.out',delay:.35});
+        gsap.from('.form-panel',{y:20,opacity:0,duration:.7,ease:'power3.out',delay:.5});
+    });
+    // Fallback if GSAP not loaded
+    setTimeout(()=>{if(document.body.style.opacity==='0'||!document.body.style.opacity)document.body.style.opacity=1;},1000);
 
-            // 1. Initial Load Timeline
-            const tlLoad = gsap.timeline();
-            tlLoad.to("body", { opacity: 1, duration: 0.5, ease: "none" })
-                  .from("nav", { y: -50, opacity: 0, duration: 1, ease: "power3.out" }, "-=0.2")
-                  .from(".gs-reveal", { y: 40, opacity: 0, duration: 1.2, ease: "power4.out" }, "-=0.8")
-                  .from(".gs-stagger", { y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: "power3.out" }, "-=0.8");
+    /* ── Typewriter title ── */
+    const titleEl=document.getElementById('heroTitle');
+    const titleText='Secure Comms Uplink';
+    let ti=0;
+    const cursor=titleEl.querySelector('span');
+    titleEl.innerHTML='<span id="tw"></span><span class="blink-cur" style="display:inline-block;width:clamp(10px,.7rem,14px);height:.08em;background:var(--accent);vertical-align:middle;margin-left:4px;animation:blink 1s step-end infinite;"></span>';
+    const tw=document.getElementById('tw');
+    setTimeout(()=>{
+        const iv=setInterval(()=>{tw.textContent+=titleText[ti++];if(ti>=titleText.length)clearInterval(iv);},45);
+    },300);
 
-            // 2. Typing Effect for Title
-            const titleTarget = document.getElementById('hero-title');
-            const titleText = "SECURE COMMS UPLINK";
-            let i = 0;
-            
-            // Wait for GSAP fade in, then type
-            setTimeout(() => {
-                let iv = setInterval(() => {
-                    titleTarget.innerHTML = titleText.substring(0, i) + '<span class="cursor"></span>';
-                    i++;
-                    if(i > titleText.length) {
-                        clearInterval(iv);
-                    }
-                }, 50);
-            }, 600);
+    /* ── Transmission ── */
+    function handleTransmission(e){
+        e.preventDefault();
+        const btn=document.getElementById('submitBtn'),log=document.getElementById('txLog');
+        btn.disabled=true;btn.textContent='Transmitting…';
+        log.style.display='flex';
 
-            // 3. Navbar Scroll Stealth Mode
-            window.addEventListener('scroll', () => {
-                const nav = document.querySelector('nav');
-                if (window.scrollY > 50) nav.classList.add('scrolled');
-                else nav.classList.remove('scrolled');
-            });
+        const params={user_name:document.getElementById('opName').value,user_email:document.getElementById('opEmail').value,message:`[TYPE: ${document.getElementById('opType').value}]\n\n${document.getElementById('opMessage').value}`};
 
-            // 4. Page Transition Interceptor
-            document.querySelectorAll('a.page-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const targetUrl = e.currentTarget.href;
-                    gsap.to("body", {
-                        opacity: 0, y: -20, duration: 0.5, ease: "power2.inOut",
-                        onComplete: () => { window.location.href = targetUrl; }
-                    });
-                });
-            });
+        /* Animate log lines */
+        const lines=['txL1','txL2','txL3','txL4'];
+        lines.forEach((id,i)=>{
+            setTimeout(()=>{
+                const el=document.getElementById(id);
+                el.style.transition='opacity .3s, transform .3s';
+                el.style.opacity=1;el.style.transform='translateX(0)';
+            },i*420+200);
         });
 
-        // --- TRANSMISSION LOGIC ---
-        function handleTransmission(e) {
-            e.preventDefault();
-            
-            const btn = document.getElementById('submitBtn');
-            const logBox = document.getElementById('transLog');
-            
-            // Disable button
-            btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.5';
-            btn.innerText = "TRANSMITTING...";
+        const onOk=()=>{
+            document.getElementById('txL4').textContent='Transmission delivered.';
+            setTimeout(()=>{btn.textContent='Uplink Closed';btn.style.background='transparent';btn.style.border='1px solid var(--pos)';btn.style.color='var(--pos)';document.getElementById('contactForm').reset();},2600);
+        };
+        const onFail=()=>{
+            document.getElementById('txL4').textContent='Error: Neural link failed.';
+            document.getElementById('txL4').style.color='var(--neg)';
+            btn.textContent='Retry Transmission';btn.disabled=false;
+        };
 
-            // Show log box
-            logBox.style.display = 'flex';
-            
-            // GSAP Terminal Log Animation
-            const logTl = gsap.timeline();
-            
-            logTl.to("#log1", { x: 0, opacity: 1, duration: 0.3 })
-                 .to("#log2", { x: 0, opacity: 1, duration: 0.3 }, "+=0.4")
-                 .to("#log3", { x: 0, opacity: 1, duration: 0.3 }, "+=0.6");
-
-            // Actual EmailJS Submission
-            const templateParams = {
-                user_name: document.getElementById('opName').value,
-                user_email: document.getElementById('opEmail').value,
-                message: `[TYPE: ${document.getElementById('opType').value}] \n\n${document.getElementById('opMessage').value}`
-            };
-
-            if(typeof emailjs !== 'undefined') {
-                emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_CONTACT, templateParams)
-                    .then(function() {
-                        // Success Step
-                        logTl.to("#log4", { x: 0, opacity: 1, duration: 0.3 }, "+=1");
-                        setTimeout(() => {
-                            btn.innerText = "UPLINK CLOSED";
-                            btn.style.background = "transparent";
-                            btn.style.border = "1px solid #2ecc71";
-                            btn.style.color = "#2ecc71";
-                            document.getElementById('contactForm').reset();
-                        }, 2500);
-                    }, function(error) {
-                        // Fail Step
-                        document.getElementById('log4').innerText = "> ERR: NEURAL LINK FAILED.";
-                        document.getElementById('log4').style.color = "var(--danger)";
-                        logTl.to("#log4", { x: 0, opacity: 1, duration: 0.3 });
-                        btn.innerText = "RETRY TRANSMISSION";
-                        btn.style.opacity = '1';
-                        btn.style.pointerEvents = 'auto';
-                    });
-            } else {
-                // Simulation Mode (if EmailJS fails to load)
-                logTl.to("#log4", { x: 0, opacity: 1, duration: 0.3 }, "+=1.5");
-                setTimeout(() => {
-                    btn.innerText = "DATA SAVED LOCALLY";
-                    document.getElementById('contactForm').reset();
-                }, 3000);
-            }
-        }
+        if(typeof emailjs!=='undefined'){emailjs.send(EJ_SVC,T_CONTACT,params).then(onOk,onFail);}
+        else{setTimeout(onOk,2200);}
+    }
     </script>
 </body>
 </html>

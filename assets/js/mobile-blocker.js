@@ -1,51 +1,108 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // Проверяем ширину экрана. Если больше 1024px, скрипт просто останавливается и ничего не делает.
+/* ══════════════════════════════════════════════════════
+   ARTTOUS — mobile-blocker.js
+   Blocks viewport < 1024px. Luxury aesthetic.
+══════════════════════════════════════════════════════ */
+
+document.addEventListener('DOMContentLoaded', () => {
     if (window.innerWidth > 1024) return;
 
-    // Если экран маленький, создаем стили для блокировщика
     const style = document.createElement('style');
     style.innerHTML = `
-        #resolution-blocker {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #050505; z-index: 999999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; text-align: center; color: #e0e0e0; font-family: 'Inter', sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Cormorant+Garamond:wght@300;400&display=swap');
+
+        #res-blocker {
+            position: fixed; inset: 0;
+            background: #060606;
+            z-index: 999999;
+            display: flex; align-items: center; justify-content: center;
+            padding: 24px;
+            font-family: 'DM Mono', monospace;
         }
-        #resolution-blocker::before {
-            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%; pointer-events: none; z-index: 0;
+
+        /* Subtle scanlines */
+        #res-blocker::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 3px,
+                rgba(0,0,0,0.12) 3px,
+                rgba(0,0,0,0.12) 4px
+            );
+            pointer-events: none;
+            z-index: 0;
         }
-        .blocker-content {
-            position: relative; z-index: 1; max-width: 400px; background: rgba(14, 14, 14, 0.9);
-            border: 1px solid #e74c3c; padding: 40px 30px; box-shadow: 0 0 50px rgba(231, 76, 60, 0.2);
-            backdrop-filter: blur(10px); animation: blockerPulse 2s infinite alternate;
+
+        .blocker-card {
+            position: relative; z-index: 1;
+            max-width: 420px; width: 100%;
+            background: #0e0e0e;
+            border: 1px solid #c8a05a;
+            padding: 40px 32px;
+            text-align: center;
         }
-        .blocker-icon { font-size: 3rem; margin-bottom: 15px; }
-        .blocker-title { font-family: 'Orbitron', sans-serif; color: #e74c3c; font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 15px; }
-        .blocker-desc { color: #aaa; font-size: 0.9rem; line-height: 1.6; margin-bottom: 30px; }
-        .blocker-sys-msg { font-family: 'JetBrains Mono', monospace; color: #fff; font-size: 0.8rem; background: rgba(231, 76, 60, 0.1); padding: 10px; border-left: 2px solid #e74c3c; margin-bottom: 20px; }
-        @keyframes blockerPulse { from { box-shadow: 0 0 20px rgba(231, 76, 60, 0.1); } to { box-shadow: 0 0 40px rgba(231, 76, 60, 0.3); } }
+
+        .blocker-rule {
+            width: 100%; height: 1px;
+            background: linear-gradient(90deg, transparent, #c8a05a, transparent);
+            margin: 20px 0;
+        }
+
+        .blocker-wordmark {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px; letter-spacing: 0.35em;
+            color: #f0f0e8; text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .blocker-wordmark em { font-style: normal; color: #c8a05a; }
+
+        .blocker-title {
+            font-size: 10px; letter-spacing: 0.22em;
+            color: #8a4a48; text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .blocker-body {
+            font-size: 11px; letter-spacing: 0.06em;
+            color: #7a7a72; line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        .blocker-notice {
+            font-size: 9px; letter-spacing: 0.16em;
+            color: #c8a05a; text-transform: uppercase;
+            border: 1px solid rgba(200,160,90,0.25);
+            padding: 10px 16px;
+            background: rgba(200,160,90,0.05);
+            margin-bottom: 20px;
+        }
+
+        .blocker-code {
+            font-size: 8px; letter-spacing: 0.1em;
+            color: #333330;
+        }
     `;
     document.head.appendChild(style);
 
-    // Создаем сам HTML блокировщика
     const blocker = document.createElement('div');
-    blocker.id = 'resolution-blocker';
+    blocker.id = 'res-blocker';
     blocker.innerHTML = `
-        <div class="blocker-content">
-            <div class="blocker-icon">⚠️</div>
-            <h2 class="blocker-title">INSUFFICIENT VIEWPORT</h2>
-            <div style="height: 1px; width: 100%; background: linear-gradient(90deg, transparent, #e74c3c, transparent); margin-bottom: 20px;"></div>
-            <p class="blocker-desc">
-                The Arttous Mission Control interface requires a high-resolution terminal. Mobile and tablet displays do not support the active WebGL rendering and dense telemetry matrices required for this uplink.
-            </p>
-            <div class="blocker-sys-msg">/// PLEASE INITIATE CONNECTION VIA DESKTOP OR LAPTOP ///</div>
-            <div style="font-family: 'JetBrains Mono'; color: #555; font-size: 0.65rem;">SYS_ERR: 0xVIEWPORT_TOO_SMALL</div>
+        <div class="blocker-card">
+            <div class="blocker-wordmark">ART<em>TOUS</em></div>
+            <div class="blocker-rule"></div>
+            <div class="blocker-title">Insufficient Viewport</div>
+            <div class="blocker-body">
+                The Arttous Command Interface requires a high-resolution terminal environment.<br><br>
+                Mobile and tablet displays do not support the active WebGL rendering pipeline and dense telemetry matrices required for this uplink.
+            </div>
+            <div class="blocker-notice">
+                Initiate connection via desktop or laptop
+            </div>
+            <div class="blocker-code">SYS_ERR: 0xVIEWPORT_TOO_SMALL</div>
         </div>
     `;
-    
-    // Вставляем в body и блокируем скролл
+
     document.body.appendChild(blocker);
     document.body.style.overflow = 'hidden';
 });
