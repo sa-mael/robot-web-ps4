@@ -4,864 +4,909 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARTTOUS | Autonomous 16-DOF Mesh Platform</title>
-    
     <link rel="icon" href="assets/images/logo-ttr.png" type="image/png">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="assets/js/mobile-blocker.js"></script>
     <script src="assets/js/hidden-cli.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
     <style>
-        :root {
-            /* PALETTE: 3 BASE COLORS */
-            --bg-core: #050505;       
-            --bg-panel: #0e0e0e;      
-            --accent-primary: #7c2ae8; 
-            
-            --accent-glow: #9d50ff;   
-            --text-main: #e0e0e0;     
-            --text-dim: #666666;      
-            --grid-color: rgba(124, 42, 232, 0.03);
-            
-            /* PREMIUM EASING */
-            --ease-tech: cubic-bezier(0.16, 1, 0.3, 1);
-        }
+    /* ══════════════════════════════════════
+       TOKEN SYSTEM — 8 THEMES
+    ══════════════════════════════════════ */
+    :root {
+        --accent:#c8a05a; --accent-dim:#7a5e2e; --accent-pale:rgba(200,160,90,0.09); --accent-glow:rgba(200,160,90,0.22);
+        --bg:#080808; --surface:#101010; --surface2:#181818; --line:#202020; --line2:#2c2c2c;
+        --text:#f0f0e8; --text-mid:#a8a8a0; --text-dim:#5e5e58; --text-faint:#1e1e1c;
+        --pos:#4a7a54; --neg:#8a4848; --warn:#7a6828;
+        --font-serif:'Cormorant Garamond',serif; --font-mono:'DM Mono',monospace; --font-body:'DM Sans',sans-serif;
+    }
+    [data-theme="platinum"]{--accent:#ccccc4;--accent-dim:#888880;--accent-pale:rgba(204,204,196,0.08);--accent-glow:rgba(204,204,196,0.18);}
+    [data-theme="sapphire"]{--accent:#5a8ec8;--accent-dim:#2a4e78;--accent-pale:rgba(90,142,200,0.09);--accent-glow:rgba(90,142,200,0.22);}
+    [data-theme="emerald"] {--accent:#5aaa7a;--accent-dim:#2a5a3a;--accent-pale:rgba(90,170,122,0.09);--accent-glow:rgba(90,170,122,0.22);}
+    [data-theme="rouge"]   {--accent:#c86a58;--accent-dim:#783a28;--accent-pale:rgba(200,106,88,0.09);--accent-glow:rgba(200,106,88,0.22);}
+    [data-theme="violet"]  {--accent:#8a6ac8;--accent-dim:#4a3a78;--accent-pale:rgba(138,106,200,0.09);--accent-glow:rgba(138,106,200,0.22);}
+    [data-theme="obsidian"]{--accent:#e0d7c0;--accent-dim:#908070;--accent-pale:rgba(224,215,192,0.06);--accent-glow:rgba(224,215,192,0.18);--bg:#030303;--surface:#090909;--surface2:#0e0e0e;--line:#181818;--line2:#222222;}
+    [data-theme="frost"]   {--accent:#3a6a9a;--accent-dim:#1a3a5a;--accent-pale:rgba(58,106,154,0.09);--accent-glow:rgba(58,106,154,0.22);--bg:#f2f0ec;--surface:#e8e4de;--surface2:#e0dbd4;--line:#ccc8c0;--line2:#b8b4ac;--text:#181816;--text-mid:#4a4a42;--text-dim:#7a7a70;--text-faint:#d4d0c8;--pos:#2a6034;--neg:#7a2828;}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            background-color: var(--bg-core);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-            background-image: 
-                linear-gradient(var(--grid-color) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 60px 60px;
-            /* Pre-hide body for smooth page entrance */
-            opacity: 0; 
-            visibility: hidden;
-        }
+    /* ══════════════════════════════════════
+       BASE
+    ══════════════════════════════════════ */
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{font-size:clamp(13px,.46vw+9.5px,18px);scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;opacity:0;visibility:hidden;transition:background .35s,color .35s;}
+    /* Grain */
+    body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");background-size:160px;pointer-events:none;z-index:9000;}
+    ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:var(--line2);}
 
-        /* --- TYPOGRAPHY --- */
-        h1, h2, h3, h4 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .accent { color: var(--accent-primary); }
-        .glow-text { color: var(--accent-glow); text-shadow: 0 0 15px rgba(157, 80, 255, 0.4); }
+    /* ══════════════════════════════════════
+       NAVIGATION
+    ══════════════════════════════════════ */
+    nav{display:flex;justify-content:space-between;align-items:center;padding:0 clamp(20px,4vw,60px);height:clamp(56px,4.5vw,72px);position:fixed;width:100%;z-index:1000;border-bottom:1px solid transparent;transition:background .4s,border-color .4s;pointer-events:none;}
+    nav>*{pointer-events:auto;}
+    nav.scrolled{background:var(--bg);border-bottom-color:var(--line);}
 
-        /* --- HEADER --- */
-        nav {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 25px 5%; position: fixed; width: 100%; z-index: 1000;
-            background: linear-gradient(180deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0) 100%);
-            backdrop-filter: blur(5px); border-bottom: 1px solid rgba(255,255,255,0.05);
-            transition: background 0.4s var(--ease-tech), border-color 0.4s var(--ease-tech);
-            pointer-events: none; /* Let clicks pass through empty space */
-        }
-        nav > * { pointer-events: auto; } /* Re-enable clicks on children */
-        
-        nav.scrolled { background: #0a0a0a; border-bottom: 1px solid #222; }
-        nav.scrolled .logo, nav.scrolled .logo span.accent { color: #444; transition: 0.3s; }
-        nav.scrolled .logo:hover { color: #666; }
-        nav.scrolled .status-dot { background-color: #333; box-shadow: none; animation: none; transition: 0.3s; }
-        nav.scrolled .mono { color: #333 !important; }
-        
-        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: #fff; transition: color 0.3s ease; text-decoration: none; }
-        .logo:hover { color: var(--accent-glow); text-shadow: 0 0 10px rgba(157, 80, 255, 0.5); text-decoration: none;}
-        
-        .status-dot {
-            height: 6px; width: 6px; background-color: var(--accent-primary); border-radius: 50%; 
-            display: inline-block; margin-right: 8px; box-shadow: 0 0 10px var(--accent-primary);
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0% {opacity: 0.5;} 50% {opacity: 1;} 100% {opacity: 0.5;} }
+    .nav-logo{font-family:var(--font-serif);font-weight:400;font-size:clamp(15px,1rem,20px);letter-spacing:.32em;color:var(--text);text-decoration:none;transition:color .2s;}
+    .nav-logo em{font-style:normal;color:var(--accent);}
 
-        /* --- AUTH BUTTONS --- */
-        .auth-group { display: flex; gap: 15px; align-items: center; }
-        .btn-login { color: var(--text-dim); font-family: 'Orbitron'; font-size: 0.8rem; text-decoration: none; transition: 0.3s; letter-spacing: 1px; }
-        .btn-login:hover { color: #fff; }
-        .btn-register {
-            border: 1px solid var(--accent-primary); padding: 8px 20px; font-family: 'Orbitron';
-            font-size: 0.8rem; color: var(--accent-primary); text-decoration: none;
-            background: rgba(124, 42, 232, 0.05); transition: all 0.4s var(--ease-tech);
-            will-change: transform, box-shadow;
-        }
-        .btn-register:hover {
-            background: rgba(124, 42, 232, 0.15); color: #fff;
-            box-shadow: 0 0 20px rgba(124, 42, 232, 0.4); transform: translateY(-1px);
-        }
+    .nav-right{display:flex;align-items:center;gap:clamp(5px,.5vw,10px);}
+    .nav-status{display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:clamp(7px,.52rem,9px);letter-spacing:.16em;color:var(--text-dim);text-transform:uppercase;margin-right:clamp(6px,.6rem,14px);}
+    .status-pip{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pipPulse 2s ease infinite;flex-shrink:0;}
+    @keyframes pipPulse{0%,100%{opacity:.4;}50%{opacity:1;}}
 
-        /* --- USER NAV PROFILE (LOGGED IN) --- */
-        .user-nav-link {
-            display: flex; align-items: center; gap: 12px; text-decoration: none; background: rgba(124, 42, 232, 0.1);
-            border: 1px solid var(--accent-primary); padding: 6px 15px; border-radius: 4px; transition: 0.3s;
-        }
-        .user-nav-link:hover { background: var(--accent-primary); box-shadow: 0 0 15px var(--accent-primary); }
-        .nav-avatar-small { width: 24px; height: 24px; border-radius: 50%; background-color: #333; background-size: cover; background-position: center; border: 1px solid #fff; }
-        .nav-username { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #fff; font-weight: bold; }
+    .btn-login{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.14em;color:var(--text-dim);text-decoration:none;text-transform:uppercase;transition:color .2s;padding:clamp(6px,.55rem,10px) clamp(10px,.85rem,16px);}
+    .btn-login:hover{color:var(--text);}
+    .btn-join{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.14em;color:var(--accent);text-decoration:none;text-transform:uppercase;border:1px solid var(--accent-dim);padding:clamp(6px,.55rem,10px) clamp(12px,1rem,18px);background:var(--accent-pale);transition:background .2s,color .2s;}
+    .btn-join:hover{background:var(--accent);color:var(--bg);}
 
-        /* --- HERO --- */
-        .hero { min-height: 100vh; display: flex; align-items: center; padding: 0 5%; position: relative; }
-        
-        .hero-text { 
-            width: 55%; 
-            position: relative; 
-            z-index: 50; 
-            pointer-events: none; 
-        }
-        .hero-text > * { pointer-events: auto; }
-        
-        .firmware-badge {
-            font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--accent-glow);
-            border: 1px solid rgba(124, 42, 232, 0.3); padding: 6px 12px; display: inline-block;
-            margin-bottom: 25px; background: rgba(124, 42, 232, 0.05); letter-spacing: 1px;
-        }
+    /* User nav */
+    .user-nav{display:flex;align-items:center;gap:9px;text-decoration:none;background:var(--accent-pale);border:1px solid var(--accent-dim);padding:clamp(5px,.44rem,8px) clamp(10px,.85rem,16px);transition:background .2s;}
+    .user-nav:hover{background:var(--accent);}
+    .user-nav:hover .user-name{color:var(--bg);}
+    .nav-avatar{width:22px;height:22px;border-radius:50%;background:var(--line2);background-size:cover;background-position:center;border:1px solid var(--accent-dim);}
+    .user-name{font-family:var(--font-mono);font-size:clamp(7px,.52rem,9px);letter-spacing:.1em;color:var(--text);text-transform:uppercase;transition:color .2s;}
 
-        h1 {
-            font-size: 5rem; line-height: 0.9; margin-bottom: 30px;
-            background: linear-gradient(180deg, #fff 20%, #666 100%);
-            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
+    /* Theme swatches */
+    .nav-themes{display:flex;align-items:center;gap:4px;margin-left:clamp(6px,.6rem,12px);}
+    .sw{width:clamp(9px,.7rem,13px);height:clamp(9px,.7rem,13px);border-radius:50%;border:1.5px solid transparent;cursor:pointer;flex-shrink:0;transition:transform .18s,box-shadow .18s;}
+    .sw:hover{transform:scale(1.3);}
+    .sw.on{border-color:var(--text);box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--text);}
+    .sw-gold{background:#c8a05a;}.sw-platinum{background:#c8c8c0;}.sw-sapphire{background:#5a8ec8;}.sw-emerald{background:#5aaa7a;}.sw-rouge{background:#c86a58;}.sw-violet{background:#8a6ac8;}.sw-obsidian{background:#e0d7c0;}.sw-frost{background:linear-gradient(135deg,#d0e4f4,#3a6a9a);}
 
-        .hero-desc {
-            font-size: 1.1rem; color: var(--text-dim); max-width: 500px; line-height: 1.6;
-            margin-bottom: 40px; border-left: 3px solid var(--accent-primary); padding-left: 25px;
-        }
+    /* ══════════════════════════════════════
+       HERO
+    ══════════════════════════════════════ */
+    .hero{min-height:100vh;display:flex;align-items:center;padding:0 clamp(20px,4vw,60px);position:relative;overflow:hidden;}
 
-        .stealth-text {
-            color: #0e0e0e; font-family: 'JetBrains Mono'; font-size: 0.75rem; margin-bottom: 40px;
-            transition: all 0.5s var(--ease-tech); cursor: help; padding: 10px; border-left: 2px solid transparent;
-        }
-        .stealth-text:hover {
-            color: var(--accent-glow); border-left: 2px solid var(--accent-primary);
-            background: linear-gradient(90deg, rgba(124, 42, 232, 0.1), transparent);
-            text-shadow: 0 0 5px var(--accent-primary);
-        }
+    /* Subtle grid overlay on hero only */
+    .hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--accent-pale) 1px,transparent 1px),linear-gradient(90deg,var(--accent-pale) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;opacity:.5;z-index:0;}
 
-        .cta-group { display: flex; gap: 20px; z-index: 30; position: relative;}
-        
-        .btn {
-            padding: 18px 45px; font-family: 'Orbitron'; font-size: 0.85rem; text-decoration: none;
-            font-weight: 700; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
-            transition: all 0.4s var(--ease-tech); will-change: transform, box-shadow, background-color;
-        }
-        .btn-primary { background: var(--accent-primary); color: #fff; border: none; }
-        .btn-primary:hover { 
-            background: #8e44ad; box-shadow: 0 10px 30px rgba(124, 42, 232, 0.4); 
-            transform: translateY(-2px) scale(1.02);
-        }
+    .hero-text{width:clamp(300px,50vw,580px);position:relative;z-index:50;}
 
-        .btn-secondary { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.15); }
-        .btn-secondary:hover { 
-            border-color: var(--accent-primary); background: rgba(124, 42, 232, 0.05); 
-            transform: translateY(-2px) scale(1.02);
-        }
+    .firmware-badge{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.2em;color:var(--accent);border:1px solid var(--accent-dim);background:var(--accent-pale);padding:clamp(4px,.36rem,7px) clamp(10px,.88rem,16px);display:inline-block;margin-bottom:clamp(16px,1.6rem,26px);text-transform:uppercase;}
 
-        /* --- 3D CONTAINER --- */
-        .visual-container {
-            position: absolute; right: 0; top: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 60% 50%, rgba(124, 42, 232, 0.15), transparent 80%);
-            display: flex; align-items: center; justify-content: center; 
-            pointer-events: none; z-index: 10; 
-        }
-        .visual-container canvas { pointer-events: auto; }
+    .hero-h1{font-family:var(--font-serif);font-size:clamp(42px,6rem,108px);font-weight:300;line-height:.92;margin-bottom:clamp(18px,1.8rem,28px);color:var(--text);letter-spacing:.02em;}
+    .hero-h1 .accent-word{color:var(--accent);}
+    .hero-h1 .dim-word{color:var(--text-dim);}
 
-        /* --- BENTO GRID & COMPONENTS --- */
-        .tech-section { padding: 50px 5% 100px; position: relative; z-index: 10; }
-        .section-header {
-            margin-bottom: 60px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;
-            display: flex; justify-content: space-between; align-items: flex-end;
-        }
+    .hero-desc{font-family:var(--font-body);font-size:clamp(12px,.88rem,15px);color:var(--text-dim);max-width:400px;line-height:1.8;margin-bottom:clamp(18px,1.8rem,28px);padding-left:clamp(14px,1.3rem,20px);border-left:2px solid var(--accent-dim);font-weight:300;}
+    .hero-desc strong{color:var(--text-mid);font-weight:500;}
 
-        .bento-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 300px); gap: 25px; }
+    .stealth-text{font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.06em;color:var(--text-faint);margin-bottom:clamp(18px,1.8rem,28px);transition:all .5s;cursor:help;padding:clamp(8px,.7rem,12px);border-left:2px solid transparent;line-height:1.7;}
+    .stealth-text:hover{color:var(--text-dim);border-left-color:var(--accent-dim);background:var(--accent-pale);}
 
-        .card {
-            background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.03); padding: 35px;
-            display: flex; flex-direction: column; justify-content: space-between; position: relative;
-            transition: border-color 0.4s var(--ease-tech), box-shadow 0.4s var(--ease-tech), transform 0.4s var(--ease-tech);
-            will-change: transform, opacity;
-        }
-        .card:hover {
-            border-color: var(--accent-primary); transform: translateY(-4px) scale(1.01);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(124, 42, 232, 0.03);
-        }
-        
-        .card-lg { grid-column: span 2; }
-        .card-vert { grid-row: span 2; background: linear-gradient(170deg, #0e0e0e 0%, #150520 100%); }
-        .card h3 { font-size: 1.2rem; color: #fff; margin-bottom: 15px; }
-        .card p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
-        
-        .tech-value { font-size: 4rem; font-family: 'Orbitron'; font-weight: 700; color: #fff; opacity: 0.9; }
-        .tech-label { font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--accent-primary); margin-bottom: 15px; display: block; letter-spacing: 1px; }
+    .cta-group{display:flex;gap:clamp(10px,1rem,18px);flex-wrap:wrap;}
+    .btn{padding:clamp(11px,.92rem,16px) clamp(22px,2.2rem,36px);font-family:var(--font-mono);font-size:clamp(8px,.62rem,11px);letter-spacing:.18em;text-decoration:none;text-transform:uppercase;transition:all .25s;display:inline-block;}
+    .btn-primary{background:var(--accent);color:var(--bg);border:none;}
+    .btn-primary:hover{opacity:.85;transform:translateY(-1px);}
+    .btn-secondary{background:transparent;color:var(--text-mid);border:1px solid var(--line2);}
+    .btn-secondary:hover{border-color:var(--accent-dim);color:var(--text);transform:translateY(-1px);}
 
-        .code-block {
-            background: #000; padding: 20px; font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #888;
-            border-left: 3px solid var(--accent-primary); margin-top: auto; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-        }
+    /* Radial glow behind 3D */
+    .hero-glow{position:absolute;right:10%;top:50%;transform:translateY(-50%);width:clamp(300px,45vw,700px);height:clamp(300px,45vw,700px);background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);pointer-events:none;z-index:0;opacity:.6;}
 
-        .data-stream { font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #aaa; margin-top: auto; }
-        .data-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;}
-        .data-val { color: var(--accent-glow); }
+    .visual-container{position:absolute;right:0;top:0;width:65%;height:100%;pointer-events:none;z-index:10;}
+    .visual-container canvas{pointer-events:auto;}
+    .hero-vignette{position:absolute;left:0;top:0;width:55%;height:100%;background:linear-gradient(90deg,var(--bg) 35%,transparent);z-index:20;pointer-events:none;transition:background .35s;}
 
-        /* --- PREMIUM SECOND HALF STYLES --- */
-        .premium-container { max-width: 1400px; margin: 0 auto; position: relative; z-index: 10; }
+    /* Scrolling ticker at bottom of hero */
+    .hero-ticker{position:absolute;bottom:0;left:0;right:0;height:clamp(34px,3vw,44px);border-top:1px solid var(--line);background:var(--surface);overflow:hidden;z-index:30;display:flex;align-items:center;}
+    .ticker-track{display:flex;gap:0;white-space:nowrap;animation:tickerScroll 38s linear infinite;}
+    .ticker-item{font-family:var(--font-mono);font-size:clamp(7px,.52rem,9px);letter-spacing:.16em;color:var(--text-dim);text-transform:uppercase;padding:0 clamp(20px,2.5vw,40px);}
+    .ticker-sep{color:var(--accent);opacity:.5;padding:0 clamp(6px,.6rem,10px);}
+    @keyframes tickerScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
 
-        /* DIGITAL TWIN SECTION */
-        .digital-twin-section {
-            padding: 150px 5%; background: #050505; position: relative; border-top: 1px solid rgba(255,255,255,0.03);
-        }
-        .digital-twin-section::before {
-            content: ''; position: absolute; top: 50%; left: 70%;
-            width: 600px; height: 600px; background: radial-gradient(circle, rgba(124, 42, 232, 0.15) 0%, transparent 70%);
-            transform: translate(-50%, -50%); pointer-events: none; z-index: 0;
-        }
-        .dt-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: center; }
-        .dt-image-wrapper {
-            position: relative; background: rgba(20, 20, 20, 0.6);
-            border: 1px solid rgba(124, 42, 232, 0.2); backdrop-filter: blur(15px);
-            clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); 
-        }
-        .dt-image-wrapper img { width: 100%; display: block; box-shadow: 0 20px 50px rgba(0,0,0,0.8); filter: contrast(1.1); }
+    /* ══════════════════════════════════════
+       SECTION SHARED
+    ══════════════════════════════════════ */
+    .section-hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:clamp(24px,2.8vw,44px);padding-bottom:clamp(14px,1.4rem,22px);border-bottom:1px solid var(--line);flex-wrap:wrap;gap:14px;}
+    .sh-title{font-family:var(--font-serif);font-size:clamp(20px,2.2rem,38px);font-weight:300;color:var(--text);letter-spacing:.04em;}
+    .sh-meta{font-family:var(--font-mono);font-size:clamp(7px,.52rem,9px);letter-spacing:.16em;color:var(--text-dim);text-transform:uppercase;text-align:right;line-height:1.7;}
 
-        /* ARTICLE TERMINAL SECTION */
-        .article-section { padding: 50px 5% 150px; background: #050505; }
-        .terminal-bento {
-            background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05);
-            display: flex; flex-direction: column; position: relative; overflow: hidden;
-        }
-        .terminal-header {
-            background: #0a0a0a; border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
-        }
-        .terminal-header .dots { display: flex; gap: 8px; }
-        .terminal-header .dot { width: 10px; height: 10px; border-radius: 50%; background: #333; }
-        .terminal-body { padding: 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
+    /* ══════════════════════════════════════
+       BENTO GRID
+    ══════════════════════════════════════ */
+    .tech-section{padding:clamp(48px,6vw,96px) clamp(20px,4vw,60px);position:relative;z-index:10;}
 
-        /* --- HUMAN ARCHIVE TRIGGER & MODAL --- */
-        .human-archive-trigger {
-            border-top: 1px dashed rgba(124, 42, 232, 0.3); padding: 20px 30px;
-            background: rgba(0,0,0,0.4); cursor: pointer; display: flex; justify-content: space-between;
-            align-items: center; transition: all 0.4s var(--ease-tech);
-        }
-        .human-archive-trigger:hover {
-            background: rgba(124, 42, 232, 0.15); padding-left: 45px; 
-            box-shadow: inset 0 0 20px rgba(124, 42, 232, 0.1);
-        }
-        .trigger-text {
-            font-family: var(--font-mono); color: var(--accent-primary); font-size: 0.85rem;
-            letter-spacing: 1px; transition: 0.3s;
-        }
-        .human-archive-trigger:hover .trigger-text { color: #fff; text-shadow: 0 0 10px var(--accent-primary); }
+    .bento-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,clamp(220px,18vw,300px));gap:clamp(6px,.6vw,12px);}
+    @media(max-width:1100px){.bento-grid{grid-template-columns:repeat(2,1fr);grid-template-rows:auto;}}
+    @media(max-width:580px){.bento-grid{grid-template-columns:1fr;}}
 
-        /* Modal Overlay */
-        .human-modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
-            z-index: 100000; display: none; align-items: center; justify-content: center; opacity: 0;
-        }
-        .human-modal-content {
-            background: var(--bg-panel); border: 1px solid var(--accent-primary);
-            max-width: 850px; width: 90%; box-shadow: 0 20px 60px rgba(124, 42, 232, 0.2);
-            display: flex; flex-direction: column; overflow: hidden; position: relative;
-        }
-        .h-modal-header {
-            background: #000; border-bottom: 1px solid #333; padding: 15px 25px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .h-modal-title { font-family: var(--font-mono); color: #fff; font-size: 0.8rem; letter-spacing: 1px;}
-        .h-modal-close { color: #666; cursor: pointer; font-family: var(--font-mono); transition: 0.3s; font-size: 1.2rem;}
-        .h-modal-close:hover { color: #e74c3c; transform: rotate(90deg); }
-        .h-modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-        .h-modal-img {
-            width: 100%; height: 100%; object-fit: cover; border-right: 1px solid #333;
-            min-height: 350px; background: #111;
-        }
-        .h-modal-info { padding: 40px 30px; display: flex; flex-direction: column; justify-content: center; }
-        .h-modal-info h3 { color: #fff; font-family: var(--font-tech); margin-bottom: 15px; font-size: 1.8rem;}
-        .h-modal-info p { color: #aaa; font-size: 0.95rem; line-height: 1.6; margin-bottom: 30px; font-family: var(--font-body); }
+    .card{background:var(--surface);border:1px solid var(--line);padding:clamp(18px,1.8vw,28px);display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;transition:background .2s,border-color .2s,transform .25s;}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .25s;}
+    .card:hover{background:var(--surface2);border-color:var(--accent-dim);transform:translateY(-2px);}
+    .card:hover::before{opacity:.5;}
+    .card-lg{grid-column:span 2;}
+    .card-vert{grid-row:span 2;background:linear-gradient(160deg,var(--surface) 0%,var(--surface2) 100%);}
+    @media(max-width:1100px){.card-lg,.card-vert{grid-column:span 1;grid-row:span 1;}}
 
-        /* OPERATIONAL TIMELINE */
-        .workflow-section { padding: 120px 5%; background: #080808; border-top: 1px solid rgba(255,255,255,0.02); position: relative; }
-        .timeline-container { display: flex; justify-content: space-between; margin-top: 80px; position: relative; }
-        .timeline-track { position: absolute; top: 30px; left: 5%; right: 5%; height: 2px; background: #222; z-index: 1; }
-        .timeline-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--accent-primary); box-shadow: 0 0 10px var(--accent-primary); }
-        .timeline-step { position: relative; z-index: 2; width: 28%; opacity: 0; transform: translateY(30px); }
-        .step-node {
-            width: 60px; height: 60px; background: #080808; border: 2px solid #333; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-family: 'Orbitron'; font-size: 1.2rem; color: #666; margin-bottom: 30px; transition: all 0.4s var(--ease-tech);
-        }
-        .timeline-step.active .step-node {
-            border-color: var(--accent-primary); color: #fff; box-shadow: 0 0 20px rgba(124, 42, 232, 0.4); background: rgba(124, 42, 232, 0.1);
-        }
+    .card-eyebrow{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.2em;color:var(--accent);text-transform:uppercase;margin-bottom:clamp(8px,.7rem,14px);opacity:.8;}
+    .card-title{font-family:var(--font-serif);font-size:clamp(14px,1.2rem,22px);font-weight:400;color:var(--text);letter-spacing:.04em;margin-bottom:clamp(6px,.55rem,10px);}
+    .card-body{font-family:var(--font-body);font-size:clamp(10px,.72rem,12px);color:var(--text-dim);line-height:1.7;font-weight:300;}
 
-        /* FOOTER */
-        footer { background: var(--bg-panel); padding: 80px 5% 40px; border-top: 1px solid rgba(255,255,255,0.05); font-family: 'Inter'; position: relative; z-index: 10; }
-        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 60px; }
-        .footer-col h4 { color: #fff; margin-bottom: 25px; font-size: 0.9rem; letter-spacing: 1px; }
-        .footer-col ul { list-style: none; }
-        .footer-col li { margin-bottom: 15px; }
-        .footer-col a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
-        .footer-col a:hover { color: var(--accent-primary); }
+    .tech-value{font-family:var(--font-serif);font-size:clamp(48px,5rem,88px);font-weight:300;color:var(--text);line-height:1;margin-bottom:4px;}
+    .tech-value sup{font-size:.35em;color:var(--accent);vertical-align:super;}
 
-        /* ANIMATIONS */
-        @keyframes textGlow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
+    .mini-code{background:var(--bg);border:1px solid var(--line);border-left:2px solid var(--accent-dim);padding:clamp(10px,.9rem,16px);font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);color:var(--text-dim);margin-top:auto;line-height:1.8;overflow:hidden;}
+    .mini-code .kw{color:#c8a07a;} .mini-code .fn{color:var(--text-mid);} .mini-code .val{color:var(--accent);}
 
-        /* RESPONSIVE */
-        @media (max-width: 1024px) {
-            h1 { font-size: 3rem; }
-            .hero { flex-direction: column; padding-top: 120px; text-align: center; }
-            .hero-text { width: 100%; }
-            .hero-desc { border: none; margin: 0 auto 40px; padding: 0; }
-            .cta-group { justify-content: center; }
-            .visual-container { position: relative; width: 100%; height: 400px; }
-            .bento-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
-            .card-lg, .card-vert { grid-column: span 1; grid-row: span 1; }
-            
-            .dt-grid { grid-template-columns: 1fr; }
-            .terminal-body { grid-template-columns: 1fr; gap: 30px; padding: 30px; }
-            .timeline-container { flex-direction: column; gap: 50px; margin-top: 50px; }
-            .timeline-track { left: 30px; top: 0; bottom: 0; height: auto; width: 2px; }
-            .timeline-fill { width: 100%; height: 0%; }
-            .timeline-step { width: 100%; padding-left: 80px; }
-            .step-node { position: absolute; left: 0; top: 0; margin-bottom: 0; }
-            .footer-grid { grid-template-columns: 1fr; gap: 40px; }
-            
-            .h-modal-body { grid-template-columns: 1fr; }
-            .h-modal-img { height: 250px; border-right: none; border-bottom: 1px solid #333; min-height: auto;}
-            .human-archive-trigger { padding: 15px 20px; }
-        }
+    .data-stream{margin-top:auto;}
+    .data-row{display:flex;justify-content:space-between;padding:clamp(5px,.44rem,8px) 0;border-bottom:1px solid var(--line);font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.06em;}
+    .data-row:last-child{border-bottom:none;}
+    .data-key{color:var(--text-dim);}
+    .data-val{color:var(--accent);}
+
+    /* ══════════════════════════════════════
+       ENGINEERING DEEP-DIVE (NEW)
+    ══════════════════════════════════════ */
+    .deep-section{padding:clamp(48px,6vw,96px) clamp(20px,4vw,60px);border-top:1px solid var(--line);}
+    .deep-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(6px,.6vw,12px);}
+    @media(max-width:1000px){.deep-grid{grid-template-columns:1fr 1fr;}}
+    @media(max-width:580px){.deep-grid{grid-template-columns:1fr;}}
+
+    .deep-card{background:var(--surface);border:1px solid var(--line);padding:clamp(18px,1.8vw,28px);position:relative;overflow:hidden;display:flex;flex-direction:column;gap:clamp(8px,.7rem,12px);transition:background .2s,border-color .2s;}
+    .deep-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .25s;}
+    .deep-card:hover{background:var(--surface2);border-color:var(--accent-dim);}
+    .deep-card:hover::before{opacity:.45;}
+    .deep-eyebrow{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.2em;color:var(--accent);text-transform:uppercase;opacity:.8;}
+    .deep-title{font-family:var(--font-serif);font-size:clamp(14px,1.15rem,20px);font-weight:400;color:var(--text);letter-spacing:.04em;}
+    .deep-body{font-family:var(--font-body);font-size:clamp(10px,.72rem,12px);color:var(--text-dim);line-height:1.7;font-weight:300;}
+    .deep-body code{font-family:var(--font-mono);font-size:.9em;color:var(--accent);background:var(--surface2);border:1px solid var(--line2);padding:1px 5px;}
+    .deep-stat{margin-top:auto;padding-top:clamp(10px,.9rem,16px);border-top:1px solid var(--line);}
+    .deep-stat-num{font-family:var(--font-serif);font-size:clamp(22px,2.4rem,40px);font-weight:300;color:var(--text);line-height:1;}
+    .deep-stat-lbl{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.16em;color:var(--text-dim);text-transform:uppercase;}
+
+    /* ══════════════════════════════════════
+       DIGITAL TWIN
+    ══════════════════════════════════════ */
+    .dt-section{padding:clamp(56px,7vw,112px) clamp(20px,4vw,60px);border-top:1px solid var(--line);position:relative;overflow:hidden;}
+    .dt-section::before{content:'';position:absolute;top:50%;right:15%;width:clamp(280px,38vw,580px);height:clamp(280px,38vw,580px);background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;z-index:0;}
+    .dt-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:clamp(32px,5vw,80px);align-items:center;position:relative;z-index:5;}
+    @media(max-width:860px){.dt-grid{grid-template-columns:1fr;}}
+
+    .dt-eyebrow{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.22em;color:var(--accent);text-transform:uppercase;margin-bottom:clamp(10px,.9rem,16px);opacity:.8;}
+    .dt-title{font-family:var(--font-serif);font-size:clamp(26px,3rem,54px);font-weight:300;color:var(--text);line-height:1.05;letter-spacing:.04em;margin-bottom:clamp(14px,1.5rem,24px);}
+    .dt-body{font-family:var(--font-body);font-size:clamp(12px,.86rem,15px);color:var(--text-dim);line-height:1.8;font-weight:300;margin-bottom:clamp(22px,2.2rem,34px);}
+    .dt-specs{border:1px solid var(--line);margin-bottom:clamp(22px,2.2rem,34px);}
+    .dt-spec-row{display:flex;justify-content:space-between;align-items:center;padding:clamp(8px,.7rem,12px) clamp(12px,1rem,18px);border-bottom:1px solid var(--line);font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.08em;}
+    .dt-spec-row:last-child{border-bottom:none;}
+    .dt-spec-key{color:var(--text-dim);text-transform:uppercase;letter-spacing:.14em;}
+    .dt-spec-val{color:var(--accent);}
+    .dt-img-wrap{border:1px solid var(--line);overflow:hidden;background:var(--surface);clip-path:inset(100% 0 0 0);position:relative;}
+    .dt-img-wrap img{width:100%;display:block;filter:brightness(.9);transition:filter .3s;}
+    .dt-img-wrap:hover img{filter:brightness(1);}
+
+    /* ══════════════════════════════════════
+       APPLICATION DOMAINS (NEW)
+    ══════════════════════════════════════ */
+    .domains-section{padding:clamp(48px,6vw,96px) clamp(20px,4vw,60px);border-top:1px solid var(--line);background:var(--surface);}
+    .domains-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(6px,.6vw,12px);}
+    @media(max-width:900px){.domains-grid{grid-template-columns:1fr 1fr;}}
+    @media(max-width:480px){.domains-grid{grid-template-columns:1fr;}}
+    .domain-card{background:var(--bg);border:1px solid var(--line);padding:clamp(18px,1.8vw,28px);transition:background .2s,border-color .2s;display:flex;flex-direction:column;gap:clamp(10px,.9rem,16px);}
+    .domain-card:hover{background:var(--surface2);border-color:var(--accent-dim);}
+    .domain-num{font-family:var(--font-serif);font-size:clamp(32px,3.5rem,60px);font-weight:300;color:var(--accent);opacity:.2;line-height:1;}
+    .domain-name{font-family:var(--font-mono);font-size:clamp(8px,.62rem,11px);letter-spacing:.16em;color:var(--text);text-transform:uppercase;}
+    .domain-body{font-family:var(--font-body);font-size:clamp(10px,.72rem,12px);color:var(--text-dim);line-height:1.7;font-weight:300;}
+
+    /* ══════════════════════════════════════
+       THEORY TERMINAL
+    ══════════════════════════════════════ */
+    .theory-section{padding:clamp(48px,6vw,96px) clamp(20px,4vw,60px);border-top:1px solid var(--line);}
+    .theory-terminal{background:var(--surface);border:1px solid var(--line);overflow:hidden;position:relative;}
+    .theory-terminal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.3;}
+    .th-chrome{background:var(--surface2);border-bottom:1px solid var(--line);padding:clamp(10px,.9rem,14px) clamp(16px,1.4rem,24px);display:flex;align-items:center;justify-content:space-between;}
+    .th-dots{display:flex;gap:6px;}
+    .th-dot{width:7px;height:7px;border-radius:50%;}
+    .th-dot-r{background:#5e3030;}.th-dot-y{background:#5e5030;}.th-dot-g{background:#2a4a30;}
+    .th-badge{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.14em;color:var(--text-dim);text-transform:uppercase;}
+    .th-body{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+    @media(max-width:720px){.th-body{grid-template-columns:1fr;}}
+    .th-col{padding:clamp(22px,2.2vw,36px) clamp(18px,1.8vw,30px);}
+    .th-col:first-child{border-right:1px solid var(--line);}
+    @media(max-width:720px){.th-col:first-child{border-right:none;border-bottom:1px solid var(--line);}}
+    .th-hdr{font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.16em;color:var(--accent);text-transform:uppercase;margin-bottom:clamp(10px,.9rem,16px);}
+    .th-hdr.danger{color:var(--neg);}
+    .th-text{font-family:var(--font-body);font-size:clamp(11px,.78rem,14px);color:var(--text-dim);line-height:1.8;font-weight:300;}
+    .th-text a{color:var(--accent);text-decoration:none;transition:opacity .2s;}
+    .th-text a:hover{opacity:.7;}
+
+    .archive-trigger{border-top:1px solid var(--line);padding:clamp(14px,1.3rem,22px) clamp(18px,1.8vw,30px);background:var(--surface2);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .2s,padding-left .3s;}
+    .archive-trigger:hover{background:var(--accent-pale);padding-left:clamp(28px,3vw,48px);}
+    .archive-trigger-text{font-family:var(--font-mono);font-size:clamp(8px,.62rem,11px);letter-spacing:.1em;color:var(--accent);text-transform:uppercase;transition:color .2s;}
+    .archive-trigger:hover .archive-trigger-text{color:var(--text);}
+    .archive-hint{font-family:var(--font-mono);font-size:clamp(7px,.52rem,9px);letter-spacing:.1em;color:var(--text-dim);}
+
+    /* ══════════════════════════════════════
+       OPERATIONAL TIMELINE
+    ══════════════════════════════════════ */
+    .workflow-section{padding:clamp(48px,6vw,96px) clamp(20px,4vw,60px);border-top:1px solid var(--line);}
+    .timeline-wrapper{margin-top:clamp(28px,3.5vw,56px);position:relative;}
+    .timeline-rail{position:absolute;top:clamp(19px,1.7rem,28px);left:0;right:0;height:1px;background:var(--line2);z-index:1;}
+    .timeline-fill{position:absolute;left:0;top:0;height:100%;width:0%;background:var(--accent);box-shadow:0 0 6px var(--accent-glow);}
+    .timeline-steps{display:flex;justify-content:space-between;position:relative;z-index:2;}
+    @media(max-width:760px){.timeline-steps{flex-direction:column;gap:clamp(24px,2.5vw,38px);}.timeline-rail{display:none;}}
+    .tl-step{width:30%;opacity:0;transform:translateY(12px);transition:opacity .5s,transform .5s;}
+    @media(max-width:760px){.tl-step{width:100%;}}
+
+    .tl-node{width:clamp(36px,3rem,50px);height:clamp(36px,3rem,50px);background:var(--bg);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.12em;color:var(--text-dim);margin-bottom:clamp(14px,1.4rem,22px);transition:border-color .3s,color .3s,box-shadow .3s;}
+    .tl-step.active .tl-node{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 4px var(--accent-pale);}
+    .tl-title{font-family:var(--font-serif);font-size:clamp(14px,1.2rem,22px);font-weight:400;color:var(--text);margin-bottom:clamp(6px,.55rem,10px);letter-spacing:.04em;}
+    .tl-step.active .tl-title{color:var(--text);}
+    .tl-body{font-family:var(--font-body);font-size:clamp(10px,.72rem,12px);color:var(--text-dim);line-height:1.7;font-weight:300;}
+
+    /* ══════════════════════════════════════
+       COMMUNITY / MESH (NEW)
+    ══════════════════════════════════════ */
+    .mesh-section{padding:clamp(48px,6vw,96px) clamp(20px,4vw,60px);border-top:1px solid var(--line);}
+    .mesh-inner{display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(32px,5vw,80px);align-items:start;}
+    @media(max-width:860px){.mesh-inner{grid-template-columns:1fr;}}
+    .mesh-body{font-family:var(--font-body);font-size:clamp(12px,.86rem,15px);color:var(--text-dim);line-height:1.8;font-weight:300;margin-bottom:clamp(14px,1.4rem,22px);}
+    .mesh-cta-group{display:flex;gap:clamp(8px,.8rem,14px);flex-wrap:wrap;margin-top:clamp(18px,1.8rem,28px);}
+    .mesh-stats{display:grid;grid-template-columns:1fr 1fr;gap:clamp(6px,.6vw,12px);}
+    .mesh-stat-card{background:var(--surface);border:1px solid var(--line);padding:clamp(16px,1.6vw,24px);}
+    .mesh-stat-val{font-family:var(--font-serif);font-size:clamp(22px,2.4rem,42px);font-weight:300;color:var(--text);margin-bottom:4px;}
+    .mesh-stat-lbl{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.16em;color:var(--text-dim);text-transform:uppercase;}
+
+    /* ══════════════════════════════════════
+       MODAL
+    ══════════════════════════════════════ */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);backdrop-filter:blur(10px);z-index:9999;display:none;align-items:center;justify-content:center;opacity:0;}
+    .modal-overlay.open{display:flex;}
+    .modal-card{background:var(--surface);border:1px solid var(--accent-dim);max-width:clamp(300px,80vw,800px);width:100%;overflow:hidden;position:relative;}
+    .modal-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.5;}
+    .modal-hdr{background:var(--surface2);border-bottom:1px solid var(--line);padding:clamp(10px,.9rem,16px) clamp(16px,1.4rem,24px);display:flex;justify-content:space-between;align-items:center;}
+    .modal-hdr-title{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.16em;color:var(--text-dim);text-transform:uppercase;}
+    .modal-close{font-family:var(--font-mono);font-size:clamp(8px,.62rem,11px);color:var(--text-dim);cursor:pointer;background:none;border:none;text-transform:uppercase;transition:color .2s;letter-spacing:.1em;}
+    .modal-close:hover{color:var(--neg);}
+    .modal-body{display:grid;grid-template-columns:1fr 1fr;}
+    @media(max-width:600px){.modal-body{grid-template-columns:1fr;}}
+    .modal-img{width:100%;height:clamp(200px,28vw,340px);object-fit:cover;display:block;border-right:1px solid var(--line);}
+    @media(max-width:600px){.modal-img{border-right:none;border-bottom:1px solid var(--line);height:200px;}}
+    .modal-info{padding:clamp(20px,2rem,34px);display:flex;flex-direction:column;justify-content:center;}
+    .modal-name{font-family:var(--font-serif);font-size:clamp(18px,1.8rem,30px);font-weight:300;color:var(--text);letter-spacing:.06em;margin-bottom:clamp(10px,.9rem,16px);}
+    .modal-text{font-family:var(--font-body);font-size:clamp(11px,.78rem,13px);color:var(--text-dim);line-height:1.7;font-weight:300;margin-bottom:clamp(18px,1.8rem,28px);}
+    .btn-artstation{display:inline-block;padding:clamp(9px,.78rem,14px) clamp(16px,1.4rem,24px);background:transparent;border:1px solid var(--accent-dim);color:var(--accent);font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.16em;text-decoration:none;text-transform:uppercase;transition:background .2s,color .2s;}
+    .btn-artstation:hover{background:var(--accent);color:var(--bg);}
+
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    footer{background:var(--surface);border-top:1px solid var(--line);padding:clamp(40px,5vw,80px) clamp(20px,4vw,60px) clamp(20px,2.5vw,36px);}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:clamp(20px,3vw,50px);margin-bottom:clamp(28px,3.5vw,56px);}
+    @media(max-width:860px){.footer-grid{grid-template-columns:1fr 1fr;}}
+    @media(max-width:480px){.footer-grid{grid-template-columns:1fr;}}
+    .fc-logo{font-family:var(--font-serif);font-weight:400;font-size:clamp(15px,1rem,20px);letter-spacing:.32em;color:var(--text);text-decoration:none;display:block;margin-bottom:clamp(10px,.9rem,16px);}
+    .fc-logo em{font-style:normal;color:var(--accent);}
+    .fc-desc{font-family:var(--font-body);font-size:clamp(10px,.72rem,12px);color:var(--text-dim);line-height:1.7;font-weight:300;max-width:280px;margin-bottom:clamp(12px,1.2rem,20px);}
+    .fc-contact{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.12em;color:var(--text-dim);opacity:.5;text-decoration:none;transition:opacity .2s;}
+    .fc-contact:hover{opacity:1;}
+    .fc-hdr{font-family:var(--font-mono);font-size:clamp(7px,.52rem,9px);letter-spacing:.2em;color:var(--text-mid);text-transform:uppercase;margin-bottom:clamp(12px,1.2rem,20px);}
+    .fc-links{list-style:none;display:flex;flex-direction:column;gap:clamp(6px,.55rem,10px);}
+    .fc-links a{font-family:var(--font-mono);font-size:clamp(8px,.6rem,11px);letter-spacing:.08em;color:var(--text-dim);text-decoration:none;transition:color .2s,padding-left .2s;}
+    .fc-links a:hover{color:var(--accent);padding-left:4px;}
+    .fc-links .coming{color:var(--text-dim);opacity:.3;pointer-events:none;}
+    .footer-bottom{border-top:1px solid var(--line);padding-top:clamp(16px,1.6rem,24px);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+    .footer-copy{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase;}
     </style>
 </head>
-<body>
+<body data-theme="gold">
 
-    <nav class="nav-container">
-        <a href="index.html" class="logo page-link">ART<span class="accent">TOUS</span></a>
-        
-        <div class="auth-group" id="authSection">
-            <div class="mono" style="font-size: 0.7rem; color: #444; margin-right: 20px;">
-                <span class="status-dot"></span>NET_ACTIVE
+    <!-- ══ NAV ══ -->
+    <nav id="mainNav">
+        <a href="index.html" class="nav-logo page-link">ART<em>TOUS</em></a>
+        <div class="nav-right">
+            <div class="nav-status"><div class="status-pip"></div>Net Active</div>
+            <div id="authSection">
+                <a href="login.html" class="btn-login page-link">Log In</a>
+                <a href="login.html" class="btn-join page-link">Join Mesh</a>
             </div>
-            <a href="login.html" class="btn-login page-link">LOG IN</a>
-            <a href="login.html" class="btn-register page-link">JOIN MESH</a>
+            <div class="nav-themes">
+                <div class="sw sw-gold on"  data-t="gold"></div>
+                <div class="sw sw-platinum" data-t="platinum"></div>
+                <div class="sw sw-sapphire" data-t="sapphire"></div>
+                <div class="sw sw-emerald"  data-t="emerald"></div>
+                <div class="sw sw-rouge"    data-t="rouge"></div>
+                <div class="sw sw-violet"   data-t="violet"></div>
+                <div class="sw sw-obsidian" data-t="obsidian"></div>
+                <div class="sw sw-frost"    data-t="frost"></div>
+            </div>
         </div>
     </nav>
 
+    <!-- ══ HERO ══ -->
     <section class="hero">
-        <div class="hero-text gs-reveal">
-            <span class="firmware-badge">FIRMWARE v75.4 :: RTOS</span>
-            <h1>AUTONOMOUS<br><span class="glow-text">MESH REALITY</span></h1>
+        <div class="hero-glow"></div>
+        <div class="hero-vignette"></div>
+        <div class="visual-container" id="threeContainer"></div>
+
+        <div class="hero-text">
+            <div class="firmware-badge">Firmware v75.4 · RTOS</div>
+            <h1 class="hero-h1">
+                Autonomous<br>
+                <span class="accent-word">Mesh</span>
+                <span class="dim-word"> Reality</span>
+            </h1>
             <p class="hero-desc">
-                Where GPS fails, Arttous creates its own reality. 
-                A <strong>16-DOF</strong> quadrupedal platform powered by <strong>ESP32-S3 Dual-Core</strong> and localized via <strong>T3S3 LoRa Mesh</strong> Time-of-Flight ranging.
+                Where GPS fails, Arttous creates its own reality.
+                A <strong>16-DOF</strong> quadrupedal platform powered by <strong>ESP32-S3 Dual-Core FreeRTOS</strong> and localised via <strong>T3S3 LoRa Mesh</strong> Time-of-Flight ranging.
             </p>
-            <p class="stealth-text" title="Easter Egg">
-             /// SYSTEM NOTICE: We are actively seeking kinematic specialists. 
-             Registration grants access to the verify_protocol. 
-             Complete the calibration tasks to unlock community entry.
+            <p class="stealth-text" title="Operator Notice">
+                System Notice: We are actively seeking kinematic specialists.<br>
+                Registration grants access to the verify_protocol.<br>
+                Complete calibration tasks to unlock community entry.
             </p>
             <div class="cta-group">
-                <a href="docs.html" class="btn btn-primary page-link">SYSTEM ARCHITECTURE</a>
-                <a href="tracking.html" class="btn btn-secondary page-link">LIVE TELEMETRY</a>
+                <a href="docs.html" class="btn btn-primary page-link">System Architecture</a>
+                <a href="tracking.html" class="btn btn-secondary page-link">Live Telemetry</a>
             </div>
         </div>
 
-        <div class="visual-container"></div>
+        <!-- Ticker -->
+        <div class="hero-ticker">
+            <div class="ticker-track" id="tickerTrack">
+                <span class="ticker-item">ESP32-S3 Dual-Core FreeRTOS</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">16-DOF Kinematic Engine</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">SX1280 LoRa 2.4 GHz Mesh</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">Time-of-Flight Localisation</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">50 Hz Core 1 Control Loop</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">MPU-6050 IMU Stabilisation</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">WebGL Digital Twin</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">PETG-CF / TPU 95A Chassis</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">MIT Licensed · Ontario CA</span><span class="ticker-sep">·</span>
+                <!-- duplicate for seamless loop -->
+                <span class="ticker-item">ESP32-S3 Dual-Core FreeRTOS</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">16-DOF Kinematic Engine</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">SX1280 LoRa 2.4 GHz Mesh</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">Time-of-Flight Localisation</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">50 Hz Core 1 Control Loop</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">MPU-6050 IMU Stabilisation</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">WebGL Digital Twin</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">PETG-CF / TPU 95A Chassis</span><span class="ticker-sep">·</span>
+                <span class="ticker-item">MIT Licensed · Ontario CA</span><span class="ticker-sep">·</span>
+            </div>
+        </div>
     </section>
 
-    <section id="specs" class="tech-section">
-        <div class="section-header gs-reveal">
-            <div>
-                <h2 style="font-size: 2.5rem;">COMPONENT MATRIX</h2>
-                <span class="mono text-dim">HARDWARE_REV_04 // CONFIG: QUAD_16DOF</span>
-            </div>
-            <div class="mono accent" style="text-align: right;">
-                /// STATUS: OPTIMAL<br>/// BAT: 7.4V
-            </div>
+    <!-- ══ BENTO GRID ══ -->
+    <section class="tech-section" id="specs">
+        <div class="section-hdr gs-reveal">
+            <div class="sh-title">Component Matrix</div>
+            <div class="sh-meta">Hardware Rev 04 · Config: QUAD_16DOF<br>Status: Optimal · Bat: 7.4V 2S</div>
         </div>
 
         <div class="bento-grid">
-            <div class="card card-lg gs-grid-item">
-                <span class="tech-label">MOTION ENGINE</span>
-                <div style="display: flex; align-items: baseline; gap: 15px;">
-                    <h3 class="glow-text">SYMMETRIC TWIST KINEMATICS</h3>
+            <div class="card card-lg gs-grid">
+                <div>
+                    <div class="card-eyebrow">Motion Engine</div>
+                    <div class="card-title">Symmetric Twist Kinematics</div>
+                    <div class="card-body">Custom Inverse Kinematics solver (v75.4) handling <strong style="color:var(--text-mid);">16 degrees of freedom</strong> — 4 per leg. Corrects asymmetric roll using active twist-banking logic running on Core 1 at a strict 50 Hz loop. NaN-protection clamps prevent CPU crashes when a foot target exceeds leg reach.</div>
                 </div>
-                <p>Custom Inverse Kinematics solver (v75.4) handling <strong>16 degrees of freedom</strong> (4 per leg). Corrects asymmetric roll behavior using active twist-banking logic via FreeRTOS.</p>
-                <div class="code-block" id="typing-code">
-                    // DECRYPTING MATRICES...
-                </div>
+                <div class="mini-code" id="typingCode">// Decrypting matrices…</div>
             </div>
 
-            <div class="card gs-grid-item">
-                <span class="tech-label">ACTUATION</span>
-                <div class="tech-value" id="servo-counter">0x</div>
-                <h3>MG90S SERVOS</h3>
-                <p>High-torque metal gear actuators. 4 motors per leg provide active ankle control and complex gait capabilities.</p>
+            <div class="card gs-grid">
+                <div>
+                    <div class="card-eyebrow">Actuation</div>
+                    <div class="tech-value" id="servoCounter">0<sup>x</sup></div>
+                    <div class="card-title">MG90S Servos</div>
+                </div>
+                <div class="card-body">High-torque metal gear actuators. 4 motors per leg provide active ankle control and complex gait transitions at 50 Hz.</div>
             </div>
 
-            <div class="card card-vert gs-grid-item">
-                <span class="tech-label">LOCALIZATION SYSTEM</span>
-                <h3 style="font-size: 1.8rem; margin-bottom: 20px;">T3S3 MESH</h3>
-                <p style="margin-bottom: 30px;">
-                    GNSS-denied navigation using <strong>SX1280 2.4GHz LoRa</strong> modules. Robots deploy "Anchors" to triangulate position via Time-of-Flight (ToF).
-                </p>
-                
+            <div class="card card-vert gs-grid">
+                <div>
+                    <div class="card-eyebrow">Localisation System</div>
+                    <div class="card-title">T3S3 LoRa Mesh</div>
+                    <div class="card-body" style="margin-bottom:clamp(14px,1.4rem,22px);">GNSS-denied navigation using <strong style="color:var(--text-mid);">SX1280 2.4 GHz LoRa</strong> modules. Robots deploy anchor nodes to triangulate position via Time-of-Flight with sub-metre accuracy — no satellite infrastructure required.</div>
+                </div>
                 <div class="data-stream">
-                    <div class="data-row"><span>ANCHOR_A</span><span class="data-val">-42dBm [3.2m]</span></div>
-                    <div class="data-row"><span>ANCHOR_B</span><span class="data-val">-38dBm [1.8m]</span></div>
-                    <div class="data-row"><span>ANCHOR_C</span><span class="data-val">-45dBm [4.1m]</span></div>
-                    <div class="data-row" style="color: var(--accent-primary); margin-top: 15px; border: none; font-weight: bold;">
-                        <span>> TRIANGULATION:</span><span>LOCKED</span>
+                    <div class="data-row"><span class="data-key">Anchor_A</span><span class="data-val">-42 dBm · 3.2 m</span></div>
+                    <div class="data-row"><span class="data-key">Anchor_B</span><span class="data-val">-38 dBm · 1.8 m</span></div>
+                    <div class="data-row"><span class="data-key">Anchor_C</span><span class="data-val">-45 dBm · 4.1 m</span></div>
+                    <div class="data-row" style="margin-top:6px;border-bottom:none;"><span class="data-key" style="color:var(--accent);">Triangulation</span><span class="data-val">Locked</span></div>
+                </div>
+            </div>
+
+            <div class="card gs-grid">
+                <div>
+                    <div class="card-eyebrow">Core Processor</div>
+                    <div class="card-title">ESP32-S3 (N8R8)</div>
+                    <div class="card-body">Dual-Core SoC running FreeRTOS. Core 1 is locked to physics at 50 Hz. Core 0 handles async WebSocket telemetry on Port 81 at 100ms intervals.</div>
+                </div>
+            </div>
+
+            <div class="card card-lg gs-grid">
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:clamp(6px,.55rem,10px);">
+                        <div>
+                            <div class="card-eyebrow">Stabilisation</div>
+                            <div class="card-title" style="margin-bottom:0;">Active Gyro — MPU-6050</div>
+                        </div>
+                        <span style="font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.1em;color:var(--accent);background:var(--accent-pale);padding:3px 8px;border:1px solid var(--accent-dim);">Pitch: 0.02°</span>
                     </div>
+                    <div class="card-body">Real-time horizon correction via a dedicated I²C bus (GPIO 6/7). IMU feeds directly into the gait scheduler to adjust foot height on uneven terrain. Smoothing via <code style="font-family:var(--font-mono);font-size:.88em;color:var(--accent);background:var(--surface2);border:1px solid var(--line2);padding:1px 5px;">smoothVx / smoothVy</code> prevents abrupt leg parking and tipping on slopes.</div>
                 </div>
-            </div>
-
-            <div class="card gs-grid-item">
-                <span class="tech-label">CORE PROCESSOR</span>
-                <h3>ESP32-S3 (N8R8)</h3>
-                <p>Dual-Core architecture. Runs FreeRTOS with dedicated tasks (Core 1) for Physics (50Hz) and Async Web Telemetry (Core 0).</p>
-            </div>
-
-            <div class="card card-lg gs-grid-item">
-                <span class="tech-label">STABILIZATION</span>
-                <div style="display: flex; justify-content: space-between;">
-                    <h3>ACTIVE GYRO (MPU-6050)</h3>
-                    <div class="mono accent">PITCH: 0.02°</div>
-                </div>
-                <p>Real-time horizon correction via a dedicated I2C bus. The IMU feeds directly into the gait scheduler to adjust foot height on uneven terrain dynamically.</p>
             </div>
         </div>
     </section>
 
-    <section class="digital-twin-section">
-        <div class="premium-container dt-grid">
-            
-            <div class="dt-text gs-dt-text">
-                <div class="mono" style="font-size: 0.75rem; color: var(--accent-primary); margin-bottom: 15px; letter-spacing: 2px;">
-                    /// FIRMWARE v75.4 FEATURE
+    <!-- ══ ENGINEERING DEEP-DIVE (NEW) ══ -->
+    <section class="deep-section">
+        <div class="section-hdr gs-reveal">
+            <div class="sh-title">Engineering Breakdown</div>
+            <div class="sh-meta">Core 1 · FreeRTOS v10.4 · IK4=75.4</div>
+        </div>
+        <div class="deep-grid">
+
+            <div class="deep-card gs-grid">
+                <div class="deep-eyebrow">Memory Safety</div>
+                <div class="deep-title">stateMutex Protection</div>
+                <div class="deep-body">A FreeRTOS <code>SemaphoreHandle_t stateMutex</code> gates all shared memory access between TaskControl and TaskNetwork. This prevents race conditions when the web UI sends new gait parameters mid-cycle — a critical stability requirement for any real-time robotics system.</div>
+                <div class="deep-stat">
+                    <div class="deep-stat-num">5ms</div>
+                    <div class="deep-stat-lbl">Semaphore timeout threshold</div>
                 </div>
-                <h2 style="font-size: 3rem; margin-bottom: 25px; line-height: 1.1; color: #fff;">
-                    ZERO-INSTALL<br><span class="glow-text">DIGITAL TWIN</span>
-                </h2>
-                <p style="color: #888; font-size: 1.05rem; line-height: 1.7; margin-bottom: 40px;">
-                    Command your fleet from any browser. The Arttous ESP32-S3 serves a highly optimized WebGL interface directly from silicon. Experience 50ms latency WebSockets, real-time IMU stabilization visualization, and direct access to the Inverse Kinematics engine.
-                </p>
-                <a href="account.html" class="btn btn-secondary page-link" style="display:inline-block;">
-                    INITIATE UPLINK
-                </a>
             </div>
 
-            <div class="dt-image-wrapper gs-dt-image">
-                <img src="assets/images/Screenshot 2026-02-22 124034.png" alt="Digital Twin Interface">
+            <div class="deep-card gs-grid">
+                <div class="deep-eyebrow">Power Architecture</div>
+                <div class="deep-title">Dual I²C Bus Split</div>
+                <div class="deep-body">PCA9685 servo driver (GPIO 4/5) and MPU6050 IMU (GPIO 6/7) operate on entirely separate physical I²C lines at 400 kHz. This eliminates I²C bus starvation — a critical bug in single-bus designs where high-frequency servo updates block IMU sensor reads, causing catastrophic stabilisation failure.</div>
+                <div class="deep-stat">
+                    <div class="deep-stat-num">400 kHz</div>
+                    <div class="deep-stat-lbl">Per-bus clock speed</div>
+                </div>
+            </div>
+
+            <div class="deep-card gs-grid">
+                <div class="deep-eyebrow">Gait System</div>
+                <div class="deep-title">Amplitude Decay</div>
+                <div class="deep-body">When joystick velocity approaches zero, gait amplitude decays organically rather than cutting abruptly. The formula <code>smoothVx += (targetVx - smoothVx) * (4.0f × dt)</code> creates natural leg parking transitions, eliminating the mechanical jolt that previously caused tipping on sloped surfaces during v68 field tests.</div>
+                <div class="deep-stat">
+                    <div class="deep-stat-num">4.0f</div>
+                    <div class="deep-stat-lbl">Decay coefficient (tuned in field)</div>
+                </div>
+            </div>
+
+            <div class="deep-card gs-grid">
+                <div class="deep-eyebrow">Kinematic Solver</div>
+                <div class="deep-title">Law of Cosines IK</div>
+                <div class="deep-body">The IK engine solves femur and tibia angles using the Law of Cosines at 50 Hz. NaN-protection clamps constrain the intermediate cosine value to <code>[-1.0, 1.0]</code> before the <code>acos()</code> call — preventing CPU exceptions and hard crashes when a foot target exceeds the physical reach of the leg mechanism.</div>
+                <div class="deep-stat">
+                    <div class="deep-stat-num">20ms</div>
+                    <div class="deep-stat-lbl">Full IK solve cycle on Core 1</div>
+                </div>
+            </div>
+
+            <div class="deep-card gs-grid">
+                <div class="deep-eyebrow">Connectivity</div>
+                <div class="deep-title">WebSocket Telemetry</div>
+                <div class="deep-body">Core 0 runs AsyncWebServer and an AsyncWebSocket handler simultaneously. Every 100ms, the robot broadcasts a compact JSON payload containing pitch, roll, battery voltage, per-anchor RSSI, and gait state — to any connected browser, served entirely from PROGMEM. No cloud server. No app.</div>
+                <div class="deep-stat">
+                    <div class="deep-stat-num">100ms</div>
+                    <div class="deep-stat-lbl">Telemetry broadcast interval</div>
+                </div>
+            </div>
+
+            <div class="deep-card gs-grid">
+                <div class="deep-eyebrow">Safety System</div>
+                <div class="deep-title">Gamepad Watchdog</div>
+                <div class="deep-body">A 500ms Gamepad Watchdog monitors controller signal continuity on Core 0. On input loss — Bluetooth dropout, browser tab switch, or network hiccup — the robot transitions to a graceful stand pose rather than freezing mid-gait. This prevents falls and mechanical stress on servos during unsupervised field operations.</div>
+                <div class="deep-stat">
+                    <div class="deep-stat-num">500ms</div>
+                    <div class="deep-stat-lbl">Watchdog timeout to safe-stand</div>
+                </div>
             </div>
 
         </div>
     </section>
 
-    <section class="article-section">
-        <div class="premium-container">
-            <div class="terminal-bento gs-terminal">
-                
-                <div class="terminal-header">
-                    <span class="mono" style="color: #666; font-size: 0.75rem;">DOC_ID: THEORY_01</span>
-                    <div class="dots">
-                        <div class="dot" style="background: #ff5f56;"></div>
-                        <div class="dot" style="background: #ffbd2e;"></div>
-                        <div class="dot" style="background: #27c93f;"></div>
-                    </div>
+    <!-- ══ DIGITAL TWIN ══ -->
+    <section class="dt-section">
+        <div class="dt-grid">
+            <div class="gs-dt-text">
+                <div class="dt-eyebrow">Firmware v75.4 Feature</div>
+                <div class="dt-title">Zero-Install<br>Digital Twin</div>
+                <div class="dt-body">Command your fleet from any browser, anywhere. The Arttous ESP32-S3 serves a fully optimised WebGL interface directly from onboard PROGMEM — no app store, no install, no cloud dependency. The UI renders a real-time 3D wireframe of the robot's actual joint angles, updated live via WebSockets.</div>
+                <div class="dt-specs">
+                    <div class="dt-spec-row"><span class="dt-spec-key">Render Engine</span><span class="dt-spec-val">Three.js WebGL</span></div>
+                    <div class="dt-spec-row"><span class="dt-spec-key">Telemetry Latency</span><span class="dt-spec-val">&lt; 50ms WebSocket</span></div>
+                    <div class="dt-spec-row"><span class="dt-spec-key">Served From</span><span class="dt-spec-val">ESP32-S3 PROGMEM</span></div>
+                    <div class="dt-spec-row"><span class="dt-spec-key">Installation Required</span><span class="dt-spec-val">None</span></div>
+                    <div class="dt-spec-row"><span class="dt-spec-key">Control Input</span><span class="dt-spec-val">HTML5 Gamepad API</span></div>
+                    <div class="dt-spec-row"><span class="dt-spec-key">Visual Axes</span><span class="dt-spec-val">Coxa · Femur · Tibia · Twist</span></div>
                 </div>
-
-                <div class="terminal-body">
-                    <div>
-                        <h3 style="color: var(--accent-primary); font-size: 1.2rem; margin-bottom: 15px;">0.1 HUMAN-AI HYBRID ORIGIN</h3>
-                        <p style="color: #aaa; font-size: 0.95rem; line-height: 1.7;">
-                            The User acknowledges that the content on Arttous is not the result of certified engineering standards (ISO/ASTM). It is the product of experimental collaboration between human enthusiasts and Generative AI. Consequently, the data may contain "hallucinations," logical errors, or physics calculations that function in simulation but fail in physical reality.
-                        </p>
-                    </div>
-                    <div>
-                        <h3 style="color: #e74c3c; font-size: 1.2rem; margin-bottom: 15px;">0.2 NO GUARANTEE OF FEASIBILITY</h3>
-                        <p style="color: #aaa; font-size: 0.95rem; line-height: 1.7;">
-                            We do not warrant that the 3D models provided are printable, structurally sound, or mechanically viable under real-world torque. We do not warrant that the firmware code (C++/Python) is free of bugs, memory leaks, or infinite loops that could overheat or physically destroy hardware.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="human-archive-trigger" onclick="openHumanModal()">
-                    <span class="trigger-text">>_ EXECUTE: VIEW_HUMAN_ENGINEERING_ARCHIVE.sh</span>
-                    <span style="color: #666; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">[ENTER]</span>
-                </div>
-
+                <a href="account.html" class="btn btn-primary page-link">Initiate Uplink</a>
+            </div>
+            <div class="dt-img-wrap gs-dt-image">
+                <img src="assets/images/Screenshot 2026-02-22 124034.jpg" alt="Digital Twin Interface">
             </div>
         </div>
     </section>
 
+    <!-- ══ APPLICATION DOMAINS (NEW) ══ -->
+    <section class="domains-section">
+        <div class="section-hdr gs-reveal">
+            <div class="sh-title">Application Domains</div>
+            <div class="sh-meta">Target: GNSS-Denied Environments</div>
+        </div>
+        <div class="domains-grid">
+            <div class="domain-card gs-grid">
+                <div class="domain-num">01</div>
+                <div class="domain-name">Subterranean Inspection</div>
+                <div class="domain-body">Mine shafts, sewage tunnels, and utility conduits where GPS is unavailable and human entry is hazardous. Mesh anchors deployed at tunnel entrances provide relative coordinates without satellite infrastructure. Active IMU correction maintains stability on uneven rock surfaces.</div>
+            </div>
+            <div class="domain-card gs-grid">
+                <div class="domain-num">02</div>
+                <div class="domain-name">Search &amp; Rescue</div>
+                <div class="domain-body">Post-disaster structural entry where GPS canopy loss and debris-covered surfaces defeat wheeled platforms. The 16-DOF gait navigates rubble and irregular voids. Real-time WebSocket telemetry allows remote coordinators to guide operators with full sensor and visual awareness.</div>
+            </div>
+            <div class="domain-card gs-grid">
+                <div class="domain-num">03</div>
+                <div class="domain-name">Agricultural Survey</div>
+                <div class="domain-body">Row-level crop inspection in dense greenhouse environments where GPS canopy interference degrades accuracy below useful thresholds. Mesh anchors placed along row ends provide precision lane-following. Onboard camera integration targets planned for Phase 3 swarm deployment.</div>
+            </div>
+            <div class="domain-card gs-grid">
+                <div class="domain-num">04</div>
+                <div class="domain-name">Research &amp; Education</div>
+                <div class="domain-body">An affordable, fully open-source platform for inverse kinematics research, swarm intelligence study, and embedded systems education. Full RTOS source code, PCB Gerbers, and all 3D models are publicly available under MIT License. Build costs target under $850 CAD per unit.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ THEORY TERMINAL ══ -->
+    <section class="theory-section">
+        <div class="section-hdr gs-reveal">
+            <div class="sh-title">Research Disclaimer</div>
+            <div class="sh-meta">Doc ID: Theory_01</div>
+        </div>
+        <div class="theory-terminal gs-terminal">
+            <div class="th-chrome">
+                <div class="th-dots">
+                    <div class="th-dot th-dot-r"></div>
+                    <div class="th-dot th-dot-y"></div>
+                    <div class="th-dot th-dot-g"></div>
+                </div>
+                <div class="th-badge">Operator Disclosure — Read Before Deployment</div>
+            </div>
+            <div class="th-body">
+                <div class="th-col">
+                    <div class="th-hdr">0.1 Human-AI Hybrid Origin</div>
+                    <div class="th-text">The User acknowledges that content on Arttous is not the result of certified engineering standards (ISO/ASTM). It is the product of experimental collaboration between human enthusiasts and Generative AI. Consequently, the data may contain logical errors or physics calculations that function in simulation but fail in physical reality. This is a research platform, not a certified industrial product. Review the full <a href="protocols.html" class="page-link">data governance protocol</a> before proceeding.</div>
+                </div>
+                <div class="th-col">
+                    <div class="th-hdr danger">0.2 No Guarantee of Feasibility</div>
+                    <div class="th-text">We do not warrant that the 3D models are printable, structurally sound, or mechanically viable under real-world torque loads. We do not warrant that the firmware code (C++/Python) is free of bugs, memory leaks, or race conditions that could overheat or physically destroy hardware. All physical deployment is entirely at operator risk. Arttous Robotics Inc. accepts no liability for hardware damage, financial loss, or physical injury arising from use of any asset on this platform.</div>
+                </div>
+            </div>
+            <div class="archive-trigger" onclick="openHumanModal()">
+                <span class="archive-trigger-text">Execute: View_Human_Engineering_Archive.sh</span>
+                <span class="archive-hint">Enter →</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ OPERATIONAL TIMELINE ══ -->
     <section class="workflow-section">
-        <div class="premium-container">
-            
-            <h2 class="gs-timeline-title" style="text-align: center; font-size: 2.5rem; color: #fff;">OPERATIONAL LOGIC</h2>
-            
-            <div class="timeline-container">
-                <div class="timeline-track">
-                    <div class="timeline-fill" id="timeline-progress"></div>
+        <div class="section-hdr gs-reveal">
+            <div class="sh-title">Operational Logic</div>
+            <div class="sh-meta">Deployment Sequence · v75.4</div>
+        </div>
+        <div class="timeline-wrapper">
+            <div class="timeline-rail"><div class="timeline-fill" id="railFill"></div></div>
+            <div class="timeline-steps">
+
+                <div class="tl-step gs-step" data-step="1">
+                    <div class="tl-node">01</div>
+                    <div class="tl-title">Deploy Anchors</div>
+                    <div class="tl-body">Operator places 3 or more T3S3 nodes in the environment. The system auto-calibrates mesh geometry via FreeRTOS TaskNetwork using a Ping/Pong protocol over LoRa 2.4 GHz. A minimum of 3 anchors enables 2D triangulation; 4 or more provides 3D positioning with altitude awareness for multi-level environments.</div>
                 </div>
 
-                <div class="timeline-step gs-step" data-step="1">
-                    <div class="step-node">01</div>
-                    <h3 style="color:#fff; margin-bottom: 10px; font-size: 1.2rem;">DEPLOY ANCHORS</h3>
-                    <p style="color: #666; line-height: 1.6; font-size: 0.9rem;">Operator places 3+ T3S3 nodes in the environment. System auto-calibrates the mesh geometry via FreeRTOS TaskNetwork.</p>
+                <div class="tl-step gs-step" data-step="2">
+                    <div class="tl-node">02</div>
+                    <div class="tl-title">ToF Ranging</div>
+                    <div class="tl-body">Arttous calculates its distance to each anchor node using Time-of-Flight pulse timing at the speed of light. The SX1280 chipset achieves sub-metre ranging accuracy without satellite infrastructure. RSSI signal strength provides a secondary distance estimate used for error correction and anchor-quality scoring.</div>
                 </div>
 
-                <div class="timeline-step gs-step" data-step="2">
-                    <div class="step-node">02</div>
-                    <h3 style="color:#fff; margin-bottom: 10px; font-size: 1.2rem;">TOF RANGING</h3>
-                    <p style="color: #666; line-height: 1.6; font-size: 0.9rem;">Arttous calculates distance to anchors using 2.4GHz Time-of-Flight pulses with sub-meter accuracy without satellite GPS.</p>
+                <div class="tl-step gs-step" data-step="3">
+                    <div class="tl-node">03</div>
+                    <div class="tl-title">Path Execution</div>
+                    <div class="tl-body">The kinematics engine on Core 1 translates position coordinates into 16-motor servo commands at 50 Hz. Active IMU correction adjusts individual foot heights in real time for uneven terrain traversal. All sensor data, joint angles, and positional estimates are streamed live to the Digital Twin interface via WebSocket.</div>
                 </div>
 
-                <div class="timeline-step gs-step" data-step="3">
-                    <div class="step-node">03</div>
-                    <h3 style="color:#fff; margin-bottom: 10px; font-size: 1.2rem;">PATH EXECUTION</h3>
-                    <p style="color: #666; line-height: 1.6; font-size: 0.9rem;">Kinematics engine translates coordinates into 16-motor servo commands for terrain traversal exclusively on Core 1.</p>
-                </div>
             </div>
-
         </div>
     </section>
 
-    <footer>
-        <div class="premium-container footer-grid gs-footer">
-            <div class="footer-col">
-                <div class="logo" style="margin-bottom: 20px;">ART<span class="accent">TOUS</span></div>
-                <p style="color: #666; font-size: 0.85rem; line-height: 1.6; max-width: 300px;">
-                    Developing the next generation of affordable, mesh-networked autonomous robotics for search and rescue operations.
-                </p>
+    <!-- ══ MESH COMMUNITY (NEW) ══ -->
+    <section class="mesh-section">
+        <div class="mesh-inner">
+            <div class="gs-reveal">
+                <div class="section-hdr" style="margin-bottom:clamp(18px,1.8rem,28px);">
+                    <div class="sh-title">Join the Mesh</div>
+                </div>
+                <div class="mesh-body">The Arttous Mesh is a growing community of engineers, makers, and researchers building the next generation of affordable autonomous robotics. Register as a Specialist to gain access to private firmware branches, CAD revision files, hardware preview documentation, and the operator Discord.</div>
+                <div class="mesh-body">Specialists who complete verification calibration tasks earn commit access to the RTOS firmware repository and are listed in the project's public contributor registry. Skills in FreeRTOS, inverse kinematics, PCB design (KiCad), or Three.js are particularly valued by the core team.</div>
+                <div class="mesh-cta-group">
+                    <a href="login.html" class="btn btn-primary page-link">Register as Specialist</a>
+                    <a href="community.html" class="btn btn-secondary page-link">View Community</a>
+                </div>
             </div>
-            <div class="footer-col">
-                <h4 class="mono" style="color: #888;">PLATFORM</h4>
-                <ul>
+            <div class="mesh-stats">
+                <div class="mesh-stat-card">
+                    <div class="mesh-stat-val">420</div>
+                    <div class="mesh-stat-lbl">Repository Commits</div>
+                </div>
+                <div class="mesh-stat-card">
+                    <div class="mesh-stat-val">1.8k</div>
+                    <div class="mesh-stat-lbl">GitHub Stars</div>
+                </div>
+                <div class="mesh-stat-card">
+                    <div class="mesh-stat-val">310</div>
+                    <div class="mesh-stat-lbl">Repository Forks</div>
+                </div>
+                <div class="mesh-stat-card">
+                    <div class="mesh-stat-val">50+</div>
+                    <div class="mesh-stat-lbl">Active Operators</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer>
+        <div class="footer-grid gs-footer">
+            <div>
+                <a href="index.html" class="fc-logo page-link">ART<em>TOUS</em></a>
+                <div class="fc-desc">Developing the next generation of affordable, mesh-networked autonomous robotics for search and rescue, subterranean inspection, and open research.</div>
+                <a href="mailto:contact@arttous.com" class="fc-contact">contact@arttous.com</a>
+            </div>
+            <div>
+                <div class="fc-hdr">Platform</div>
+                <ul class="fc-links">
                     <li><a href="firmware.html" class="page-link">RTOS Firmware</a></li>
                     <li><a href="docs.html" class="page-link">Hardware Docs</a></li>
-                    <li><a href="index.html" class="page-link"> <p style="color: var(--accent-primary);"> Investors-coming soon  </p></a></li>
+                    <li><a href="tracking.html" class="page-link">Live Telemetry</a></li>
+                    <li><a href="investor.html" class="page-link">Investor Relations</a></li>
                 </ul>
             </div>
-            <div class="footer-col">
-                <h4 class="mono" style="color: #888;">RESOURCES</h4>
-                <ul>
-                    <li><a href="repo.html" class="page-link">GitHub Repo</a></li>
-                    <li><a href="3d-models.html" class="page-link">3D Models (STL)</a></li>
+            <div>
+                <div class="fc-hdr">Resources</div>
+                <ul class="fc-links">
+                    <li><a href="repo.html" class="page-link">GitHub Repository</a></li>
+                    <li><a href="source.html" class="page-link">Source Code</a></li>
+                    <li><a href="firmware.html" class="page-link">Firmware Archive</a></li>
                     <li><a href="community.html" class="page-link">Community</a></li>
                 </ul>
             </div>
-            <div class="footer-col">
-                <h4 class="mono" style="color: #888;">LEGAL</h4>
-                <ul>
-                    <li><a href="legal.html" class="page-link">Privacy Policy</a></li>
+            <div>
+                <div class="fc-hdr">Legal</div>
+                <ul class="fc-links">
+                    <li><a href="protocols.html" class="page-link">Data Governance</a></li>
                     <li><a href="terms.html" class="page-link">Terms of Use</a></li>
                     <li><a href="contact.html" class="page-link">Contact</a></li>
                 </ul>
             </div>
         </div>
-        
-        <div class="premium-container" style="border-top: 1px solid #222; padding-top: 30px; display: flex; justify-content: space-between; font-size: 0.75rem; color: #444;">
-            <p>&copy; 2026 Arttous Robotics Inc.</p>
-            <p class="mono">HASH: 0x99a...f42</p>
+        <div class="footer-bottom">
+            <div class="footer-copy">© 2026 Arttous Robotics Inc. — All Rights Reserved</div>
+            <div class="footer-copy">Hash: 0x99a…f42</div>
         </div>
     </footer>
 
-    <div id="humanProjectModal" class="human-modal-overlay">
-        <div class="human-modal-content" id="humanModalInner">
-            <div class="h-modal-header">
-                <span class="h-modal-title">SYS_ARCHIVE // 100% HUMAN_ENGINEERING</span>
-                <span class="h-modal-close" onclick="closeHumanModal()">[X]</span>
+    <!-- ══ MODAL ══ -->
+    <div class="modal-overlay" id="humanModal">
+        <div class="modal-card">
+            <div class="modal-hdr">
+                <div class="modal-hdr-title">Sys_Archive · 100% Human Engineering</div>
+                <button class="modal-close" onclick="closeModal()">Close ✕</button>
             </div>
-            <div class="h-modal-body">
-                <img src="assets/images/photo_2025-12-15_19-08-27.jpg" alt="The Cyber-Oni" class="h-modal-img">
-                <div class="h-modal-info">
-                    <h3>THE CYBER-ONI</h3>
-                    <p>
-                        "A style you can put together yourself - part of the interior is part of your vision."<br><br>
-                        Concept design, 3D modeling, and physical fabrication built entirely by human hands, without the intervention of generative AI or synthetic logic.
-                    </p>
-                    <a href="https://www.artstation.com/artwork/oJvwaJ" target="_blank" class="btn btn-secondary" style="text-align: center; clip-path: none; padding: 12px 20px;">VIEW ON ARTSTATION</a>
+            <div class="modal-body">
+                <img src="assets/images/photo_2025-12-15_19-08-27.jpg" alt="The Cyber-Oni" class="modal-img">
+                <div class="modal-info">
+                    <div class="modal-name">The Cyber-Oni</div>
+                    <div class="modal-text">"A style you can put together yourself — part of the interior is part of your vision."<br><br>Concept design, 3D modelling, and physical fabrication built entirely by human hands without the intervention of generative AI or synthetic logic. This is what the project looks like when the machine steps aside.</div>
+                    <a href="https://www.artstation.com/artwork/oJvwaJ" target="_blank" class="btn-artstation">View on ArtStation →</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-        }
-    }
-    </script>
-    
+    <!-- ══ THREE.JS ══ -->
+    <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
     <script type="module">
-        import * as THREE from 'three';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // --- 1. THREE.JS 3D ROBOT SETUP ---
-        const container = document.querySelector('.visual-container');
-        const modelPath = './web-robo-3D.glb'; 
-        let robotMesh = null; 
+    const container = document.getElementById('threeContainer');
+    let robotMesh = null;
 
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
-        camera.position.set(1.8, 1.2, 2.5); 
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(1.8, 1.2, 2.5);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.4;
+    container.appendChild(renderer.domElement);
+
+    /* Lights — warm key + accent rim */
+    const kLight = new THREE.DirectionalLight(0xffffff, 4); kLight.position.set(2,2,2); scene.add(kLight);
+    const rLight = new THREE.SpotLight(0xc8a05a, 18); rLight.position.set(-2,1,-2); scene.add(rLight);
+    const fLight = new THREE.PointLight(0xc8a05a, 1.5); fLight.position.set(0,-2,1); scene.add(fLight);
+    const tLight = new THREE.DirectionalLight(0xffffff, .8); tLight.position.set(0,5,0); scene.add(tLight);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; controls.dampingFactor = 0.05; controls.enableZoom = false;
+    controls.target.set(-2.5,0,0); controls.update();
+
+    const loader = new GLTFLoader();
+    loader.load('./web-robo-3D.glb', gltf => {
+        const model = gltf.scene;
+        const box = new THREE.Box3().setFromObject(model);
+        model.position.sub(box.getCenter(new THREE.Vector3()));
+        model.scale.set(6.5,6.5,6.5);
+        model.rotation.x = 0.2;
+        model.traverse(c=>{if(c.isMesh){c.material.roughness=0.4;c.material.metalness=0.6;}});
+        robotMesh = model;
+        scene.add(model);
+        if(typeof gsap!=='undefined') gsap.fromTo(renderer.domElement,{opacity:0},{opacity:1,duration:2,ease:'power2.inOut'});
+    }, undefined, err => console.warn('3D model unavailable:', err));
+
+    (function animate(){
+        requestAnimationFrame(animate);
+        if(robotMesh) robotMesh.rotation.y -= 0.002;
+        controls.update();
+        renderer.render(scene, camera);
+    })();
+
+    window.addEventListener('resize',()=>{
+        camera.aspect = container.clientWidth/container.clientHeight;
+        camera.updateProjectionMatrix();
         renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.5;
-        container.appendChild(renderer.domElement);
+    });
+    </script>
 
-        const keyLight = new THREE.DirectionalLight(0xffffff, 4.0); keyLight.position.set(2, 2, 2); scene.add(keyLight);
-        const rimLight = new THREE.SpotLight(0x8e44ad, 20.0); rimLight.position.set(-2, 1, -2); scene.add(rimLight);
-        const fillLight = new THREE.PointLight(0x00f3ff, 2.0); fillLight.position.set(0, -2, 1); scene.add(fillLight);
-        const topLight = new THREE.DirectionalLight(0xffffff, 1.0); topLight.position.set(0, 5, 0); scene.add(topLight);
+    <!-- ══ APP SCRIPT ══ -->
+    <script>
+    /* ── THEME ── */
+    function applyTheme(t){
+        document.body.dataset.theme = t;
+        document.querySelectorAll('.sw').forEach(s => s.classList.toggle('on', s.dataset.t === t));
+        localStorage.setItem('theme', t);
+        /* update rim light accent on theme change if THREE is accessible */
+    }
+    document.querySelectorAll('.sw').forEach(sw => sw.addEventListener('click', () => applyTheme(sw.dataset.t)));
+    applyTheme(localStorage.getItem('theme') || 'gold');
 
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true; controls.dampingFactor = 0.05; controls.enableZoom = false; controls.autoRotate = false; 
-        controls.target.set(-2.5, 0, 0); controls.update();
+    /* ── LOGGED-IN STATE ── */
+    const nick = localStorage.getItem('userNick'), avatar = localStorage.getItem('userAvatar');
+    if (nick) {
+        const avatarStyle = avatar ? `background-image:url('${avatar}');` : 'background:var(--accent-dim);';
+        document.getElementById('authSection').innerHTML =
+            `<a href="account.html" class="user-nav page-link">
+                <div class="nav-avatar" style="${avatarStyle}"></div>
+                <span class="user-name">${nick}</span>
+            </a>`;
+    }
 
-        const loader = new GLTFLoader();
-        loader.load(modelPath, (gltf) => {
-            const model = gltf.scene;
-            const box = new THREE.Box3().setFromObject(model);
-            const center = box.getCenter(new THREE.Vector3());
-            model.position.sub(center); 
-            model.scale.set(6.5, 6.5, 6.5);
-            model.rotation.x = 0.2; 
-            
-            model.traverse((child) => {
-                if (child.isMesh) { child.material.roughness = 0.4; child.material.metalness = 0.6; }
-            });
-            robotMesh = model;
-            scene.add(model);
-            
-            gsap.fromTo(renderer.domElement, {opacity: 0}, {opacity: 1, duration: 2, ease: "power2.inOut"});
-
-        }, undefined, (error) => console.error("3D Load Error:", error));
-
-        function animate() {
-            requestAnimationFrame(animate);
-            if (robotMesh) robotMesh.rotation.y -= 0.002; 
-            controls.update();
-            renderer.render(scene, camera);
+    /* ── GSAP ── */
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof gsap === 'undefined') {
+            document.body.style.opacity = 1; document.body.style.visibility = 'visible'; return;
         }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-        });
-
-        // --- 2. GSAP SCROLL & LOAD ANIMATIONS ---
         gsap.registerPlugin(ScrollTrigger);
-        
-        // Unhide body to prevent FOUC (Flash of Unstyled Content)
-        gsap.set("body", { visibility: "visible" });
+        gsap.set('body', { visibility: 'visible' });
 
-        // Initial Load Sequence
-        const tlLoad = gsap.timeline();
-        tlLoad.to("body", { opacity: 1, duration: 0.5, ease: "none" })
-              .from("nav", { y: -50, opacity: 0, duration: 1, ease: "power3.out" }, "-=0.2")
-              .from(".hero-text > *", { 
-                  y: 40, opacity: 0, duration: 1.2, stagger: 0.15, ease: "power4.out" 
-              }, "-=0.8");
+        /* Load sequence */
+        gsap.timeline()
+            .to('body', { opacity: 1, duration: .45, ease: 'none' })
+            .from('#mainNav', { y: -30, opacity: 0, duration: .8, ease: 'power3.out' }, '-=.1')
+            .from('.hero-text > *', { y: 28, opacity: 0, duration: 1, stagger: .13, ease: 'power4.out' }, '-=.6')
+            .from('.hero-ticker', { y: 20, opacity: 0, duration: .7, ease: 'power3.out' }, '-=.4');
 
-        // Standard Element Reveals
-        gsap.utils.toArray('.gs-reveal').forEach(elem => {
-            gsap.from(elem, {
-                scrollTrigger: { trigger: elem, start: "top 85%" },
-                y: 40, opacity: 0, duration: 1, ease: "power3.out"
-            });
+        /* Generic reveals */
+        gsap.utils.toArray('.gs-reveal').forEach(el => {
+            gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 85%' }, y: 22, opacity: 0, duration: .9, ease: 'power3.out' });
         });
 
-        // Bento Grid Stagger
-        gsap.from(".gs-grid-item", {
-            scrollTrigger: { trigger: ".bento-grid", start: "top 80%" },
-            y: 50, opacity: 0, stagger: 0.1, duration: 1, ease: "power3.out"
+        /* Bento stagger */
+        gsap.utils.toArray('.gs-grid').forEach((el, i) => {
+            gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 88%' }, y: 28, opacity: 0, duration: .8, ease: 'power3.out', delay: (i % 4) * .07 });
         });
 
-        // Servo Counter (0 to 16x)
-        ScrollTrigger.create({
-            trigger: "#servo-counter",
-            start: "top 90%",
-            onEnter: () => {
-                gsap.to({val: 0}, {
-                    val: 16, duration: 2, ease: "power2.out",
-                    onUpdate: function() {
-                        document.getElementById("servo-counter").innerText = Math.floor(this.targets()[0].val) + "x";
-                    }
-                });
-            },
-            once: true
+        /* Servo counter */
+        ScrollTrigger.create({ trigger: '#servoCounter', start: 'top 90%', once: true, onEnter: () => {
+            gsap.to({ v: 0 }, { v: 16, duration: 2, ease: 'power2.out', onUpdate: function () {
+                document.getElementById('servoCounter').innerHTML = Math.floor(this.targets()[0].v) + '<sup>x</sup>';
+            }});
+        }});
+
+        /* Code typewriter */
+        ScrollTrigger.create({ trigger: '#typingCode', start: 'top 88%', once: true, onEnter: () => {
+            const s = `<span class="kw">// RTOS v75.4 · Core 1</span>\n<span class="fn">FL_LEG</span>: { +1, +1, +1, +1 }\n<span class="fn">FR_LEG</span>: { +1, -1, -1, -1 }\nreturn <span class="fn">TaskControl</span>.<span class="val">solve_IK()</span>;`;
+            const el = document.getElementById('typingCode'); el.innerHTML = '';
+            let i = 0;
+            const iv = setInterval(() => { el.innerHTML = s.substring(0, i) + '_'; i += 3; if (i >= s.length) { clearInterval(iv); el.innerHTML = s; } }, 14);
+        }});
+
+        /* DT image clip */
+        gsap.from('.gs-dt-text > *', { scrollTrigger: { trigger: '.dt-section', start: 'top 72%' }, y: 22, opacity: 0, stagger: .14, duration: .9, ease: 'power3.out' });
+        gsap.to('.gs-dt-image', { scrollTrigger: { trigger: '.dt-section', start: 'top 62%' }, clipPath: 'inset(0% 0 0 0)', duration: 1.4, ease: 'power4.inOut' });
+
+        /* Terminal */
+        gsap.from('.gs-terminal', { scrollTrigger: { trigger: '.theory-section', start: 'top 80%' }, y: 32, opacity: 0, duration: 1, ease: 'power3.out' });
+
+        /* Timeline */
+        const steps = document.querySelectorAll('.tl-step');
+        steps.forEach((step, idx) => {
+            ScrollTrigger.create({ trigger: step, start: 'top 84%', once: true, onEnter: () => {
+                setTimeout(() => { step.classList.add('show', 'active'); }, idx * 160);
+                if (idx === steps.length - 1) gsap.to('#railFill', { width: '100%', duration: 1.3, ease: 'power2.out', delay: .3 });
+            }});
         });
 
-        // Cyberpunk Code Typewriter
-        ScrollTrigger.create({
-            trigger: "#typing-code",
-            start: "top 85%",
-            onEnter: () => {
-                const codeStr = `// RTOS v75.4 Matrix\n<span style="color:#fff">FL_LEG:</span> { +1, +1, +1, +1 }\n<span style="color:#fff">FR_LEG:</span> { +1, -1, -1, -1 }\nreturn <span class="accent">TaskControl.solve_IK();</span>`;
-                const target = document.getElementById("typing-code");
-                target.innerHTML = "";
-                let i = 0;
-                let iv = setInterval(() => {
-                    target.innerHTML = codeStr.substring(0, i) + "_";
-                    i+=3; 
-                    if(i >= codeStr.length) {
-                        clearInterval(iv);
-                        target.innerHTML = codeStr;
-                    }
-                }, 15);
-            },
-            once: true
-        });
+        /* Footer */
+        gsap.from('.gs-footer > div', { scrollTrigger: { trigger: 'footer', start: 'top 90%' }, y: 22, opacity: 0, stagger: .1, duration: .8, ease: 'power3.out' });
 
-        // Digital Twin Section
-        gsap.from(".gs-dt-text > *", {
-            scrollTrigger: { trigger: ".digital-twin-section", start: "top 70%" },
-            y: 30, opacity: 0, stagger: 0.15, duration: 1, ease: "power3.out"
-        });
-
-        gsap.to(".gs-dt-image", {
-            scrollTrigger: { trigger: ".digital-twin-section", start: "top 60%" },
-            clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-            duration: 1.5, ease: "power4.inOut"
-        });
-
-        // Article Terminal
-        gsap.from(".gs-terminal", {
-            scrollTrigger: { trigger: ".article-section", start: "top 80%" },
-            y: 50, opacity: 0, duration: 1.2, ease: "power3.out"
-        });
-
-        // Operational Timeline (Line fill + Step nodes)
-        const timelineSteps = gsap.utils.toArray('.gs-step');
-        
-        gsap.from(".gs-timeline-title", {
-            scrollTrigger: { trigger: ".workflow-section", start: "top 80%" },
-            y: 30, opacity: 0, duration: 1
-        });
-
-        gsap.to("#timeline-progress", {
-            scrollTrigger: {
-                trigger: ".timeline-container",
-                start: "top 75%",
-                end: "bottom 60%",
-                scrub: 1, 
-            },
-            width: "100%", 
-            ease: "none"
-        });
-
-        timelineSteps.forEach((step) => {
-            gsap.to(step, {
-                scrollTrigger: {
-                    trigger: step,
-                    start: "top 80%",
-                    onEnter: () => step.classList.add("active"),
-                    onLeaveBack: () => step.classList.remove("active") 
-                },
-                y: 0, opacity: 1, duration: 0.8, ease: "back.out(1.7)"
-            });
-        });
-
-        // Footer Stagger
-        gsap.from(".gs-footer > div", {
-            scrollTrigger: { trigger: "footer", start: "top 90%" },
-            y: 30, opacity: 0, stagger: 0.1, duration: 1, ease: "power3.out"
-        });
-
-        // --- 3. UI INTERACTIONS ---
-        
-        // Stealth Nav on Scroll
+        /* Nav stealth */
         window.addEventListener('scroll', () => {
-            const nav = document.querySelector('nav');
-            if (window.scrollY > 50) nav.classList.add('scrolled');
-            else nav.classList.remove('scrolled');
+            document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 60);
         });
 
-        // LocalStorage Login State Check
-        const userNick = localStorage.getItem('userNick');
-        const userAvatar = localStorage.getItem('userAvatar');
-        if (userNick) {
-            const authSection = document.getElementById('authSection');
-            const avatarStyle = userAvatar ? `background-image: url('${userAvatar}');` : 'background-color: #7c2ae8;';
-            authSection.innerHTML = `
-                <div class="mono" style="font-size: 0.7rem; color: #444; margin-right: 20px;">
-                    <span class="status-dot" style="background: #2ecc71; box-shadow: 0 0 5px #2ecc71;"></span>ONLINE
-                </div>
-                <a href="account.html" class="user-nav-link page-link">
-                    <div class="nav-avatar-small" style="${avatarStyle}"></div>
-                    <span class="nav-username">${userNick}</span>
-                </a>
-            `;
-        }
-
-        // Seamless Page Transitions (Page Exit)
-        document.querySelectorAll('a.page-link, .footer-col a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                const targetUrl = e.currentTarget.href;
-                // If it's an anchor link on the same page, ignore transition
-                if (targetUrl.includes('#') && targetUrl.split('#')[0] === window.location.href.split('#')[0]) return;
-                
+        /* Page transitions */
+        document.querySelectorAll('a.page-link').forEach(link => {
+            link.addEventListener('click', e => {
+                const url = e.currentTarget.href;
+                if (!url || url.includes('#')) return;
                 e.preventDefault();
-                gsap.to("body", {
-                    opacity: 0, y: -20, duration: 0.5, ease: "power2.inOut",
-                    onComplete: () => { window.location.href = targetUrl; }
-                });
+                gsap.to('body', { opacity: 0, y: -14, duration: .4, ease: 'power2.inOut', onComplete: () => { window.location.href = url; } });
             });
         });
+    });
 
-        // --- 4. HUMAN PROJECT MODAL LOGIC ---
-        window.openHumanModal = function() {
-            const modal = document.getElementById('humanProjectModal');
-            const inner = document.getElementById('humanModalInner');
-            
-            modal.style.display = 'flex';
-            gsap.to(modal, { opacity: 1, duration: 0.3, ease: "power2.out" });
-            gsap.fromTo(inner, 
-                { y: 50, scale: 0.95 }, 
-                { y: 0, scale: 1, duration: 0.6, ease: "back.out(1.5)" }
-            );
-        };
-
-        window.closeHumanModal = function() {
-            const modal = document.getElementById('humanProjectModal');
-            const inner = document.getElementById('humanModalInner');
-            
-            gsap.to(inner, { y: 30, scale: 0.95, duration: 0.3, ease: "power2.in" });
-            gsap.to(modal, { 
-                opacity: 0, duration: 0.3, ease: "power2.in", 
-                onComplete: () => { modal.style.display = 'none'; }
-            });
-        };
-
-        // Close modal on background click
-        document.getElementById('humanProjectModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeHumanModal();
-            }
-        });
-        
-        // Close modal on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const modal = document.getElementById('humanProjectModal');
-                if (modal.style.display === 'flex') closeHumanModal();
-            }
-        });
+    /* ── MODAL ── */
+    function openHumanModal() {
+        const m = document.getElementById('humanModal');
+        m.classList.add('open');
+        if (typeof gsap !== 'undefined') {
+            gsap.to(m, { opacity: 1, duration: .3 });
+            gsap.from('.modal-card', { y: 28, scale: .96, duration: .5, ease: 'back.out(1.5)' });
+        } else { m.style.opacity = 1; }
+    }
+    function closeModal() {
+        const m = document.getElementById('humanModal');
+        if (typeof gsap !== 'undefined') {
+            gsap.to('.modal-card', { y: 20, scale: .96, duration: .25, ease: 'power2.in' });
+            gsap.to(m, { opacity: 0, duration: .25, onComplete: () => m.classList.remove('open') });
+        } else { m.classList.remove('open'); }
+    }
+    document.getElementById('humanModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
     </script>
 </body>
 </html>
