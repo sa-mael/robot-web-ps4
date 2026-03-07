@@ -3,362 +3,535 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARTTOUS | Mesh Network</title>
+    <title>ARTTOUS | Mesh Community</title>
     <link rel="icon" href="../assets/images/logo-ttr.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-     <script src="assets/js/mobile-blocker.js"></script>
-     <script src="assets/js/hidden-cli.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="assets/js/mobile-blocker.js"></script>
+    <script src="assets/js/hidden-cli.js"></script>
     <style>
-        :root {
-            --bg-core: #050505;
-            --bg-card: rgba(14, 14, 14, 0.8);
-            --accent: #7c2ae8;
-            --success: #2ecc71;
-            --text-main: #e0e0e0;
-            --text-dim: #666;
-            --font-tech: 'Orbitron', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --font-body: 'Inter', sans-serif;
-        }
+    /* ══════════════════════════════════════
+       THEMES
+    ══════════════════════════════════════ */
+    :root{--accent:#c8a05a;--accent-dim:#7a5e2e;--accent-pale:rgba(200,160,90,0.09);--accent-glow:rgba(200,160,90,0.22);--bg:#080808;--surface:#101010;--surface2:#181818;--line:#202020;--line2:#2c2c2c;--text:#f0f0e8;--text-mid:#a8a8a0;--text-dim:#5e5e58;--pos:#4a7a54;--neg:#8a4848;--font-serif:'Cormorant Garamond',serif;--font-mono:'DM Mono',monospace;--font-body:'DM Sans',sans-serif;}
+    [data-theme="platinum"]{--accent:#ccccc4;--accent-dim:#888880;--accent-pale:rgba(204,204,196,0.08);--accent-glow:rgba(204,204,196,0.18);}
+    [data-theme="sapphire"]{--accent:#5a8ec8;--accent-dim:#2a4e78;--accent-pale:rgba(90,142,200,0.09);--accent-glow:rgba(90,142,200,0.22);}
+    [data-theme="emerald"] {--accent:#5aaa7a;--accent-dim:#2a5a3a;--accent-pale:rgba(90,170,122,0.09);--accent-glow:rgba(90,170,122,0.22);}
+    [data-theme="rouge"]   {--accent:#c86a58;--accent-dim:#783a28;--accent-pale:rgba(200,106,88,0.09);--accent-glow:rgba(200,106,88,0.22);}
+    [data-theme="violet"]  {--accent:#8a6ac8;--accent-dim:#4a3a78;--accent-pale:rgba(138,106,200,0.09);--accent-glow:rgba(138,106,200,0.22);}
+    [data-theme="obsidian"]{--accent:#e0d7c0;--accent-dim:#908070;--accent-pale:rgba(224,215,192,0.06);--accent-glow:rgba(224,215,192,0.18);--bg:#030303;--surface:#090909;--surface2:#0e0e0e;--line:#181818;--line2:#222222;}
+    [data-theme="frost"]   {--accent:#3a6a9a;--accent-dim:#1a3a5a;--accent-pale:rgba(58,106,154,0.09);--accent-glow:rgba(58,106,154,0.22);--bg:#f2f0ec;--surface:#e8e4de;--surface2:#e0dbd4;--line:#ccc8c0;--line2:#b8b4ac;--text:#181816;--text-mid:#4a4a42;--text-dim:#7a7a70;--pos:#2a6034;--neg:#7a2828;}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* ══════════════════════════════════════
+       BASE
+    ══════════════════════════════════════ */
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{font-size:clamp(13px,.46vw+9.5px,18px);scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;transition:background .35s,color .35s;}
+    body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");background-size:160px;pointer-events:none;z-index:9000;}
+    ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:var(--line2);}
 
-        body {
-            background: var(--bg-core);
-            color: var(--text-main);
-            font-family: var(--font-body);
-            overflow-x: hidden;
-            position: relative;
-        }
+    /* ══════════════════════════════════════
+       NAV
+    ══════════════════════════════════════ */
+    nav{padding:0 clamp(20px,4vw,60px);height:clamp(52px,4vw,64px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:200;transition:background .35s,border-color .35s;}
+    .nav-logo{font-family:var(--font-serif);font-weight:400;font-size:clamp(15px,1rem,20px);letter-spacing:.32em;color:var(--text);text-decoration:none;}
+    .nav-logo em{font-style:normal;color:var(--accent);}
 
-       
-        /* HEADER */
-        nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: relative; z-index: 10; background: rgba(5,5,5,0.9); }
-        .logo { font-family: var(--font-tech); font-size: 1.5rem; font-weight: 900; color: #fff; text-decoration: none; animation: textGlow 2s infinite alternate;}
-        .accent { color: var(--accent); }
+    .nav-right{display:flex;align-items:center;gap:clamp(5px,.5vw,10px);}
+    .node-badge{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.16em;color:var(--text-dim);border:1px solid var(--line2);padding:clamp(3px,.25rem,5px) clamp(9px,.75rem,14px);text-transform:uppercase;margin-right:clamp(6px,.6rem,12px);}
+    .sw{width:clamp(9px,.7rem,13px);height:clamp(9px,.7rem,13px);border-radius:50%;border:1.5px solid transparent;cursor:pointer;flex-shrink:0;transition:transform .18s,box-shadow .18s;}
+    .sw:hover{transform:scale(1.3);}
+    .sw.on{border-color:var(--text);box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--text);}
+    .sw-gold{background:#c8a05a;}.sw-platinum{background:#c8c8c0;}.sw-sapphire{background:#5a8ec8;}.sw-emerald{background:#5aaa7a;}.sw-rouge{background:#c86a58;}.sw-violet{background:#8a6ac8;}.sw-obsidian{background:#e0d7c0;}.sw-frost{background:linear-gradient(135deg,#d0e4f4,#3a6a9a);}
 
-        /* HERO SECTION */
-        .comm-hero {
-            text-align: center;
-            padding: 100px 5% 60px;
-            background: radial-gradient(circle at 50% 0%, rgba(124, 42, 232, 0.08), transparent 70%);
-            position: relative;
-            z-index: 5;
-            animation: slideDown 1s cubic-bezier(0.1, 1, 0.1, 1) forwards;
-            opacity: 0;
-            transform: translateY(-30px);
-        }
-        h1 { font-family: var(--font-tech); font-size: 3.5rem; margin-bottom: 20px; letter-spacing: 2px;}
-        .subtitle { color: #888; font-size: 1.1rem; max-width: 650px; margin: 0 auto 40px; line-height: 1.6; }
+    /* ══════════════════════════════════════
+       HERO
+    ══════════════════════════════════════ */
+    .hero{padding:clamp(52px,6vw,96px) clamp(20px,5vw,80px) clamp(28px,3.5vw,56px);text-align:center;border-bottom:1px solid var(--line);position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:clamp(300px,60vw,800px);height:clamp(200px,40vw,500px);background:radial-gradient(ellipse,var(--accent-glow) 0%,transparent 70%);pointer-events:none;}
+    .hero-eyebrow{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.22em;color:var(--accent);text-transform:uppercase;margin-bottom:clamp(12px,1.2rem,20px);opacity:.8;position:relative;}
+    .hero-h1{font-family:var(--font-serif);font-size:clamp(28px,3.8rem,68px);font-weight:300;color:var(--text);letter-spacing:.04em;margin-bottom:clamp(14px,1.5rem,24px);line-height:1.02;position:relative;}
+    .hero-sub{font-family:var(--font-body);font-size:clamp(12px,.88rem,15px);color:var(--text-dim);max-width:560px;margin:0 auto clamp(28px,3.2vw,52px);line-height:1.8;font-weight:300;position:relative;}
 
-        /* STATS BAR */
-        .stats-bar {
-            display: flex; justify-content: center; gap: 70px; margin-bottom: 60px;
-            font-family: var(--font-mono); border-top: 1px solid #222; border-bottom: 1px solid #222;
-            padding: 30px 0; background: #080808; position: relative; z-index: 5;
-        }
-        .stat-item { text-align: center; }
-        .stat-val { display: block; font-size: 1.5rem; color: #fff; font-weight: bold; margin-bottom: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.2);}
-        .stat-label { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;}
-        
-        .status-pulse { animation: radarPulse 2s infinite; border-radius: 50%; display: inline-block; }
+    /* ══════════════════════════════════════
+       STATS BAR
+    ══════════════════════════════════════ */
+    .stats-bar{display:flex;justify-content:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface);flex-wrap:wrap;}
+    .stat-item{padding:clamp(18px,2vw,30px) clamp(28px,3.5vw,60px);text-align:center;border-right:1px solid var(--line);flex:1;min-width:clamp(120px,15vw,180px);}
+    .stat-item:last-child{border-right:none;}
+    .stat-val{display:block;font-family:var(--font-serif);font-size:clamp(20px,2.4rem,40px);font-weight:300;color:var(--text);margin-bottom:5px;line-height:1;}
+    .stat-label{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.18em;color:var(--text-dim);text-transform:uppercase;}
+    .stat-pip{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.14em;color:var(--pos);text-transform:uppercase;}
+    .pip{width:5px;height:5px;border-radius:50%;background:var(--pos);animation:pipPulse 2s ease infinite;}
+    @keyframes pipPulse{0%,100%{opacity:.4;}50%{opacity:1;}}
 
-        /* CHANNELS GRID */
-        .channels-grid {
-            max-width: 1200px; margin: 0 auto 80px; padding: 0 5%;
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;
-            position: relative; z-index: 5;
-        }
+    /* ══════════════════════════════════════
+       CHANNELS GRID
+    ══════════════════════════════════════ */
+    .channels-section{padding:clamp(40px,5vw,80px) clamp(20px,5vw,80px);max-width:1240px;margin:0 auto;}
+    .channels-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(6px,.6vw,12px);}
+    @media(max-width:860px){.channels-grid{grid-template-columns:1fr;}}
 
-        .channel-card {
-            background: var(--bg-card); border: 1px solid #222; padding: 30px;
-            transition: 0.4s cubic-bezier(0.1, 1, 0.1, 1); position: relative; overflow: hidden;
-            display: flex; flex-direction: column; justify-content: space-between; height: 250px; text-decoration: none;
-            backdrop-filter: blur(10px);
-            opacity: 0; transform: translateY(30px); /* For JS animation */
-        }
-        .channel-card:hover {
-            border-color: var(--accent); transform: translateY(-10px);
-            background: linear-gradient(180deg, #0e0e0e 0%, rgba(124, 42, 232, 0.1) 100%);
-            box-shadow: 0 15px 30px rgba(124, 42, 232, 0.15);
-        }
-        
-        .card-icon { font-size: 2.5rem; margin-bottom: 20px; color: #fff; transition: 0.3s; }
-        .channel-card:hover .card-icon { transform: scale(1.1); color: var(--accent); }
-        .card-title { font-family: var(--font-tech); font-size: 1.5rem; color: #fff; margin-bottom: 10px; }
-        .card-desc { color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; }
-        .card-meta { margin-top: auto; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); }
+    .channel-card{background:var(--surface);border:1px solid var(--line);padding:clamp(22px,2.2vw,36px);display:flex;flex-direction:column;gap:clamp(12px,1.2rem,18px);text-decoration:none;position:relative;overflow:hidden;transition:background .2s,border-color .2s,transform .25s;opacity:0;transform:translateY(18px);}
+    .channel-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .25s;}
+    .channel-card:hover{background:var(--surface2);border-color:var(--accent-dim);transform:translateY(-2px);}
+    .channel-card:hover::before{opacity:.5;}
 
-        /* SHOWCASE SECTION */
-        .showcase-section { padding: 80px 5%; border-top: 1px solid #222; position: relative; z-index: 5; background: #050505;}
-        .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; max-width: 1200px; margin-left: auto; margin-right: auto; }
-        h2 { font-family: var(--font-tech); font-size: 2rem; color: #fff; text-shadow: 0 0 10px rgba(124, 42, 232, 0.4);}
-        .view-all { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); text-decoration: none; transition: 0.3s;}
-        .view-all:hover { color: #fff; text-shadow: 0 0 8px var(--accent); }
+    .ch-icon-wrap{width:clamp(36px,3.2rem,52px);height:clamp(36px,3.2rem,52px);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:clamp(12px,1.1rem,18px);color:var(--text-dim);flex-shrink:0;transition:border-color .2s,color .2s;}
+    .channel-card:hover .ch-icon-wrap{border-color:var(--accent-dim);color:var(--accent);}
+    .ch-title{font-family:var(--font-mono);font-size:clamp(9px,.68rem,12px);letter-spacing:.14em;color:var(--text);text-transform:uppercase;}
+    .ch-desc{font-family:var(--font-body);font-size:clamp(10px,.72rem,12px);color:var(--text-dim);line-height:1.7;font-weight:300;}
+    .ch-meta{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.12em;color:var(--accent);margin-top:auto;opacity:.8;}
 
-        .builds-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1200px; margin: 0 auto; }
-        .build-item {
-            aspect-ratio: 1/1; background: #111; border: 1px solid #333; position: relative; overflow: hidden; cursor: pointer;
-            opacity: 0; transform: scale(0.9); transition: all 0.6s cubic-bezier(0.1, 1, 0.1, 1);
-        }
-        .build-item.show { opacity: 1; transform: scale(1); }
-        .build-item img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; transition: 0.5s; }
-        .build-item:hover img { opacity: 1; transform: scale(1.1); }
-        .build-item:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(124, 42, 232, 0.3); z-index: 2;}
-        .build-overlay { position: absolute; bottom: -50px; left: 0; width: 100%; background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, transparent 100%); padding: 30px 20px 15px; transition: 0.3s; }
-        .build-item:hover .build-overlay { bottom: 0; }
-        .build-author { font-family: var(--font-mono); font-size: 0.8rem; color: #fff; border-left: 2px solid var(--accent); padding-left: 10px;}
+    /* ══════════════════════════════════════
+       SECTION SHARED
+    ══════════════════════════════════════ */
+    .section-hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:clamp(22px,2.5vw,40px);padding-bottom:clamp(12px,1.2rem,18px);border-bottom:1px solid var(--line);flex-wrap:wrap;gap:12px;}
+    .sh-title{font-family:var(--font-serif);font-size:clamp(18px,2rem,34px);font-weight:300;color:var(--text);letter-spacing:.04em;}
+    .sh-link{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.14em;color:var(--accent);text-decoration:none;text-transform:uppercase;opacity:.8;transition:opacity .2s;}
+    .sh-link:hover{opacity:1;}
 
-        /* CONTRIBUTORS TABLE */
-        .contrib-section { max-width: 800px; margin: 80px auto; padding: 0 5%; position: relative; z-index: 5; opacity: 0; transform: translateY(30px); transition: 0.8s ease-out;}
-        .contrib-section.show { opacity: 1; transform: translateY(0); }
-        .contrib-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.9rem; }
-        .contrib-table th { text-align: left; color: #666; padding-bottom: 20px; font-size: 0.8rem; border-bottom: 1px solid #333; }
-        .contrib-table td { padding: 15px 0; border-bottom: 1px solid #222; color: #aaa; transition: 0.3s;}
-        .contrib-table tr:hover td { color: #fff; background: rgba(255,255,255,0.02); }
-        .rank { color: var(--accent); font-weight: bold; }
-        
-        .xp-bar { width: 120px; height: 6px; background: #222; display: inline-block; vertical-align: middle; margin-left: 10px; border-radius: 3px; overflow: hidden;}
-        .xp-fill { height: 100%; background: var(--accent); width: 0%; transition: width 1.5s cubic-bezier(0.1, 1, 0.1, 1); box-shadow: 0 0 10px var(--accent);}
+    /* ══════════════════════════════════════
+       FIELD DEPLOYMENTS
+    ══════════════════════════════════════ */
+    .showcase-section{padding:clamp(40px,5vw,80px) clamp(20px,5vw,80px);border-top:1px solid var(--line);max-width:1240px;margin:0 auto;}
+    .builds-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(4px,.4vw,8px);}
+    @media(max-width:900px){.builds-grid{grid-template-columns:1fr 1fr;}}
 
-        /* FOOTER */
-        footer { border-top: 1px solid #222; padding: 40px 0; text-align: center; font-family: var(--font-mono); font-size: 0.75rem; color: #444; position: relative; z-index: 5; background: #050505;}
+    .build-item{aspect-ratio:1/1;background:var(--surface2);border:1px solid var(--line);position:relative;overflow:hidden;cursor:pointer;opacity:0;transform:scale(.95);transition:opacity .5s,transform .5s,border-color .2s;}
+    .build-item.show{opacity:1;transform:scale(1);}
+    .build-item img{width:100%;height:100%;object-fit:cover;opacity:.6;transition:opacity .4s,transform .4s;display:block;}
+    .build-item:hover img{opacity:1;transform:scale(1.06);}
+    .build-item:hover{border-color:var(--accent-dim);}
+    .build-overlay{position:absolute;bottom:-100%;left:0;width:100%;background:linear-gradient(0deg,rgba(8,8,8,.95) 0%,transparent 100%);padding:clamp(16px,1.6rem,24px) clamp(12px,1.2rem,18px) clamp(10px,.9rem,14px);transition:bottom .3s cubic-bezier(.2,1,.2,1);}
+    .build-item:hover .build-overlay{bottom:0;}
+    .build-author{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.1em;color:var(--text);border-left:2px solid var(--accent);padding-left:clamp(8px,.7rem,12px);}
+    .build-type{font-family:var(--font-mono);font-size:clamp(6px,.46rem,8px);letter-spacing:.12em;color:var(--text-dim);margin-top:4px;padding-left:clamp(10px,.9rem,14px);}
 
-        /* ANIMATIONS */
-        @keyframes slideDown { to { opacity: 1; transform: translateY(0); } }
-        @keyframes textGlow { from { text-shadow: 0 0 10px rgba(124,42,232,0.2); } to { text-shadow: 0 0 20px rgba(124,42,232,0.8); } }
-        @keyframes radarPulse { 0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); } }
+    /* Build placeholder (when images absent) */
+    .build-placeholder{width:100%;height:100%;background:var(--surface2);display:flex;align-items:center;justify-content:center;}
+    .build-placeholder-inner{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.12em;color:var(--text-dim);text-align:center;opacity:.4;}
 
-        @media (max-width: 900px) {
-            .channels-grid { grid-template-columns: 1fr; }
-            .builds-grid { grid-template-columns: 1fr 1fr; }
-            .stats-bar { gap: 30px; flex-wrap: wrap; }
-            h1 { font-size: 2.5rem; }
-        }
+    /* ══════════════════════════════════════
+       CONTRIBUTORS TABLE
+    ══════════════════════════════════════ */
+    .contrib-section{padding:clamp(40px,5vw,80px) clamp(20px,5vw,80px);border-top:1px solid var(--line);max-width:1240px;margin:0 auto;opacity:0;transform:translateY(22px);transition:opacity .6s,transform .6s;}
+    .contrib-section.show{opacity:1;transform:translateY(0);}
+
+    .contrib-table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:clamp(8px,.62rem,11px);}
+    .contrib-table th{text-align:left;color:var(--text-dim);padding:0 clamp(12px,1rem,18px) clamp(10px,.9rem,16px) 0;letter-spacing:.16em;text-transform:uppercase;font-weight:400;border-bottom:1px solid var(--line);font-size:clamp(7px,.5rem,9px);}
+    .contrib-table td{padding:clamp(10px,.88rem,16px) clamp(12px,1rem,18px) clamp(10px,.88rem,16px) 0;border-bottom:1px solid var(--line);color:var(--text-dim);transition:color .2s,background .2s;vertical-align:middle;}
+    .contrib-table tr:hover td{color:var(--text);background:var(--accent-pale);}
+    .td-rank{color:var(--accent) !important;font-size:clamp(9px,.7rem,13px);}
+    .td-name{color:var(--text) !important;}
+    .td-level{width:clamp(120px,12rem,200px);}
+
+    .xp-track{width:100%;height:clamp(2px,.18rem,3px);background:var(--line2);border-radius:2px;overflow:hidden;display:inline-block;vertical-align:middle;}
+    .xp-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent-dim),var(--accent));border-radius:2px;transition:width 1.5s cubic-bezier(.2,1,.2,1);box-shadow:0 0 6px var(--accent-glow);}
+    .xp-pct{font-family:var(--font-mono);font-size:clamp(6px,.46rem,8px);color:var(--accent);margin-left:7px;letter-spacing:.08em;vertical-align:middle;opacity:.7;}
+
+    /* ══════════════════════════════════════
+       ACTIVITY FEED (NEW)
+    ══════════════════════════════════════ */
+    .activity-section{padding:clamp(40px,5vw,80px) clamp(20px,5vw,80px);border-top:1px solid var(--line);max-width:1240px;margin:0 auto;}
+    .activity-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(6px,.6vw,12px);}
+    @media(max-width:760px){.activity-grid{grid-template-columns:1fr;}}
+
+    .activity-feed{background:var(--surface);border:1px solid var(--line);overflow:hidden;}
+    .feed-hdr{background:var(--surface2);border-bottom:1px solid var(--line);padding:clamp(10px,.9rem,14px) clamp(14px,1.3rem,22px);display:flex;align-items:center;justify-content:space-between;}
+    .feed-title{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.18em;color:var(--text-dim);text-transform:uppercase;}
+    .feed-live{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:clamp(6px,.46rem,8px);letter-spacing:.14em;color:var(--pos);text-transform:uppercase;}
+    .feed-live .pip{background:var(--pos);}
+
+    .feed-body{padding:0;display:flex;flex-direction:column;}
+    .feed-item{padding:clamp(10px,.88rem,14px) clamp(14px,1.3rem,22px);border-bottom:1px solid var(--line);display:flex;gap:clamp(10px,.9rem,14px);align-items:flex-start;transition:background .15s;}
+    .feed-item:hover{background:var(--surface2);}
+    .feed-item:last-child{border-bottom:none;}
+    .feed-icon{width:clamp(22px,1.9rem,30px);height:clamp(22px,1.9rem,30px);background:var(--surface2);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);color:var(--accent);flex-shrink:0;margin-top:2px;}
+    .feed-content{flex:1;min-width:0;}
+    .feed-item-title{font-family:var(--font-mono);font-size:clamp(7px,.54rem,10px);letter-spacing:.06em;color:var(--text);margin-bottom:3px;}
+    .feed-item-sub{font-family:var(--font-body);font-size:clamp(9px,.66rem,11px);color:var(--text-dim);font-weight:300;}
+    .feed-time{font-family:var(--font-mono);font-size:clamp(6px,.46rem,8px);letter-spacing:.1em;color:var(--text-dim);opacity:.5;white-space:nowrap;flex-shrink:0;margin-top:3px;}
+
+    /* Mission / challenge log */
+    .mission-card{background:var(--surface);border:1px solid var(--line);overflow:hidden;}
+    .ms-hdr{background:var(--surface2);border-bottom:1px solid var(--line);padding:clamp(10px,.9rem,14px) clamp(14px,1.3rem,22px);display:flex;justify-content:space-between;align-items:center;}
+    .ms-hdr-title{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.18em;color:var(--text-dim);text-transform:uppercase;}
+    .ms-badge{font-family:var(--font-mono);font-size:clamp(6px,.46rem,8px);letter-spacing:.14em;color:var(--warn);border:1px solid var(--warn);padding:2px 7px;text-transform:uppercase;}
+
+    .mission-item{padding:clamp(12px,1.1rem,18px) clamp(14px,1.3rem,22px);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;transition:background .15s;}
+    .mission-item:hover{background:var(--surface2);}
+    .mission-item:last-child{border-bottom:none;}
+    .ms-title{font-family:var(--font-mono);font-size:clamp(7px,.54rem,10px);letter-spacing:.06em;color:var(--text);margin-bottom:4px;}
+    .ms-desc{font-family:var(--font-body);font-size:clamp(9px,.66rem,11px);color:var(--text-dim);font-weight:300;line-height:1.5;}
+    .ms-reward{font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.1em;color:var(--accent);white-space:nowrap;flex-shrink:0;text-align:right;}
+    .ms-reward span{display:block;font-size:clamp(6px,.46rem,8px);color:var(--text-dim);text-transform:uppercase;margin-top:2px;}
+
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    .site-footer{border-top:1px solid var(--line);padding:clamp(18px,2vw,30px) clamp(20px,5vw,80px);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;background:var(--surface);}
+    .fc-copy{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase;}
+    .fc-link{font-family:var(--font-mono);font-size:clamp(7px,.5rem,9px);letter-spacing:.12em;color:var(--text-dim);text-decoration:none;text-transform:uppercase;transition:color .2s;}
+    .fc-link:hover{color:var(--accent);}
+
+    /* ══════════════════════════════════════
+       ANIMATION CLASSES
+    ══════════════════════════════════════ */
+    .animate-in{opacity:0;transform:translateY(16px);transition:opacity .55s cubic-bezier(.2,1,.2,1),transform .55s cubic-bezier(.2,1,.2,1);}
+    .animate-in.show{opacity:1;transform:translateY(0);}
     </style>
 </head>
-<body>
+<body data-theme="gold">
 
+    <!-- NAV -->
     <nav>
-        <a href="index.html" class="logo">ART<span class="accent">TOUS</span></a>
-        <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #666; border: 1px solid #333; padding: 5px 10px;">NODE_ID: GUEST</div>
+        <a href="index.html" class="nav-logo">ART<em>TOUS</em></a>
+        <div class="nav-right">
+            <div class="node-badge">Node_ID: Guest</div>
+            <div class="sw sw-gold on"  data-t="gold"></div>
+            <div class="sw sw-platinum" data-t="platinum"></div>
+            <div class="sw sw-sapphire" data-t="sapphire"></div>
+            <div class="sw sw-emerald"  data-t="emerald"></div>
+            <div class="sw sw-rouge"    data-t="rouge"></div>
+            <div class="sw sw-violet"   data-t="violet"></div>
+            <div class="sw sw-obsidian" data-t="obsidian"></div>
+            <div class="sw sw-frost"    data-t="frost"></div>
+        </div>
     </nav>
 
-    <div class="comm-hero">
-        <h1>JOIN THE MESH</h1>
-        <p class="subtitle">
-            Connect with 5,000+ engineers, roboticists, and coders. 
-            Share telemetry, optimize IK algorithms, and push the boundaries of autonomous navigation.
-        </p>
+    <!-- HERO -->
+    <div class="hero animate-in" id="heroSection">
+        <div class="hero-eyebrow">Arttous Mesh Network · Community Hub</div>
+        <div class="hero-h1">Join the Mesh</div>
+        <div class="hero-sub">Connect with engineers, roboticists, and coders. Share telemetry, optimise IK algorithms, and push the limits of autonomous navigation — together.</div>
     </div>
 
+    <!-- STATS BAR -->
     <div class="stats-bar">
         <div class="stat-item">
-            <span class="stat-val counter" data-target="5240">0</span>
-            <span class="stat-label">ACTIVE NODES</span>
+            <div class="stat-val"><span class="counter" data-target="5240">0</span></div>
+            <div class="stat-label">Active Nodes</div>
         </div>
         <div class="stat-item">
-            <span class="stat-val counter" data-target="12890">0</span>
-            <span class="stat-label">COMMITS PUSHED</span>
+            <div class="stat-val"><span class="counter" data-target="12890">0</span></div>
+            <div class="stat-label">Commits Pushed</div>
         </div>
         <div class="stat-item">
-            <span class="stat-val counter" data-target="892">0</span>
-            <span class="stat-label">FORKS</span>
+            <div class="stat-val"><span class="counter" data-target="892">0</span></div>
+            <div class="stat-label">Repo Forks</div>
         </div>
         <div class="stat-item">
-            <span class="stat-val status-pulse" style="color: var(--success);">ONLINE</span>
-            <span class="stat-label">SERVER STATUS</span>
+            <div class="stat-val">
+                <div class="stat-pip"><span class="pip"></span>Online</div>
+            </div>
+            <div class="stat-label">Server Status</div>
         </div>
     </div>
 
-    <div class="channels-grid">
-        
-        <a href="#" class="channel-card stagger-in">
-            <div class="card-icon">#</div>
-            <div>
-                <div class="card-title">DISCORD OPS</div>
-                <div class="card-desc">Real-time collaboration. Troubleshooting channels for ESP32 and LoRa calibration.</div>
-            </div>
-            <div class="card-meta">/// 1,400 MEMBERS ONLINE</div>
-        </a>
+    <!-- CHANNELS -->
+    <div class="channels-section">
+        <div class="section-hdr animate-in" id="channelsHdr">
+            <div class="sh-title">Communication Channels</div>
+            <a href="#" class="sh-link">View All →</a>
+        </div>
+        <div class="channels-grid">
 
-        <a href="#" class="channel-card stagger-in">
-            <div class="card-icon">⌘</div>
-            <div>
-                <div class="card-title">GITHUB REPO</div>
-                <div class="card-desc">Access the RTOS v75.4 Firmware source code, STL files, and PCB schematics.</div>
-            </div>
-            <div class="card-meta">/// LATEST COMMIT: 2HRS AGO</div>
-        </a>
+            <a href="#" class="channel-card" id="ch1">
+                <div class="ch-icon-wrap">#</div>
+                <div>
+                    <div class="ch-title">Discord Ops</div>
+                    <div class="ch-desc">Real-time collaboration. Dedicated troubleshooting channels for ESP32 architecture, LoRa calibration, FreeRTOS task management, and field deployment issues.</div>
+                </div>
+                <div class="ch-meta">1,400 Members Online</div>
+            </a>
 
-        <a href="#" class="channel-card stagger-in">
-            <div class="card-icon">r/</div>
-            <div>
-                <div class="card-title">SUBREDDIT</div>
-                <div class="card-desc">Long-form discussions, project showcases, and deep-dive tutorials on kinematics.</div>
-            </div>
-            <div class="card-meta">/// TOP TOPIC: "16-DOF GAIT"</div>
-        </a>
+            <a href="#" class="channel-card" id="ch2">
+                <div class="ch-icon-wrap">⌘</div>
+                <div>
+                    <div class="ch-title">GitHub Repository</div>
+                    <div class="ch-desc">Access the RTOS v75.4 firmware source, STL chassis files, PCB schematics (KiCad), and the full Inverse Kinematics engine. MIT Licensed.</div>
+                </div>
+                <div class="ch-meta">Latest Commit: 2hrs Ago</div>
+            </a>
 
+            <a href="#" class="channel-card" id="ch3">
+                <div class="ch-icon-wrap">r/</div>
+                <div>
+                    <div class="ch-title">Subreddit</div>
+                    <div class="ch-desc">Long-form discussions, field deployment showcases, and deep-dive tutorials on kinematic theory, swarm intelligence, and LoRa mesh topology design.</div>
+                </div>
+                <div class="ch-meta">Top Topic: "16-DOF Gait v75"</div>
+            </a>
+
+        </div>
     </div>
 
+    <!-- FIELD DEPLOYMENTS -->
     <section class="showcase-section">
-        <div class="section-header">
-            <h2>FIELD DEPLOYMENTS</h2>
-            <a href="#" class="view-all">VIEW ALL UPLOADS >></a>
+        <div class="section-hdr animate-in" id="showcaseHdr">
+            <div class="sh-title">Field Deployments</div>
+            <a href="#" class="sh-link">View All Uploads →</a>
         </div>
-        
         <div class="builds-grid">
+
             <div class="build-item animate-on-scroll">
-                <img src="assets/images/build1.jpg" alt="User Build" style="background: #222;">
+                <div class="build-placeholder">
+                    <img src="assets/images/build1.jpg" alt="MK_IV" onerror="this.style.display='none'">
+                    <div class="build-placeholder-inner" style="display:none;" id="ph1">MK_IV<br>Unit</div>
+                </div>
                 <div class="build-overlay">
-                    <div class="build-author">UNIT: MK_IV_BY_ALEX</div>
+                    <div class="build-author">Unit: MK_IV_by_Alex</div>
+                    <div class="build-type">Subterranean Survey · Ontario</div>
                 </div>
             </div>
+
             <div class="build-item animate-on-scroll">
-                <img src="assets/images/build2.jpg" alt="User Build" style="background: #333;">
+                <img src="assets/images/build2.jpg" alt="Sand Crawler" onerror="this.src='';this.parentElement.querySelector('.build-placeholder-inner').style.display='flex'">
+                <div class="build-placeholder-inner" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.12em;color:var(--text-dim);opacity:.4;text-align:center;">Sand<br>Crawler</div>
                 <div class="build-overlay">
-                    <div class="build-author">UNIT: SAND_CRAWLER</div>
+                    <div class="build-author">Unit: Sand_Crawler</div>
+                    <div class="build-type">Desert Terrain Test · Nevada</div>
                 </div>
             </div>
+
             <div class="build-item animate-on-scroll">
-                <img src="assets/images/build3.jpg" alt="User Build" style="background: #111;">
+                <img src="assets/images/build3.jpg" alt="Night Ops" onerror="this.src='';this.parentElement.querySelector('.build-placeholder-inner').style.display='flex'">
+                <div class="build-placeholder-inner" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.12em;color:var(--text-dim);opacity:.4;text-align:center;">Night<br>Ops</div>
                 <div class="build-overlay">
-                    <div class="build-author">UNIT: NIGHT_OPS</div>
+                    <div class="build-author">Unit: Night_Ops</div>
+                    <div class="build-type">Low-Light Navigation · Urban</div>
                 </div>
             </div>
+
             <div class="build-item animate-on-scroll">
-                <img src="assets/images/build4.jpg" alt="User Build" style="background: #222;">
+                <img src="assets/images/build4.jpg" alt="Heavy Lifter" onerror="this.src='';this.parentElement.querySelector('.build-placeholder-inner').style.display='flex'">
+                <div class="build-placeholder-inner" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;font-family:var(--font-mono);font-size:clamp(7px,.52rem,10px);letter-spacing:.12em;color:var(--text-dim);opacity:.4;text-align:center;">Heavy<br>Lifter</div>
                 <div class="build-overlay">
-                    <div class="build-author">UNIT: HEAVY_LIFTER</div>
+                    <div class="build-author">Unit: Heavy_Lifter</div>
+                    <div class="build-type">High-Torque Payload · Industrial</div>
                 </div>
             </div>
+
         </div>
     </section>
 
+    <!-- ACTIVITY + MISSIONS (NEW) -->
+    <section class="activity-section">
+        <div class="section-hdr animate-in" id="activityHdr">
+            <div class="sh-title">Live Activity &amp; Missions</div>
+            <a href="#" class="sh-link">Full Log →</a>
+        </div>
+        <div class="activity-grid">
+
+            <!-- Live feed -->
+            <div class="activity-feed animate-in" id="feedCard">
+                <div class="feed-hdr">
+                    <div class="feed-title">Mesh Event Log</div>
+                    <div class="feed-live"><span class="pip"></span>Live</div>
+                </div>
+                <div class="feed-body">
+                    <div class="feed-item">
+                        <div class="feed-icon">⌘</div>
+                        <div class="feed-content">
+                            <div class="feed-item-title">sa-mael pushed firmware v75.4.2-beta</div>
+                            <div class="feed-item-sub">Fixed WebSocket reconnect memory leak on Core 0 · Branch: dev/rtos-patch</div>
+                        </div>
+                        <div class="feed-time">4m ago</div>
+                    </div>
+                    <div class="feed-item">
+                        <div class="feed-icon">#</div>
+                        <div class="feed-content">
+                            <div class="feed-item-title">NullPointer opened PR #144</div>
+                            <div class="feed-item-sub">Gait: Adaptive stance-width based on slope angle from IMU pitch/roll</div>
+                        </div>
+                        <div class="feed-time">18m ago</div>
+                    </div>
+                    <div class="feed-item">
+                        <div class="feed-icon">◆</div>
+                        <div class="feed-content">
+                            <div class="feed-item-title">CyberWolf uploaded chassis revision MK-V</div>
+                            <div class="feed-item-sub">PETG-CF body · 22% lighter than MK-IV · Gerbers included</div>
+                        </div>
+                        <div class="feed-time">1h ago</div>
+                    </div>
+                    <div class="feed-item">
+                        <div class="feed-icon">⌘</div>
+                        <div class="feed-content">
+                            <div class="feed-item-title">LoRa_Master merged PR #138</div>
+                            <div class="feed-item-sub">Mesh: 4-anchor 3D positioning with altitude awareness — sub 0.4m accuracy</div>
+                        </div>
+                        <div class="feed-time">3h ago</div>
+                    </div>
+                    <div class="feed-item">
+                        <div class="feed-icon">#</div>
+                        <div class="feed-content">
+                            <div class="feed-item-title">Heavy_Lifter posted field report</div>
+                            <div class="feed-item-sub">Industrial payload test — 600g sustained over 45 min · No servo temp events</div>
+                        </div>
+                        <div class="feed-time">6h ago</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mission challenges -->
+            <div class="mission-card animate-in" id="missionCard">
+                <div class="ms-hdr">
+                    <div class="ms-hdr-title">Active Calibration Missions</div>
+                    <div class="ms-badge">3 Open</div>
+                </div>
+                <div class="mission-item">
+                    <div>
+                        <div class="ms-title">Dual I²C Stress Test</div>
+                        <div class="ms-desc">Run 72hr continuous loop. Log bus starvation events and IMU dropout frequency. Submit telemetry JSON.</div>
+                    </div>
+                    <div class="ms-reward">+450 XP<span>Commit Access</span></div>
+                </div>
+                <div class="mission-item">
+                    <div>
+                        <div class="ms-title">4-Anchor ToF Accuracy Audit</div>
+                        <div class="ms-desc">Deploy 4 T3S3 anchors in a mapped environment. Measure ranging error vs ground truth at 20 positions.</div>
+                    </div>
+                    <div class="ms-reward">+380 XP<span>Mesh Rank Up</span></div>
+                </div>
+                <div class="mission-item">
+                    <div>
+                        <div class="ms-title">Gait Slope Stability Analysis</div>
+                        <div class="ms-desc">Test Symmetric Twist gait on 15°, 25°, and 35° inclines. Record tipping events and recovery rate.</div>
+                    </div>
+                    <div class="ms-reward">+290 XP<span>Hardware Badge</span></div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CONTRIBUTORS TABLE -->
     <section class="contrib-section animate-on-scroll" id="contributors">
-        <h3 style="font-family: 'Orbitron'; margin-bottom: 20px; color: #fff;">TOP CONTRIBUTORS</h3>
+        <div class="section-hdr">
+            <div class="sh-title">Top Contributors</div>
+            <a href="#" class="sh-link">Full Registry →</a>
+        </div>
         <table class="contrib-table">
             <thead>
                 <tr>
-                    <th>RANK</th>
-                    <th>OPERATOR</th>
-                    <th>SPECIALTY</th>
-                    <th>CONTRIBUTION LEVEL</th>
+                    <th>Rank</th>
+                    <th>Operator</th>
+                    <th>Specialty</th>
+                    <th>Contribution Level</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="rank">01</td>
-                    <td style="color: #fff;">sa-mael</td>
+                    <td class="td-rank">01</td>
+                    <td class="td-name">sa-mael</td>
                     <td>Core Firmware / RTOS</td>
-                    <td>
-                        <div class="xp-bar"><div class="xp-fill" data-width="95%"></div></div>
-                    </td>
+                    <td class="td-level"><div class="xp-track"><div class="xp-fill" data-width="95"></div></div><span class="xp-pct">95%</span></td>
+                    <td><span style="font-family:var(--font-mono);font-size:clamp(6px,.46rem,8px);letter-spacing:.12em;color:var(--pos);background:rgba(74,122,84,.12);border:1px solid rgba(74,122,84,.25);padding:2px 7px;text-transform:uppercase;">Commit Access</span></td>
                 </tr>
                 <tr>
-                    <td class="rank">02</td>
+                    <td class="td-rank">02</td>
                     <td>NullPointer</td>
                     <td>Kinematics Engine</td>
-                    <td>
-                        <div class="xp-bar"><div class="xp-fill" data-width="80%"></div></div>
-                    </td>
+                    <td class="td-level"><div class="xp-track"><div class="xp-fill" data-width="80"></div></div><span class="xp-pct">80%</span></td>
+                    <td><span style="font-family:var(--font-mono);font-size:clamp(6px,.46rem,8px);letter-spacing:.12em;color:var(--pos);background:rgba(74,122,84,.12);border:1px solid rgba(74,122,84,.25);padding:2px 7px;text-transform:uppercase;">Commit Access</span></td>
                 </tr>
                 <tr>
-                    <td class="rank">03</td>
+                    <td class="td-rank">03</td>
                     <td>CyberWolf</td>
-                    <td>3D Modeling / STL</td>
-                    <td>
-                        <div class="xp-bar"><div class="xp-fill" data-width="75%"></div></div>
-                    </td>
+                    <td>3D Modelling / STL</td>
+                    <td class="td-level"><div class="xp-track"><div class="xp-fill" data-width="75"></div></div><span class="xp-pct">75%</span></td>
+                    <td><span style="font-family:var(--font-mono);font-size:clamp(6px,.46rem,8px);letter-spacing:.12em;color:var(--accent);background:var(--accent-pale);border:1px solid var(--accent-dim);padding:2px 7px;text-transform:uppercase;">Specialist</span></td>
                 </tr>
                 <tr>
-                    <td class="rank">04</td>
+                    <td class="td-rank">04</td>
                     <td>LoRa_Master</td>
                     <td>Mesh Networking</td>
-                    <td>
-                        <div class="xp-bar"><div class="xp-fill" data-width="60%"></div></div>
-                    </td>
+                    <td class="td-level"><div class="xp-track"><div class="xp-fill" data-width="60"></div></div><span class="xp-pct">60%</span></td>
+                    <td><span style="font-family:var(--font-mono);font-size:clamp(6px,.46rem,8px);letter-spacing:.12em;color:var(--accent);background:var(--accent-pale);border:1px solid var(--accent-dim);padding:2px 7px;text-transform:uppercase;">Specialist</span></td>
+                </tr>
+                <tr>
+                    <td class="td-rank">05</td>
+                    <td>Heavy_Lifter</td>
+                    <td>Field Testing / Payload</td>
+                    <td class="td-level"><div class="xp-track"><div class="xp-fill" data-width="44"></div></div><span class="xp-pct">44%</span></td>
+                    <td><span style="font-family:var(--font-mono);font-size:clamp(6px,.46rem,8px);letter-spacing:.12em;color:var(--text-dim);background:var(--surface2);border:1px solid var(--line2);padding:2px 7px;text-transform:uppercase;">Operator</span></td>
                 </tr>
             </tbody>
         </table>
     </section>
 
-    <footer>
-        <p>&copy; 2026 Arttous Robotics Inc. | <a href="index.html" style="color:#666; text-decoration:none; transition: 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#666'">Return to Mission Control</a></p>
-        <p style="margin-top: 10px; font-family: var(--font-tech); font-size: 0.6rem; letter-spacing: 2px;">END OF LINE.</p>
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="fc-copy">© 2026 Arttous Robotics Inc. — All Rights Reserved</div>
+        <a href="index.html" class="fc-link">← Return to Mission Control</a>
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // 1. NUMBER COUNTER ANIMATION (with commas)
-            const counters = document.querySelectorAll('.counter');
-            const speed = 80; 
+    /* ── THEME ── */
+    function applyTheme(t){document.body.dataset.theme=t;document.querySelectorAll('.sw').forEach(s=>s.classList.toggle('on',s.dataset.t===t));localStorage.setItem('theme',t);}
+    document.querySelectorAll('.sw').forEach(sw=>sw.addEventListener('click',()=>applyTheme(sw.dataset.t)));
+    applyTheme(localStorage.getItem('theme')||'gold');
 
-            const animateCounters = () => {
-                counters.forEach(counter => {
-                    const updateCount = () => {
-                        const target = +counter.getAttribute('data-target');
-                        const currentText = counter.innerText.replace(/,/g, ''); 
-                        const count = +currentText;
-                        const inc = target / speed;
+    /* ── LOGIN STATE ── */
+    const nick=localStorage.getItem('userNick');
+    if(nick){
+        document.querySelector('.node-badge').textContent=`Node_ID: ${nick}`;
+    }
 
-                        if (count < target) {
-                            counter.innerText = Math.ceil(count + inc).toLocaleString();
-                            setTimeout(updateCount, 15);
-                        } else {
-                            counter.innerText = target.toLocaleString();
-                        }
-                    };
-                    updateCount();
-                });
-            };
-
-            // 2. STAGGERED REVEAL FOR TOP CARDS
-            setTimeout(() => {
-                const cards = document.querySelectorAll('.stagger-in');
-                cards.forEach((card, index) => {
-                    setTimeout(() => {
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, index * 150); 
-                });
-                animateCounters();
-            }, 600);
-
-            // 3. SCROLL REVEAL (Intersection Observer)
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.15 
-            };
-
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        // Reveal element
-                        entry.target.classList.add('show');
-                        
-                        // If it's the contributors section, animate the XP bars
-                        if(entry.target.id === 'contributors') {
-                            const xpBars = entry.target.querySelectorAll('.xp-fill');
-                            xpBars.forEach((bar, index) => {
-                                setTimeout(() => {
-                                    bar.style.width = bar.getAttribute('data-width');
-                                }, index * 200); // Stagger the bar fills
-                            });
-                        }
-                        
-                        observer.unobserve(entry.target); 
-                    }
-                });
-            }, observerOptions);
-
-            const animatedElements = document.querySelectorAll('.animate-on-scroll');
-            animatedElements.forEach(el => observer.observe(el));
-
+    /* ── COUNTER ANIMATION ── */
+    function animateCounter(el){
+        const target=+el.dataset.target,start=performance.now();
+        const dur=1800;
+        requestAnimationFrame(function tick(now){
+            const p=Math.min((now-start)/dur,1);
+            const ease=1-Math.pow(1-p,3);
+            el.textContent=Math.ceil(ease*target).toLocaleString();
+            if(p<1)requestAnimationFrame(tick);
         });
+    }
+
+    /* ── CHANNEL CARD STAGGER ── */
+    function staggerCards(){
+        ['ch1','ch2','ch3'].forEach((id,i)=>{
+            setTimeout(()=>{
+                const el=document.getElementById(id);
+                if(el){el.style.transition='opacity .5s cubic-bezier(.2,1,.2,1), transform .5s cubic-bezier(.2,1,.2,1)';el.style.opacity=1;el.style.transform='translateY(0)';}
+            },400+i*130);
+        });
+        document.querySelectorAll('.counter').forEach(c=>animateCounter(c));
+    }
+
+    /* ── INTERSECTION OBSERVER ── */
+    const obs=new IntersectionObserver((entries,o)=>{
+        entries.forEach(e=>{
+            if(!e.isIntersecting)return;
+            e.target.classList.add('show');
+
+            /* XP bars */
+            if(e.target.id==='contributors'){
+                e.target.querySelectorAll('.xp-fill').forEach((bar,i)=>{
+                    setTimeout(()=>{bar.style.width=bar.dataset.width+'%';},i*180);
+                });
+            }
+            o.unobserve(e.target);
+        });
+    },{threshold:.12});
+
+    document.querySelectorAll('.animate-on-scroll,.animate-in,.activity-feed,.mission-card').forEach(el=>obs.observe(el));
+
+    /* Kick off stagger after hero fades in */
+    setTimeout(staggerCards,600);
+
+    /* Build items image error fallback */
+    document.querySelectorAll('.build-item img').forEach(img=>{
+        img.addEventListener('error',()=>{
+            img.style.display='none';
+            const ph=img.parentElement.querySelector('.build-placeholder-inner');
+            if(ph){ph.style.display='flex';}
+        });
+    });
     </script>
 </body>
 </html>
