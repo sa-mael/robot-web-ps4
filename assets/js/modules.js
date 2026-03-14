@@ -376,7 +376,7 @@ const Modules = {
                 <span class="panel-title">Software Asset — Digital Twin UI</span>
             </div>
             <div style="padding:clamp(16px,1.5rem,26px);">
-                <img src="assets/images/Screenshot 2026-02-22 124034.png" style="width:55%;border:1px solid var(--line2);margin-bottom:clamp(12px,1rem,20px);" alt="Flight Deck UI">
+                <img src="assets/images/loren.png" style="width:55%;border:1px solid var(--line2);margin-bottom:clamp(12px,1rem,20px);" alt="Flight Deck UI">
                 <div style="font-family:var(--font-serif);font-size:clamp(14px,1.05rem,18px);font-weight:500;color:var(--text);letter-spacing:.04em;margin-bottom:8px;">Proprietary Mission Control Interface</div>
                 <p style="font-family:var(--font-mono);font-size:clamp(8px,.62rem,11px);color:var(--text-mid);line-height:1.7;letter-spacing:.04em;">
                     Served entirely from the ESP32-S3's onboard memory, this Zero-Install Web UI provides operators with a real-time WebGL (Three.js) Digital Twin. Features 50Hz WebSocket telemetry, active IMU visualisation, and direct kinematic joint control. A major selling point for enterprise RaaS clients.
