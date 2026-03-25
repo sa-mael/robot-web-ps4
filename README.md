@@ -147,6 +147,10 @@ The platform is designed for distributed manufacturing using standard FDM 3D pri
 
 ---
 
+https://github.com/user-attachments/assets/150d3ed4-cd5a-4805-b0cd-df4852e4e3df
+
+
+
 
 
 https://github.com/user-attachments/assets/111de0a9-df7d-4ebe-b7d9-911710fa93a3
